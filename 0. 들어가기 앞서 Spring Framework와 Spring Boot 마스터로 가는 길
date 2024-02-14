@@ -1,0 +1,58 @@
+
+Getting Started
+• Top frameworks in the java world today (자바 프레임워크에 제일 유명한 것)
+  ‣ Spring Framework
+  ‣ Spring Boot
+• Beginners find the first steps very difficult: (초보자 들이 첫단계에 진입하기 어려운이유)
+  ‣ Lot of terminology: Dependency Injection, IOC, Auto wiring, Auto configuration, Starter Projects..
+    (의존성 주입, 제어의 역전, 자동 연결, 자동 설정, Startup Project등 수많은 용어가 있기 떄문..)
+  ‣ Variety of applications: Web app, REST API, Full Stack
+    (이 두 프레임워크를 사용해 다양한 어플리케이션을 구축할 수 있다
+     웹 애플리케이션이나 REST API를 구축하고 리액트와 조합하거나 풀스택 애플리케이션을 구축하고)
+  ‣ Variety of other framework, tool and platform intergrations:
+    Maven, Gradle, Spring Data, JPA, Hibernate, Docker and Cloud
+    (이 프레임워크를 다양한 프레임워크, 툴, 플랫폼에 통합할 수도 있다
+     Maven, Gradle, Spring Data, JPA, Hibernate, Docker, Cloud 등)
+
+
+Spring 과 Spring Boot는 배우기 매우 어려울 수 있으며 그것이 Spring과 Spring Boot는 물론
+이에 수반하는 여러 프레임워크와 툴을 학습하는 아주 간단한 경로를 만드는 데 많은 시간을 들인 이유다
+
+
+
+Simple Path - Learn Spring & Spring Boot &....
+• We've created a simple path focusing on the Fundamentals
+(각 프레임워크와 툴의 기본에 초점을 맞춘 아주 간단한 경로를 만들었다)
+  ‣ Using a Hands-on Approach
+  (이 학습에선 실습을 중심으로 한 접근 방식을 사용하겠다)
+• You will build more than 10 Maven and Gradle projects during this course!
+  (Maven 및 Gradle 프로젝트를 구축하게 되며)
+• This course is designed for absolute beginners to Spring & Spring Boot
+  (이 강의는 Spring 및 Spring Boot 경험이 전혀 없는 사람들을 위해 구성됨)
+• Our Goal: Help you start your journey with Spring & Spring Boot
+  (이 강의의 목표는 너가 Spring 및 Spring Boot 여정을 시작하기 쉽게하는 것임)
+
+
+
+How do yo Put Your best foot forward?
+• Spring 및 Spring Boot 학습은 아주 어려울 수 있다
+  ‣ 수많은 새로운 용어가 있으며 Spring 및 Spring Boot를 여러 다양한 툴과 프레임워크와 통합할 수 있다
+• 교육자도 사람이며, 사람은 잊기 마련이다
+  ‣ 오늘 무언가를 배우면 며칠 내에 많은 것을 잊어버릴 가능성이 크다
+• 어떻게 하면 더 많은 것을 기억할 수 있을까?
+  ‣ 경험에서 나온 권장 사항이 몇 가지 있다
+    1. 첫 번째는 적극적으로 학습하는 것이다 생각하고 메모해라
+     - 강의에서 흥미로운 내용을 볼 때마다 적어 둬라
+    2. 두 번째 권장 사항은 종종 프레젠테이션을 다시 보는 것으로, 섹션 몇 개를 완료하면 돌아가
+       프레젠테이션과 비디오를 다시 보고 학습한 내용에 대해 다시 생각해 봐라
+     - 학습에 적극적으로 참여하고 다시 볼수록 장기적으로 기억에 남을 가능성도 커진다
+
+
+
+Our Approach
+훌륭한 학습을 만드려면 어떻게 접근해야 할까?
+• (Recommended) Take your time. Do not hesitate to replay videos!
+  (첫째, 이건 경주가 아니다 천천히 해라 개념을 잘 이해하는데 집중하고 필요하다면 비디오를 다시 봐라)
+• (Recommended) Have Fun!
+  (둘째, 더 중요한 것은 즐겁게 하라 Spring과 Spring Boot 학습은 정말 지루할 수 있으며 이것이 이 강의를 즐겁게 학습할 수 
+   있도록 상호작용형으로 실습을 중심으로 만드는데 많은 시간을 투자한 이유이다)
