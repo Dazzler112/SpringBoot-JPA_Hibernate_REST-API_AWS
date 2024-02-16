@@ -1,0 +1,202 @@
+
+Getting Started with Spring Framework - Approach 
+• Design Game Runner to run games (Mario, SuperContra, Pacman etc) in an iterative approach:
+  ■ Iteration 1: Tightly Coupled Java Code
+   ◦ GameRunner class 
+   ◦ Game classes: Mario, SuperContra, Pacman etc
+
+여러 게임을 실행하는 데 사용할 수 있는 GameRunner 클래스를 구축하겠다 마리오,슈퍼 콘트라, 팩맨처럼
+이 단계에선 GameRunner 클래스와 마리오 크래스를 만드는데 집중하겠다
+
+---------------------------------------------------------------------------------------------------
+
+⏺ AppGamingBasic 클래스파일
+
+
+package com.example.demo;
+
+import com.example.demo.game.*;
+
+public class AppGamingBasic {
+
+	//이제 이 클래스로 무엇을 해야 할까? GameRunner클래스 인스턴스를 만들고 마리오를 시작하려 한다
+	public static void main(String[] args) {
+		//GameRunner와 Mario게임의 var도 만들겠다
+		
+		//GameRunner 클래스에선 게임을 생성자 인수로 전달하고 마지막에는 실행해야 하니
+		//GameRunner.run()을 입력한다
+		
+		//이렇게 생각할수 있다,'MarioGame 클래스와 GameRunner 클래스를 작성하지 않았잖아?'
+		//수많은 컴파일 오류가 발생할 것이다 MarioGame은 타입으로 해결할 수 없고 GameRunenr도 타입으로 해결할 수 없다
+		//MarioGame()으로가서 ctrl+1을 누르면 클래스 MarioGame을 만들라는 제안이 표시된다 해당 기능을 이용해 클래스를 만들어보자
+		var marioGame = new MarioGame();
+		
+		//다음으로 GameRunner 클래스를 준비하겠다 다시 ctrl+1을 누르고 클래스생성..
+		//클래스를 생성하고 보면 다른 컴파일 오류가 생겼다 그이유는 무엇일까?
+		//MarioGame을 인수로 사용하는 생성자가 없기 때문이다 GameRunner클래스로 가면 생성자가 없다//해당파일로..
+		//돌아와 보니 이제 이 줄에 컴파일 오류가 없다
+		var gameRunner = new GameRunner(marioGame);
+		
+		//gameRunner.run에 컴파일 오류가 있으니 해결해 보자 ctrl+1을 누르고 GameRunner타입에 run()메소드를 만들곘다//다시 해당 클래스파일로...
+		gameRunner.run();
+		
+		//이제 모든 것이 컴파일 된다 ㅊㅊ 준비가 끝났으니 애플리케이션을 시작해보자
+		//출력결과 ==> Running game: com.example.demo.game.MarioGame@40ef3420  콘솔에서 다음과 같은 아웃풋을 확인할 수 있다
+		//이러면 처음으로 실행되는 GameRunner클래스 버전을 만들 수 있다
+	} 
+
+}
+
+
+--------------------------------------
+
+⏺ MarioGame 클래스파일
+
+package com.example.demo.game;
+
+//이제 마리오 게임 클래스가 준비되었다
+public class MarioGame {
+	
+}
+
+--------------------------------------
+
+
+⏺ GameRunner 클래스파일
+
+
+
+package com.example.demo.game;
+
+//com.example.demo.game패키지에 GameRunner클래스가 생겼다//다시 AppGamingBasic클래스파일로..
+public class GameRunner {
+	//여기 MarioGame의 인스턴스를 만들어 주겠다 GameRunner에선 MarioGame을 실행할 수 없다
+	//MarioGame game;을 입력해 주고
+	MarioGame game;
+	
+	//생성자를 만들어야 하니 public GameRunner (MarioGame game) 생성자는 어떻게 해야 할까?
+	//this.game = game, 상당히 기본적인 Java코드이다 여기 작성하는 것은 단순한 생성자고 복잡할게 없다//다시 AppGamingBasic클래스파일로..
+	public GameRunner (MarioGame game) {
+		this.game = game;
+	}
+
+	//이러면 GameRunner 클래스에 public void run 메서드가 생긴다
+	//이제 여기서 syso "Running game: " + game을 넣겠다
+	  
+	public void run() {
+		
+		System.out.println("Running game: " + game);
+	}
+	//한 가지 지름길을 사용했다 syso를 사용했다 일반적으론 좋은 사례는 아니다 보통 로깅 프레임워크를 사용하는 것이 좋다
+	//로깅은 나중에 다시 다뤄보겠다 그 때까지는 콘솔에 아웃풋을 작성하는 데 syso를 사용하겠다//다시 AppGamingBasic으로..
+}
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+일반적으로 게임을 실행할 때는 위, 아래, 왼쪽, 오른쪽, 여러 버튼을 누른다 게임을 플레이할 때는 이렇게 하지
+이러한 기능을 추가해 보겠다
+MarioGame으로 와 이작업의 코드를 작성해 보겠다
+
+---------------------------------------------------------------------------------------------------
+
+
+⏺ MarioGame 클래스파일
+
+
+package com.example.demo.game;
+
+//이제 마리오 게임 클래스가 준비되었다
+public class MarioGame {
+	
+	//일반적인 작업으로 public void up() 무엇을 해야 할까?
+	//버튼을 눌렀을 때 예를 들어 마리오 게임에서는 점프를 하고 이와 유사하게 syso "Jump"를 한다
+	public void up() {
+		System.out.println("Jump");
+	}
+	
+	//다른 메서드도 만들 수 있다
+	
+	//down 메서드로 마리오 게임에서 아래 버튼을 누르면 마리오는 구멍으로 들어가야 하며
+	public void down() {
+		System.out.println("Go Into a hole");
+	}
+	
+	//왼쪽 버튼의 경우 왼쪽으로 가야 한다 그보다 돌아가기 라고 해 주자
+	public void left() {
+		System.out.println("Go back");
+	}
+	
+	//오른쪽 버튼의 경우 가속하도록 하겠다
+	public void right() {
+		System.out.println("Accelerate");
+	}
+	
+	//게임에서 특정 버튼을 눌렀을 때 특정 작업을 수행하는 메서드를 구현하고 있는 것이다
+	//GameRunner 메서드에선 이를 호출할 수 있다//GameRunner 클래스 파일로..
+}
+
+
+
+--------------------------------------
+
+
+⏺ GameRunner 클래스파일
+
+
+package com.example.demo.game;
+
+public class GameRunner {
+
+	MarioGame game;
+	
+	public GameRunner (MarioGame game) {
+		this.game = game;
+	}
+
+	  
+	public void run() {
+		
+		System.out.println("Running game: " + game);
+		game.up();
+		game.down();
+		game.left();
+		game.right();
+	}
+   Running game에 작업을 호출하겠다 game.up, game.down, game.left, game.right
+   GameRunner에서 이 작업을 수행하면 해당 메서드가 마리오 게임에서 호출된다
+
+   실행하면 어떻게 될까?
+
+   출력결과 ==>
+   Running game: com.example.demo.game.MarioGame@40ef3420
+   Jump
+   Go Into a hole
+   Go back
+   Accelerate
+
+   게임을 실행하고 점프,구멍으로 들어가기, 돌아가기, 가속 작업을 확인할 수 있다
+}
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+/*
+정리)
+반복 1에서 간단한 Java코드를 만들었다
+GameRunner 클래스를 만들고, 마리오 게임 클래스를 만들었으며, GameRunner를 사용해
+마리오 게임 클래스에서 작업을 실행할 수 있었다.
+
+한가지 흥미로운 점은 이를 Tightly Couple(강한 결합)이라고 부른다는 점이다
+왜 Tightly Couple(강한 결합)이라고 부를까?
+다음 단계에서 살펴보겠다
+*/
