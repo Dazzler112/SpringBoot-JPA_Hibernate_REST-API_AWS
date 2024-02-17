@@ -1,0 +1,190 @@
+
+
+이전 단계에선 간단한 Java 코드를 작성하고 강한 결합이라고 불렀다 
+이 학습에선 강한 결합이 무엇인지, 느슨하게 결합된 코드는 어떻게 작성하는지 알아보겠다
+
+질문 하나 해보자
+강한 결합이란 무엇일까? 왜 이 코드를 강한 결합이라 부를까?
+
+
+package com.example.demo;
+
+import com.example.demo.game.*;
+
+public class AppGamingBasic {
+
+	public static void main(String[] args) {
+
+		var marioGame = new MarioGame();
+		var gameRunner = new GameRunner(marioGame);
+		gameRunner.run();
+
+	} 
+}
+MarioGame 인스턴스를 만들었으며 여기 GameRunner를 사용해 마리오 게임을 실행하고 있다
+새 게임을 만들고 싶다고 해보자 슈퍼 콘트라 게임을 만들겠다
+
+
+------------------------------------------------------------------------------------------
+
+⏺ AppGamingBasic2 클래스파일
+
+package com.example.demo;
+
+import com.example.demo.game.*;
+
+public class AppGamingBasic2 {
+
+
+	public static void main(String[] args) {
+
+
+//		var marioGame = new MarioGame();
+		
+		//슈퍼 콘트라 게임을 만든다고 하겠다
+		//마리오 게임을 실행하는 대신, 주석으로 빼고 새 게임을 실행하려 한다고 하겠다
+		//SuperContraGame 클래스르 만들어주자 //SuperContraGame클래스 파일로..
+		var superContraGame = new SuperContraGame();
+		
+		//슈퍼 콘트라 게임이 준비되었다 코드와 로직이 이미 있다 하지만 이 슈퍼 콘트라 게임을 실행하려면 어떻게 해야 할까?
+		//컴파일 오류가 생긴다 어떤 컴파일 오류가 나타날까?
+		//The constructor GameRunner(SuperContraGame) is undefined 생성자가 정의되지 않았다 
+		//GameRunner 클래스 파일로..
+		
+		//GameRunner클래스 수정후 실행하면
+		var gameRunner = new GameRunner(superContraGame);
+		gameRunner.run();
+		/*실행결과 ==>
+		Running game: com.example.demo.game.SuperContraGame@40ef3420
+		up
+		Sit down
+		Go back
+		Shoot a bullet
+		슈퍼 콘트라 게임을 실행할 수 있다
+		하지만 지금 문제는 GameRunner 클래스가 특정 게임과 강하게 결합되어 있다는 점이다
+		마리오 게임으로 돌아와 보면 GameRunner가 다시 마리오 게임을 사용하도록 해야한다
+		*/
+	} 
+
+}
+
+------------------------------------------
+
+
+⏺ SuperContraGame 클래스파일
+
+package com.example.demo.game;
+
+public class SuperContraGame {
+	//MarioGame의 코드를 복사해서 활용하겠다
+	//이제 마리오 게임에 구현된 메소드가 이 슈퍼 콘트라 게임에도 동일하게 구현되었다
+	//하지만 슈퍼 콘트라 게임에서는 동일한 버튼이 다른 작업을 수행한다
+	//버튼이 있을 때 위로 가도록 하고 아래 버튼을 누르면 슈퍼콘트라에선 예를 들면 앉아야 한다 왼쪽을 누르면 뒤로가고 오른쪽을 누르면 콘트라가 총알을 발사한다
+	//다른 게임이기 때문에 버튼을 눌렀을 때 다른 작업을 수행한다
+	
+	//다시 AppGamingBasic2클래스로..
+	
+	public void up() {
+		System.out.println("up");
+	}
+	
+	public void down() {
+		System.out.println("Sit down");
+	}
+
+	public void left() {
+		System.out.println("Go back");
+	}
+
+	public void right() {
+		System.out.println("Shoot a bullet");
+	}
+}
+
+
+------------------------------------------
+
+
+⏺ GameRunner 클래스파일
+
+
+
+package com.example.demo.game;
+
+public class GameRunner {
+
+//	private MarioGame game;
+	private SuperContraGame game;
+
+	/*
+	GameRunner클래스를 자세히 보면 마리오 게임과 강하게 결합되어 있다
+	GameRunner 클래스를 사용해 슈퍼 콘트라 게임을 실행하려면 코드를 변경해야 한다
+	코드를 어떻게 변경해야 할 까? 위의 변수에 MarioGame을 중단하고 SuperContraGame을 입력해야 한다
+	다른 게임을 실행할 수 있도록 GameRunner클래스에서 코드를 변경했다
+	다시 AppGamingBasic2클래스 파일로...
+	*/
+ 
+	public GameRunner (SuperContraGame game) {
+		this.game = game;
+	}
+	  
+	public void run() {
+		
+		System.out.println("Running game: " + game);
+		game.up();
+		game.down();
+		game.left();
+		game.right();
+	}
+}
+
+
+------------------------------------------------------------------------------------------
+
+Why is Coupling Important?
+• Coupling: How much work is involved in changing something?
+(이를 강한 결합이라고 한다 결합이란 무언가를 변경하는 데 얼마나 많은 작업이 관련되어 있는지에 대한 측정이다
+슈퍼 콘트라 게임 대신 마리오 게임을 실행하려 하는 경우 특정 클래스에서 얼마나 많은 변과가 있어야 할까?
+이 점이 결합에서 측정하는 점이다)
+ ■ Coupling is important everywhere: 
+   (결합은 일상생활에서도 매우 중요하다)
+   ◦ An engine is tightly coupled to a Car
+     (예를 들어 엔진은 차에 결합되어 있다 엔진을 결합하는 데는 많은 노력이 든다)
+   ◦ A whell is loosely coupled to a Car
+     (하지만 바퀴는 차에 느슨하게 연결되어 있다 타이어 바람이 빠지면 쉽게 바꿀 수 있다)
+     
+    - 다른 좋은 예로 노트북과 컴퓨터가있다
+     
+   ◦ You can take a laptop anywhere you go
+     (노트북은 어디에나 휴대할 수 있다 특정 공간에 강하게 결합되어 있지 않는다)
+   ◦ A computer, on the other hand, is a little bit more difficult to move
+     (하지만 컴퓨터는 움직이기 더 힘들다)
+ ■ Coupling is even more important in building great software
+   (결합은 훌륭한 소프트웨어를 구축하는 데 훨씬 중요하다)
+   ◦ Only thing constant in technology is change
+     (기술에서 유일하게 변하지 않는 것은 변화이다)
+      (모든 것이 바뀐다)
+     ▫ Business requirements change
+     ▫ Frameworks change
+     ▫ Code changes
+     (비즈니스에도 변화가 필요,프레임워크가 변화하고, 코드가 변화하고) 
+   ◦ We want Loose Coupling as much as possible     
+     (따라서 가능한 한 느슨한 결합을 사용해야 한다)
+   ◦ We want to make functional change with as less code changes as posiible
+     (가능한 한 코드를 적게 변경하면서 기능을 변경할 수 있어야 한다)
+• Let's explore how Java Interfaces and Spring Framework help with Loose Coulpling!
+  (다음 학습부턴 Java 인터페이스 및 Spring 프레임워크가 느슨한 결합에 어떤 도움을 주는지 살펴보겠다)
+
+
+
+
+
+
+
+/*
+정리)
+이 학습에선 GameRunner 클래스가 특정 게임에 강하게 결합되어 있다는 점을 확인했다
+한 게임에서 다른 게임으로 변경하려면 GameRunner 클래스를 변경해야 한다
+느슨한 결합은 어떻게 가져올 수 있을까?
+이 주제는 다음 학습에서 살펴보겠다
+*/
