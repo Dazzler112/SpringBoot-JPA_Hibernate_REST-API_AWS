@@ -1,0 +1,334 @@
+
+
+Getting Started with Spring Framework - Approach 
+• Design Game Runner to run games (Mario, SuperContra, Pacman etc) in an iterative approach:
+  ■ Iteration 1: Tightly Coupled Java Code
+   ◦ GameRunner class 
+   ◦ Game classes: Mario, SuperContra, Pacman etc
+  ■ Iteration 2: Loose Coupling - Interfaces
+    (인터페이스에 느슨한 결합을 도입하려 한다)
+   ◦ GameRunner class
+     (GameRunner클래스가 있으니) 
+   ◦ GamingConsole interface
+     (GamingConsole 인터페이스를 도입하고)
+     ▫ Game classes: Mario, SuperContra, Pacman etc
+       (게임 클래스가 GamingConsole 인터페이스를 도입하도록 하겠다)
+
+
+
+                Mario 
+               /                                                      ↱ Mario
+  GameRunner   ㅡ SuperContra       ➡▶     GameRunner ㅡ GamingConsole ㅡ SuperContra
+               \                                                      ↳ PacMan
+                PacMan
+    
+지금까지 마리오나 슈퍼 콘트라나 팩맨과 같은 특정 게임을 실행하는 GameRunner클래스가 있었다
+팩맨 게임은 아직 도입 하지도 않았다 조금있다가 하고
+하지만 지금부터 주려 하는 변화는 GameRunner클래스가 GamingConsole이라는 인터페이스와  
+상호 작용 하도록 하고 모든 게임 클래스가 GamingConsole 인터페이스를 도입하도록 하는 것이다
+시작 하겠다
+SuperContraGame과 MarioGame을 살펴보겠다
+
+-------------------------------------------------------------------------------------
+
+⏺ SuperContraGame 클래스파일
+
+
+package com.example.demo.game;
+
+public class SuperContraGame implements GamingConsole {//인터페이스의 모든 메서드는 이미 SuperContraGame에 도입되어 있기 때문에 아무 오류도 표시되지 않을 것이다
+ 	//위, 아래, 왼쪽, 오른쪽에서 공통된 작업을 수행하는 것을 볼 수있다
+	//지금부터 인터페이스를 만들겠다
+	//인터페이스는 특정 클래스 세트에서 수행할 수 있는 공통된 작업을 나타낸다 인터페이스명은 GamingConsole로 하겠다//GamingConsole인터페이스로..
+  
+  /*이러면 어떤 이점이 있을까? =>				
+	AppGamingBasic을 변경하지 않아도 되며 Java애플리케이션으로 실행할 수 있다
+	MarioGame을 실행하도록 추가해 보겠다//AppGamingBasic3 클래스파일로..
+	*/
+
+	public void up() {
+		System.out.println("up");
+	}
+	
+	public void down() {
+		System.out.println("Sit down");
+	}
+
+	public void left() {
+		System.out.println("Go back");
+	}
+
+	public void right() {
+		System.out.println("Shoot a bullet");
+	}
+}
+
+
+
+
+-------------------------------------------
+
+⏺ GamingConsole 인터페이스
+
+
+package com.example.demo.game;
+
+//이곳에 어떤 작업을 해야 할까?
+public interface GamingConsole {
+	//4개의 작업을 만들자
+	//이 네 가지 작업이 GamingConsole을 사용해 수행하려 하는 작업이다
+	//이 작업은 이미 SuperConstraGame과 MarioGame에도 도입되어 있다
+	//AppGamingBasic클래스에는 현재 이 SuperContraGame을 실행하고 있다 이 SuperContraGame을 시작하고 이 인터페이스를 도입하도록 하겠다//SuperContraGame으로 이동해 인터페이스 GamingConsole을 사용한다//SuperContraGame클래스로.. 
+	void up();
+	void down();
+	void left();
+	void right();
+}
+
+
+-------------------------------------------
+
+
+⏺ AppGamingBasic3 클래스파일
+
+
+package com.example.demo;
+
+import com.example.demo.game.*;
+
+public class AppGamingBasic3 {
+
+	public static void main(String[] args) {
+//		var game = new MarioGame();
+		var game = new SuperContraGame();
+		//지금 양쪽에 서로 다른 변수 이름이 있으니 동일하게 만들어 주겠다// superContraGame=>game으로 marioGame=>game으로
+		//이제 MarioGame과 SuperContraGame이 동일한 변수 이름이 있으며 이를 이용해 GameRunner 클래스를 만들겠다
+		//이제 SuperContraGame을 실행할 수 있다 var game = new MarioGame(); 주석을 해제하면 MarioGame을 실행할 수 있을까? 
+		//안된다 왜일까? GameRunner클래스가 SuperContraGame에 결합되어 있기 때문이다//GameRunner클래스파일로.. 
+		
+		var gameRunner = new GameRunner(game);
+		gameRunner.run();
+		
+		/* SuperContraGame 출력결과==>
+		Running game: com.example.demo.game.SuperContraGame@498d318c
+		up
+		Sit down
+		Go back
+		Shoot a bullet
+		계속 작동한다 이제 var game = new MarioGame()으로 변경하면 어떻게 되는지 살펴보겠다
+		*/
+		
+		//MarioGame의 주석을 해제하고 var game = new SuperContraGame();을 주석 처리하면 어떻게 될까?
+		//아직 컴파일 오류가 있다 The constructor GameRunner(MarioGame) is undefined 생성자GameRunner(MarioGame)이 정의되지 않았다고 하며 사실 아무것도 해결되지 않은것이다
+		//사실 밟아야 할 단계였다 //MarioGame클래스파일로...
+		
+		//다시 돌아와 보면 Java 애플리케이션을 실행할 수 있다
+		
+		/*MarioGame 출력결과 ==>
+		Running game: com.example.demo.game.MarioGame@498d318c
+		Jump
+		Go Into a hole
+		Go back
+		Accelerate
+		
+		현재 MarioGame을 실행하고 있다
+		보다시피 MarioGame의 메서드가 실행됐다
+		그리고 SuperContraGame으로 전환하려 하는 경우 주석과 주석 해제만 하면 된다
+		자바 어플리케이션을 실행하면 이렇게 작동함을 확인할 수 있다
+		*/
+		
+		/*다시 SuperContraGame 전환후 출력결과==>
+		Running game: com.example.demo.game.SuperContraGame@498d318c
+		up
+		Sit down
+		Go back
+		Shoot a bullet
+		*/
+		//할일은 이걸로 충분할까?
+		//게임을 바꾸러 할 때 GameRunner 클래스에는 아무 변경도 가할 필요가 없다
+	} 
+
+}
+
+
+-------------------------------------------
+
+
+⏺ GameRunner 클래스파일
+
+
+package com.example.demo.game;
+
+public class GameRunner {
+
+//	private MarioGame game;
+//	private SuperContraGame game;
+
+	//여기 있는 SuperContraGame을 활용하는 대신 GamingConsole 인터페이스를 사용해야 한다
+	//위의 변수들 대신 GamingConsole인터페이스를 사용
+	//모든 메서드 호출은 계속 사용할 수 있는데 이 메서드는 인터페이스 정의의 일부이기 때문이다
+
+	private GamingConsole game;
+
+	/*지금까지 한 것은 =>
+	GamingConsole 인터페이스를 만들었고 SuperContraGame이 인터페이스를 도입하도록 했으며
+	게임이 클래스를 실행하고 클래스에 직접 사용하는 대신 인터페이스를 사용하도록 했다
+	이러면 어떤 이점이 있을까? //AppGamingBasic클래스로...
+	*/
+
+	public GameRunner (GamingConsole game) {
+		this.game = game;
+	}
+	
+	
+	  
+	public void run() {
+		
+		System.out.println("Running game: " + game);
+		game.up();
+		game.down();
+		game.left();
+		game.right();
+	}
+}
+
+
+-------------------------------------------
+
+
+⏺ MarioGame 클래스파일
+
+
+package com.example.demo.game;
+
+public class MarioGame implements GamingConsole{//MarioGame으로 이동해 implements GamingConsole을 입력하면
+	//이제 MarioGame과 SuperContraGame이 모두 GamingConsole을 도입한다 //다시AppGamingBasic클래스파일로.....
+ 
+	public void up() {
+		System.out.println("Jump");
+	}
+
+	public void down() {
+		System.out.println("Go Into a hole");
+	}
+
+	public void left() {
+		System.out.println("Go back");
+	}
+
+	public void right() {
+		System.out.println("Accelerate");
+	}
+
+}
+
+
+-------------------------------------------------------------------------------------
+
+
+
+
+                Mario 
+               /                                                      ↱ Mario
+  GameRunner   ㅡ SuperContra       ➡▶     GameRunner ㅡ GamingConsole ㅡ SuperContra
+               \                                                      ↳ PacMan
+                PacMan
+
+앞서 GameRunner 클래스는 특정 게임에 강하게 결합되어 있었다
+게임을 변경하고자 할 때는 GameRunner 클래스 코드를 바꾸어야 했다
+하지만 이제 GamingConsole 인터페이스를 도입함으로써 GameRunner 클래스가 특정 게임에서 분리되었다
+GameRunner 클래스는 이제 특정 게임에 결합되어 있지 않는다
+특정 인터페이스와만 결합되어 있기 때문에 GameRunner 클래스는 변경하지 않아도 플레이하는 게임을 변경할 수 있다
+
+
+
+연습 시간을주겠다
+지금까지 MarioGame과 SuperContraGame을 만들어 보았다
+이제 팩맨게임을 만들 차례이다
+팩맨을 만들어 보고 여기서 실행해 봐라
+
+PacmanGame 파일 생성하기!
+
+-------------------------------------------------------------------------------------
+
+⏺ AppGamingBasic3 클래스파일
+
+package com.example.demo;
+
+import com.example.demo.game.*;
+
+public class AppGamingBasic3 {
+
+
+	public static void main(String[] args) {
+//		var game = new MarioGame();
+//		var game = new SuperContraGame();
+		
+    //이름을 마리오 대신 PacmanGame으로 지정하면 여기 팩맨 게임이 생기고 //PacmanGame 클래스 파일로...
+    
+    //따라서 PacmanGame을 실행하려면 이전 코드를 주석으로 하고 var game = new PacmanGame을 입력하기만 하면 된다
+    //실행해 보자
+		var game = new PacmanGame();
+		
+    var gameRunner = new GameRunner(game);
+		gameRunner.run();
+
+    /*출력결과 ==>
+    Running game: com.example.demo.game.PacmanGame@498d318c
+    up
+    down
+    left
+    right
+    지금 어떤 게임을 실행하고 있지? PacmanGame@498d318c
+    팩맨 게임이다
+    */
+	} 
+
+}
+
+-------------------------------------------
+
+
+⏺ PacmanGame 클래스파일
+
+
+
+package com.example.demo.game;
+
+public class PacmanGame implements GamingConsole{
+
+//PacmanGame 안에는 간단하게 만들어 보자
+//이미 봤다시피 여기에도 GamingConsole이 도입되어 있다 (implements GamingConsole)//다시 AppGamingBasicJava클래스 파일로...
+	public void up() {
+		System.out.println("up");
+	}
+
+	public void down() {
+		System.out.println("down");
+	}
+	
+	public void left() {
+		System.out.println("left");
+	}
+
+	public void right() {
+		System.out.println("right");
+	}
+}
+
+-------------------------------------------------------------------------------------
+
+
+
+
+
+/*
+정리)
+이 학습에선 인터페이스가 느슨한 결합과 어떻게 작동하는지 알아봤다
+인터페이스를 만들고 게임 클래스가 그 인터페이스를 도입하도록 하면 GameRunner 클래스에서
+인터페이스를 사용하고 이에 따라 당연히 GameRunner 클래스가 특정 도입에서 분리되거나 느슨하게 결합된다
+따라서 어떤 게임을 실행할지와 관계 없이 GameRunner를 변경하지 않아도 게임을 변경할 수 있다
+
+인터페이스를 사용하는 느슨한 결합을 소개하면 반복 2를 마쳤다
+다음 학습에선 스프링 프레임워크의 마법을 가져와 보겠다
+*/
