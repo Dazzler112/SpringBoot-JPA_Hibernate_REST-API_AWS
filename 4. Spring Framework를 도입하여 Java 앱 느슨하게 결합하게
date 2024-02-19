@@ -1,0 +1,103 @@
+
+
+package com.example.demo;
+
+import com.example.demo.game.*;
+
+public class AppGamingBasic3 {
+
+
+	public static void main(String[] args) {
+//		var game = new MarioGame();
+//		var game = new SuperContraGame();
+		var game = new PacmanGame(); //1: Object Creation
+  
+		var gameRunner = new GameRunner(game); 
+          //2: Object Creation + Wiring of Dependencies
+          // Gaming is a Dependency of GameRunner
+		gameRunner.run();
+
+	} 
+}
+코드의 현재 상태는 이와 같다
+팩맨 게임을 만들고 있으며 여기서는 GameRunner를 만들고 있고
+펙멘 게임을 전달하거나 게임을 GameRunner의 생성자에 인수로 전달하고 있다
+자세히 살펴보겠다
+
+1: Object Creation 첫 번째로 하려고 하는 것은 객체 생성으로 여기서 팩맨 게임을 생성했다
+2: Object Creation 다음으로 하려 하는 것도 객체 생성으로 GameRunner 객체를 생성했다
+
+하지만 동시에 종속성을 연결하는 중요한 작업도 하고 있다 의존성을 연결한다는 게 뭘까?
+이 GameRunner 클래스는 게임을 신행할 수 있어야 한다
+실행 하려면 게임이 필요하다
+
+Gaming is a Dependency of GameRunner: 따라서 일반적으로 게임이 의존성이라고 할 수 있다
+MarioGame이나 SuperContraGame, 일반적으로는 GamingConsole을 예로 들 수 있다
+GamingConsole은 GameRunner 클래스의 의존성이다
+그리고 우리가 하려 하는 건 게임에 의존성을 주입하는 것이다
+클래스는 생성되고 GameRunner 클래스에 주입되거나 결합된다
+이 코드는 매우 쉬워 보이지만, 이면에선 많은 일이 일어나고 있다 
+
+엔터프라이즈 애플리케이션의 경우 수천 개의 클래스가 있고
+수천 개의 의존성이 생성되며 수천 개의 의존성이 필요한 곳에 주입된다
+
+실험을 해 보자
+
+		var game = new PacmanGame();
+  
+		var gameRunner = new GameRunner(game); 
+이 객체를 수동으로 직접 생성, 관리, 실행하는 대신 Spring 프레임워크가 하도록 하는 게 어떨까?
+이것이 이 단계에서 시작할 실험이다
+
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                   |
+|                                                    |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡ    ㅡㅡㅡㅡㅡㅡ    ㅡㅡㅡㅡㅡㅡㅡ   |
+|  |  contraGame  |   | marioGame|   | gameRunner |  |
+|  |              |   |          |   |            |  |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡ    ㅡㅡㅡㅡㅡㅡ    ㅡㅡㅡㅡㅡㅡㅡ   |
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+현재 객체 생성을 완전히 우리가 관리한다는 사실에 대해 논의하고 있다
+이 객체는 JVM, Java Virtual Machine에서 생성되며 이러한 객체를 생성하고 결합하는 코드는
+우리가 작성 한다
+스프링 프레임워크가 이 모든 것을 관리하도록 하는 상태를 만들고자 한다
+
+                            ↓
+                        🔻 🔻 🔻
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                           |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                             |   |
+|  |   ㅡㅡㅡㅡㅡㅡㅡㅡ    ㅡㅡㅡㅡㅡㅡ    ㅡㅡㅡㅡㅡㅡㅡ    |   |
+|  |  |  contraGame  |   | marioGame|   | gameRunner |   |   |
+|  |  |              |   |          |   |            |   |   |
+|  |   ㅡㅡㅡㅡㅡㅡㅡㅡ    ㅡㅡㅡㅡㅡㅡ    ㅡㅡㅡㅡㅡㅡㅡ    |   |
+|  |                                                     |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    
+프레임워크가 우리 대신 객체를 생성하고 결합하도록 하겠다
+GameRunner 예로 시작하기 전에 훨씬 간단한 예로 시작하겠다
+
+
+
+
+
+
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |  |  name  |  | age  |   |person |  |person2|   |address|    |   |
+|  |  |        |  |      |   |       |  |       |   |       |    |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+
+Spring이 이름, 나이,여러 사람과 주소와 같은 쉬운 객체를 관리하도록 하겠다
+이 Spring 프레임 워크가 간단한 객체를 관리하도록 할 준비가 됬니?
+다음 학습에 시작하도록 하겠다
