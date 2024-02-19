@@ -1,0 +1,266 @@
+
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |  |  name  |                                                 |   |
+|  |  |        |                                                 |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+
+이 단계에선 첫 번째 Spring Bean을 만들겠다
+JVM 내부에서 Spring 컨텍스트를 생성하고 이름이 생성된 Bean을 만들고자 한다
+이는 스트링 값이며 Spring 프레임워크가 관리하도록 할 것이다
+시작해 보겠다
+
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |  |  name  |                                                 |   |
+|  |  |        |                                                 |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+실행중인 JVM이 있지?
+이 애플리 케이션을 실행하면 JVM이 시작되며 Spring 컨텍스트를 만들겠다 (1. Launch a Spring Context)
+이름을 관리하려 하므로 어떻게 해야 할까?
+몇 가지 단계가 있는데 우선 Spring 애플리케이션이나 Spring 컨텍스트를 실행하는 단계이다
+다음으로 Spring 프레임워크가 관리하도록 할 것을 설정한다 여기까지 할 작업을 정리해 봤다 (2. Configure the things that we want Spring to manage)
+
+Spring이 관리해야 하는 것을 설정하는 데 사용할 수 있는 접근 방식 중 하나는 설정 클래스라는 것을 사용하는 것이다
+2: Configure the things that we want Spring to manage - @Configuration
+@Configuration 여기에서 설정 클래스를 만들고 이름 등 모든 것을 정의할 수 있다
+그리고 설정 클래스를 사용하여 Spring 컨텍스트를 시작할 수 있다
+어떻게 하는지 살펴 보겠다
+설정 클래스를 만드는 것부터 시작해 보겠다
+
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+public class App02HelloWorldSpring {
+
+	public static void main(String[] args) { //Configuration을 만들기 위해 HelloWorldConfiguration클래스파일로..
+		//@Configuration 클래스가 있다 //@Configuration클래스로 Spring 컨텍스트를 시작해야 한다 어떻게 해야 할까?
+		
+		//1: Launch a Spring Context - 
+		//AnnotationConfig 클래스를 사용해야 한다 AnnotationConfig를 입력하고 Control 스페이스나 Command 스페이스를 누르면 AnnotationConfigApplicationContext를 확인할 수 있다//여기서 만드려는건 Spring 컨텍스트이다
+		AnnotationConfigApplicationContext
+		
+		//2: Configure the things that we want Spring to manage - @Configuration
+	} 
+
+}
+---------------------------------
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+//이는 Spring 설정 클래스이다 어떻게 나타낼까?
+//@Configuration 주석을 추가하여 나타낼 수 있다
+
+@Configuration     //@Configuration을 추가했고 인풋을 정리하겠다
+				   //org.springframework.context.annotation.*;이있다	
+				   //보다시피 여기있는 Java 문서는 클래스가 하나 이상의 Bean메서드를 선언함을 나타낸다 (Indicates that a class declares one or more @Bean methods andmay be processed by the Spring container to generate bean definitions andservice requests for those beans at runtime)
+public class HelloWorldConfiguration {
+	//여기서 Spring Bean을 정의할 수 있다 //Spring에서 관리하는 것들을 Spring Bean이라고 한다 //그리고 설정 클래스에서 메서드를 정의하여 Spring Bean을 생성할 수 있다
+	//이렇게 설정 클래스가 생겼다 //App02HelloWorldSpring 클래스파일로...
+}
+
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |  |  name  |                                                 |   |
+|  |  |        |                                                 |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+JVM 내에 Spring 컨텍스트를 만들려 하며 AnnotationConfigApplicationContext를 만드는 데 설정 클래스를 사용한다 
+  
+                                    🔻  🔻  🔻
+
+	public static void main(String[] args) {
+		
+		//1: Launch a Spring Context - 
+
+		//생성한 설정 파일을 사용하여 새 인스턴스를 생성하려 한다 (생성한 설정 파일은 HelloWorldConfiguration 이다)
+		//설정은 비어 있으며 곧 수정 하겠지만 지금은 Spring 컨텍스트를 시작하는 데 집중하겠다 //HelloWorldConfiguration.class로 만들고 변수 컨텍스트로 만들겠다
+		//HelloWorldConfiguration로 만들고 변수 컨텍스트로 만들겠다 //변수 컨텍스트는 새 AnnotationConfigApplicationContext와 비슷하고 HelloWorldConfiguration을 민들겠다
+		//이제 컨텍스트가 준비되었다 이앱을 실행하면 어떻게 되는지 살펴보겠다 (Java 어플리케이션 실행)
+		var context = 
+				new AnnotationConfigApplicationContext(HelloWorldConfiguration.class);
+		
+		/*출력결과==>
+		실행 결과는 오류가 없다
+		백그라운드에서 많은 것이 진행되고 있지만 오류는 없다
+		성공적으로 설정 파일을 사용해 Spring 컨텍스트를 실행할 수 있게 되었다
+		*/
+		
+		//2: Configure the things that we want Spring to manage - @Configuration
+	} 
+
+
+
+ ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |  |  name  |                                                 |   |
+|  |  |        |                                                 |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+지금까지의 상태는 다음과 같다 JVM이 있고 Spring 컨텍스트를 실행했으며 Spring에 Bean을 관리하라는 명령을 내리려 한다
+이름 객체를 관리하도록 하려 한다 어떻게 해야 할까?
+
+                                    🔻  🔻  🔻
+
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+@Configuration
+public class HelloWorldConfiguration {
+
+	//전역 설정으로 이동해 메서드를 public으로 만들고 String 이름은 String 객체이기 때문에 유형을 String name으로 하고 return을 입력한 후 값을 넣겠다 Ranga라 입력하겠다
+	//이렇게 하면 설정 클래스 대신 Spring Bean을 만들기에 충분할까? 메서드를 만들었다 //그렇지 않다
+	//Bean을 호출하는 추가 과정이 필요하다 @Bean 가져오기를 구성하면 org.springframework.context.annotation.Bean이 나타난 것을 확인할 수 있으며(필자의 경우 .*로 설정했기 때문에 따로 나오지 않음) 
+	//메서드가 이 Spring 컨테이너가 관리하는 Bean을 생산함을 나타내는 Java 문서를 확인할 수 있다 (Indicates that a method produces a bean to be managed by the Spring container. )
+	//Spring을 다양한 방식으로 지칭함을 확인할 수 있을 것이다 Spring 컨텍스트, Spring 컨테이너 등 다양한 용어를 사용한다 이에 대해선 나중에 설명하겠다
+	//현재 여기 있는 이 메서드는 Bean을 생성하며 이 Bean은 Spring 컨테이너가 관리한다는 사실에 집중해야 한다 //다시 App02HelloWorldSpring 클래스로...
+	
+	@Bean
+	public String name () {
+		
+		return "Ranga";
+	}
+}
+
+-------------------------------------
+
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+public class App02HelloWorldSpring {
+
+
+	public static void main(String[] args) { 
+		//1: Launch a Spring Context - 
+
+		var context = 
+				new AnnotationConfigApplicationContext(HelloWorldConfiguration.class);
+
+		//HelloWorldConfiguration의 Configuration을 설정했으니 다시 실행해 보자
+		/*출력결과 ==>
+		이번에도 오류가 없음을 확인할 수 있다
+		Spring이 관리하는 이름 객체를 확인하려면 어떻게 해야 할까? 여기 Spring 컨텍스트가 준비되어 있다
+		컨텍스트를 사용해 객체를 가져오겠다
+		*/
+		
+		//2: Configure the things that we want Spring to manage - @Configuration
+		
+		context.
+	} 
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |  |  name  |                                                 |   |
+|  |  |        |                                                 |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+Spring에서 관리하는 이름 객체를 생성했다 Spring 컨텍스트에 객체 이름을 부여하도록 하겠다
+
+
+                                    🔻  🔻  🔻
+                                    
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+public class App02HelloWorldSpring {
+
+	public static void main(String[] args) { 
+		
+		//1: Launch a Spring Context - 
+		var context = 
+				new AnnotationConfigApplicationContext(HelloWorldConfiguration.class);
+		
+		//2: Configure the things that we want Spring to manage - 
+		//HelloWorldConfiguration - @Configuration
+		//name - @Bean
+		
+		//사용할 명령어는 context.getBean Spring에서 관리하는 것은 무엇이든 Bean이 될 수 있다
+		//컨텍스트가 getBean이고 컨텍스트에서 값을 가져올 수 있는 다양한 방법이 있다 그 중 하나는 이름을 사용하는 것이다 
+		//여기서 부여한 이름은 name이다 매서드 이름이 name인 것이다 컨텍스트가 getBean name이 되는 것이다
+		//니가 해야 할 일은 이를 밖으로 빼내는 것이다 //syso다음 context.getBean name을 입력하고 //1: Launch a Spring Context -  여기서 Spring컨텍스트를 시작했다 완전히 완료했다
+		//2: Configure the things that we want Spring to manage 관리하고자 하는 항목을 설정했다 어디서 했을까??
+		//HelloWorldConfiguration클래스를 만들면서 했다 //HelloWorldConfiguration 클래스에선 설정에 주석을 사용했다
+		//이 안에서 @Bean 주석이 있는 이름 메서드도 만들었다 
+		
+		
+		//3: Retrieving Beans managed by Spring
+		
+		//Spring이 관리하는 Bean을 검색하고 있다 //Bean은 context.getBean을 사용하고 Bean의 이름을 부여하여 검색할 수 있다
+		//유형 등과 같은 다른 메서드도 추후에 살펴보겠다
+		//지금은 간단하게 context.getBean("name")을 사용하여 이 앱을 실행해 보겠다 
+		System.out.println(context.getBean("name"));
+		
+		/*출력결과 ==>
+		Ranga
+		
+		Spring이 이 Bean을 관리하고 있는 것이다
+		*/
+		
+	} 
+}
+
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |  |  name  |                                                 |   |
+|  |  |        |                                                 |   |
+|  |   ㅡㅡㅡㅡ                                                   |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+JVM이 있으며 Spring은 특정 객체 name을 관리하는 것이다 
+Spring 프레임워크에 대해 알아야 할 여러 멋진 것들이 있다
+
+
+
+
+
+
+/*
+정리)
+이 학습에선 이 Spring 프레임워크로 시작했다 
+다음 학습에선 궁금할 수 있는 질문등에 대해 자세히 살펴보겠다
+*/
