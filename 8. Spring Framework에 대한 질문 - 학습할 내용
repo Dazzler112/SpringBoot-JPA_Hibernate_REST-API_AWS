@@ -1,0 +1,55 @@
+
+Spring Quesstions You Might Be Thinking About
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |  |  name  |  | age  |   |person |  |person2|   |address|    |   |
+|  |  |        |  |      |   |       |  |       |   |       |    |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+지난 몇 단계에선 Spring 및 Spring Bean을 다루었다
+하고 싶은 질문이 많을 것이다
+
+● Question 1: Spring Container vs Spring Context vs IOC Container vs Application Context
+  (질문 1 컨테이너 컨텍스트라는 용어를 여러 번 사용했다 Spring 컨테이너는 무엇일까? IOC 컨테이너는 무엇일까? 애플리케이션 컨텍스트는 무엇일까?)
+● Question 2: Java Bean vs Spring Bean
+  (두번째로 Bean이라는 용어도 여러 번 사용했다 Java Bean이라는 용어가 있었고 Spring Bean이라는 용어도 있었다 차이점이 무엇일까?)
+● Question 3: How can I list all beans managed by Spring Framework?
+  (세번째 Spring 프레임워크가 관리하는 Bean을 모두 나열하려면 어떻게 해야 할까? Spring 컨텍스트에 다수의 Bean을 추가했다
+   Spring 프레임워크가 관리하는 Bean을 모두 나열하려면 어떻게 해야 할까?)
+● Question 4: What if multiple matching beans are avaliable?
+  (네 번째, 여러 개의 Bean을 사용할 수 있으면 어떻게 될까? 무슨 뜻일까?)
+
+예)  
+  => 앞서 HelloWorldSpring.java에서  //		System.out.println(context.getBean(Address.class)); 이 줄의 주석 처리를 해제하고 실행하면 오류가 있다
+      Exception in thread "main" org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.example.demo.Address' available: expected single matching bean but found 2: address2,address3
+    	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveNamedBean(DefaultListableBeanFactory.java:1312)
+    	at ...
+     주소 클래스를 검색하고 있다고 하지만, 일치하는 Bean은 두개로 address2와 address3이 있다 그 이유는 무엇일까?
+     getBean(Address.class) 여기서 검색하고 있는 것은 Bean의 유형이기 때문이다 Bean의 유형은 Bean의 Bean이며, Address.class이다
+     그리고 HelloWorldConfiguration을 보면 일치하는 주소 Bean으로 address2와 address3가 있다 Spring은 어떤 것을 사용하고 출력해야 할까?
+     다시 코드를 주석으로 내보내고 작업 상태로 전환해 보겠다
+
+주제는 이에 대한 질문이다 여러 개의 Bean을 사용할 수 있으면 어떻게 될까? Spring은 어떤 것을 사용해야 할까?
+Spring이 어떤 것을 우선순위로 정하도록 해야 할까?
+● Question 5: Spring is managing objects and performing auto-wiring.
+  (다섯 번째 Spring은 객체를 관리하고 자동 연결도 수행한다)
+  ■ BUT aren't we writing the code to create objects?
+  (하지만 코드를 작성해 객체를 만드는 사람은 우리다) 
+
+  예)
+  HelloWorldConfiguration을을 보면 코드를 작성해 객체를 만드는 건 누구일까?
+  return new Person();과 return new Address(); 이다
+  우리가 객체를 만들기 위해 코드를 작성한다
+
+  ■ How do we get Spring to create objects for us?
+    (하지만 Spring이 객체를 만들기 시작하면 안 될까?
+     Spring이 객체를 만들도록 사혀면 어떻게 해야 할까?)
+
+모두 아주 좋은 질문이고 계속하면서 각 질문에 대한 답을 찾아보겠다
+교육자 의견 대로라면 Spring은 시작하기 가장 어려운 프레임워크에 속한다 특히 이해할 개념이 많다는 점에서
+지난 몇 단계에서 너는 수많은 Spring의 개념을 이해했으며 이 섹션에서 더 많이 이해하게 될 것이다
