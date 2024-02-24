@@ -1,0 +1,352 @@
+
+
+Spring Quesstions You Might Be Thinking About
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |  |  name  |  | age  |   |person |  |person2|   |address|    |   |
+|  |  |        |  |      |   |       |  |       |   |       |    |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+
+● Question 1: Spring Container vs Spring Context vs IOC Container vs Application Context
+● Question 2: Java Bean vs Spring Bean
+● Question 3: How can I list all beans managed by Spring Framework?
+● Question 4: What if multiple matching beans are avaliable?
+
+질문 1과 2를 살펴봤으니 질문 3과 4에 대해 살펴보겠다
+Spring이 관리하는 Bean 프레임워크를 모두 나열하려면 어떻게 해야 할까?
+여러개의 일치하는 Bean을 사용할 수 있으면 어떻게 될까?
+이번 단계에서 살펴보겠다
+
+● Question 3
+질문3부터 시작하겠다 
+Spring이 관리하는 Bean 프레임워크를 모두 나열하려면 어떻게 해야 할까?
+POJO이기도 한 Spring Bean을 모두 나열하려면 어떻게 해야 할까?
+알아보도록 하자
+
+Spring Bean을 나열하려면 컨텍스트를 요청해야 한다
+
+------------------------------------------------------------------------------------------------
+
+
+⏺ App02HelloWorldSpring2 클래스파일
+
+
+package com.example.demo;
+
+import java.util.*;
+
+import org.springframework.context.annotation.*;
+
+public class App02HelloWorldSpring2 {
+
+
+	public static void main(String[] args) { 
+		
+		//1: Launch a Spring Context - 
+
+		var context = 
+				new AnnotationConfigApplicationContext(HelloWorldConfiguration.class);
+		
+		//2: Configure the things that we want Spring to manage - 
+		//HelloWorldConfiguration - @Configuration
+		//name - @Bean
+		
+		//3: Retrieving Beans managed by Spring
+		
+		System.out.println(context.getBean("name"));
+
+		System.out.println(context.getBean("age"));
+		
+		System.out.println(context.getBean("person"));
+
+		System.out.println(context.getBean("person2MethodCall"));
+
+		System.out.println(context.getBean("person3Parameters"));
+		
+		System.out.println(context.getBean("address2"));
+		
+//		System.out.println(context.getBean(Address.class));
+		
+		//context.getBeanDefinitionNames를 사용하면 이 레지스트리에 정의된 모든 이름을 반환한다//레지스트리에 정의된 Bean 개수를 반환하는 getBeanDefinitionCount도 있다
+		//Bean을 확인하려면 getBeanDefinition을 사용해 Bean의 이름을 매개 변수로 구문 분석할 수도 있다 //지금은 getBeanDefinitionNames에 집중하겠다
+		//getBeanDefinitionNames의 반환 값을 보면 String[] org.springframework.context.support.AbstractApplicationContext.getBeanDefinitionNames()
+		//String이 있다 그리고 이 부분을 반복하고 여기 있는 모든 것을 출력하고자 한다 손쉽게 반복하기 위해 함수형 프로그래밍을 사용하겠다
+		//Arrays.stream()을 사용하여 이 배열로 스트림을 만들고자 한다 Arrays.stream(context.getBeanDefinitionNames())
+		//이 스트림이 준비되었으면 다음으로 .forEach()를 사용해 이 스트림에 있는 모든 요소에 대해 syso를 실행하려 한다 어떻게 해야 할까? System.out::println을 입력한다
+		//여기서 사용하는 것을(System.out::println) 메서드 참조라고 한다 //이 정도면 모든 Bean이름을 출력하기에 충분할 것이다//자바 실행..
+		
+		//System.out.println()
+		Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+		
+		/*출력결과 ==>
+		org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+		org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+		org.springframework.context.annotation.internalCommonAnnotationProcessor
+		org.springframework.context.event.internalEventListenerProcessor
+		org.springframework.context.event.internalEventListenerFactory
+		helloWorldConfiguration
+		name
+		age
+		person
+		person2MethodCall
+		person3Parameters
+		address2
+		address3
+		관리되는 모든 Bean 이름이 여기 출력되었음을 확인할 수 있다
+		
+		org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+		org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+		org.springframework.context.annotation.internalCommonAnnotationProcessor
+		org.springframework.context.event.internalEventListenerProcessor
+		org.springframework.context.event.internalEventListenerFactory
+		이 부분은 스트링 내부에 있으며 신경 쓸 필요 없다 흥미로운것은 그 이 후에 있는 것들이다
+		
+		여기 helloWorldConfiguration 우리가 만든 설정파일이 있다
+		이 파일도 Bean이 관리한다 그리고
+		name
+		age
+		person
+		person2MethodCall
+		person3Parameters
+		address2
+		address3
+		이것들은 모두 설정파일에서 만든 기타 Bean이다 name,age,person,...address3
+		*/
+	} 
+}
+
+------------------------------------------------------------------------------------------------
+
+이렇게 Spring이 관리하는 Bean 프레임워크를 모두 나열할 수 있다
+
+
+● Question 4
+다음 질문은 여러 개의 일치하는 Bean을 사용할 수 있으면 어떻게 될지이다
+다시 클래스를 보자
+
+------------------------------------------------------------------------------------------------
+
+
+
+
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+public class App02HelloWorldSpring3 {
+
+
+	public static void main(String[] args) { 
+		
+		//1: Launch a Spring Context - 
+
+		var context = 
+				new AnnotationConfigApplicationContext(HelloWorldConfiguration.class);
+		
+		//2: Configure the things that we want Spring to manage - 
+		//HelloWorldConfiguration - @Configuration
+		//name - @Bean
+		
+		//3: Retrieving Beans managed by Spring
+		
+		System.out.println(context.getBean("name"));
+
+		System.out.println(context.getBean("age"));
+		
+		System.out.println(context.getBean("person"));
+
+		System.out.println(context.getBean("person2MethodCall"));
+
+		System.out.println(context.getBean("person3Parameters"));
+		
+		System.out.println(context.getBean("address2"));
+		
+		
+		//context.getBean(Person.class)를 입력하고 실행해보자 어떻게 될까?
+		System.out.println(context.getBean(Person.class));
+		/*출력결과 ==>
+		Exception in thread "main" org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.example.demo.Person' available: expected single matching bean but found 3: person,person2MethodCall,person3Parameters
+		동일한 예외가 있지만 3개가 발견되었다 person,person2MethodCall,person3Parameters가 발견되었다고 한다
+		동일한 클래스에 세 개의 객체가 발견되었다
+		스트링 프레임워크가 이 중 하나에 우선순위를 부여하도록 하려면 어떻게 해야 할까?
+		HelloWorldConfiguration클래스로 이동해 보겠다 //HelloWorldConfiguration클래스로...
+		*/
+		
+		//그렇기 때문에 이와 같은 메서드 매개 변수를 자동 연결하든 Spring 컨텍스트에서 객체를 가져오든 일치하는 Bean이 여러 개일 경우 후보라고 한다
+		//일치하는 후보가 여러 개인 시나리오에선 Spring에서 예외를 출력한다 이 문제를 수정하는 방법은 이 중 하나를 기본으로 만드는 것이다 
+		//addres에 관한 한 address2와 address3로 여러 개의 Bean이 있다 이런 경우 이를 기본으로 만들 수 있다 primary로 만드려면 어떻게 해야 할까?//HelloWorldConfiguration클래스의 address() Bean으로..
+		
+		/* person4Parameters primary 설정후 실행결과 ==>
+		Ranga
+		20
+		Person[name=Ravi, age=25, address=Address[firstLine=Main Street, city=Utrecht]]
+		Person[name=Ranga, age=20, address=Address[firstLine=Baker Street, city=London]]
+		Person[name=Ranga, age=20, address=Address[firstLine=Baker Street, city=London]]
+		Address[firstLine=Baker Street, city=London]
+		Person[name=Ranga, age=20, address=Address[firstLine=Baker Street, city=London]]
+		Address[firstLine=Baker Street, city=London]
+		이제 애플리케이션이 정상적으로 실행된다
+		여러 개의 후보 Bean이 있는 시나리오에선 @Primary를 사용하여 어떤 후보가 가장 중요한지 나타낼 수 있다 지금부터 해 보겠다//다시 HelloWorldConfiguration클래스 파일 address3로...
+		*/
+		
+		
+		
+		System.out.println(context.getBean(Address.class));
+		/*출력결과 ==>
+		Exception in thread "main" org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.example.demo.Address' available: expected single matching bean but found 2: address2,address3
+		at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveNamedBean(DefaultListableBeanFactory.java:1312)
+		at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveBean(DefaultListableBeanFactory.java:486)
+		at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:341)
+		at org.springframework.beans.factory.support.DefaultListableBeanFactory.getBean(DefaultListableBeanFactory.java:334)
+		at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1249)
+		at com.example.demo.App02HelloWorldSpring3.main(App02HelloWorldSpring3.java:35)
+		예외가 발생하며 일치하는 Bean이 한 개 있어야 하지만 address2와 address3이 발견되었다고 한다
+		
+		인물에서 비슷한 작업을 해 보곘다
+		*/
+
+		
+		/*Address Primary 설정후 출력결과 ==>
+		Exception in thread "main" org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.example.demo.Person' available: expected single matching bean but found 4: person,person2MethodCall,person3Parameters,person4Parameters at 
+		문제가 하나 뿐이며 이는 즉 주소가 제대로 해결되었다는 뜻이다 하지만 person에는 문자 그대로 문제가 있는데 person 항목이 여러 개이기 때문이다 person,person2MethodCall,person3Parameters,person4Parameters
+		이렇게 person이 아주 많으면 그 중 하나를 기본으로 만들어 줘야 한다 person4Parameter를 기본으로 만들겠다 하겠다//HelloWorldConfiguration클래스의 person4Parameter 메소드로....
+		*/
+		
+		//한정자 실행
+		System.out.println(context.getBean("person5Qulifier"));
+		/*한정자 설정후 출력결과==>
+		Person[name=Ranga, age=20, address=Address[firstLine=Motinagar, city=Hyderabad]]
+		여기 있는 마지막 항목의 값을 확인할 수 있고 address3의 값 Motinagar, Hyderabad가 있다
+		*/
+		
+		//System.out.println()
+//		Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+		//1.위의 줄을 주석처리하고 (Address.class)를 주석 해제하고 실행해 보겠다 어떻게 될까?
+		
+	} 
+
+}
+
+
+
+-----------------------------------------------------
+
+
+
+
+
+package com.example.demo;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.annotation.*;
+
+
+record Person (String name, int age, Address address) { };
+
+
+//Address - firstLine & city
+record Address(String firstLine ,String city) { };
+
+@Configuration 
+public class HelloWorldConfiguration {
+	
+	
+	@Bean
+	public String name () {
+		
+		return "Ranga";
+	}
+	
+	@Bean
+	public int age () {
+		
+		return 20;
+	}
+
+	@Bean
+	public Person person() {
+		return new Person("Ravi", 25, new Address("Main Street","Utrecht"));
+	}
+	
+	@Bean
+	public Person person2MethodCall() {
+		return new Person(name(), age(), address()); //name, age
+
+	}
+	
+	@Bean
+	public Person person3Parameters(String name, int age, Address address3) {
+		//name, age, address2
+		return new Person(name, age, address3); //name, age
+
+	}
+	//여기에서 person3Parameters가 설정되며 person3Parameters는 현제 address3 Bean을 사용한다 Bean 이름은 여기에서 사용하고 있다 (@Bean(name = "address3")) (Address address3)
+	//다른 Bean을 만들어 주겠다
+	
+	
+	//person4Parameters를 만들고 address3대신 address를 입력한다 사실 이름이 address인 Bean은 없다 이름이 address2인 Bean과 address3인 Bean이 있다 하지만 이름이 address인 Bean은 없다
+	//이러면 어떻게 될까? 확인해보자 자바 실행해보기
+	@Bean
+	@Primary
+	//No qualifying bean of type 'com.example.demo.Address' 
+	//available: expected single matching bean but found 2: address2,address3
+	public Person person4Parameters(String name, int age, Address address) {
+		//name, age, address2
+		return new Person(name, age, address); //name, age
+
+	}
+	/* 출력결과 ==>
+	No qualifying bean of type 'com.example.demo.Address' available: expected single matching bean but found 2: address2,address3
+	동일한 오류가 표시되고 고유한 Bean 정의 예외는 없다 그리고 유형이 Address인 자격을 충족하는 Bean을 이용할 수 없다고 이와 같은 오류가 표시된다
+	일치하는 단일 Bean이 있어야 하지만 address2와 addres3의 두 개가 있다 //App02HelloWorldSpring3 클래스 파일로..
+	*/
+	//(@Primary 적어주기) 가져오기를 구성하겠다 그리고 실행해보자 //App02HelloWorldSpring3클래스의 (Person.class)로..
+	
+	
+	//address3의 @Qualifier를 사용하려고 하니 @Qualifier("address3qulifier")을 복사해서 파라미터의 Address address에 넣어 주겠다
+	//이 부분이 address에 자동으로 연결되고 name이 여기에 오는 새 person을 만들겠다(return new Person(name, age, address)) 그리고 person 한정자의 값을 가져오겠다 
+	//그러면 마지막 것을 출력해 보겠다 //다시 App02HelloWorldSpring3클래스파일 로.. 
+	@Bean
+	public Person person5Qulifier(String name, int age, @Qualifier("address3qulifier") Address address) {
+		//name, age, address2
+		return new Person(name, age, address); //name, age
+
+	}
+	
+🟢 @Primary	
+	//이렇게 입력하곘다 @Primary 배치를 조직하고 이렇게 address 문제를 해결했다 이제 애플리케이션을 다시 실행해보면//App02HelloWorldSpring3클래스의 (Address.class)로..
+	@Bean(name = "address2")
+	@Primary
+	public Address address () {
+		return new Address("Baker Street","London");
+	}
+ 
+🟢 Qualifier	
+	//Primary에 더해 문제를 해결하는 옵션이 @Qualifier이다 예를들어 address3에 @Qualifier를 추가하고
+	//이 한정자 이름을 지정하겠다 이름을 address3qulifier 로 설정하겠다 이러면 org.Spring 프레임워크 Bean Factory 한정자에 인풋한다 import org.springframework.beans.factory.annotation.Qulifier;(현재 필자는 .*로 설정했기 때문에 보이지 않음)
+	//저장하면 이제 한정자를 객체 외부에 사용할 수 있다
+	//이 말은 이 address를 자동으로 연결하는 경우 기본 주소를 사용하지 않고 다른 것을 사용하고자 한다 이럴 때 한정자를 활용할 수 있다 //person5Qulifier 메소드로....
+	@Bean(name = "address3")
+	@Qualifier("address3qulifier")
+	public Address address3 () {
+		return new Address("Motinagar","Hyderabad");
+	}
+}
+
+------------------------------------------------------------------------------------------------
+
+
+
+
+/*
+정리)
+여러 개의 일치하는 Bean이 있는 경우 첫 번째 옵션은 그중 하나를 기본으로 다시말해 가장 중요하게 만드는 것이다 (@Primary)
+다른 옵션은 한정자(@Qualifier)를 만드는 것이다 이 Bean에 @Qualifier를 추가하여 Bean 간에 자동 연결할 수 있다 
+*/
