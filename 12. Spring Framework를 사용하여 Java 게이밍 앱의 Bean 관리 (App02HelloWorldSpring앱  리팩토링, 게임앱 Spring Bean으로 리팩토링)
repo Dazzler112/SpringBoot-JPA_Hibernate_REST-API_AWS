@@ -1,0 +1,190 @@
+
+
+지난 학습에선 Spring 프레임워크와 Spring 프레임워크로 다양한 유형의 Bean을 설정하는 방법을 많이 살펴보았다
+이제 그 지식을 게임 애플리케이션에 반영해보자 앞서 App01GamingBasicJava를 구축했다 
+이 앱을 사용해 다양한 게임을 실행했으며 이제 Spring 프레임워크를 사용하여 실행하고자 한다 
+
+
+그전에 먼저 App02HelloWorldSpring3 클래스 파일을 리팩토링 해 보겠다
+
+-------------------------------------------------------------------------------------------
+
+
+App02HelloWorldSpring3
+
+
+
+⏺ App02HelloWorldSpring3 클래스파일
+
+
+
+package com.example.demo.helloworld;
+
+import org.springframework.context.annotation.*;
+
+public class App02HelloWorldSpring3 {
+
+
+	public static void main(String[] args) { 
+		
+		//1: Launch a Spring Context - 
+
+		//이것을 보면 여기 오류표시가 나온다 Resource leak: 'context' is never closed 리소스 누출 컨텍스트가 닫히지 않았다고 한다
+		//캐치 블록과 같이 배치하면 컨텍스트를 닫을 수 있다 이렇게 해결할 수 있다 하지만 Java에는 Try-with-resource라는 새로운 기능이 있다 이 기능을 활용해 오류를 해결해 보겠다
+		//try후 괄호를 넣고 (var context = )이 코드를 try괄호에 넣는다 나머지는 try 중괄호에 넣고 서식까지 지정하면 끝난다
+		//저장하면 경고가 사라짐을 확인할 수 있다 이를 Try-with-resource라고 한다 코드 내에서 예외가 발생하면 상황별 단서가 자동으로 호출된다 
+		try (var context = 
+				new AnnotationConfigApplicationContext
+				(HelloWorldConfiguration.class)){
+		
+			//2: Configure the things that we want Spring to manage - 
+			//HelloWorldConfiguration - @Configuration
+			//name - @Bean
+			
+			//3: Retrieving Beans managed by Spring
+			
+			System.out.println(context.getBean("name"));
+			System.out.println(context.getBean("age"));		
+			System.out.println(context.getBean("person"));
+			System.out.println(context.getBean("person2MethodCall"));
+			System.out.println(context.getBean("person3Parameters"));
+			System.out.println(context.getBean("address2"));						
+			System.out.println(context.getBean(Person.class));		
+			System.out.println(context.getBean(Address.class));		
+			System.out.println(context.getBean("person5Qulifier"));
+			
+			//System.out.println()
+//			Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+			
+		}
+	} 
+}
+
+-------------------------------------------------------------------------------------------
+
+
+
+
+
+
+이제 기본 게임앱에서 할 수 있는 것과 매우 유사한 것을 할 준비가 끝났다 
+
+-------------------------------------------------------------------------------------------
+
+
+
+⏺ App03GamingSpringBeans 클래스파일
+
+
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+import com.example.demo.game.*;
+
+public class App03GamingSpringBeans {
+
+
+	//이 전체를 Spring 설정의 일부로 작성하고자 한다 그러려면 두 단계를 거쳐야 한다 
+	//하나는 이걸로 설정 파일을 만드는 것이고 다음으로 그 설정을 사용해 Spring 컨텍스트를 만드는 것이다 설정 파일 만들기부터 시작해 보도록 하자//GamingConfiguration 클래스 파일로...
+	public static void main(String[] args) {
+	
+		//Sprnig 컨텍스트를 만들겠다 AnnotationConfigApplicationContext 입력하고 여기에서 정의한 Spring설정인 GamingConfiguration을 사용하고자 한다 이 GamingConfiguration.class를 사용하겠다
+		//컨텍스트는 이와 동일하고 
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(GamingConfiguration.class)){
+			
+			//이제 context.getBean을 입력하고 Bean 유형을 입력하겠다 인터페이스 이름 GamingConsole.class를 사용하겠다
+			//그리고 예를 들어 여기 up 메서드를 호출하자 Bean에 up 메서드를 호출하고 다시 반환하겠다 //자바 애플리케이션으로 실행하면 어떻게 될까?
+			context.getBean(GamingConsole.class).up();
+			/*출력결과==>
+  		up
+  		여기 up이 출력되었다
+  		지금까지 간단한 Spring 컨텍스트를 만들었다 설정 파일 GamingConfiguration을 만들었으며 여기서 public GamingConsole game(){ 을 정의했고 
+  		활용하고 있는 게임은 PacmanGame이며 AnnotationConfigApplicationContext를 사용하는 Spring 컨텍스트로 실행하고 있다
+			 */
+			
+		
+		//새 설정이 아닌 Spring 컨텍스트를 만들고 있으며 GamingConsole은 여기서(context.getBean(GamingConsole.class).up();) 가져왔다  
+		//우리가 만들려 한 건 GamingConsole만이 아니다 GameRunner도 가져와야 한다 그렇기 때문에 GameRunner 인스턴스도 만들어야 한다 //다시 만들어야 할까??
+		//다시 GamingConfiguratin으로 이동하자..
+		
+		
+		//이제 GameRunner클래스를 가져와 실행하겠다 //context.getBean(GameRunner.class).run();이렇게 입력해주자 GameRunnerBean을 가져오고 실행한다// 어떻게 되는지 실행해보자
+		context.getBean(GameRunner.class).run();
+		/*출력결과 ==>
+		Running game: com.example.demo.game.PacmanGame@447a020
+		up
+		down
+		left
+		right
+		게임이 실행되고 위,아래,왼쪽,오른쪽도 볼 수 있다
+		*/
+		}
+  //!var context =은 평소처럼 오류가 표시되며 리소스 누출 컨텍스트가 닫히지 않았다고 한다 리소스 블록을 넣어보자 //var context = 로 가서 리소스 블록에 넣자..
+	} 
+}
+
+
+-------------------------------------------
+
+
+⏺ GamingConfiguration 클래스파일
+
+
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+import com.example.demo.game.*;
+
+//만드려 하는 것은 Bean이다 가장 쉬운 방법을 사용하겠다
+//위에 @Configuration을 사용하고 몇가지 컴파일 에러들이 생길것이다
+//Configuration에는 설정 주석이 오고 여기 설정파일이 있다 Spring Bean을 포함한 설정 파일이다
+@Configuration
+public class GamingConfiguration {
+
+	
+	//Spring Bean을 구성하는 것부터 시작해 보겠다, @Bean 생성하려 하는 Bean은 어떤 것일까? 시작혀려면 나머지는 신경 쓸 필요 없다 나머지는 돌아와서 해결할 것이며 팩맨 게임만 만들려 한다//한 단계씩 진행해 보자..
+	//public GamingConsole game () {하고 PacmanGame을 다시 반환하겠다 
+	@Bean
+	public GamingConsole game () {
+		var game = new PacmanGame();
+		
+		//이제 게임도 반환하겠다
+		return game; 
+	}
+	//gaming 설정에서 game이 정의되었고 앞서 만든 클래스로 이동해 //App03GamingSpringBeans클래스파일로..
+	
+
+	
+	//여기서 GameRunner 클래스르 만들겠다 GameRunner를 만들자
+	
+	//GameRunner를 반환하게 하고 메소드 명은 gameRunner로 성정하고 여기서 이 코드를 사용하겠다( var gameRunner = new GameRunner(game) )
+	//인풋을 정리해 보자면 오류가 하나밖에 생기지 않았다 게임을 어떻게 통과시켜야 할까?
+	//한가지 옵션은 여기서 game 메서드를 직접 호출하는 것이다, 논의한 바 있는 다른 옵션은 game을 매개변수(Parameter)로 전달하는 것이다
+	//GamingConsole game을 여기서 매개 변수로 정의할 수 있으며 Spring Bean이라는 이름은 Bean을 가져와 여기에 연결 한다 이 메서드 호출에 매개 변수로 전달할 것이다
+	//GameRunner Bean을 만들면 매개변수로 전달되고 GameRunner Bean은 이 게임을 사용해 만들어진다
+	@Bean
+	public GameRunner gameRunner (GamingConsole game) {
+		var gameRunner = new GameRunner(game);
+		
+		//return gameRunner를 사용해 주겠다
+		return gameRunner; 
+	}
+	//지금까지 팩맨 게임을 만들고 GameRunner에 연결했다 이제 다시 App03GamingSpringBeans로 이동하자//App03GamingSpringBeans클래스 파일로....
+}
+
+-------------------------------------------------------------------------------------------
+
+
+
+
+/*
+정리)
+게임과 GameRunner를 Spring Bean으로 실행했다
+게임과 GameRunner는 Spring Bean이며 Spring 컨텍스트에서 Bean을 가져와 실행했다
+*/
