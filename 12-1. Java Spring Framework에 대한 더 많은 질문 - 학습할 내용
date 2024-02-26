@@ -1,0 +1,111 @@
+
+Spring Quesstions You Might Be Thinking About
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |  |  name  |  | age  |   |person |  |person2|   |address|    |   |
+|  |  |        |  |      |   |       |  |       |   |       |    |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+
+● Question 1: Spring Container vs Spring Context vs IOC Container vs Application Context
+● Question 2: Java Bean vs Spring Bean
+● Question 3: How can I list all beans managed by Spring Framework?
+● Question 4: What if multiple matching beans are avaliable?
+● Question 5: Spring is managing objects and performing auto-wiring.
+  ■ BUT aren't we writing the code to create objects?
+  ■ How do we get Spring to create objects fo us?
+● Question 6: Is Spring really making things easy?
+
+다시 질문으로 돌아와 보자
+● Question 5: Spring is managing objects and performing auto-wiring.
+질문 5이다, Spring은 객체를 관리하고 자동연결을 수행한다
+ 하지만 코드를 작성해 객체를 만드는 것은 사람이다 
+ Spring이 객체를 만들도록 하려면 어떻게 해야 할까?
+
+코드를 보면 GamingConfiguration에서 코드를 작성해 객체를 만들었다
+새 팩맨 게임과 GameRunner에선 우리가 객체를 만들기 위해 코드를 작성했다
+Spring이 관리해 주지만 이러한 객체를 만드는 건 우리이다 
+--------------------------------------
+package com.example.demo;
+import org.springframework.context.annotation.*;
+import com.example.demo.game.*;
+
+@Configuration
+public class GamingConfiguration {
+
+	@Bean
+	public GamingConsole game () {
+		var game = new PacmanGame();
+		return game; 
+	}
+
+	@Bean
+	public GameRunner gameRunner (GamingConsole game) {
+		var gameRunner = new GameRunner(game);
+		return gameRunner; 
+	}
+}
+--------------------------------------
+Spring이 객체를 만들도록 하려면 어떻게 해야 할까?
+
+● Question 6: Is Spring really making things easy?
+더 중요한 질문은 6번 질문으로 Spring프레임워크가 이것들을 정말 쉽게 해 줄까, 아니면 어려워질까? 
+이전 버전의 코드를 비교해 보면, 첫 번째 GamingBasicJava를 비교해보면 상당히 간단한 코드이며, 많은 정보가 담긴 설정 파일로 대체했다
+
+-------------------------------------------
+
+
+package com.example.demo;
+import com.example.demo.game.*;
+
+public class App01GamingBasicJava {
+
+	public static void main(String[] args) {
+//		var game = new MarioGame();
+//		var game = new SuperContraGame();
+		
+		var game = new PacmanGame(); //1: Object Creation
+		
+		var gameRunner = new GameRunner(game);
+	        //2: Object Creation + Wiring of Dependencies
+	        // Gaming is a Dependency of GameRunner
+		
+		gameRunner.run();
+	} 
+}
+-------------------------------------------
+
+
+다음로 App03SpringBeans를 보면 여기도 수많은 코드가 있다
+-------------------------------------------
+
+
+package com.example.demo;
+import org.springframework.context.annotation.*;
+import com.example.demo.game.*;
+
+public class App03GamingSpringBeans {
+
+	public static void main(String[] args) {
+ 
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(GamingConfiguration.class)){
+
+		context.getBean(GamingConsole.class).up();
+
+		context.getBean(GameRunner.class).run();
+
+		}
+	} 
+}
+-------------------------------------------
+Spring이 상황을 쉽게 만들어 줄까, 아니면 어렵게 만들까?
+
+
+다음 단계에서 이 모든 질문에 답변해 보겠다.
