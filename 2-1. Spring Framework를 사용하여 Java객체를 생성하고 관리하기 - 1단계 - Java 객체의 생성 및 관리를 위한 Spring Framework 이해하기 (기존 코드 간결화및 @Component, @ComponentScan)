@@ -1,0 +1,327 @@
+
+
+Spring Quesstions You Might Be Thinking About
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |  |  name  |  | age  |   |person |  |person2|   |address|    |   |
+|  |  |        |  |      |   |       |  |       |   |       |    |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+
+● Question 1: Spring Container vs Spring Context vs IOC Container vs Application Context
+● Question 2: Java Bean vs Spring Bean
+● Question 3: How can I list all beans managed by Spring Framework?
+● Question 4: What if multiple matching beans are avaliable?
+● Question 5: Spring is managing objects and performing auto-wiring.
+  ■ BUT aren't we writing the code to create objects?
+  ■ How do we get Spring to create objects fo us?
+  
+이번 시간에는 다섯 번째 질문을 다뤄보겠다
+Spring은 객체를 관리하며 자동 와이어링을 수행한다 
+그런데 우리는 객체를 생성하기 위해 코드를 작성하지 않았나?
+Spring으로 객체를 어떻게 생성할 수 있을까?
+이번 시간을 통해 자세히 살펴보자
+
+기존에 만들었던 코드와 비교하기 위해 프로젝트를 하나 복사하고 시작하자
+
+앞서 질문에선 Bean의 생성에 대해 이야기했었는데 GamingConfiguration에 Bean을 수동으로 생성하고 있다
+그런데 Bean을 수동으로 만들 필요가 없다면 어떨까?? Spring 프레임워크가 우리에게 Bean을 생성해줄 수 있다면 그 방법은 무엇일까?
+우선 Configuration 파일과 App 파일을 결합해야 하는데 
+Configuration을 복사해 App03GamingSpringBeans에 붙여 넣어보자
+
+------------------------------------------------------------------------------------
+
+
+⏺ App03GamingSpringBeans 클래스파일
+
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+import com.example.demo.game.*;
+
+
+//1: 같은 파일에 public 클래스가 2개나 가질 수 없으니 GamingConfiguration의 public은 삭제하겠다 //그리고 GamingConfiguration파일도 삭제하곘다
+//이렇게 Configuration을 갖고 왔는데 Spring 컨텍스트를 시작할 코드도 주어져 있다 //자바를 실행해 보면 어떻게 될까? 
+/*출력결과 ==> 
+up
+Running game: com.example.demo.game.PacmanGame@17d919b6
+up
+down
+left
+right
+모든 것이 제대로 작동되고 있다 지금은 Pacman 게임을 실행 중이다
+*/
+//@Configuration
+//class GamingConfiguration {
+//	
+//	@Bean
+//	public GamingConsole game () {
+//		var game = new PacmanGame();
+//		return game; 
+//	}
+//
+//	@Bean
+//	public GameRunner gameRunner (GamingConsole game) {
+//		var gameRunner = new GameRunner(game);
+//		return gameRunner; 
+//	}
+//
+//}
+//더 간단하게 정리해볼 수도 있다 별도의 클래스를 Configuration 파일로 생성하는 대신, 이미 주어진 동일한 클래스를 다시 사용할 수 있는데 별도의 Configuration 클래스에서 Bean을 제거하고 런처 클래스에 입력해보자
+
+@Configuration
+
+//3-1: @ComponentScan을 입력해보자 org.springframework.context.annotation.ComponentScan 임포트를 확인할 수 있는데 보다시피 import가 나타났다, 
+//바로 여기에서 패키지를 설정할 수 있는데,com.example.demo.game을 입력해보자 //3-1 PacmanGame클래스로...
+
+//이 안에 어떤 컴포넌트가 있든지 간에 Spring이 Bean을 생성해야 하는데 이번에는 Spring이 Bean을 생성하는지 살펴보자 실행해보기..
+@ComponentScan("com.example.demo.game")
+public class App03GamingSpringBeans {
+	
+	//2: 바로 이것이 이 Spring 컨텍스트를 실행할 것이다 여기로 옮겨보자 그다음 class GamingConfiguration를 삭제하고, 
+	//App03GamingSpringBeans를 Configuration 파일로 만들자 저장하면 컴파일 오류가((GamingConfiguration.class)) 발생하는데 AnnotationConfigApplicationContext를 GamingConfiguration으로 실행하고 있기 때문이다
+	//그렇다면 해당 Configuration은 어디에 있을까? Configuration은 App03GamingSpringBeans 클래스에 있다 그럼 (GamingConfiguration.class)대신 App03GamingSpringBeans.class 라고 입력해 보겠다
+	
+	//3: Spring이 PacmanGame을 생성하는 방법은 무엇일까? 특정 클래스의 인스턴스 생성을 Spring에 요청하려면 바로 어노테이션을 추가해야한다 //3: PacmanGame 클래스파일로..
+	
+	//public GamingConsole game () { 이 Bean을 삭제하려고 한다 //Pacman Bean을 삭제했는데 Spring이 Bean을 생성해주는지 확인해보자 //실행하기!!
+//	@Bean
+//	public GamingConsole game () {
+//		var game = new PacmanGame();
+//		return game; 
+//	}
+
+	/*3: 출력결과 ==>
+	Caused by: org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'com.example.demo.game.GamingConsole' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+	에러가 발생했다 읽는 도중 예외를 하나 발견했다 바로 NoSuchBeanDefinitionException이다
+	Spring은 GamingConsole의 구현, 즉 game을 찾으려고 하는데 하지만 Spring은 이 특정 컴포넌트를 찾지 못하고있다
+	앞서 PacmanGame에 컴포넌트를 추가해두었는데 어째서 Spring이 PacmanGame을 찾지 못할까?
+	
+	Spring에게 PacmanGame을 찾아야 하는 곳을 알려줘야 하기 때문이다.
+	여기서 Configuration 파일을 생성하고, 이것이 Bean 정의라고 지정해두었는데 하지만 컴포넌트는 이 패키지에 정의해두었다 com.example.demo.game 패키지에 말이다
+	따라서 이 특정 패키지에서 PacmanGame을 검색해야 한다고 Spring 프레임워크에게 알려줘야 한다
+	*/
+	//3-1 : Spring에게 검색할 패키지를 어떻게 알려줄 수 있을까? 바로 @ComponentScan을 사용하면 된다 //위로...
+	
+	/*3-1: 출력결과 ==>
+	up
+	Running game: com.example.demo.game.PacmanGame@895e367
+	up
+	down
+	left
+	right
+	Spring이 PacmanGame을 실행하는 데 성공했다 
+	Spring이 PacmanGame의 인스턴스를 생성했는데, 이를 GamingConsole로 자동 와이어링할 수 있다는 데 주목해야 한다
+	3-2: 잘 모르겠다면 syso를 실행해보면 된다 아래 GameRunner gameRunner에서 System.out.println(game); 하기 그리고 결과를 보자
+	*/
+	
+//	@Bean
+//	public GameRunner gameRunner (GamingConsole game) {
+//		System.out.println("Parameter: "+ game);
+//		var gameRunner = new GameRunner(game);
+//		return gameRunner; 
+//	}
+	
+	/*3-2: syso찍은 출력 ==>
+		Parameter: com.example.demo.game.PacmanGame@4c5ae43b
+		보다시피 PacmanGame 이 Parameter이다 
+		Spring이 PacmanGame의 인스턴스를 생성하고, 이 인스턴스가 이곳에 와이어링됐다 이곳에 Parameter로 전송된 것이다
+	 */
+	
+	//4: 그럼 대체 왜 이곳에 이것을 생성해야 하는지 궁금할건데 Spring이 이 일을 대신 해줄 수 있을까? Bean을 지우고... //그리고 GameRunner클래스로....
+	//이렇게 Spring 프레임워크가 PacmanGame과 GameRunner에 대한 Bean을 생성하도록 준비해 봤는데 자바를 실행해 보자...
+	/*출력결과 ==>
+	up
+	Running game: com.example.demo.game.PacmanGame@43015c69
+	up
+	down
+	left
+	right
+	애플리케이션이 제대로 실행하고 있는데 평소와 같이 PacmanGame을 실행할 수 있다
+
+	*/
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(App03GamingSpringBeans.class)) {//(GamingConfiguration.class))교체
+			context.getBean(GamingConsole.class).up();
+			context.getBean(GameRunner.class).run();
+		}
+		//그럼 Pacman 게임 생성을 Spring에 요청해보겠다//3:@Bean 쪽으로..
+		//이렇게 하나의 클래스에 Spring 컨텍스트를 실행하는 데 필요한 모든 것을 갖추게 되었다 Spring 컨텍스트를 실행하고 이곳에서 모든 Bean을 초기화하게 되는데 작동할 수 있는지 궁금하지? 확인해 보자 실행..
+	    /*출력결과 ==>
+	    up
+		Running game: com.example.demo.game.PacmanGame@62656be4
+		up
+		down
+		left
+		right
+		보다시피 잘 작동하고 있다 
+		이때 흥미로운 점은 이보다 훨씬 더 간단하게 작업할 수 있다는 것이다 
+		지금 @Bean 어노테이션을 사용하여 수동으로 Bean을 생성했는데 Spring에 Bean을 생성해달라고 요청할 수도 있다
+	    */
+		
+	} 
+}
+
+------------------------------------------
+
+
+⏺ PacmanGame 클래스파일
+
+
+package com.example.demo.game;
+
+import org.springframework.stereotype.*;
+
+//3: PacmanGame 클래스에서 @Component를 입력해보자
+//이것이 Spring이 관리할 컴포넌트인데 이제 임포트를 정리하면 import org.springframework.stereotype.Component를 확인할 수 있다
+//@Component를 살펴보니 어노테이션된 클래스가 'Component'라고 하는데 이러한 클래스는 어노테이션 기반의 Configuration과 클래스패스 스캐닝을 사용할 때, 자동 감지에 대한 후보로 간주된다
+//따라서 결국 Spring이 우리에게 PacmanGame의 인스턴스를 생성해주는 것이다 
+//Spring은 객체 생성도 시작할 수 있는데 그럼 App03GamingSpringBeans클래스로 다시가 결과를 살펴보자 //3: App03GamingSpringBeans클래스로...
+
+//3-1: 이 패키지에는 PacmanGame이 존재하고 있다, 이것이 바로 Spring컴포넌트를 스캔하는 데 필요한 패키지이다 //다시 App03GamingSpringBeans클래스로...
+@Component
+public class PacmanGame implements GamingConsole{
+	
+	public void up() {
+		System.out.println("up");
+	}
+
+	public void down() {
+		System.out.println("down");
+	}
+	
+	public void left() {
+		System.out.println("left");
+	}
+
+	public void right() {
+		System.out.println("right");
+	}
+}
+
+
+------------------------------------------
+
+
+⏺ GameRunner 클래스파일
+
+
+package com.example.demo.game;
+
+import org.springframework.stereotype.*;
+
+//4: GameRunner 클래스에 어노테이션을 추가하겠다 어떤 어노테이션을 추가해야 할까? 바로 @Component다
+//이 GameRunner 클래스가 동일한 패키지 안에 있으니 바로 com.example.demo.game 패키지이다 이 패키지에서 컴포넌트 스캔도 할 수 있다
+//이 GameRunner는 자동으로 스캔되고 선택될 것이다 //App03GamingSpringBeans클래스로..
+@Component
+public class GameRunner {
+
+	private GamingConsole game;
+
+	public GameRunner (GamingConsole game) {
+		this.game = game;
+	}
+	  
+	public void run() {
+		
+		System.out.println("Running game: " + game);
+		game.up();
+		game.down();
+		game.left();
+		game.right();
+	}
+
+}
+
+
+
+/*
+4까지 순서후 결론 )
+//이때 코드의 양을 크게 줄였다는 점에 주목해야 한다 수동으로 PacmanGame과 GameRunner를 직접 생성하지 않아도 Spring 프레임워크가 대신 생성해줄 수 있다.
+*/
+
+------------------------------------------------------------------------------------
+
+
+
+
+Spring Quesstions You Might Be Thinking About
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|              JVM                                                   |
+|  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    |
+|  |  Spring                                                     |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |  |  name  |  | age  |   |person |  |person2|   |address|    |   |
+|  |  |        |  |      |   |       |  |       |   |       |    |   |
+|  |   ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ    ㅡㅡㅡㅡ     ㅡㅡㅡㅡ     |   |
+|  |                                                             |   |
+|   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   | 
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+
+● Question 1: Spring Container vs Spring Context vs IOC Container vs Application Context
+● Question 2: Java Bean vs Spring Bean
+● Question 3: How can I list all beans managed by Spring Framework?
+● Question 4: What if multiple matching beans are avaliable?
+● Question 5: Spring is managing objects and performing auto-wiring.
+  ■ BUT aren't we writing the code to create objects?
+  ■ How do we get Spring to create objects fo us?
+● Question 6: Is Spring really making things easy?
+
+Spring은 객체를 관리하고 자동 와이어링을 수행할 뿐만 아니라 또한 우리에게 객체를 생성해준다,
+@Component를 바탕으로, 또 @ComponentScan을 사용해서 말이다
+Spring은 올바른 패키지를 스캔하고, 컴포넌트를 찾고, 인스턴스를 생성하고, 이를 자동으로 추가하며 전체 애플리케이션을 제대로 작동시켜 준다
+그런데 애플리케이션이 잘 작동하지 않는다면 어떻게 해야 할까?
+
+1) 먼저 @ComponentScan을 제대로 설정했는지 확인해야 한다 
+
+2) 교육자가 추천하는 방법은 ComponentScan에 설정한 패키지롤 이동하는 건데 com.example.demo.game 안에서 Bean을 생성하고자 하는 클래스를 열면 된다
+여기에선 PacmanGame과 GameRunner에 대한 Bean을 생성하고 있는데 1. GameRunner를 열고 @Component가 있는지 확인해야 한다 
+2. 다음으로 PacmanGame을 열고 여기서도 @Component가 있는지 확인한다 PacmanGame과 GameRunner에 컴포넌트가 있는지, 또 이렇게 동일한 패키지에 있는지 확인해야 한다
+com.example.demo.game패키지는 App03GamingSpringBeans에서 @ComponenScan으로 설정되었다 
+
+App03GamingSpringBeans 이 클래스의 이름을 다시 지정해 보자 GamingAppLauncherApplication로 바꾸겠다
+--------------------------
+@ComponentScan("com.example.demo.game")
+public class GamingAppLauncherApplication {
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(GamingAppLauncherApplication.class)) {//(GamingConfiguration.class))교체
+			context.getBean(GamingConsole.class).up();
+			context.getBean(GameRunner.class).run();
+		}
+  .....
+  }
+
+  실행결과 ==>
+  up
+  Running game: com.example.demo.game.PacmanGame@43015c69
+  up
+  down
+  left
+  right
+  --------------------------
+
+
+
+
+/*
+정리)
+이번 학습을 통해 Spring 프레임워크에게 할 일을 많이 맡겨볼 수 있었다
+코드를 간단하게 구성할 수도 있었다
+이제 PacmanGame에선 @Component가 있는데 MarioGame에도 @Component가 있다면 어떨까?
+SuperContraGame에 @Component가 있다면? 어떤 일이 발생할까?
+예제 삼아 직접 @Component를 적용해보기 바란다 스스로 솔루션을 찾을 수 있는지 알아보자 
+*/
