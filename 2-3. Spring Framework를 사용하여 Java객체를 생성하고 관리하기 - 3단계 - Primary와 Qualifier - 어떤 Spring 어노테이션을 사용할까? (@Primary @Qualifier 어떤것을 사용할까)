@@ -1,0 +1,85 @@
+
+
+@Primary vs @Qualifier - Which one to use?
+
+ ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|  @Component @Primary                                     |
+|  class QuickSort implements SortingAlgorithm {}          |
+|                                                          |
+|  @Component                                              |
+|  class BubleSort implements SortingAlgorithm {}          |
+|                                                          |
+|  @Conponent @Qualifier("RadixSortQualifier")             |
+|  class RadixSort implements SortingAlgorithm {}          |
+|                                                          |
+|  @Component                                              |
+|  class ComplexAlgorithm                                  |
+|    @Autowired                                            |
+|    private sortingAlgoritm algoritm;                     |
+|                                                          |
+|  @Component                                              |
+|  class AnotherComplexAlgorithm                           | 
+|    @Autowired @Qualifier("RadixSortQualifier")           |
+|    private SortingAlgoritm iWantToUseRadixSortOnly;      |
+ ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+● @Primary - A bean should be given preference when multiple candidates are qualified
+● Qualifier - A specific bean should be auto-wired (name of the bean can be used as qualifier)
+●ALWAYS think from the perspctive of the class using the SortingAlgorithm: 
+  ■ 1: Just @Autowired: Give me (preferred) SortingAlgorithm
+  ■ 2: @Autowired + @Qulifier: I only want to use specific SortingAlgorithm - RadixSort
+  ■ (REMEMBER) @Qulifier has higher priority then @Primary
+
+
+@Primary와 @Qualifier를 비교하여 자세히 살펴보려고 한다
+이중 어떤 것을 사용해야 할까? 예시를 통해 알아보겠다
+복잡한 알고리즘을 작성한다고 가정해보겠다
+알고리즘의 일부로 여러 분류 알고리즘을 사용하려고 하는데 그래서 SortingAlgorithm이라는 인터페이스를 생성했다
+SortingAlgorithm이라는 인터페이스가 있다고 가정하겠다, 또 QuickSort, BubbleSort, RadixSort는 우리가 구현한 분류 알고리즘인데
+여기서 ComplexAlgorithm이 컴포넌트라는게 확인되고, SortingAlgorithm을 여기로 자동 와이어링해야 한다
+AnotherComplexAlgorithm도 있으며, 이것도 역시 SortingAlgorithm을 써야 한다
+이것이 바로 SortingAlgorithm 또한 AnotherComplexAlgorithm으로 자동 와이어링하는 이유인데 
+
+그렇다면 @Primary와 @Qualifier를 사용해야 하는 경우는 각기 언제일까?? 
+
+● @Primary - A bean should be given preference when multiple candidates are qualifier
+  =>@Primary는 무슨 의미를 갖고 있지? Primary는 여러 후보가 자격이 있는 경우, Bean에게 우선권을 주는 것을 말한다
+    너에게 5개의 Bean이 있고, 그중 하나에 @Primary가 적용되었다 바로 해당 Bean이 우선권을 가진것이다
+
+● Qualifier - A specific bean should be auto-wired (name of the bean can be used as qualifier)
+  =>@Qualifier의 경우, 특정 Bean이 자동 와이어링되어야 한다
+    @Qualifier의 역할은 특정하게 지정된 Bean을 자동 와이어링 하는 것이다 보다시피 
+    @Conponent @Qualifier("RadixSortQualifier") -> RadixSort에 @Qualifier가 추가되었는데 지정된 이름이 무엇이지?
+    바로 "RadixSortQualifier" 이다
+    이 AnotherComplexAlgorithm에도 어노테이션이 있는데 @Qualifier("RadixSortQualifier") 라고 작성했다 
+    
+
+AnotherComplexAlgorithm의 경우, RadixSort만 사용하려고 한다 ComplexAlgorithm에선 SortingAlgorithm을 사용하고자 하는데
+가장 높은 우선 순위를 달라고 작성했다
+
+●ALWAYS think from the perspctive of the class using the SortingAlgorithm:
+@Primary와 @Qualifier중에서 선택할 때는 항상 이 특징 의존성을 사용하는 클래스의 관점에서 생각해야 한다
+따라서 ComplexAlgorithm 과 AnotherComplexAlgorithm의 관점에서 항상 생각해야 한다 
+ 
+  ■ 1: Just @Autowired: Give me (preferred) SortingAlgorithm
+ComplexAlgorithm에선 @Autowired만 사용하고 있는데, 한정자는 전혀 적용되지 않았지
+@Autowired만 사용한다면 가장 적합한 SortingAlgorithm을 달라고 요청하는 것이다 
+어떤 SortingAlgorithm이든 상관없다는 건데 SortingAlgorithm이 1개인 경우, 그 1개를 주고 
+10개의 SortingAlgorithm을 갖고 있다면, 가장 적합한 걸 달라는 것이다
+따라서 ComplexAlgorithm은 가장 적합한 SortingAlgorithm을 달라고 요청하고 있는 것이다
+
+  ■ 2: @Autowired + @Qulifier: I only want to use specific SortingAlgorithm - RadixSort
+하지만@Qualifier를 사용하면 어떨까, 기본적으로 @Autowired와 @Qulifier를 같이사용하는 건데 이러한 상화에선 특정 SortingAlgorithm만을 사용하고자 한다고 말하고 있다
+AnotherComplexAlgorithm에선 RadixSort를 사용하고자 한다고 작성해두었다 다른 SortingAlgorithm은 원치 않는다
+
+  ■ (REMEMBER) @Qulifier has higher priority then @Primary
+@Qulifier가 @Primary보다 더 높은 우선순위를 갖고 있다는 점을 항상 기억해라
+여기에 AnotherComplexAlgorithm은 RadixSort로 자동 와이어링되는데 
+요약하자면 @Primary와 @Qualifier중 결정해야 할 때 의존성을 사용하는 클래스의 관점에서 항상 생각하라
+-따라서 ComplexAlgorithm과 AnotherComplexAlgorithm의 관점에서 생각해야 한다 
+-어떤 SortingAlgorithm을 사용해도 괜찬다면 @Autowired를 사용하라
+-특정 SortingAlgorithm을 사용해야 하는 경우, @Primary를 적용하면 된다
+
+❗ 너가 기억해야할 매우 중요한 것은 여기에 ( @Conponent @Qualifier("RadixSortQualifier")  ) @Qualifier어노테이션이 없다면
+이럴 때는 Bean의 이름을( RadixSort ) 한정자로 사용할 수 있다
+따라서 @Qualifier 어노테이션이 없다면 @Qulifier 다음에 radixSort를 추가하면 된다, 
+이때 r은 소문자로 쓰는데, 여기서 소문자 r을 적용한 radixSort라는 Bean의 이름을 사용해서 Bean을 자동 와이어링 할 수 있다❗
