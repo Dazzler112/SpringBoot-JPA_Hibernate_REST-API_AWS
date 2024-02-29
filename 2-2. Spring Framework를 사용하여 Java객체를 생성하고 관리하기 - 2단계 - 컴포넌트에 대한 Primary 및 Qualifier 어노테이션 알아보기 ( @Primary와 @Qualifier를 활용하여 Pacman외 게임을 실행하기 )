@@ -1,0 +1,195 @@
+
+
+MarioGame에 @Component를 적용하면 어떻게 될까?
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+⏺ MarioGame 클래스파일
+
+
+package com.example.demo.game;
+
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.*;
+
+//1: 너가 잘 알고있듯이, @Component를 입력하고 import org.springframework.stereotype.Component 를 임포트 했는데 저장한 다음 GamingAppLauncherApplication2 으로 돌아가서 실행해보겠다 //GamingAppLauncherApplication2 클래스로.. 
+@Component
+
+//1-1: 여러 후보를 발견하는 경우 Spring 프레임워크에게 MarioGame을 사용하라고 알려주는 것이다
+//Primary는 여러 후보가 단일 값 의존성을 자동 와이어링할 자격이 있는 경우 Bean에 우선권을 부여한다고 적혀있다 이대로 실행하면 어떤 결과가 나타날까? //GamingAppLauncherApplication2 클래스파일로..
+@Primary
+public class MarioGame implements GamingConsole{
+
+	public void up() {
+		System.out.println("Jump");
+	}
+
+	public void down() {
+		System.out.println("Go Into a hole");
+	}
+
+	public void left() {
+		System.out.println("Go back");
+	}
+
+	public void right() {
+		System.out.println("Accelerate");
+	}
+
+}
+
+
+-------------------------------
+
+
+⏺ GamingAppLauncherApplication2 클래스파일
+
+
+package com.example.demo;
+
+import org.springframework.context.annotation.*;
+
+import com.example.demo.game.*;
+
+
+
+@Configuration
+@ComponentScan("com.example.demo.game")
+public class GamingAppLauncherApplication2 {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(GamingAppLauncherApplication2.class)) {//(GamingConfiguration.class))교체
+			
+			context.getBean(GamingConsole.class).up();
+			
+			context.getBean(GameRunner.class).run();
+		}
+		/* 1: MarioGame 출력결과 ==>
+		Caused by: org.springframework.beans.factory.NoUniqueBeanDefinitionException: No qualifying bean of type 'com.example.demo.game.GamingConsole' available: expected single matching bean but found 3: marioGame,pacmanGame
+		오류가 생겼다 무슨 오류일까? NoUniqueBeanDefinitionException 이다 어쨰서 고유한 Bean 정의가 없다는 것일까?
+		
+		GameRunner 클래스파일의 경우 GamingConsole 구현이 필요하기 때문이다 ( public GameRunner (GamingConsole game) { )
+		Spring 프레임워크가 GaminConsole 인터페이스의 구현을 찾고 있는데 GaminConsole 인터페이스의 구현을 2개나 발견한 것이다 (1. @Component public class PacmanGame implements GamingConsole{ /2. @Component public class MarioGame implements GamingConsole )
+		MarioGame과 PacmanGame을 발견하고, 이 중 하나를 선택할 수 없는 상황이다 Spring 프레임워크를 어떻게 도와줄 수 있을까?
+		
+		1-1: 한 가지 방법으론 @Primary를 사용할 수 있는데 MarioGame에 우선권을 부여하는 것이다 //MarioGame클래스 파일로..
+		*/
+		
+		/*1-1 출력결과 ==>
+		Jump
+		Running game: com.example.demo.game.MarioGame@16c069df
+		Jump
+		Go Into a hole
+		Go back
+		Accelerate
+		MarioGame을 실행해고 있다 보다시피 MarioGame이 잘 실행되고 있으며, 마리오의 액션이 수행되고 있다 
+		
+		1-2: 다른 대안책은 이미 살펴본 적이 있는데 바로 @Qualifier이다 //SuperContra클래스로..
+		*/
+		
+		/*1-2 출력결과 ==>
+		Jump
+		Running game: com.example.demo.game.SuperContraGame@2cb2fc20
+		up
+		Sit down
+		Go back
+		Shoot a bullet
+		
+		SuperContraGame이 실행되었다
+		SuperContraGame에서 수행되는 모든 액션도 확인할 수 있다
+		*/
+	} 
+}
+
+
+-------------------------------
+
+
+
+⏺ SuperContraGame 클래스파일
+
+
+package com.example.demo.game;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+
+//1-2 : 이 클래스도 일단 먼저 @Component를 추가해주고 실행하면 어떻게될까?? 정답은 '게임이 실행된다' 이다 바로 MarioGame이다 그 이유가 뭘까?? 
+//3개의 후보가 있는데 SuperContra와 PacmanGame, MarioGame등 3개의 게임이 있다 우선권은 어디에있지?? 우선권을 가진 건 MarioGame이다, MarioGame에 @Primary 어노테이션이 적용되었기 때문이다
+//MarioGame에 @Primary 어노테이션이 적용되었지만, SuperContraGame에 우선권을 주고 싶은데 어떻게 할 수 있을까?
+//바로 이때 @Qualifier를 활용하는 것이다
+@Component
+
+//여기에 @Qualifier를 입력하고 SuperContraGameQualifier를 추가한다
+//이 오노테이션은 자동 와이어링 시 필드나 매개변수에서 후보 Bean에 대한 한정자(Qulifier)로 쓰인다고 돼있다 GameRunner에서 이 @Qulifier를 사용해서 자동 와이어링하겠다//GameRunner클래스파일로..
+@Qualifier("SuperContraGameQualifier")
+public class SuperContraGame implements GamingConsole {
+	
+	public void up() {
+		System.out.println("up");
+	}
+	
+	public void down() {
+		System.out.println("Sit down");
+	}
+
+	public void left() {
+		System.out.println("Go back");
+	}
+
+	public void right() {
+		System.out.println("Shoot a bullet");
+	}
+}
+
+
+-------------------------------
+
+
+
+⏺ GameRunner 클래스파일
+
+
+
+package com.example.demo.game;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+
+//1-2: GameRunner에서 이 특정 한정자를 갖고 있는 것이라면 무엇이든 자동 와이어링하려고 하는데 어떻게 할 수 있을까?
+//GameRunner에선 생성자 주입이라는 것을 통해 자동 와이어링 할 수 있다 이 GamingConsole 인스턴스는 생성자를 사용하여 이곳에서 자동 와이어링되고 있다
+@Component
+public class GameRunner {
+
+	private GamingConsole game;
+
+	//이 특정 매개변수에서 @Qualifier("SuperContraGameQualifier")를 추가하겠다 그럼 어떻게 될까?
+	//우리는 특정 Bean을 직접 지정해 두었다 이 한정자가 자동 와이어링되어야 한다고 작성했다 이대로 실행하면 결과가 나타날까?? //GamingAppLauncherApplication2 클래스파일로...
+	public GameRunner (@Qualifier("SuperContraGameQualifier") GamingConsole game) {
+		this.game = game;
+	}
+	  
+	public void run() {
+		
+		System.out.println("Running game: " + game);
+		game.up();
+		game.down();
+		game.left();
+		game.right();
+	}
+}
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+/*
+지금까지 @Primary와 @Qulifier를 가볍게 다뤄보는 시간을 가졌다
+*/
