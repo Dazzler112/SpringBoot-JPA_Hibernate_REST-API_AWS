@@ -1,0 +1,495 @@
+
+Exploring Spring - Dependency Injection Types
+
+● Constructor-based : Dependencies ar set by creating the Bean using                            ㅡㅡㅡㅡㅡㅡㅡ   
+  it's Constructor                                                                             |    Mario    |
+● Setter-based : Dependencies are set by calling setter methods                               / ㅡㅡㅡㅡㅡㅡㅡ
+  on your beans                                                         ㅡㅡㅡㅡㅡㅡㅡㅡㅡ    /   ㅡㅡㅡㅡㅡㅡㅡ
+● Field : No Setter or constructor. Dependency is injected using       |   GameRunner   |  ㅡㅡ | SuperContra |
+  reflection.                                                           ㅡㅡㅡㅡㅡㅡㅡㅡㅡ    \   ㅡㅡㅡㅡㅡㅡㅡ
+                                                                                              \  ㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                |    PacMan   |
+                                                                                                 ㅡㅡㅡㅡㅡㅡㅡ
+
+이번 시간에는 Spring에 있는 여러 유형의 의존성 주입에 대해 알아보겠다
+
+의존성 주입에는 3개의 유형이 있는데, 생성자 기반(Constructor-based), 수정자 기반(Setter-based), 필드 기반 주입이 있다.
+
+Constructor-based : 앞서 주입을 하는 데 생성자를 사용하는 방법을 다루기도 했었는데 이것이 바로 생성자 기반의 주입이다
+Setter-based : Setter 메소드를 사용해서 주입을 하는 경우 수정자 기반의 주입이라고 한다 
+Field : Setter나 생성자가 없다면 필드 주입을 사용할 수 있는데, 리플렉션을 이용하여 의존성을 주입한다 
+
+그럼 바로 실행하여 확인해보자
+
+----------------------------------------------------------------------------------------------------------
+
+🟢 시작하기 전 사전준비
+
+
+⏺ DepInjectionLauncherApplication 클래스파일
+
+
+package com.example.demo.a1;
+
+import java.util.*;
+
+import org.springframework.context.annotation.*;
+
+//1: 이것을 새 패키지로 옮겨야 한다 앞서 사용했던 같은 game 패키지를 사용할 수 없기 때문이다
+//이렇게 만들어 볼 것이다 com.example.demo.a1 따라서 DepInjectionLauncherApplication을 이 특정 패키지로 이동해야 한다, 여러 패키지에서 다양한 예시를 만들 예정이라 이에 관한 별도의 패키지를 만들어두는게 좋다
+//현재 패키지에서 컴포넌트 스캔을 수행하려면 @ComponentScan을 변경해야 한다 @ComponentScan("com.example.demo.a1")라고 변경하겠다
+//@ComponentScan을 사용하는 경우 자동으로 컴포넌트 스캔을 수행한다는 점이 장점인데 현재 패키지에선 컴포넌트 스캔을 자동으로 수행하기 때문에 이곳에 패키지를 명시적으로 지정할 필요가 없다
+//이렇게 Spring 컨텍스트를 깔끔하게 정리하여 시작할 준비를 마쳤다 실행하면 Spring컨텍스트가 시작된다 Spring 컨텍스트에서 어떤 Bean이 쓰였는지 확인하려면 어떻게 해야 할까>
+
+@Configuration
+@ComponentScan
+public class DepInjectionLauncherApplication {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(DepInjectionLauncherApplication.class)) {
+			
+			//2: ● 어떤Bean이 쓰였는지 확인법
+			//Arrays.stream(context.getBeanDefinitionNames())를 입력하고 .forEach(System.out::println);를 추가하고 실행해보자
+			Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+			/* 출력결과 ==>
+			org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+			org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+			org.springframework.context.annotation.internalCommonAnnotationProcessor
+			org.springframework.context.event.internalEventListenerProcessor
+			org.springframework.context.event.internalEventListenerFactory
+			depInjectionLauncherApplication
+			depInjectionLauncherApplication을 실행하고 있는지 꼭 확인해라
+			이렇게 모든 Bean이 출력되었는데 이 Bean들은 Spring에 필수적이다
+			depInjectionLauncherApplication에 대한 Bean도 확인할 수 있다
+			지금 이것이 @Configuration 클래스이기 때문에 이것도 Bean으로 생성된 것이다
+			*/
+			
+			//이제 여러 의존성을 다룰 준비가 되었다 지금 텅 빈 런쳐가 주어졌는데, Spring 컨텍스트 런처가 준비된 것이다
+			//3: 이것의 사본을 생성하면 텅 빈 런쳐로 사용할 수 있을 것이다 복사하고 붙여넣어준다음 package com.example.demo.a0;으로 지정하겠다, 이것은 이 특정 런처를 갖게 되는데 이름을 새로 지정하자 //example.demo.a0 패키지의 DepInjectionLauncherApplication클래스파일로....
+			
+			//이번 학습을 본격적으로 시작해보자 이번 시간에는 여러 유형의 의존성 주입에 대해 짚어보려고 한다 관련하여 간단한 예시를 만들어 보자
+		}
+	} 
+}
+
+-------------------------------------------------
+
+
+⏺ SimpleSpringContextLauncherApplication 클래스파일
+
+
+
+package com.example.demo.a0;
+
+import java.util.*;
+
+import org.springframework.context.annotation.*;
+
+//3: 이름을 새로 지정해보자 SimpleSpringContextLauncherApplication
+//다음부터 새 Spring 컨텍스트를 시작할 때마다 이것을 예로 시작할 수 있다 //다시 DepInjectionLauncherApplication클래스 파일로...
+
+@Configuration
+@ComponentScan
+public class SimpleSpringContextLauncherApplication {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(SimpleSpringContextLauncherApplication.class)) {
+			
+			Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+
+		}
+	} 
+}
+
+
+----------------------------------------------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------------------------------------------
+
+
+🟢 Field 주입방식
+
+⏺ DepInjectionLauncherApplication 클래스파일
+
+
+package com.example.demo.a1;
+
+import java.util.*;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.*;
+
+//YourBusinessClass라는 클래스가 주어질 것이다 이 클래스에는 2개의 의존성이 있는데, Dependency1과 Dependency2가 그것이다
+//생성자 주입, 수정자 주입, 필드 주입을 사용해서 Dependency1과 Dependency2를 YourBusinessClass에 주입하는 방법을 알아보겠다
+//이번 예시에는 클래스를 직접 이곳에 생성하려고 하는데 보통 별도의 파일을 만들어 이러한 클래스를 생성하게 된다
+//그러려면 YourBusinessClass와 Dependency1, Dependency2가 각기 자체 파일 안에 있게 된다
+//하지만 지금은 그렇게 복잡하게 할 필요 없이 이 모두를 이 특정 클래스에 생성해보자
+
+//1: 이렇게 모든 클래스가 주어졌으니 이에 대한 Bean을 생성할 차례이다// Bean은 어떻게 생성해야 할까??
+//@Component 바로 이것이다// 각 클래스에 관한 Bean을 생성하려면 @Component를 적용해야 한다 //이자 애플리케이션을 실행하면 어떤결과가 나타날까?
+/*출력결과 ==>
+ ..
+ ...
+dependency1
+dependency2
+yourBusinessClass
+depInjectionLauncherApplication을 실행하니 dependency1 ,dependency2, yourBusinessClass를 확인할 수 있는데,
+Bean이 이 특정 클래스 집합에 대해 생성되었다 그 이유가 무엇일까?
+우리가 Spring 컨텍슽트를 실행하고 있기 때문이다 Spring 컨텍스트를 시작하기 위해 무엇을 사용하고 있지? 우리는 같은 클래스를 사용하고 있는데
+이곳이 Configuration 클래스인데, 우리는 @ComponentScan도 갖고 있다 @ComponentScan은 자동으로 현재 패키지를 스캔하는 역할을 한다
+사용자 정의 패키지를 여기에( @ComponentScan ) 지정하면 어떨까?, 여기에 패키지를 지정해보자 //DepInjectionLauncherApplication클래스로..
+*/
+
+//2: 이 의존성을 YourBusinessClass에 주입해야 한다 어떻게 해야 할까?
+//Dependency1 dependency1;를 추가하면 된다, 이어서 Dependency2 dependency2;라고 작성하면 되는데
+//바로 아랫줄에는 의존성 주입이 잘 작동하는지 확인하려면 public String toString을 추가한다
+@Component
+class YourBusinessClass {
+	
+	//3-1: 바로 @Autowired와 @Autowired를 추가해야 한다, 임포트를 정리하면 import에 Autowired를 확인할 수 있는데 이것을 여기서 사용해 보겠다 이제 결과를 확인할 차례인데//다시 아래 3-1:로...
+	@Autowired
+	Dependency1 dependency1;
+	@Autowired
+	Dependency2 dependency2;
+	
+	//return "Using " + dependency1 +" and " + dependency2; StringBuffer를 사용할 수 있도록 예제로 남겨두도록 하겠다
+	//문자열은 연결에 그다지 효율적이지 못하기 때문인데, 더 많은 것을 연결하려면 StringBuffer가 필요하다 //지금은 이대로도 문제없이 충분하다.
+	public String toString() {
+		return "Using " + dependency1 +" and " + dependency2;
+	}
+}
+//dependency1 과 dependency2를 YourBusinessClass 클래스에 추가했는데, toString()도 적용했고 결과를 살펴보자..
+/*출력결과 ==> 
+..
+...
+depInjectionLauncherApplication
+dependency1
+dependency2
+yourBusinessClass
+yourBusinessClass가 출력되었다 yourBusinessClass가 로딩되었는데, 
+
+3: 그런데 출력된 건 yourBusinessClass뿐이다 아직 Bean을 얻지 못했기 때문이다, 그럼 이렇게 해보겠다 다시 main메소드로...
+*/
+
+@Component
+class Dependency1 {
+	
+}
+
+@Component
+class Dependency2 {
+	
+}
+
+@Configuration
+
+//이러면 ( @ComponentScan("segknlfrhu") ) 이 특정 패키지가 스캔이 될 것이다 
+//하지만 이것을( ("segknlfrhu") ) 제거하면 스캔되는 대상은 바로 이 현재 패키지가 된다 
+//2: 여기서 생성한 모든 클래스가 현재 패키지에 생성되고, @Component를 적용하자마자 Spring은 자동으로 우리에게 Bean을 생성해준다 Spring이 자동으로 모든 Bean을 생성하는 건데 이제 해야할 일은 의존성 주입이다 //다시 위로....
+@ComponentScan
+public class DepInjectionLauncherApplication {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(DepInjectionLauncherApplication.class)) {
+			
+			Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+
+			//3: context.getBean() Bean의 유형이 필요한데 Bean 이름을 사용하지 않겠다, 항상 유형을 사용하는 것이 좋다, YourBusinessClass.class를 입력한다 다음으로 syso를 적용해보자 syso()안에 context.getBean(YourBusinessClass.class)를 입력한다 그리고 실행해보자
+			System.out.println(context.getBean(YourBusinessClass.class));
+			/*작업후 출력결과 ==>
+			Using null and null
+			보다시피 Using null and null이 있는데 Spring 프레임워크가 이 의존성들을 자동 와이어링하지 않은 것이다
+			3-1: 자동 와이어링을 하려면 다음과 같이 Spring프레임워크에게 요청해야 한다//YourBusinessClass클래스로...
+			*/
+			/*3-1 Autowired 추가후 출력 ==>
+			Using com.example.demo.a1.Dependency1@7ba8c737 and com.example.demo.a1.Dependency2@1890516e
+			실행하면 Dependency1과 Dependency2를 사용한 것을 확인할 수 있다, 출력을 살펴보면 a1.Dependency1과 a1.Dependency2가 있는데 이것들이 자동 와이어링에 사용된 것이다
+			*/
+			
+		}
+	} 
+}
+
+----------------------------------------------------------------------------------------------------------
+
+지금 여기서 사용하고 있는 것은 필드 주입인데
+
+
+Exploring Spring - Dependency Injection Types
+
+● Constructor-based : Dependencies ar set by creating the Bean using                            ㅡㅡㅡㅡㅡㅡㅡ   
+  it's Constructor                                                                             |    Mario    |
+● Setter-based : Dependencies are set by calling setter methods                               / ㅡㅡㅡㅡㅡㅡㅡ
+  on your beans                                                         ㅡㅡㅡㅡㅡㅡㅡㅡㅡ    /   ㅡㅡㅡㅡㅡㅡㅡ
+● Field : No Setter or constructor. Dependency is injected using       |   GameRunner   |  ㅡㅡ | SuperContra |
+  reflection.                                                           ㅡㅡㅡㅡㅡㅡㅡㅡㅡ    \   ㅡㅡㅡㅡㅡㅡㅡ
+                                                                                              \  ㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                |    PacMan   |
+                                                                                                 ㅡㅡㅡㅡㅡㅡㅡ
+
+따라서 생성자나 수정가아 없다 의존성은 리플렉션을 사용하여 주입된 것이다
+필드에서 자동 와이어링을 하자마자 Spring이 자동으로 필드 주입을 한 것이다
+
+이제 지원되는 2개의 주입 유형을 알아보자
+Setter 주입과 Getter주입을 짚어보자
+
+
+
+----------------------------------------------------------------------------------------------------------
+
+🟢 Setter 주입방식
+
+
+⏺ DepInjectionLauncherApplication2 클래스파일
+
+
+package com.example.demo.a1;
+
+import java.util.*;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.*;
+
+//Getter and Setter Dependency
+
+@Component
+class YourBusinessClass {
+	
+	Dependency1 dependency1;
+	
+	Dependency2 dependency2;
+	
+
+	//이들 두 의존성에 대해 수정자를 생성할 건데 우클릭 > source > Generate Getters and Setters 를 차례로 클릭한 다음 select all > Generate를 클릭한다
+	//이처럼 2개의 메소드 집합이 생성되었는데, setDependency1과 setDependency2이다
+	//필드에서 setter로 @Autowired를 변경해보자 //지금 @Autowired는 필드가 아닌 setter에 있는데, 어떤 결과가 나타날까? 실행해보자.. //아래 syso로..
+
+	@Autowired
+	public void setDependency1(Dependency1 dependency1) {
+		//여기서 syso를 해보자, System.out.println("Setter Injection - setDependency1") 를 입력한다 아래 메소드에도 같은 작업을 해주자
+		
+		System.out.println("Setter Injection - setDependency1");
+		this.dependency1 = dependency1;
+	}
+
+	@Autowired
+	public void setDependency2(Dependency2 dependency2) {
+		//그리고 다시 실행해보자 //다시 아래로...
+		System.out.println("Setter Injection - setDependency2");
+		this.dependency2 = dependency2;
+	}
+	
+	public String toString() {
+		return "Using " + dependency1 +" and " + dependency2;
+	}
+}
+
+@Component
+class Dependency1 {
+	
+}
+
+@Component
+class Dependency2 {
+	
+}
+
+@Configuration
+@ComponentScan
+public class DepInjectionLauncherApplication2 {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(DepInjectionLauncherApplication2.class)) {
+			
+			Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+
+			System.out.println(context.getBean(YourBusinessClass.class));
+			/* 실행결과 ==>
+			Using com.example.demo.a1.Dependency1@5456afaa and com.example.demo.a1.Dependency2@6692b6c6
+			보다시피 의존성이 Dependency1과 Dependency2를 사용하여 설정됐지만  setter 주입이 완료됐는지 여부는 알 수 없다//다시 위의 YourBusinessClass로..
+			*/
+			
+			/*syso 작업후 실행결과 ==>
+			Setter Injection - setDependency1
+			Setter Injection - setDependency2
+			..
+			... Using com.example.demo.a1.Dependency1@5456afaa and com.example.demo.a1.Dependency2@6692b6c6
+			Setter Injection - setDependency1 과 Setter Injection - setDependency2를 확인할 수 있는데 여기서 setter 주입을 사용하고 있다는 사실을 알 수 있다
+			*/
+		}
+	} 
+}
+
+----------------------------------------------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------------------------------------------
+
+
+🟢 Constructor 주입방식
+
+
+
+
+package com.example.demo.a1;
+
+import java.util.*;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.*;
+
+//Constructor Dependency
+
+@Component
+class YourBusinessClass {
+	
+	Dependency1 dependency1;
+	
+	Dependency2 dependency2;
+	
+	//이들 두 의존성에 대해 수정자를 생성할 건데 우클릭 > source > Generate Getters and Setters 를 차례로 클릭한 다음 select all > Generate를 클릭한다
+	//이처럼 2개의 메소드 집합이 생성되었는데, setDependency1과 setDependency2이다
+	//필드에서 setter로 @Autowired를 변경해보자 //지금 @Autowired는 필드가 아닌 setter에 있는데, 어떤 결과가 나타날까? 실행해보자.. //아래 syso로..
+
+//	@Autowired
+//	public void setDependency1(Dependency1 dependency1) {
+//		
+//		System.out.println("Setter Injection - setDependency1");
+//		this.dependency1 = dependency1;
+//	}
+//
+//	@Autowired
+//	public void setDependency2(Dependency2 dependency2) {
+//		System.out.println("Setter Injection - setDependency2");
+//		this.dependency2 = dependency2;
+//	}
+	
+	//setter는 주석 처리하고 생성자를 추가할 수 있는데 alt + shift + s를 누르거나,우클릭을 하고 Source를 누르고 Generate Constructor using Fields를 클릭후 Generate를 클릭한다 
+
+	//1: 이제 @Autowired를 여기에 추가하고 실행해주자
+	
+//	@Autowired //2:
+	public YourBusinessClass(Dependency1 dependency1, Dependency2 dependency2) {
+		super();
+		//1-2: 여기에 syso를 추가해주자
+		System.out.println("Constructor Injection - YourBusinessClass");
+		this.dependency1 = dependency1;
+		this.dependency2 = dependency2;
+	}
+	
+	public String toString() {
+		return "Using " + dependency1 +" and " + dependency2;
+	}
+}
+
+@Component
+class Dependency1 {
+	
+}
+
+@Component
+class Dependency2 {
+	
+}
+
+@Configuration
+@ComponentScan
+public class DepInjectionLauncherApplication2 {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(DepInjectionLauncherApplication2.class)) {
+			
+			Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+
+			System.out.println(context.getBean(YourBusinessClass.class));
+      세 번째 유형의 주입도 여기에서 확인할 수 있다 //다시 setter로 가서 주석처리...
+      
+      /* constructor 방식 출력결과 ==>
+			Using com.example.demo.a1.Dependency1@2663e964 and com.example.demo.a1.Dependency2@48b67364
+			1-2 : 외에 출력된것은 아무것도 없다 syso를 적용해보자//다시 위의 생성자로...
+			*/
+			
+			/* syso 작업후 출력결과 ==>
+			Constructor Injection - YourBusinessClass
+			..
+			...Using com.example.demo.a1.Dependency1@2663e964 and com.example.demo.a1.Dependency2@48b67364
+			Constructor Injection - YourBusinessClass를 바로 여기에서 확인할 수 있다
+			*/
+			//보는 것처럼 의존성 주입을 다양한 방식으로 수행할 수 있다
+			//필드 주입, 수정자 주입, 또는 생성자 주입을 사용할 수 있는데 
+			//생성자 주입의 장점은 자동 와이어링이 의무가 아니라는 것이다
+			//2: 생성자 주입을 한다고 가정하고 이처럼 @Autowired를 삭제해보겠다, 그리고 실행을 해 보자
+		
+			/*Autowired 삭제후 출력 ==>
+			Constructor Injection - YourBusinessClass
+			..
+			...Using com.example.demo.a1.Dependency1@74f6c5d8 and com.example.demo.a1.Dependency2@27912e3
+			무엇이 보이니? 의존성이 적절하게 자동 와이어링된 것을 확인할 수 있다, 생성자 주입에서 의존성 주입이 발생한 방식도 확인할 수 있는데 Constructor Injection - YourBusinessClass
+			보다시피 @Autowired를 추가하지 않아도 여기 있는 모든 의존성으로 생성자를 생성한다면 Spring이 자동으로 생성자를 사용해서 객체를 만들 것이다 @Autowired가 없어도 가능하다
+			*/
+		}
+	} 
+}
+
+----------------------------------------------------------------------------------------------------------
+
+
+Exploring Spring - Dependency Injection Types
+
+● Constructor-based : Dependencies ar set by creating the Bean using                            ㅡㅡㅡㅡㅡㅡㅡ   
+  it's Constructor                                                                             |    Mario    |
+● Setter-based : Dependencies are set by calling setter methods                               / ㅡㅡㅡㅡㅡㅡㅡ
+  on your beans                                                         ㅡㅡㅡㅡㅡㅡㅡㅡㅡ    /   ㅡㅡㅡㅡㅡㅡㅡ
+● Field : No Setter or constructor. Dependency is injected using       |   GameRunner   |  ㅡㅡ | SuperContra |
+  reflection.                                                           ㅡㅡㅡㅡㅡㅡㅡㅡㅡ    \   ㅡㅡㅡㅡㅡㅡㅡ
+                                                                                              \  ㅡㅡㅡㅡㅡㅡㅡ
+● Qustion : Which one should you use?                                                           |    PacMan   |
+ ■ Spring team recommends Constructor-based injection as dependencies are automatically          ㅡㅡㅡㅡㅡㅡㅡ
+   set when an object is created!
+
+
+이번 시간에는 Spring 프레임워크의 여러 의존성 주입 유형에 대해 알아봤다,
+생성자 주입과 수정자 주입, 필드 주입을 짚어 봤는데 
+이제 교육자가 어느 유형을 추천하는지 궁금해할 것 같다
+● Qustion : Which one should you use?  
+과연 어떤 유형이 적절할까? 
+ ■ Spring team recommends Constructor-based injection as dependencies are automatically set when an object is created!
+  Spring 팀은 생성자 기반 주입을 추천한다 그 이유가 뭘까?
+Spring 팀이 생성자 기반 주입을 추천하는 이유는 모든 초기화가 하나의 메소드에서 발생하기 때문이다 
+--------------------------------------------
+예)
+		super();
+		System.out.println("Constructor Injection - YourBusinessClass");
+		this.dependency1 = dependency1;
+		this.dependency2 = dependency2;
+--------------------------------------------
+초기화가 완료되면 Bean을 사용할 준비가 된 건데 이것이 바로 Spring 팀이 생성자 주입을 항상 추천하는 이유다, Spring 팀은 또한 생성자 주입을 굉장히 쉽게 사용할 수 있도록 만들었다 
+너가 해야 할 일은 의존성을 정의해서 
+	Dependency1 dependency1;
+	Dependency2 dependency2;
+생성자를 생성하는 것뿐이다 	public YourBusinessClass(Dependency1 dependency1, Dependency2 dependency2) {
+생성자 주입을 사용하기 위해 @Autowired를 입력할 필요도 없다
+
+
+지금까지 Spring 프레임워크에 있는 여러 유형의 의존성 주입에 대해 살펴보는 시간을 가졌다
