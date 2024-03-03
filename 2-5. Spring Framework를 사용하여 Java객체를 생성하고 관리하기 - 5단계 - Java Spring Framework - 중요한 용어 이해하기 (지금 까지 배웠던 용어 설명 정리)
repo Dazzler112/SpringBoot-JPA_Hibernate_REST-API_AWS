@@ -1,0 +1,235 @@
+
+Spring Framework - Important Terminology
+
+● @Component (..): An instance of class will be managed by Spring framework               ㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                         |  GameRunner   |
+● Dependency: GameRunner needs GamingConsole impl!                                        ㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                 |
+● Component Scan: How does Spring Framework find component classes?                       ㅡㅡㅡㅡㅡㅡㅡㅡ
+ ■ It scans packages! (@ComponentScan("com.in28minutes"))                                | GamingConsole |     
+                                                                                          ㅡㅡㅡㅡㅡㅡㅡㅡ
+● Dependency Injection: Identify beans, their dependencies and wire them together         |     ㅡㅡㅡㅡㅡㅡㅡㅡ
+  (provides IOC - Inversion of Control)                                                   |ㅡ  |    Mario      |
+ ■ Spring Beans: An object managed by Spring Framework                                    |     ㅡㅡㅡㅡㅡㅡㅡㅡ
+ ■ IOC container: Manages the lifecycle of beans and dependencies                         |     ㅡㅡㅡㅡㅡㅡㅡㅡ
+  ▢ Types: ApplicationContext (complex), BeanFactory (simpler features - rarely used)     |ㅡ  |  SuperContra  |
+ ■ Autowiring: Process of wiring in dependencies for a Spring Bean                        |     ㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                          |     ㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                          |ㅡ  |    PacMan     |
+                                                                                                ㅡㅡㅡㅡㅡㅡㅡㅡ
+
+지금까지 몇 개 학습에 걸쳐 이 Spring 프레임워크로 많은 내용을 다뤘다
+이번 시간에는 Spring 프레임워크에서 일반적으로 사용되는 몇 가지 중요한 용어를 복습해보겠다, @Component 이다
+
+● Component :
+● @Component (..): An instance of class will be managed by Spring framework
+ @Component를 클래스에 추가하는 경우, 클래스의 인스턴스는 Spring 프레임워크가 관리하게 되는데
+  GmaeRunner 클래스, MarioGame 클래스를 비롯한 모든 game 클래스에 @Component를 광범위하게 사용해왔다
+  YourBusinessClass와 YourBusinessClass의 의존성에도 사용했다 
+
+@Component는 Spring 프레임워크의 가장 중요한 어노테이션 중 하나인데 @Component를 추가할 때마다 특정 클래스가 컴포넌트 스캔에 있다면 
+해당 클래스의 인스턴스, 즉 Spring Bena이 생성되고 Spring 프레임워크에 의해 관리된다
+
+● Dependency :
+다음으로 의존성을 살펴볼까?
+● Dependency: GameRunner needs GamingConsole impl! 
+앞서 GameRunner에 GamingConsole impl, 즉 GamingConsole의 구현이 필요하다는 점을 확인했었는데 Mario, SuperContra, PacMan 중 하나가 필요했다
+GamingConsole 구현을 살펴볼까, 예를 들어, MarioGame은 GameRunner의 의존성이다
+
+● Component Scan :
+다음으로 컴포넌트 스캔이다
+Spring은 컴포넌트의 위치를 파악해야 하는데
+● Component Scan: How does Spring Framework find component classes?
+어떻게 Spring 프레임워크에 검색 위치를 알려줄 수 있을까?
+바로 컴포넌트 스캔을 정의해야 한다 
+컴포넌트 스캔 정의는 어떻게 해야 하지?
+@ComponentScan 어노테이션을 추가해야 한다
+ ■ It scans packages! (@ComponentScan("com.in28minutes")) 
+@ComponentScan에선 패키지 이름을 명시적으로 지정한다 여기에선(("com.in28minutes"))로 지정하고 있는데 이렇게 하면 ("com.in28minutes")와 해당 하위 패키지를 검색해서 컴포넌트를 찾아낼 것이다
+패키지 이름 없이 @ComponentScan을 추가한다면 현재 패키지, 즉 @ComponentScan의 이 해당(("com.in28minutes")) 패키지가 패키지로 스캔된다 examples.a1과 모든 화위 패키지가 이 Spring 프레임워크에 의해 스캔될 것이다
+
+● Dependency Injection :
+다음은 의존성 주입인데
+여기서 애플리케이션을 실행하면 Spring 프레임워크는 무엇을 하게 될까? 
+● Dependency Injection: Identify beans, their dependencies and wire them together 
+가장 먼저 컴포넌트 스캔을 수행하는데 모든 구성 요소를 찾으려고 할 것이다 그리고 이 컴포넌트의 의존성이 무엇인지 식별하고 모두 와이어링하게 된다
+이 전체 프로세스를 의존성 주입이라고 한다, Bean과 의존성을 식별하고 모두 와이어링을 하는 작업을 가리킨다
+이것을 바로 의존성 주입이라고 하는 것이다
+
+(provides IOC - Inversion of Control) 
+의존성 주입과 관련된 용어가 하나 더 있는데 바로 IOC, 즉 제어 반전이다 이를 왜 제어 반전이라고 할까?
+앞서 생성했던 프로젝트를 다시 살펴보도록 하자
+생성했던 첫번째 프로젝트는 springFrameworkSpringBootReStudy-01인데 시작 당시 작성한 코드는 이렇다
+------------------------------------------
+
+package com.example.demo;
+import com.example.demo.game.*;
+
+public class App01GamingBasicJava {
+
+	public static void main(String[] args) {
+//		var game = new MarioGame();
+//		var game = new SuperContraGame();
+		
+		var game = new PacmanGame(); //1: Object Creation
+
+		var gameRunner = new GameRunner(game);
+	        //2: Object Creation + Wiring of Dependencies
+	        // Gaming is a Dependency of GameRunner
+		
+		gameRunner.run();
+	} 
+}
+------------------------------------------
+var game = new PacmanGame();
+var gameRunner = new GameRunner(game);
+여기에선 객체 생성을 위해 코드를 작성하고 있는데 객체 생성과 의존성에 대한 코드를 작성한 것이다 
+우리가 직접 제어하고 있었다 여기서 제어하는 건 프로그래머였고 그래서 프로그래머가 코드를 작성했다
+프로그래머가 명시적으로 코드를 작성해서 의존성을 통해 객체를 생성한 건데
+
+그런데 GamingAppLauncherApplication2에선 누가 제어하고 있지?
+------------------------------------------
+
+package com.example.demo;
+import org.springframework.context.annotation.*;
+import com.example.demo.game.*;
+
+@Configuration
+@ComponentScan("com.example.demo.game")
+public class GamingAppLauncherApplication2 {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(GamingAppLauncherApplication2.class)) {
+			
+			context.getBean(GamingConsole.class).up();
+			
+			context.getBean(GameRunner.class).run();
+		}
+	} 
+}
+-------------------
+package com.example.demo.game;
+
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.*;
+
+@Component
+@Primary
+public class MarioGame implements GamingConsole{
+
+	public void up() {
+		System.out.println("Jump");
+	}
+
+	public void down() {
+		System.out.println("Go Into a hole");
+	}
+
+	public void left() {
+		System.out.println("Go back");
+	}
+
+	public void right() {
+		System.out.println("Accelerate");
+	}
+}
+--------------
+package com.example.demo.game;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+
+@Component
+public class GameRunner {
+
+	private GamingConsole game;
+	public GameRunner (@Qualifier("SuperContraGameQualifier") GamingConsole game) {
+		this.game = game;
+	}	  
+	public void run() {
+		
+		System.out.println("Running game: " + game);
+		game.up();
+		game.down();
+		game.left();
+		game.right();
+	}
+}
+------------------------------------------
+프로그래머는 컴포넌트 스캔을 정의하고 몇 개의 @Component를 MarioGame에, 그리고 GameRunner 클래스에 정의했는데
+객체를 생성하고 이 모두를 와이어링하는 실제 작업은 Spring 프레임워크가 수했했다( @ComponentScan("com.example.demo.game") )
+
+(provides IOC - Inversion of Control) 즉
+제어권이 프로그래머에서, 또는 명시적인 코드 작성에서 Spring프레임워크로 넘어간 것이다 그래서 이를 제어 반전이라고도 하는 것이다
+IOC는 제어반전(inversion of  control)의 약자이다
+
+■ Spring Beans:
+다음은 Spring Bean인데
+ ■ Spring Beans: An object managed by Spring Framework 
+Spring 프레임워크가 관리하는 모든 객체를 Spring Bean이라고 한다
+
+■ IOC container:
+ ■ IOC container: Manages the lifecycle of beans and dependencies
+IOC 컨테이너는 제어 반전 컨테이너라는 뜻으로 Bean의 생명주기와 의존성을 관리하는 Spring 프레임워크의 컴포넌트이다
+
+▢ Types: ApplicationContext (complex), BeanFactory (simpler features - rarely used)
+ApplicationContext와 BeanFactory라는 2가지 유형을 다뤄봤는데
+ApplicationContext는 많은 복잡한 기능을 제공하지만, BeanFactory는 더 간단한 기능을 제공해준다 
+하지만 BeanFactory는 잘 쓰이지 않는다
+
+교육자는 Spring 프레임워크를 20년간 다뤘지만, 항상 ApplicationContext를 썼다고 한다
+
+ ■ Autowiring:
+마지막 용어로 Autowiring이 있다
+ ■ Autowiring: Process of wiring in dependencies for a Spring Bean
+자동 와이어링이란 Spring Bean에 대한 의존성의 와이어링 프로세스를 말하는데 
+Spring이 특정 Bean을 만나면 Bean이 필요한 의존성이 무엇인지 식별하려고 한다
+가령, GameRunner를 예로 들어볼까?, 
+---------------------------------------
+package com.example.demo.game;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.*;
+
+@Component
+public class GameRunner {
+
+	private GamingConsole game;
+
+	public GameRunner (@Qualifier("SuperContraGameQualifier") GamingConsole game) {
+		this.game = game;
+	}
+	  
+	public void run() {
+		
+		System.out.println("Running game: " + game);
+		game.up();
+		game.down();
+		game.left();
+		game.right();
+	}
+}
+---------------------------------------
+Spring이 이 클래스를 만나면  이 클래스에 생성자가 있으므로 이것이 의존성이고 game(GamingConsole game) 객체가 필요하다는 걸 알게 된다
+Spring이 YourBusinessClass를 보는 경우, 
+
+	Dependency1 dependency1;
+	Dependency2 dependency2;
+
+//	@Autowired //2:
+	public YourBusinessClass(Dependency1 dependency1, Dependency2 dependency2) {
+		super();
+		//1-2: 여기에 syso를 추가해주자
+		System.out.println("Constructor Injection - YourBusinessClass");
+		this.dependency1 = dependency1;
+		this.dependency2 = dependency2;
+	}
+여기에 생성자가 있고 Dependency1 dependency1, Dependency2 dependency2 이 2개의 의존성이 필요하다는 것을 파악한다, 이것을 찾아서 생성자 주입을 통해 자동 와이어링을 하게 된다
+이것이 바로 자동 와이어링이다
+
+
+
+/*
+이처럼 모든 용어가 서로 밀접하게 연관되어 있다는 사실을 확인할 수 있었다
+*/
