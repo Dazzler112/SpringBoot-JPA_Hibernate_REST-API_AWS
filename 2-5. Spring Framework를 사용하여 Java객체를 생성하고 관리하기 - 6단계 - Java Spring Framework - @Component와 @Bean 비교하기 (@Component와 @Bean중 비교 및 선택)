@@ -1,0 +1,172 @@
+
+
+@Component vs @Bean
+
+Heading                  @Component                                                  @Bean
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+Where?                   Can be used on any Java class                               Typically used on methods in Spring Configuration classes
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Ease of use              Very easy. Just add an annotation.                          You write all the code.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Autowiring               Yes - Field, Setter or Constructor Injection                Yes - method call or method parameters
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Who creates beans?       Spring Framework                                            You write bean creation code
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Recommended For          Instantiating Beans for Your Own Application                1:Custom Business Logic
+                         Code: @Component                                            2:Instantiating Beans for 3rd-party libraries:@Bean
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+지난 강의에선 @Component와 @Bean을 사용했었는데 이 둘의 차이점은 무엇이고 언제 어느 것을 사용해야 할까?
+이번 시간에 알아보도록 하자
+
+먼저 @Component와 @Bean을 어디에서 사용할 수 있는지 짚어보겠다
+
+● Where?
+- @Component
+Can be used on any Java class
+@Component는 모든 자바 클래스에서 사용할 수 있는데
+앞서 MarioGame을 만들어 상단에서 @Component를 사용했었다 GameRunner 클래스를 생성하고, 마찬가지로 상단에 @Component를 적용했다
+
+- @Bean
+Typically used on methods in Spring Configuration classes
+반면,@Bean은 특정 메소드에 적용되었는데, 일반적으로 Spring Configuration 클래스의 메소드에서 사용된다
+
+
+
+● Ease of use ?
+@Bean
+	public GamingConsole game () {
+		var game = new PacmanGame();
+		return game; 
+	}
+이 Spring Configuration 클래스의 경우, Bean을 생성하기 위해 @Bean을 추가했는데 어느 것을 더 쉽게 사용할 수 있을까? 
+
+- @Component 
+Very easy. Just add an annotation.
+@Component를 사용하기가 더 쉽다 어노테이션만 추가하면 되기 때문이다
+
+@Configuration
+public class GamingAppLauncherApplication2 {...
+이곳에 어노테이션만 추가하면 된다
+
+- @Bean
+You write all the code.
+그런데 @Bean은 좀 더 복잡하다 Bean을 생성하려면 코드를 전부 작성해야 하기 때문이다
+@Bean
+	public GamingConsole game () {
+		var game = new PacmanGame();
+		return game; 
+	}
+의존성을 자동 와이어링하기 위해서도 모든 코드를 작성해야 한다
+
+
+● Autowiring?
+
+- @Component
+Yes - Field, Setter or Constructor Injection
+@Component를 사용하는 경우 Autowiring은 어떻게 이루어질까?
+Autowiring을 하려면 이것 중 모든 방법을 쓸 수 있는데 생성자 주입, 수정자 주입, 또는 필드 주입 중 하나를 쓸 수 있다
+//	@Autowired 
+	public YourBusinessClass(Dependency1 dependency1, Dependency2 dependency2) {
+		super();
+		System.out.println("Constructor Injection - YourBusinessClass");
+		this.dependency1 = dependency1;
+		this.dependency2 = dependency2;
+	}
+생성자 주입을 사용해서 Autowiring을 하거나, 
+@Autowired
+public void setDependency1(Dependency1 dependency1) {	
+  	System.out.println("Setter Injection - setDependency1");
+	  this.dependency1 = dependency1;
+}
+수정자 주입을 사용해서 Autowiring을 해도 된다
+
+앞서 필드주입도 봤는데
+@Autowired
+Dependency1 dependency1;
+이렇게 자동와이어링을 적용하면 필드주입이 된다
+@Component와 함께 이 모든 자동 와이어링 방법을 쓸 수 있다
+
+- @Bean
+@Bean으로는 어떻게 할 수 있을까?
+Yes - method call or method parameters
+특정 메소드를 호출해서 자동 와이어링을 할 수 있다 
+@Bean
+	public Person person2MethodCall() {
+		return new Person(name(), age(), address()); //name, age
+	}
+이처럼 name이 메소드 호출이고 age가 메소드 호출이며 address도 메소드 호출이다
+메소드 호출을 사용해서 자동 와이어링을 하거나 매개변수를 사용할 수 있다
+
+Parameter를 추가해도 좋다
+	@Bean
+	public Person person3Parameters(String name, int age, Address address3) {
+		//name, age, address2
+		return new Person(name, age, address3); //name, age
+
+	}
+String name, int age, Address address3 을 말이다 Spring 프레임워크가 이것들을 자동 와이어링하게 된다 
+
+
+
+@Component와 @Bean모두 Autowiring이 가능하지만, 이들이 사용하는 방법은 다른데 다음은 무엇이 Bean을 생성하는지 보자,
+● Who creates beans?
+- @Component
+Spring Framework
+@Component의 경우 Spring 프레임워크는 컴포넌트 스캔을 수행한다 존재하는 컴포넌트 클래스를 식별하는데
+해당 의존성을 식별하며, Bean이 생성되고 의존성의 자동 와이어링이 완료되었는지 확인한다
+
+- @Bean
+You write bean creation code
+하지만 @Bean의 경우, 너가 Bean 생성 코드를 작성해야 한다
+	@Bean
+	public Person person3Parameters(String name, int age, Address address3) {
+		//name, age, address2
+		return new Person(name, age, address3); //name, age
+
+	}
+이곳에 Bean을 생성하려면 코드를 직접 작성해야 한다
+
+
+이제 어느 것이 권장되는지가 중요한데 일반적으로 대부분 @Component가 권장된다,
+● Recommended For?
+- @Component 
+Instantiating Beans for Your Own Application Code: @Component  
+애플리케이션을 생성하는 경우 내부에서 컴포넌트 클래스에 대한 코드를 작성하고, 
+컴포넌트 클래스에 대한 Bean을 생성한다면 이러한 상황에선 @Component의 방식을 추천하게 된다
+소스 코드에 들어가서 @Component를 적용하면 Spring이 무척 쉽게 Bean을 생성하고 해당 의존성을 관리하게 된다
+
+- @Bean
+1:Custom Business Logic, 
+하지만 @Bean을 선택한다면 어떨까?, Bean을 생성하기 전에 여러 사용자 정의 비즈니스 로직을 수행해야 하는 경우에 대해 살펴보자
+	@Bean
+	public Person person() {
+		return new Person("Ravi", 25, new Address("Main Street","Utrecht"));
+	}
+가령, Person Bean을 생성하기 전에 여러 사항을 점검해야 한다, 이에 대한 비즈니스 로직을 작성한 다음 Person Bean을 생성할 수 있는데 이런 상황에선 @Bean을 사용하는게 좋다
+
+2:Instantiating Beans for 3rd-party libraries:@Bean
+@Bean이 자주 사용되는 다른 상황이 있는데, 제 3자 라이브러리 Bean을 인스턴스화 하는 것이다 Spring 시큐리티를 사용할 수도 있겠다
+Spring 시큐리티 코드에 대한 액세스 권한이 없기 때문에 Spring 시큐리티 코드를 사용할 수 없고 @Component를 추가할 수 없다
+Spring 시큐리티에 대한 Bean을 생성하고자 한다면, 바로 이런 상황에서 가장 좋은 방법은 @Bean을 추가하는 것이다
+
+@Bean을 사용하고 
+	@Bean
+	public Person person() {
+		return new Person("Ravi", 25, new Address("Main Street","Utrecht"));
+	}
+메소드를 작성하여 이곳에서 Bean을 생성한다, 그럼 Spring 시큐리티 Bean을 설정할 수 있는데
+그렇게 하면 필요에 따라 Spring 시큐리티를 설정하는데 도움이 된다
+
+
+
+/*
+정리)
+이번 학습에서 가장 중요한 것은 @Component가 일반적으로 너의 애플리케이션에 권장된다는 사실이다
+애플리케이션에 대한 컴포넌트를 작성하고 있고, 해당 Bean을 생성하고 있다면 가장 쉬운 방법은 @Component이다
+
+하지만 @Bean이 권장되는 상황도 있다
+예를 들어, Bean을 생성하기 전에 너가 수행해야 하는 비즈니스 로직이 많거나 
+Spring 시큐리티와 같은 제3자 라이브러리에 대한 Bean을 인스턴스화하고 있다면 @Bean을 선택하는 것이 좋다
+*/
