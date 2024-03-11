@@ -1,0 +1,178 @@
+
+
+Spring Bean Scopes
+
+● Spring Beans are defined to be used in a specific scope:
+ ■ Singleton - One object instance per Spring IoC container
+ ■ Prototype - Possibly many object instance per Spring IoC container
+ ■ Scopes applicable ONLY for web-aware Spring ApplicationContext
+  ▢ Request - One Object instance per single HTTP request
+  ▢ Session - One Object instance per user HTTP Session
+  ▢ Application - One Object instance per web application runtime
+  ▢ Websocket - One Object instance per WebSocket instance
+
+● Java Singleton (GOF) vs Spring Singleton
+ ■ Spring Singleton: One object instance per Spring IoC container
+ ■ Java Singleton (GOF): One object instance per JVM
+
+
+
+이번 단계에선 Spring Bean을 만들 수 있는 다양한 스코프에 대해 다뤄보겠다
+
+---------------------------------------------------------------------------------------------------
+
+
+⏺ BeanScopesLauncherApplication 클래스파일
+
+
+package com.example.demo.e1;
+
+import org.springframework.beans.factory.config.*;
+import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.*;
+
+//1: 여기서 Bean 몇개를 만들 것이다
+//첫 번째는 NormalClass이라는 이름을 붙일 것이다 그리고 다른 클래스도 만든다 PrototypeClass라 하겠다
+//컴포넌트도 만들자
+
+@Component
+class NormalClass {
+	
+}
+
+//1-1: 여기에 @Scope 어노테이션을 추가하려고 한다 모든 컴포넌트 위에 추가할 수 있는 @Scope 어노테이션이 생겼다
+//그리고 여기에도 @Component를 추가한다
+//그리고 Scope()<= 여기서 PrototypeClass의 value를 정하는데 value=ConfigurableBeanFactory뒤에 .을 찍으면 두 가지 스코프가 표시되는데
+//이 두 가지 스코프는 프로토타입 스코프와 싱글톤 스코프이다 이건 프로토타입이니 SCOPE_PROTOTYPE을 추가하겠다
+@Scope(value=ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Component
+class PrototypeClass {
+	
+}
+
+//1-1 계속:지금까지 컴포넌트 두 개를 만들었는데, 하나는 NormalClass에 속하고 다른 하나는 PrototypeClass에 속한다 
+//어떻게 프로토타입 클래스가 되었을까? @Scope를 추가하 value를 ConfigurableBeanFactory.SCOPE_PROTOTYPE로 정했기 때문이다
+//SCOPE_PROTOTYPE안의 설명을 보면 String SCOPE_PROTOTYPE = "prototype"; 상수를 보면 prototype이라는 값이 있다 value를 SCOPE_PROTOTYPE과 같다고 설정하면 프로토타입 클래스가 된다
+
+//일반 클래스와 프로토타입 클래스는 어떻게 다를까? 2: 지금 사용해보자 //메인메소드로..
+//● 일반 클래스 프로토타입 클래스 차이점
+/* 일반 클래스와 프로토타입 클래스의 차이점
+
+*/
+
+@Configuration
+@ComponentScan
+public class BeanScopesLauncherApplication {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(BeanScopesLauncherApplication.class)) {
+			
+			//2: context를 출력할 것이다 context.getBean()이라 쓰고, PrototypeClass.class를 출력할 것이다 syso를 입력해 ()안에 context.getBean을 출력한다
+			//PrototypeClass의 인스턴스를 가져오려는 것이다 세번 반복해보자 그 앞에는 NormalClass의 Bean도 가져온다 Normal클래스에는 스코프가 없다 어떻게 되는지 살펴보자 //실행..
+			System.out.println(context.getBean(NormalClass.class));
+			System.out.println(context.getBean(NormalClass.class));
+			System.out.println(context.getBean(NormalClass.class));
+			System.out.println(context.getBean(NormalClass.class));
+			System.out.println(context.getBean(NormalClass.class));
+			System.out.println(context.getBean(NormalClass.class));
+			
+			System.out.println(context.getBean(PrototypeClass.class));
+			System.out.println(context.getBean(PrototypeClass.class));
+			System.out.println(context.getBean(PrototypeClass.class));
+			System.out.println(context.getBean(PrototypeClass.class));
+			/*출력결과 ==>
+			com.example.demo.e1.NormalClass@64ec96c6
+			com.example.demo.e1.NormalClass@64ec96c6
+			com.example.demo.e1.PrototypeClass@77659b30
+			com.example.demo.e1.PrototypeClass@456d6c1e
+			com.example.demo.e1.PrototypeClass@1e13529a
+			Normal클래스의 경우 49번째 줄에서 NormalClass의 context.getBean을 호출하고 있는데 특정한 객체가 출력되고 있다 @64ec96c6 다음 줄에도 getBean을 한 번 더 수행하는데 기본적으로 동일한 Bean이 다시 검색된다 @64ec96c6
+			두 가지 모두의 해시코드가 정확하게 똑같다 @64ec96c6 이다 너가 예시를 실행할 때는 다른 해시코드가 보일 수도 있지만, NormalClass에 관한 두 해시코드 값은 똑같이 나타날 것이다
+			
+			그렇지만 PrototypeClass의 경우에는 context.getBean을 호출할 때마다 새로운 해시코드 값이 나타나고, 이특정한 Bean의 새 인스턴스를 얻게된다 @77659b30, @456d6c1e, @1e13529a이다
+			메번 이 Spring 컨텍스트에서 새로운 Bean을 가져오는 것이다 그러면 PrototypeClass를 4번호출하고 NormalClass를 6번 호출해 보자
+			*/
+			
+			/*노말 6번 프로토타입 4번 출력결과 ==>
+			com.example.demo.e1.NormalClass@64ec96c6
+			com.example.demo.e1.NormalClass@64ec96c6
+			com.example.demo.e1.NormalClass@64ec96c6
+			com.example.demo.e1.NormalClass@64ec96c6
+			com.example.demo.e1.NormalClass@64ec96c6
+			com.example.demo.e1.NormalClass@64ec96c6
+			com.example.demo.e1.PrototypeClass@77659b30
+			com.example.demo.e1.PrototypeClass@456d6c1e
+			com.example.demo.e1.PrototypeClass@1e13529a
+			com.example.demo.e1.PrototypeClass@1ec9bd38
+			원한 만큼 호출한뒤 실행하여 결과를 확인하면 NormalClass의 인스턴스는 항상 같다는 걸 알 수 있다
+			즉, 반환되는 NormalClass의 인스턴스는 같다
+			
+			하지만 PrototypeClass의 경우 다른 인스턴스가 돌아온다 보면 인스턴스 네 개가 다 다르다
+			*/
+			//기본적으로 Spring Framework에서 생성되는 모든 Bean은 싱글톤이다 (NormalClass)
+			//Bean을 요청할 때마다 같은 인스턴스가 반환된다 
+			//하지만 Bean을 참조할 때마다 매번 다른 인스턴스를 생성하고 싶은경우엔 프로토타입을 사용하면 된다
+			//@Scope의 value를 PROTOTYPE과 같도록 설정하려면 Spring Framework에 Bean을 요청할 때마다 Bean 인스턴스가 새로 생성된다
+			
+		}
+	} 
+}
+
+---------------------------------------------------------------------------------------------------
+
+
+
+● Spring Beans are defined to be used in a specific scope:
+Spring Bean 스코프에는 아주 중요한 두 가지 스코프, 싱글톤과 프로토타입이 있다
+ ■ Singleton - One object instance per Spring IOC container
+싱글톤은 Spring IoC 컨테이너당 객체 인스턴스가 딱 하나이다
+ ■ Prototype - Possibly many object instance per Spring IoC container
+반면에 프로토타입에선 Spring IoC 컨테이너당 객체 인스턴스가 여러 개일 수 있다
+Spring 컨테이너에서 Bean을 요청할 때마다 특정한 Bean의 새 인스턴스를 생성한다
+ ■ Scopes applicable ONLY for web-aware Spring ApplicationContext
+싱글톤, 프로토타입 이외에도 웹 애플리케이션에서만 특정하게 적용되는 스코프가 있다
+web-aware ApplicationContext에서 사용한다
+  ▢ Request - One Object instance per single HTTP request
+리퀘스트 스코프이다 웹 애플리케이션에는 HTTP 요청이라는 게 있는데 
+리퀘스트 스코프의 경우 HTTP 요청당 객체 인스턴스 하나가 생성된다 
+  ▢ Session - One Object instance per user HTTP Session
+웹 애플리케이션에는 세션이라는 것도 있다 세션은 보통 사용자와 관련된다 
+동일한 사용자에게 속하는 여러 번의 요청이 같은 세션에 속해 있을 수 있다
+세션 스코프의 경우 사용자 HTTP 세션당 객체 인스턴스 하나가 생성된다 
+  ▢ Application - One Object instance per web application runtime
+애플리케이션 스코프도 있는데, 웹 애플리케이션 전체에 객체 인스턴스가 하나이다
+  ▢ Websocket - One Object instance per WebSocket instance
+웹소켓 스코프에도 만들 수 있고, 웹소켓 인스턴스당 객체 인스턴스 하나이다
+
+이번 섹션 동안 다루는 내용에서는 리퀘스트, 세션, 애플리케이션, 웹소켓 스코프를 신경 쓰지 않아도 된다,
+싱글톤 스코프와 프로토타입 스코프를 알아야 한다
+
+● 싱글톤 프로토타입 중 선택해야할 상황---------------------------------------------
+Spring IoC 컨테이너에서 같은 인스턴스를 다시 사용하고 싶다면 싱글톤을 사용해라
+Spring 컨테이너에 Bean을 여러 번 요청하더라도 같은 인스턴스를 반환할 것이다
+
+Bean을 요청할 때마다 새로운 인스턴스를 생성하려는 경우라면 프로토타입 스코프를 사용해라
+---------------------------------------------------------------------------------
+
+● Java Singleton (GOF) vs Spring Singleton
+
+Java 싱글톤과 Spring 싱글톤을 비교해 볼 때 꼭 알아야 하는 아주 중요한 내용이 있는데
+싱글톤은 디자인 패턴이다 GoF(Gang of Four)디자인 패턴이라는 디자인 패턴 책이 있다
+아주 유명한 디자인 패턴 책인데, 아주 유명한 4명이 썼다 Gang of Four라 부른다
+이 디자인 패턴 책에 Java 싱글턴을 설명한 부분이 있는데 
+이 설명은 Spring Framework에서 일반적으로 사용되는 싱글톤 정의와 약간 다르다 어떻게 다를까?
+
+ ■ Spring Singleton: One object instance per Spring IoC container
+Spring 싱글톤의 경우 Spring IoC 컨테이너당 객체 인스턴스가 하나라고 이야기한다
+Spring IoC 컨테이너 하나에는 객체 인스턴스가 하나이다 
+ 
+■ Java Singleton (GOF): One object instance per JVM
+하지만 Java 싱글톤에선 Java Virtual Machine 하나당 객체 인스턴스가 하나이다 Java Virtual Machine 전체에서 객체가 하나인 것이다
+JVM에 Spring IoC 컨테이너를 하나만 실행한다면 Spring 싱글톤과 Java 싱글톤은 같은 의미일 수 있다
+하지만 JVM에 Spring IoC 컨테이너 여러개를 실행하면 Spring 싱글톤은 Java 싱글톤과 달라진다
+보통은 JVM에 Spring IoC 컨테이너 여러 개를 실행하지는 않는다 그러니 99.99%의 경우 Spring 싱글톤과 Java 싱글톤은 똑같다
+그래도 유의해야 할 부분이라 생각한다 
