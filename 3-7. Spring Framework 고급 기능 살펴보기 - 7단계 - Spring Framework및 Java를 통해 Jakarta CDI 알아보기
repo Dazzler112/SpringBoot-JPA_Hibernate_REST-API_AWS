@@ -7,6 +7,12 @@ Jakarta Contexts & Dependency Injection (CDI)
 ● Now called Jakarta Contexts and Deepndency Injection (CDI)
 ● CDI is specification (interface)
  ■ Spring Framework implements CDI
+● Important Inject API Annotations:
+ ■ Inject (~Autowired in Spring)
+ ■ Named (~Component in Spring)
+ ■ Qualifier
+ ■ Scope
+ ■ Singleton
 
 이번 단계는 Jakarta Contexts and Dependency Injection에 대해 살펴보겠다 CDI라고도 한다
 Jakarta EE에 속한 규격이고 Spring Framework에서 지원한다 
@@ -21,3 +27,223 @@ CDI 규격은 2009년 12월에 Jave EE 6 플랫폼에 도입되었다
 CDI는 규격이고, 인터페이스이다 CDI에는 구현이 없고
  ■ Spring Framework implements CDI
 Spring Framework에서 CDI를 구현한다
+● Important Inject API Annotations:
+CDI에는 중요한 API 어노테이션 몇 가지가 정의되어 있다 
+ ■ Inject (~Autowired in Spring)
+ ■ Named (~Component in Spring)
+ ■ Qualifier
+ ■ Scope
+ ■ Singleton
+예를 들면 Inject, Named, Qualifier, Scope, Singleton이 있다
+마찬가지로 Spring Framework로 지원된다
+Inject는 Autowired와 아주 비슷하고
+Named는 Component와 아주 비슷하다
+Qualifier, Scope, Singleton은 이름이 같은 Spring 어노테이션과 각각 아주 비슷하다
+
+이제 CDI를 사용한 예시를 확인해 보자
+CDI를 사용하는 게 가장 중요한데 xml에 의존성을 추가해야 한다 pom.xml로 가서 간단한 의존성을 추가할 것이다
+groupId는 jakarta.inject로, artifactId는 jakarta.inject-api라고 하며,version은 2.0.1인 의존성을 추가했다
+		<dependency>
+			<groupId>jakarta.inject</groupId>
+			<artifactId>jakarta.inject-api</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+저장하면 의존성이 다운로드되는 것을 볼 수 있다 groupId, artifactId, version이 있어야 한다
+의존성을 추가해싿면 CDI어노테이션을 사용해 코드를 작성할 것이다
+
+
+● Spring Framework 방식
+--------------------------------------------------------------------------------------------------------
+
+
+⏺ CdiContextLauncherApplication 클래스파일
+
+
+
+package com.example.demo.g1;
+
+import java.util.*;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.*;
+
+//1: 데이터 서비스를 사용하는 비즈니스 서비스가 있다고 해 보자 class BusinessService를 만들고
+//이건 DataService에 의존성이 있다 DataService dataService라고 쓴다
+@Component
+class BusinessService {
+	private DataService dataService;
+
+	//그리고 여기엔 dataService의 Setter 메서드를 쓰자
+	//1-1: 이제 세터 주입을 사용할 건데, 보통 때처럼 @Autowired라고 쓰자 그리고 위에는 @Component를 넣고 DataService에도 넣자 //1-2: 그리고 getter메소드로..
+//	@Autowired
+	public DataService getDataService() {
+		//1-2: 여기에 syso를 입력해 Setter Injection이 수행된 걸 확인할 것이다 그리고 실행해보자
+//		System.out.println("Setter Injection");
+		return dataService;
+		
+		/*출력결과 ==>
+		...
+		Setter Injection
+		...
+		businessService
+		dataService
+		보면 businessService와 dataService가 출력되고 세터 주입을 이용해 Setter Injection 주입이 완료되었다
+		//2: Arrays.stream 아래로..
+		*/
+	}
+
+	@Autowired
+	public void setDataService(DataService dataService) {
+		System.out.println("Setter Injection");
+		this.dataService = dataService;
+	}
+
+	
+}
+
+//그리고 여기에도 calss DataService를 만들자 //다시위로..1-1:
+@Component
+class DataService {
+	
+}
+
+@Configuration
+@ComponentScan
+public class CdiContextLauncherApplication {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(CdiContextLauncherApplication.class)) {
+			
+			Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+			
+			//2: 여기서 syso를 수행한다 (context.getBean(BusinessService.class).getDataService());라고 쓰면 어떻게 될까? 실행해보자
+			System.out.println(context.getBean(BusinessService.class).getDataService());
+			/*출력결과 ==>
+			..
+			...
+			null
+			여기 null이 출력된 걸 볼 수 있다 왜 null이 나타날까?
+			Autowired를 잘못된 메서드에 넣었기 때문에 null이 나타난다 get 메서드가 아니라 set 메서드에 있어야 한다 (getter에서 autowired 없에고 setter로생성)
+			*/
+			//set매서드에 Autowired를 생성했다 다시 실행해보자
+			/* @Autowired set매서드로 수정후 실행결과 ==>
+			..
+			...
+			Setter Injection
+			com.example.demo.g1.DataService@4c012563
+			이제 여기에 dataService가 출력된다 
+			세터 주입을 사용하고 있고, dataService가 출력되었다
+			*/
+			//이제 dataService가 출력되니까 세터 주입도 위로 옮기자 getter의 syso를 setter로 옮겨주자 다시실행..
+			/* setter로 옮긴후 실행결과 ==>
+			Setter Injection
+			..
+			...
+			businessService
+			dataService
+			com.example.demo.g1.DataService@4c012563
+			세터 주입이 수행되어, 데이터 서비스에 주입할 수 있게 됐다
+			*/
+			
+			//CDI는 대체방식인데, @Component를 사용하는 대신 @Named를 사용하면 된다
+		}
+	} 
+}
+
+--------------------------------------------------------------------------------------------------------
+
+     |
+     V
+● CDI 방식
+--------------------------------------------------------------------------------------------------------
+
+
+⏺ CdiContextLauncherApplication 클래스파일
+
+
+
+package com.example.demo.g1;
+
+import java.util.*;
+
+import org.springframework.context.annotation.*;
+
+import jakarta.inject.*;
+
+//@Component
+//1:CDI 방식은 @Component 대신 @Named를 사용하면 된다
+@Named
+class BusinessService {
+	private DataService dataService;
+
+
+	public DataService getDataService() {
+		return dataService;
+	}
+
+//	@Autowired
+	//2:그리고 Autowired 대신에 @Inject를 쓸 수 있다
+	@Inject
+	public void setDataService(DataService dataService) {
+		System.out.println("Setter Injection");
+		this.dataService = dataService;
+	}
+
+	
+}
+
+//3: 그리고 여기고 @Component를 @Named로 바꿀 수 있다 그리고 이제 실행해보자
+//@Component
+@Named
+class DataService {
+	
+}
+
+@Configuration
+@ComponentScan
+public class CdiContextLauncherApplication {
+	
+	public static void main(String[] args) {
+
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(CdiContextLauncherApplication2.class)) {
+			
+			Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+			
+			System.out.println(context.getBean(BusinessService.class).getDataService());
+		
+  /* CDI 방식으로 바꾼후 출력결과 ==>
+			Setter Injection
+			..
+			...
+			businessService
+			dataService
+			com.example.demo.g1.DataService@bb9e6dc
+			dataService가 자동 연결되고 세터 주입도 수행되는 것을 볼 수 있다 
+			*/
+		}
+	} 
+}
+
+--------------------------------------------------------------------------------------------------------
+
+
+
+
+
+/*
+정리)
+이번에는 CDI(Contexts and Dependency Injection) 어노테이션이 Spring 어노테이션을 대체한다는 것을 살펴 봤다
+꼭 쓸 필요는 없지만 알아두면 좋다 Named는 Component를 대체하고 Inject는 Autowired를 대체한다
+
+이번 단계에선 CDI(Contexts and Dependency Injection)을 다뤘다 어노테이션 그룹을 정의한 규격이다
+의존성 주입을 수행하는 데 이 어노테이션을 사용할 수 있다
+Spring Framework에선 CDI가 구현되므로 CDI 어노테이션도 지원된다 
+이번 단계에선 Inject와 Named를 살펴봤다 
+Inject는 Spring의 Autowired와 아주 비슷하고 Named는 Spring Framework의 Component와 아주 비슷하다
+*/
