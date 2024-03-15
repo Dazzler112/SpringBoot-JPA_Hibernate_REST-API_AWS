@@ -1,0 +1,23 @@
+
+
+Jakarta Contexts & Dependency Injection (CDI)
+
+● Spring Framework V1 was released in 2004
+● CDI specification introduced into Java EE 6 platform in December 2009
+● Now called Jakarta Contexts and Deepndency Injection (CDI)
+● CDI is specification (interface)
+ ■ Spring Framework implements CDI
+
+이번 단계는 Jakarta Contexts and Dependency Injection에 대해 살펴보겠다 CDI라고도 한다
+Jakarta EE에 속한 규격이고 Spring Framework에서 지원한다 
+
+● Spring Framework V1 was released in 2004
+Spring Framework V1은 2004년에 공개됐다
+● CDI specification introduced into Java EE 6 platform in December 2009
+CDI 규격은 2009년 12월에 Jave EE 6 플랫폼에 도입되었다
+● Now called Jakarta Contexts and Deepndency Injection (CDI)
+지금은 Jakarta Contexts and Dependency Injection이라고 부른다 
+● CDI is specification (interface)
+CDI는 규격이고, 인터페이스이다 CDI에는 구현이 없고
+ ■ Spring Framework implements CDI
+Spring Framework에서 CDI를 구현한다
