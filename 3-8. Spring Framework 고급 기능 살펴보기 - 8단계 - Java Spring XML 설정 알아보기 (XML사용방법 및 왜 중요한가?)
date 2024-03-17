@@ -77,6 +77,8 @@ import java.util.*;
 
 import org.springframework.context.support.*;
 
+import com.example.demo.game.*;
+
 
 //현재는 이 클래스에 Java 설정을 사용하고 있다 이 @Configuration은 Java 설정을 사용함을 나타낸다 
 
@@ -170,6 +172,35 @@ public class XmlConfigurationContextLauncherApplication {
 			그러니 ref라 입력해야 하고, 우클릭하여 다시 java애플리케이션으로 실행한다 //8-2:xml파일 수정후 다시 실행..
 			*/
 			
+			//8-2: xml 수정후 다시 실행
+			/* 출력결과 ==>
+			name
+			age
+			game
+			gameRunner
+			Ranga
+			35
+			컨텍스트가 잘 로드되었다 
+			*/
+			
+			//원한다면 game도 실행할 수 있다
+			//context.getBean(GameRunner.class)라 입력하고 .run()이라 써준다 어떻게될까?
+			context.getBean(GameRunner.class).run();
+			
+			/* 출력결과==>
+			name
+			age
+			game
+			gameRunner
+			Ranga
+			35
+			Running game: com.example.demo.game.PacmanGame@7ef82753
+			up
+			down
+			left
+			right
+			PacmanGame이 실행되고 있다 up, down, left, right가 보인다
+			*/
 		}
 	} 
 }
@@ -231,8 +262,7 @@ contextConfiguration.xml 파일이다 // 1-1:다시
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"> <!-- bean definitions here -->
 
 <== 여기서 Bean을 정의할 수 있다
-
-	//Bean이라고 입력하고, name이란 id의 Bean을 만든다고 해보자 //클래스를 지정할 수도 있다 어떤 클래스로 할까? java.lang.String으로 만들어 보겠다
+	//3: Bean이라고 입력하고, name이란 id의 Bean을 만든다고 해보자 //클래스를 지정할 수도 있다 어떤 클래스로 할까? java.lang.String으로 만들어 보겠다
 	//여기서 생성자 주입을 사용하고 싶은데 그러면 생성자 인수를 설정해야 한다 Bean정의는 0개 이상의 생성자 인수를 지정할 수 있다 생성자 인수를 지정해보자 닫는 태그가 별도로 필요하지 않으니 <constructor-arg /> 이렇게만 해도 된다
 	//그리고 <constructor-arg /> 여기서 value를 지정할 것이다 value는 "Ranga"라고 쓰자 
 	<bean id="name" class="java.lang.String">
@@ -265,3 +295,20 @@ contextConfiguration.xml 파일이다 // 1-1:다시
 </beans>
 
 ---------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+/*
+정리 및 결론 :
+Java 설정에서 수행한 작업은 XML 설정에서도 모두 가능하다 
+하지만 이제 XML 설정은 자주 사용되지 않는다 
+교육자가 Spring Framework를 사용했던 20년 전에는 모든 걸 XML 파일에 구성해야 했다고 한다 
+Spring Configuration이 있는 XML파일을 사용해야 했는데, 줄이 수천 개가 됐다 
+다행히 Java 어노테이션이 도입됐다
+최근 Spring 버전을 사용하면 XML 설정은 거의 필요하지 않다
+하지만 XML 설정을 이해하고 인지하는 건 아주 중요하다
+이미 오래된 프로젝트에서 아직도 XML 설정을 사용하기 때문이다 
+*/
