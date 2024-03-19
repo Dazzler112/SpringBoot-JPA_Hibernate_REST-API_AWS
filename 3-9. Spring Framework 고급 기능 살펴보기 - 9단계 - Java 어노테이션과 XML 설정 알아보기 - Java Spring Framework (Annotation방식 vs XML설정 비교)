@@ -1,0 +1,192 @@
+
+Let's Compare: Annotations vs XML Configuration
+
+Heading                        Annotations                                                   XML Configuration
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+Ease of use                    Very Easy(defined close to source - class, method and/or      Cumbersome
+                               variable)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Short and concise              Yes                                                           No
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Clean POJOs                    No. POJOs are polluted with Spring Annotations                Yes. No change in Java code.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Easy to Maintain               Yes                                                           No
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Usage Frequency                Almost all recent projects                                    Rarely
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Recommendation                 Either of them is fine BUT be consistent                      Do NOT mix both
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Debugging difficulty           Hard                                                          Medium    
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+
+
+이전 학습에선 XML 설정에 대해 이야기헀는데 
+이번에는 어노테이션과 XML 설정을 비교해 볼 것이다 
+
+사용 편이성을 살펴보자
+● Ease of use 
+- Annotations
+Very Easy(defined close to source - class, method and/or variable)
+일반적으로 어노테이션은 아주 사용하기 쉽다 특정 클래스, 특정 메서드나 변수 자체에 소스에 아주 가깝게 어노테이션을 정의할 수 있다
+그래서 어노테이션은 사용하기 아주 쉽다
+
+- XML Configuration
+Cumbersome
+하지만 지난 단계에서 살펴본 것처럼 XML 설정은 정말 번거로울 수 있다
+Bean 인스턴스를 만드려면 패키지 이름을 포함해 클래스 전체 이름을 나타내야 한다 ( <bean id="game" class="com.example.demo.game.PacmanGame"/> )
+특정한 구문을 따라야 하고 자동 연결과 같은 걸 수행하려면 꽤 복잡한 구문을 사용해야 한다 
+
+
+● Short and concise 
+- Annotations
+Yes
+어노테이션은 짧고 간결한 반면,
+
+- XML Configuration
+No
+XML 설정은 아주 번거롭다
+
+
+● Clean POJOs
+- Annotations
+No. POJOs are polluted with Spring Annotations 
+POJO는 Spring Framework를 알지 못한다 
+
+- XML Configuration
+Yes. No change in Java code.
+XML 설정의 장점은 POJO가 깔끔하다는 것이다 
+
+생성했던 Bean을 열어보겠다, PacmanGame을 열어보면 
+@Component 어노테이션을 사용하려면 Spring Framework의 무언가를 사용해야 한다 
+
+package com.example.demo.game;
+import org.springframework.stereotype.*;
+
+@Component
+public class PacmanGame implements GamingConsole{
+	public void up() {
+		System.out.println("up");
+	}
+	public void down() {
+		System.out.println("down");
+	}
+	public void left() {
+		System.out.println("left");
+	}
+	public void right() {
+		System.out.println("right");
+	}
+}
+깔끔한 Java POJO가 아니다 Spring Framework를 참조하고 있기 떄문이다
+
+하지만 XML설정을 사용한다면 POJO가 아주 깔끔해진다 
+@Component 어노테이션을 사용할 필요가 없다 왜 그럴까?
+Bean을 만드는 데 필요한 모든 것을 정의하기 떄문이다 
+	<bean id="gameRunner" class="com.example.demo.game.GameRunner">
+		<constructor-arg ref="game"/>
+	</bean>
+그러니 XML 설정을 사용한다면 PacmanGame에서 @Component 어노테이션을 삭제할 수 있다 
+그러면 POJO가 깔끔해질 것이다 XML 설정에서는 Java 코드를 바꿀 필요가 없다
+
+
+● Easy to Maintain
+- Annotations
+Yes
+하지만 어노테이션은 관리하기 훨씬 쉽다
+소스에 아주 가깝게 어노테이션을 표현하니 소스 코드를 바꿀 때마다 어노테이션을 쉽게 업데이트할 수 있다
+
+- XML Configuration
+No
+하지만 XML 설정은 아주 번거롭다 
+예를들어
+
+package com.example.demo.game;
+import org.springframework.stereotype.*;
+
+@Component
+public class PacmanGame implements GamingConsole{
+	public void up() {
+		System.out.println("up");
+	}
+	public void down() {
+		System.out.println("down");
+	}
+	public void left() {
+		System.out.println("left");
+	}
+	public void right() {
+		System.out.println("right");
+	}
+}
+
+이 클래스 이름을 바꾸어야 하는 경우, PacmanGame 이 이름도 바꾸고 
+<bean id="game" class="com.example.demo.game.PacmanGame"/>
+contextConfiguration.xml 로 가서 여기서도 바꿔야 한다
+PacmanGame을 한 패키지에서 다른 패키지로 옮기려면 PacmanGame 여기서도 바꾸어야하고 contextConfiguration.xml에서도 바꿔야 한다
+<bean id="game" class="com.example.demo.game.PacmanGame"/> 이것의 패키지를 업데이트 해야 한다
+의존성을 추가하는 경우에도 마찬가지다
+그래서 XML 설정은 관리하기 어렵다
+
+
+● Usage Frequency 
+- Annotations
+Almost all recent projects
+사용 빈도 측면에서 어노테이션과 Java 설정은 매우 자주 사용된다
+최근에 만들어진 거의 모든 Java 프로젝트에서 어노테이션을 사용한다
+
+- XML Configuration
+Rarely
+XML 설정은 요즘 거의 사용되지 않는다 
+계속 유지되는 오래된 프로젝트에선 XML 설정을 사용할 수도 있지만 새로운 프로젝트는 100% Java 설정과 어노테이션을 사용한다
+
+
+
+권장 사항은 무엇일까? 교육자 생각으론 둘 다 괜찮다고 생각한다고 한다 어노테이션, XML설정 사용해도 좋다고 한다
+중요한 건 전체 프로젝트에서 일관적으로 사용하는 것이다 어노테이션을 사용하거나 XML설정을 사용하는 것이다 섞어 사용하지 말아라
+● Recommendation
+- Annotations
+Either of them is fine BUT be consistent  
+
+- XML Configuration
+Do NOT mix both
+
+
+
+
+마지막으로 비교할 부분은 디버그 난이도이다
+● Debugging difficulty
+- Annotations
+Hard
+일반적으로, Java 설정과 어노테이션사용 시에는 디버그가 조금 더 어렵다
+어노테이션을 사용하면서 문제가 발생한다면 Spring Framework에 대해 아주 잘 이해하고 있어야 한다
+
+- XML Configuration
+Midium
+반면에 XML 설정은 정말 장황하다
+
+	<bean id="name" class="java.lang.String">
+		<constructor-arg value="Ranga"/>
+	</bean>
+
+	<bean id="age" class="java.lang.Integer">
+		<constructor-arg value="35"/>
+	</bean>
+	
+	<!-- <context:component-scan base-package="com.example.demo.game"/> -->
+	
+	<bean id="game" class="com.example.demo.game.PacmanGame"/>
+	
+	<bean id="gameRunner" class="com.example.demo.game.GameRunner">
+		<constructor-arg ref="game"/>
+	</bean>
+
+보면 많은 것들이 명시적으로 표현되어 있다 그래서 보통은 디버그하기가 조금 더 쉽다
+그래서 XML 설정의 디버그 문제는 중간 수준으로 두었다
+
+
+
+
+
+
+지난 두 단계에선 XML 설정을 사용한 Spring Bean 설정 방식을 살펴봤다
