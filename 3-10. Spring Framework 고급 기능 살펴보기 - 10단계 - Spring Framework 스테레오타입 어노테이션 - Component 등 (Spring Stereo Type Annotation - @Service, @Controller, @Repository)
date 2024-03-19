@@ -1,0 +1,216 @@
+
+
+Spring Stereotype Annotations - @Component & more..
+
+● @Component - Generic annotation application for any class                                                      ㅡㅡㅡㅡㅡㅡㅡㅡ
+ ■ Base for all Spring Stereotype Annotations                                                                   |      Web      |
+ ■ Specializations of @Component:                                                                                ㅡㅡㅡㅡㅡㅡㅡㅡ
+  ▢ @Service - Indicates that an annotated class has business logic                                             |    Business   |
+  ▢ @Controller - Indicates that an annotated class is a "Controller" (e.g.a web Controller)                     ㅡㅡㅡㅡㅡㅡㅡㅡ
+   ◦ Used to define controllers in your web applications and REST API                                           |     Data      |
+  ▢ @Respository - Indicates that an annotated class is used to retrive and/or manipulate date in a database     ㅡㅡㅡㅡㅡㅡㅡㅡ
+● What Should you use?
+ ■ (MY RECOMMENDATION) Use the most specific annotation possible
+ ■ Why?
+  ▢ By using a specific annotation, you are giving more information to the framework about your intentions.
+  ▢ You can use AOP at a later point to add additional behavior
+   ◦ Example: For @Repository, Spring automatically wires in JDBC Exception translation features
+
+
+
+
+
+이번 단계에서는 Spring 스테레오타입 어노테이션을 살펴본다
+이 과정에선 지금까지 @Component를 사용했는데 Spring Bean을 만들 때마다 @Component 어노테이션을 추가했다
+하지만 다른 어노테이션도 많이 사용할 수 있다 어떤 어노테이션이고, 언제 사용할까?
+이번 단계에서 살펴보겠다
+
+● @Component - Generic annotation application for any class
+@Component는 제네릭 어노테이션이며 모든 클래스에 적용 가능하다 
+특정 클래스에 Spring Bean을 생성하려는 경우에 @Component를 사용할 수 있다
+ ■ Base for all Spring Stereotype Annotations
+모든 Spring 스테레오타입 어노테이션의 기초이다
+ ■ Specializations of @Component:
+@Component는 다양하게 나뉘어 있다 무엇이 있을까?
+  ▢ @Service - Indicates that an annotated class has business logic
+@Service가 있다 @Service는 보통 어노테이션한 클래스에 비즈니스 논리가 있음을 나타낸다  
+클래스에 비즈니스 논리가 있다면 @Component 대신 @Service를 사용할 수 있다
+  ▢ @Controller - Indicates that an annotated class is a "Controller" (e.g.a web Controller)
+예를 들면 웹 컨트롤러와 같이 컨트롤러 클래스인 경우에 자주 사용되는 어노테이션은 @Controller이다
+   ◦ Used to define controllers in your web applications and REST API 
+웹 애플리케이션과 REST API 에서 컨틀로러를 정의하는 데 사용된다 
+  ▢ @Respository - Indicates that an annotated class is used to retrive and/or manipulate date in a database
+자주 사용되는 또 다른 어노테이션은 @Repository이다 Bean이 테이터베이스와 통신하는 경우, 데이터를 저장하거나 검색하거나 조작하는 경우
+@Component 대신 @Repository 어노테이션을 클래스에 사용한다 
+
+● What Should you use?
+이제 이전에 만들었던 RealWorldSimpleSpringContextLauncherApplication 클래스파일에 들어가 보자
+여기에 비즈니스 계산 서비스를 만들었는데, 몇 가지 데이터 서비스와 통신하는 서비스다
+이 클래스를 만들 때 @Component 어노테이션을 사용했다
+이제 @Component 어노테이션을 사용하는 대신 클래스에 비즈니스 논리를 작성했다면 @Service 어노테이션을 사용할 수 있다
+
+---------------------------------------------------------------------------------------------
+
+
+⏺ BusinessCalculationService2 클래스파일
+
+
+
+
+package com.example.demo.c1;
+
+import java.util.*;
+
+import org.springframework.stereotype.*;
+
+
+//@Component
+//1: 클래스에 비즈니스 논리를 작성했다면 @Service 어노테이션을 사용할 수 있다 여기에 비즈니스 논리가 정의된다//2: 데이터 서비스 클래스인 경우 예를들어 MongoDbDataService 클래스파일로..
+
+@Service
+public class BusinessCalculationService2 {
+
+	private DataService dataService; 
+
+	public BusinessCalculationService2 (DataService dataService) {
+		super();
+		this.dataService = dataService;
+	}
+	
+	 public int findMax() {
+		 return Arrays.stream(dataService.retrieveData())
+				 .max().orElse(0); 
+				 
+	 }
+}
+
+-----------------------------------
+
+
+⏺ MongoDbDataService2 클래스파일
+
+
+package com.example.demo.c1;
+
+import org.springframework.context.annotation.*;
+import org.springframework.stereotype.*;
+
+//2: 에를 들어 이곳에서 @Componenet 대신 @Repository 사용이 권장된다
+//일반적으로 리포지토리 클래스에서 데이터베이스와의 상호작용을 수행한다 MongoDbDataService의 목표는 MongoDb 데이터베이스와 통신하는 것이므로, 
+//@Repository를 사용할 수 있다 MySqlDataService도 유사하다//3:MySqlDataService 클래스 파일로...
+//@Component
+@Repository
+
+@Primary
+public class MongoDbDataService2 implements DataService{
+
+	@Override
+	public int[] retrieveData() {
+		
+		return new int[] {11, 22, 33, 44, 55};
+	}
+
+}
+
+
+-----------------------------------
+
+
+⏺ MySQLDataService2 클래스파일
+
+
+package com.example.demo.c1;
+
+import org.springframework.stereotype.*;
+
+//3: @Repository를 사용할 수 있다 @Repository라 쓰고 임포트를 수행한다 RealWorldSimpleSpringContextLauncherApplication로 가서 실행해보자 //4: 실행 ㄱㄱ
+
+//@Component
+@Repository
+public class MySQLDataService2 implements DataService{
+
+	@Override
+	public int[] retrieveData() {
+		return new int[] {1, 2, 3, 4, 5};
+	}
+
+}
+
+
+-----------------------------------
+
+
+⏺ RealWorldSimpleSpringContextLauncherApplication 클래스파일
+
+
+package com.example.demo.c1;
+
+import java.util.*;
+
+import org.springframework.context.annotation.*;
+
+@Configuration
+@ComponentScan
+public class RealWorldSimpleSpringContextLauncherApplication {
+	
+	public static void main(String[] args) {
+		
+		try(var context = 
+				new AnnotationConfigApplicationContext
+				(RealWorldSimpleSpringContextLauncherApplication.class)) {
+			
+			Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+
+			System.out.println(
+					context.getBean(BusinessCalculationService2.class)
+					.findMax());
+      /* 실행결과 ==>
+      org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+      org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+      org.springframework.context.annotation.internalCommonAnnotationProcessor
+      org.springframework.context.event.internalEventListenerProcessor
+      org.springframework.context.event.internalEventListenerFactory
+      realWorldSimpleSpringContextLauncherApplication
+      businessCalculationService
+      businessCalculationService2
+      mongoDbDataService2
+      mySQLDataService2
+      애플리케이션으로 실행하면 모든 게 평소처럼 작동한다 
+      */			
+		}
+	} 
+}
+
+---------------------------------------------------------------------------------------------
+
+
+요점은 @Component 이외에도 @Component를 특화한 것이 많다는 것이다
+@Component, @Service, @Controller, @Repository, 모두 스테레오타입 어노테이션이라고 부른다
+무엇을 사용해야 할지 궁금할 텐데
+
+● What Should you use?
+ ■ (MY RECOMMENDATION) Use the most specific annotation possible
+최대한 구체적인 어노테이션을 사용하기를 추천한다 
+비즈니스 논리를 포함한 클래스를 만들 때는 @Service를, 
+웹 컨트롤러 클래스를 만들 때는 @Controller를,
+데이터베이스와 통신하는 클래스를 만들 때는 @Repository를 사용하고  
+모두 해당하지 않을 때는 제네릭 어노테이션인 @Component를 사용해라
+ ■ Why?
+이유가 궁금할 것이다 왜 최대한 구체적인 어노테이션을 사용해야 할까?
+  ▢ By using a specific annotation, you are giving more information to the framework about your intentions.
+첫 번째, 구체적인 어노테이션을사용하려면 프레임워크에 자신이 의도했던 바를 더 자세하게 나타낼 수 있다
+특정 클래스의 역할에 대한 정보를 더 주는 것이다
+  ▢ You can use AOP at a later point to add additional behavior
+두 번째, 나중에 AOP(관점 지향 프로그래밍)를 사용하여 어노테이션을 감지하고 그 위에 부가적인 동작을 추가할 수 있다 
+그 위에 부가적인 동작을 추가할 수 있다
+   ◦ Example: For @Repository, Spring automatically wires in JDBC Exception translation features
+예를 들어 @Repository 어노테이션이 있다면 Spring Framework에서 자동으로 JDBC 에외 변환 기능에 연결한다
+이 단계에선 @Component, @Service, @Controller, @Repository에 대해 높은 수준으로 알아보려고 한다 
+
+
+
+
+
+
+과정을 더 진행하면서 여러 애플리케이션을 만들 예정인데, 애플리케이션을 여러 개 만들면서 
+@Service, @Controller, @Repository에 대해 더 많이 이해하게 될 것이다
