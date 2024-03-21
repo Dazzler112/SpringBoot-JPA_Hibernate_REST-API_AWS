@@ -1,0 +1,253 @@
+
+
+Spring Big Picture - Framwwork, Modules and Projects        
+
+● Spring Core : IOC Container, Dependency Injection, Auto Wiring, ...
+ ■ These are the fundamental building blocks to:                                                                                                 ㅡㅡㅡㅡㅡㅡㅡ
+  ▢ Building web applications                                                                                                                   |    Core    |
+  ▢ Creating REST API                                                                                                                          / ㅡㅡㅡㅡㅡㅡㅡ
+  ▢ Implementing authentication and authorization                                                                                             /    ㅡㅡㅡㅡㅡㅡㅡ
+  ▢ Talking to a database                                                                                                                    /   /|    Test    |  
+  ▢ Integranting with other systems                                                                                     ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   /   ㅡㅡㅡㅡㅡㅡㅡ 
+  ▢ Writing great unit tests                                                                                           |  Spring Framework  |                        
+● Let's now get a Spring Big Picture:                                                                                   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   \    ㅡㅡㅡㅡㅡㅡㅡ
+ ■ Spring Framework                                                                                                   /                      \   \ |    MVC     |   
+ ■ Spring Moduels                                                                                                   /  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    \    ㅡㅡㅡㅡㅡㅡㅡ
+ ■ Spring Projects                                                                                                /   |    Spring Boot     |    \  ㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                /  /   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ       |    JDBC    |
+                                                                                        ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ  /  /     ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      ㅡㅡㅡㅡㅡㅡㅡ
+                                                                                       |   Spring Projects  |  ㅡㅡㅡㅡ|    Spring Cloud   |   
+                                                                                        ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   \  \    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                \ \  \    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+                                                                                                                 \  \  \ |    Spring Data     |
+                                                                                                                   \  \   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                    \   \   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                      \    |  Spring Security   |
+                                                                                                                        \   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                         \  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ     
+                                                                                                                           |       .....        |
+                                                                                                                            ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+
+이번 과정의 아주 중요한 단계에 도착했다
+● Spring Core : IOC Container, Dependency Injection, Auto Wiring, ...
+지금까지 Spring 코어라는 걸 배웠다 IoC 컨테이너, 의존성 주입, 자동 연결로 살펴봤던 모든 기능을 말한다
+ ■ These are the fundamental building blocks to:  
+이 모든 것이 기본적인 구성요소이다
+  ▢ Building web applications  
+  ▢ Creating REST API
+  ▢ Implementing authentication and authorization 
+  ▢ Talking to a database
+  ▢ Integranting with other systems 
+  ▢ Writing great unit tests 
+훌륭한 웹 애플리케이션을 만들거나, REST API를 생성하거나, 인증 및 권한 부여를 구현하거나, 데이터베이스와 통신하거나, 다른 시스템과 통합하거나, 단위테스트를 잘 수행하려 할 때 필요한 요소다
+지금까지 배운 모든 개념은 앞으로 어떤 애플리케이션을 만들더라도 아주 유용할 것이다
+
+● Let's now get a Spring Big Picture: 
+이제 Spring을 더 큰 시각으로 살펴보자
+ ■ Spring Framework 
+ ■ Spring Moduels
+ ■ Spring Projects 
+Spring Framework, Spring 모듈, Spring 프로젝트에 대해 알아보자
+
+
+
+
+Spring Bic Picture - Framework and Moduels
+
+● Spring Framework contains multiple Spring Modules:                                                                                       
+ ■ Fundamental Features: Core (IOC Container, Dependency Injection, AutoWiring..)                                           ㅡㅡㅡㅡㅡㅡㅡㅡ                        
+ ■ Web: Spring MVC etc (Web applications, REST API)                                                                        |  Spring Core | 
+ ■ Web Reactive: Spring WebFlux etc                                                                                         ㅡㅡㅡㅡㅡㅡㅡㅡ                     
+ ■ Data Access: JDBC, JPA etc                                                                                            /  ㅡㅡㅡㅡㅡㅡㅡㅡ     
+ ■ Integration: JMS etc                                                                                                /   |  Spring Test  |   
+ ■ Testing: Mock Objects, Spring MVC Test etc                                                                         /  /   ㅡㅡㅡㅡㅡㅡㅡㅡ      
+                                                                                               ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ  /       ㅡㅡㅡㅡㅡㅡㅡㅡ     
+● No Dumb Question: Why is Spring Framework divided into Modules?                             |   Spring Projects  |  ㅡㅡㅡ|  Spring MVC   |   
+ ■ Each application can choose modules they want to make us of                                 ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   \      ㅡㅡㅡㅡㅡㅡㅡㅡ
+ ■ They do not need to make use of everything in Spring framework                                                       \  \  ㅡㅡㅡㅡㅡㅡㅡㅡ 
+                                                                                                                         \   |  Spring JDBC |
+                                                                                                                          \   ㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                           \   ㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                              |     .....    |
+                                                                                                                               ㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                   
+
+
+
+● Spring Framework contains multiple Spring Modules:  
+Spring Framework에는 Spring 모듈이 여러 개 포함되어 있다
+ ■ Fundamental Features: Core (IOC Container, Dependency Injection, AutoWiring..)
+Spring Framework의 핵심 기능은 IOC 컨테이너, 의존성 주입, 자동연결 등 코어라 불리는 모듈에 속한다 
+코어 모듈에서 이러한 기능을 제공한다
+ ■ Web: Spring MVC etc (Web applications, REST API)
+웹 애플리케이션이나 REST API를 빌드할 때 Spring MVC를 사용할 수 있다
+ ■ Web Reactive: Spring WebFlux etc  
+리액티브 애플리케이션을 빌드하려고 한다면 Spring WebFlux 등의 모듈을 쓸 수 있다
+ ■ Data Access: JDBC, JPA etc
+데이터베이스에서 데이터에 액세스하려 할 때는 Spring JDBC를 사용할 수 있다
+ ■ Integration: JMS etc
+다른 애플리케이션과 통합할 때는 Spring JMS를 사용한다
+ ■ Testing: Mock Objects, Spring MVC Test etc 
+그리고 단위 테스트를 작성할 때는 Spring 테스트 모듈을 사용한다 
+
+
+이와 같이 Spring Framework에는 다양한 모듈이 있다 
+빌드하려는 애플리케이션 유형에 따라 Spring 모듈을 활용하면 된다 
+
+● No Dumb Question: Why is Spring Framework divided into Modules?
+Spring Framework는 왜 모듈로 나뉘어 있을까?
+ ■ Each application can choose modules they want to make us of
+Spring Framework가 유명한 주된 이유 한 가지는 유연성이다 
+각각의 애플리케이션마다 요구 사항은 다르고, 각 애플리케이션은 다양한 모듈을 사용한다
+데이터베이스와 통신하는 웹 애플리케이션을 만든다면 Spring MVC를 사용할 수 있고 Spring JDBC를 사용할 수도, Spring 코어를 사용할 수도 있다
+나머지 모듈을 신경 써야 할 필요가 없다
+ ■ They do not need to make use of everything in Spring framework
+애플리케이션에서 Spring Framework의 모든 기능을 사용해야 하는 건 아니다 
+원하는 대로 고르고 선택하면 된다
+
+
+
+Spring 모듈에서 Spring 프로젝트로 넘어가자
+
+
+Spring Bic Picture - Spring Projects
+
+● Application architectures evolve continuosly                                                                                       
+ ■ Web > REST API > Microservices > Cloud > ...                                                                          ㅡㅡㅡㅡㅡㅡㅡㅡㅡ                        
+● Spring evolves through Spring Projects:                                                                               |  Spring Boot   | 
+ ■ First Project: Spring Framework                                                                                      ㅡㅡㅡㅡㅡㅡㅡㅡㅡ                     
+ ■ Spring Security: Secure your web application or REST API or microservice                                            /  ㅡㅡㅡㅡㅡㅡㅡㅡㅡ     
+ ■ Spring Data: Integrate the same way with different types                                                          /   |   Spring Cloud  |   
+ of databases : NoSQL and Relational                                                                                /  /  ㅡㅡㅡㅡㅡㅡㅡㅡㅡ      
+ ■ Spring Integration: Address challenges with integration                                  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ  /       ㅡㅡㅡㅡㅡㅡㅡㅡㅡ     
+ with other applications                                                                   |   Spring Projects  |  ㅡㅡㅡ|   Spring Data   |   
+ ■ Spring Boot: Popular framework to build microservices                                    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   \      ㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+ ■ Spring Cloud: Build cloud native application                                                                     \   \  ㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+                                                                                                                      \   | Spring Security |
+                                                                                                                        \   ㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                         \  ㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                           |     .....       |
+                                                                                                                            ㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                   
+
+● Application architectures evolve continuosly  
+애플리케이션 아키텍쳐는 계속 발전하고 있다
+ ■ Web > REST API > Microservices > Cloud > ... 
+지난 20년 동안 웹 애플리케이션에서 REST API, 마이크로서비스, 클라우드로 발전했다 다음은 무엇이 될지 모른다
+● Spring evolves through Spring Projects: 
+Spring은 아직도 가장 자주 쓰이는 프레임워크인데 왜 그럴까? Spring은 계속 발전하기 때문이다
+Spring은 Spring프로젝트를 통해 발전한다
+ ■ First Project: Spring Framework 
+첫 번째 Spring 프로젝트는 Spring Framework이다 지금까지 다뤘다
+하지만 Spring은 Spring Framework에서 그치지 않았다 다른 Spring 프로젝트를 많이 만들었다
+ ■ Spring Security: Secure your web application or REST API or microservice  
+Spring Security는 웹 애플리케이션이나 REST API에 보안을 추가할 때 쓴다
+마이크로서비스에 인증, 권한 부여를 추가하려는 경우에 Spring Security를 사용한다 
+ ■ Spring Data: Integrate the same way with different types of databases : NoSQL and Relational 
+동일한 방식으로 여러 데이터베이스와 통합할 때는 Spring Data를 쓴다 
+이전에는 관계형 데이터베이스를 많이 사용했는데 요즘 NoSQL 데이터베이스를 아주 많이 쓴다
+Spring Data는 NoSQL및 관계형 데이터베이스 없이 통합할 수 있는 한 가지 방법이다
+NoSQL 데이터베이스가 많이 사용되면서 Spring에선 Spring Data라는 프로젝트를 공개했다
+지금 Spring Data는 아주 많이 사용된다 
+NoSQL 데이터베이스나 관계형 데이터베이스에 연결하는 모든 경우에 그렇다
+ ■ Spring Integration: Address challenges with integration with other applications
+Spring Integration이다 대부분의 애플리케이션은 다른 애플리케이션과 통신하기 때문에, 이러한 애플리케이션에서 통합 관련 문제를 많이 겪는다
+Spring Integration은 다른 애플리케이션과 통합하는 데 유용한 Spring 프로젝트이다
+ ■ Spring Boot: Popular framework to build microservices
+마이크로서비스 아키텍처는 갈수록 인기를 더 끌었는데 마이크로서비스를 아주 빠르게 빌드하기 위해 새로운 Spring 프로젝트인 Spring Boot가 도입되었다
+오늘날 Spring Boot는 마이크로서비스를 빌드하는 최고의 프레임워크가 되었고, 시간이 지나면서 ,
+ ■ Spring Cloud: Build cloud native application 
+클라우드로 발전하게 되었다 Spring 네이티브 애플리케이션을 빌드할 때는 Spring 프로젝트인 Spring Cloud를 사용한다 
+
+보다시피 아키텍처는 지속적으로 발전했고 Spring도 다양한 Spring 프로젝트를 통해 계속 발전해왔다
+
+
+
+
+
+
+Spring Big Picture - Framwwork, Modules and Projects        
+
+● Hierarchy: Spring Projects > Spring Framework > Spring Modules
+● Why is Spring Eco system popular?                                                                                                              ㅡㅡㅡㅡㅡㅡㅡ
+ ■ Loose Coupling: Spring manages creation and wiring of beans                                                                                  |    Core    |
+ and dependencies                                                                                                                              / ㅡㅡㅡㅡㅡㅡㅡ
+  ▢ Makes it easy to build loosley coupled applications                                                                                       /    ㅡㅡㅡㅡㅡㅡㅡ
+  ▢ Make writing unit tests easy! (Spring Unit Testing)                                                                                      /   /|    Test    |  
+ ■ Reduced Boilerplate Code: Focus on Business Logic                                                                    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   /   ㅡㅡㅡㅡㅡㅡㅡ 
+  ▢ Example: No need for exception handling in each method!                                                            |  Spring Framework  |                        
+   ◦ All checked Exceptions are converted to Runtime or Unchecked Exceptions                                            ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   \    ㅡㅡㅡㅡㅡㅡㅡ
+ ■ Architectural Flexibility: Spring Modules and Projects                                                             /                      \   \ |    MVC     |   
+  ▢ You can pick and choose which ones to use  (You DON'T need to use all of them!)                                 /  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ    \    ㅡㅡㅡㅡㅡㅡㅡ
+ ■ Evolution with Time: Microservices and Cloud                                                                   /   |    Spring Boot     |    \  ㅡㅡㅡㅡㅡㅡㅡ
+  ▢ Spring Boot, Spring Cloud etc                                                                               /  /   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ       |    JDBC    |
+                                                                                        ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ  /  /     ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ      ㅡㅡㅡㅡㅡㅡㅡ
+                                                                                       |   Spring Projects  |  ㅡㅡㅡㅡ|    Spring Cloud   |   
+                                                                                        ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ   \  \    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                \ \  \    ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ 
+                                                                                                                 \  \  \ |    Spring Data     |
+                                                                                                                   \  \   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                    \   \   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                      \    |  Spring Security   |
+                                                                                                                        \   ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+                                                                                                                         \  ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ     
+                                                                                                                           |       .....        |
+                                                                                                                            ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+
+
+                                                                        Spring               Spring                   Spring              |\
+                                                                      Franmework              Data                    Cloud               |  \
+                                                                      ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ|    \
+                                                                          🔵        🟢        🟠         🟤          ⚫         🟢           >    
+                                                                      ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ|    /
+                                                                                   Spring                Spring                   .....   |  /
+                                                                                  Security                Boot                            |/
+
+
+● Hierarchy: Spring Projects > Spring Framework > Spring Modules
+지금까지 이 계층 구초를 살펴봤다 Spring 프로젝트 아래에 첫 번째 프로젝트인 Spring Framework가 있고 
+Spring Framework에는 코드, 테스트, MVC, JDBC라는 여러 모듈이 있다 다른 Spring 프로젝트도 많다 Spring Boot, Spring Cloud, Spring Data, Spring Security 등이다
+● Why is Spring Eco system popular?
+중요한 질문인데, Spring 생태계는 왜 인기가 많을까?
+교육자는 20년 전부터 Spring Framework를 사용했는데 20년 동안 Spring, 
+Spring Boot와 Spring 관련 프레임워크는 다양한 엔터프라이즈 애플리케이션을 빌드할 때 가장 중요한 프레임워크였다 한다
+어떻게 가능했을까?
+ ■ Loose Coupling: Spring manages creation and wiring of beans and dependencies 
+먼저, Spring에선 느슨한 결합이 가능하다 '
+Spring은 Bean 생성, Bean과 의존성 연결을 관리한다 
+  ▢ Makes it easy to build loosley coupled applications 
+느슨하게 결합하여 유지보수가 가능한 애플리케이션을 아주 쉽게 만들 수 있다
+  ▢ Make writing unit tests easy! (Spring Unit Testing)
+단위 테스트 작성 역시 아주 수월하다
+ ■ Reduced Boilerplate Code: Focus on Business Logic  
+두 번째로, 보일러플레이트 코드를 줄여준다
+Spring을 이용하면 비즈니스 논리에 집중할 수 있다
+  ▢ Example: No need for exception handling in each method! 
+매서드마다 예외 처리를 작성할 필요가 없다
+   ◦ All checked Exceptions are converted to Runtime or Unchecked Exceptions 
+확인된 모든 예외는 런타임 또는 확인되지 않는 예외로 전환된다
+이전과 현재에 데이터베이스와 통신하는 데 관여하는 코드 수를 비교하면 잘 알 수 있다
+교육자가 처음 일을 시작했을 때는 DB에서 간단한 쿼리를 실행하려면 코드를 50~60줄 정도 작성해야 했다고 한다 
+지금은 Spring Framework, Spring JDBC, JPA가 진화하여 코드 5줄이면 똑같은 기능을 수행할 수 있다
+ ■ Architectural Flexibility: Spring Modules and Projects
+다음은 아키텍처 유연성이다 Spring이 여러 개의 모듈로 나뉘었고, 별개의 프로젝트도 다양하다고 이야기했다
+  ▢ You can pick and choose which ones to use  (You DON'T need to use all of them!)
+개발자이자 설계자인 너는 사용할 모듈과 프로젝트를 고르고 선택할 수 있다 전부 쓸 필요는 없다
+ ■ Evolution with Time: Microservices and Cloud
+마지막으로 중요한 요소는 시간에 따라 발전한다는 것이다 
+Spring Framework는 첫 번째 프로젝트였지만, 시간이 지나며 아키텍처가 진화하고 애플리케이션에 새로운 요구가 생기자 다양한 프로젝트가 도입되었다
+  ▢ Spring Boot, Spring Cloud etc 
+Spring 생태계도 함께 발전했다 Spring Security, Spring Data, Spring Boot, Spring Cloud등 새로운 프로젝트가 많이 도입된 덕분에 Spring 생태계는 오늘날까지 사랑을 받고 있다
+
+
+
+
+
+
+Spring Framework의 기본을 모두 배웠고
+이제 Spring Framework에 익숙해졌고 Spring Framework를 큰 시각으로 살펴봤다 
+다음 섹션에선 흥미로운 여러 애플리케이션을빌드해 볼 것이다
+이제 Spring Framework를 아주 잘 알게 되었고 Spring 생태계의 전반적인 구조도 배웠다
+다음 섹션에선 이 지식을 바탕으로 빌드해보자
