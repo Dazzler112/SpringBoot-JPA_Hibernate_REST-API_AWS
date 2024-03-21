@@ -1,0 +1,71 @@
+
+
+Getting Started with Spring Boot
+
+● WHY Spring Boot?
+ ■ You can build web apps & REST API WITHOUT Spring Boot
+ ■ What is the need for Spring Boot?
+● WHAT are the goals of Spring Boot?
+● HOW does Spring Boot work?
+● COMPARE Spring Boot vs Spring MVC vs Spring
+
+이번 섹션, 10단계로 배우는 Spring Boot에 대해서 알 것이다
+10단계 보다는 조금 많은 단계로 Spring Boot에 관해 알아볼 건데 이 섹션의 목표는 무엇일까?
+
+● WHY Spring Boot?
+왜 Spring Boot 일까? 
+ ■ You can build web apps & REST API WITHOUT Spring Boot
+Spring Boot없이도 웹 애플리케이션과 REST API를 빌드할 수 있다
+ ■ What is the need for Spring Boot?
+그렇다면 왜 Spring Boot지?
+● WHAT are the goals of Spring Boot?
+● HOW does Spring Boot work?
+Spring Boot 프레임워크의 목표는 무엇이며 Spring Boot 프레임워크는 어떻게 작동할까?
+● COMPARE Spring Boot vs Spring MVC vs Spring
+이 섹션의 끝부분에선 Spring Boot ,Spring MVC, Spring을 비교해 보겠다
+
+교육자는 2005년 처음으로 Spring을 사용하여 애플리케이션을 빌드했다고 한다
+Spring Boot는 2016년에 도입되었다
+이 섹션에선 Spring 프레임워크로 애플리케이션을 개발한 경험을 알려주고 
+Spring Boot를 통해 해결한 문제는 어떤 것인지 알려준다고 한다
+
+
+
+
+
+Getting Started with Spring Boot - Approach
+
+● 1: Understand the world before Spring Boot (10000 Feet)
+● 2: Create a Spring Boot Project
+● 3: Build a simple REST API using Spring Boot
+● 4: Understand the MAGIC of Spring Boot
+ ■ Spring initializer
+ ■ Starter Projects
+ ■ Auto Configuration
+ ■ Developer Tools
+ ■ Actuator
+ ■ ...
+
+● 1: Understand the world before Spring Boot (10000 Feet)
+이 섹션에서 사용하는 접근 방식은 먼저 Spring Boot 이전의 세계를 이해하는 것이다
+Spring Boot 없이 빌드된 애플리케이션은 어땠는지 여기에 관해 대략적으로 알아본다
+● 2: Create a Spring Boot Project
+그런 다음, Spring Boot Project를 만들고 
+● 3: Build a simple REST API using Spring Boot
+간단한 REST API를 Spring Boot를 사용하여 구현한다
+
+2번과 3번을 통해
+● 4: Understand the MAGIC of Spring Boot
+Spring Boot의 마법을 알 수 있을 것이다
+ ■ Spring initializer
+ ■ Starter Projects
+ ■ Auto Configuration
+ ■ Developer Tools
+ ■ Actuator
+ ■ ...
+Spring Boot와 관련된 다음과 같이 아주 중요한 개념을 알게 된다,
+Spring Initializer, Starter Projects, Auto Configuration, Developer Tools, Actuator 그리고 Spring Boot의 여러 다른 기능 등이다
+
+
+
+이제 Spring Boot 세계로 들어가 보겠다
