@@ -1,0 +1,95 @@
+
+
+Quick Review of Important Spring Concepts
+
+Concept                       Description                                                  
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+Dependency Injection          Identify beans, their dependencies and wire them together (providers IOC - Inversion of Control)              
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Constructor injection         Dependencies are set by creating the Bean using its Constructor
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Setter injection              Dependencies are set by calling setter methods on your beans
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Field Injection               No Setter or constructor. Dependency is injected using reflection
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+IOC Container                 Spring IOC Context that manages Spring beans & their lifecycle
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Bean Factory                  Basic Spring IOC Container
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Application                   Advanced Spring IOC Container with enterprise-specific features - Easy to use in web applications
+Context                       with internationalization features and good intergration with Spring AOP
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Spring Beans                  Objects managed by Spring
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Auto-wiring                   Process of wiring in dependencies for a Spring Bean
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+
+이번 단계에선 지난 여러 섹션에서 배웠던 중요 Spring 개념을 복습하겠다
+
+● Dependency Injection 
+- Identify beans, their dependencies and wire them together (providers IOC - Inversion of Control)
+의존성 주입이다 Spring Framework에선 Bean을 확인해야 하고, 의존성을 확인해야 하며 의존성을 Bean에 연결해야 한다 
+이 전체 과정을 의존성 주입이라 부른다 제어의 역전이라고도 한다 
+예전에는 객체와 객체를 연결하는 코드를 프로그래머가 작성했다 이제는 Spring Framework가 객체를 만들고 작성한다 
+그래서 제어의 역전이라고 부르는 것이다
+
+
+
+의존성 주입의 종류는 - 생성자 주입, 세터 주입, 필드 주입의 세가지이다
+
+
+● Constructor injection 
+- Dependencies are set by creating the Bean using its Constructor
+의존성을 주입하려고 생성자를 호출한다면 생성자 주입이라고 한다
+
+
+● Setter injection 
+- Dependencies are set by calling setter methods on your beans
+세터 메서드를 사용해 Bean에 의존성을 주입한다면 세터 주입을 사용하는 것이고 
+
+
+● Field Injection 
+- No Setter or constructor. Dependency is injected using reflection
+세터나 생성자가 없을 때 Spring Framework 에서는 리플렉션을 사용해 의존성을 주입하는데 이를 필드 주입이라 한다,
+
+
+● IOC Container
+- Spring IOC Context that manages Spring beans & their lifecycle
+IoC 컨테이너, 또는 제어의 역전 컨테이너는 Spring Bean과 Bean의 수명을 책임지는 Spring IoC 컨텍스트이다
+IoC 컨테이너는 Bean 생성, 전체 수명, 종료를 맡는다 
+
+
+Spring IoC 컨테이너의 유형은 두 가지인데
+
+● Bean Factory
+- Basic Spring IOC Container
+하나는 기본 Spring IoC 컨테이너인 Bean 팩토리이고,
+
+
+● Application Context
+- Advanced Spring IOC Container with enterprise-specific features - Easy to use in web applications with internationalization features and good intergration with Spring AOP
+두 번째 유형은 가장 자주 사용되고 거의 항상 사용되는 애플리케이션 컨텍스트이다 엔터프라이즈급 기능이 있는 고급 Spring IoC 컨테이너이다
+웹 애플리케이션에서 사용하기 쉽다 국제화 기능을 제공하며 Spring AOP와도 잘 통합된다
+
+
+● Spring Beans 
+- Objects managed by Spring
+다은은 Spring Bean인데 Spring Bean은 Spring에서 관리하는 객체이다
+Spring에서 관리하는 모든 객체를 Spring Bean이라고 한다 
+
+
+
+● Auto-wiring 
+- Process of wiring in dependencies for a Spring Bean
+마지막 용어는 Autowiring(자동연결)이다 Spring Bean이 있는 곳에는 의존성이 있다 
+Spring 은 올바른 의존성을 찾아 Bean에 연결해야 한다 이 과정을 자동 연결이라고 한다
+
+
+
+
+
+
+
+지난 몇 단계를 통해 Spring Framework에 대해 많이 배웠는데 
+지금까지 배웠던 가장 중요한 Spring 개념 몇 가지를 빠르게 복습했다
