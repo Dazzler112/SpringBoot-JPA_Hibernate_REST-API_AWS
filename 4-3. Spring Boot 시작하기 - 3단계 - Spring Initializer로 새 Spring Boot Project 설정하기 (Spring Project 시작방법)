@@ -1,0 +1,108 @@
+
+
+UnderStanding Power of Spring Boot
+
+-----------------------------------------------------------------------------------------
+|  // http://localhost:8080/courses                                                     |                                
+|  [                                                                                    |                                                                        
+|    {                                                                                  |         
+|        "id" : 1,                                                                      |            
+|        "name" : "Learn AWS",                                                          |          
+|        "author" : "in28minutes"                                                       |                       
+|    }                                                                                  |              
+|  ]                                                                                    |                    
+-----------------------------------------------------------------------------------------                        
+
+● 1: Create a Spring Boot Project
+● 2: Build a simple REST API using Spring Boot
+
+
+먼저 Spring Boot Project를 만들어 보자
+
+Spring Boot Project는 아주 쉽게 만들수 있다
+1. https://start.spring.io/ ->2. Maven project 체크 ->3. x.0.0(M3) Milestone버전 선택 (Spring Boot 출시버전이 다르기 때문에 그버전 선택) (한가지 권장사항은 Snapshot버전은 사용하지 말아라 Snapshot버전은 개발 중인 버전이어서 사용하지 않는것이 좋음)
+  ->4. (다음으로 설정할것은 Project Metadata Group ID와 Artifact ID는 클래스 이름 및 패키지이름과 매우 유사함 클래스를 만들 때 이름을 부여하고 패키지에 넣는다, 이와 마찬가지로 프로젝트를 만들 때 아티팩트 ID를 부여하고 그룹에 넣는 것이다) 
+Group : com.springstudy.springboot , Artifact : learn-spring-boot , 나머지 값은 디폴트 값 선택 ,Spring Boot 3은 최소 자바 17이 필요하다 따라서 17보다 높은 자바 버전을 사용하면 된다 
+  ->5. 여기서 이제 마지막으로 설정해야 하는 것은 ADD DEPENDENCIES.. 이다 Spring Boot Project를 만들 건데 어떤 프로젝트를 빌드하냐면 REST API를 빌드할 것이다, REST API를 빌드하려면 의존성이 필요하다 의존성은 무엇일까? 바로 Spring Web이다 실제로 Spring Boot 상태의 웹이다
+    Spring MVC로 웹 애플리케이션과 REST API를 빌드하는데 사용된다 Apache Tomcat을 임베디드 컨테이너로 사용한다 Spring Web을 선택한다
+
+이제 Spring Boot Project를 만들 준비를 마쳤다 이제 Generate 버튼만 누르면 된다 압축파일이 생성되고 새 Spring Boot Project를 정말 쉽게 만들 수 있겠지?
+file > import > Existing Maven Projects에서 경로찾고 가져와보자 최초 가져오는데 10~15분가량 소요되고 이상이 있다면 최신 버전의 Java Enterprise 개발자용 Eclipse IDE를 사용하는 것이 좋다
+
+● Spring 패키지 내부 설명
+src/main/java에는 자바 코드나 검색 코드가 들어가고
+src/main/resources에는 애플리케이션 설정이 들어가고
+src/test/java에선 단위테스트를 작성한다
+JRE System Library[버전]을 들어가면 엄청나게 많은 Maven Dependencies가 들어있다 
+
+또한 pom.xml이라는 파일이 있는데, 여기에 몇 가지 의존성이 정의되어 있다
+<artifactId>spring-boot-starter-web</artifactId> 과 <artifactId>spring-boot-starter-test</artifactId>가 있다
+여기 표시되는 모든 의존성은 여기 표시된 Maven Dependencies는 이 두 가지 시작 프로젝트로 인해 들어온다 
+이 섹션을 진행해 가면서 Starter Projects에 관해 자세히 알아볼 것이다
+
+
+그렇게 하려면 src/main/java로 가서 com.springstudy.springboot.learnspringboot패키지를 연다, 그러면 LearnSpringBootApplication.java 파일이 표시된다
+
+-----------------------------------------
+
+⏺ LearnSpringBootApplication 클래스파일
+
+package com.springstudy.springboot.learnspringboot;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class LearnSpringBootApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(LearnSpringBootApplication.class, args);
+	}
+
+}
+-----------------------------------------
+자, 그럼 이 애플리케이션이 작동하도록 해 보겠다, 이 파일에는 main 메소드가 있는데, 이 main 메소드를 실행할 것이다
+Run As, Java Application을 누른다
+
+그러면 자바 애플리케이션이 실행되는데 
+/*출력결과 ==>
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::             (v3.3.0-M3)
+
+2024-03-24T00:07:18.221+09:00  INFO 11976 --- [           main] c.s.s.l.LearnSpringBootApplication       : Starting LearnSpringBootApplication using Java 17.0.5 with PID 11976 (C:\Users\LG\Downloads\learn-spring-boot\learn-spring-boot\target\classes started by LG in C:\Users\LG\Downloads\learn-spring-boot\learn-spring-boot)
+2024-03-24T00:07:18.230+09:00  INFO 11976 --- [           main] c.s.s.l.LearnSpringBootApplication       : No active profile set, falling back to 1 default profile: "default"
+2024-03-24T00:07:19.468+09:00  INFO 11976 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-03-24T00:07:19.486+09:00  INFO 11976 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-03-24T00:07:19.486+09:00  INFO 11976 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-03-24T00:07:19.580+09:00  INFO 11976 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-03-24T00:07:19.583+09:00  INFO 11976 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1284 ms
+2024-03-24T00:07:20.076+09:00  INFO 11976 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-03-24T00:07:20.086+09:00  INFO 11976 --- [           main] c.s.s.l.LearnSpringBootApplication       : Started LearnSpringBootApplication in 2.287 seconds (process running for 2.793)
+로그 끝부분으로 가면 Tomcat이 포트 8080에서 시작됐고 이 애플리케이션이 1초도 안 되는 매우 빠른 시간에 시작된 것을 확인할 수 있다
+*/
+
+
+
+
+
+
+/*
+정리)
+이 단계에선 Spring Bootg Project를 만들어 봣다
+spring initialzer를 사용해 아주 쉽게 Spring Boot Project를 만들수 있었다
+프로젝트가 생성됐다
+그런 다음 해당 프로젝트를 Eclipse로 가져와 실행할 수 있었다
+애플리케이션은 특정 포트의 Tomcat서버에서 실행됐다
+많은 로그가 생성된 것도 확인했다
+
+Spring Boot는 어떻게 작동할까?
+● 2: Build a simple REST API using Spring Boot
+이를 이해하기 위해 Spring Boot 를 사용하여 간단한 REST API를 빌드해 볼 텐데 몇 분이면 된다
+다음 학습에서 보겠다
+*/
