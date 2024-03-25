@@ -1,0 +1,177 @@
+
+
+Understanding Power of Spring Boot
+
+-----------------------------------------------------------------------------------------
+|  // http://localhost:8080/courses                                                     |                                
+|  [                                                                                    |                                                                        
+|    {                                                                                  |         
+|        "id" : 1,                                                                      |            
+|        "name" : "Learn AWS",                                                          |          
+|        "author" : "in28minutes"                                                       |                       
+|    }                                                                                  |              
+|  ]                                                                                    |                    
+-----------------------------------------------------------------------------------------                        
+
+● 1: Create a Spring Boot Project
+● 2: Build a simple REST API using Spring Boot
+
+
+이전 단계에선 Spring Boot Project를 아주 쉽게 만들 수 있었는데, 
+이 단계에선 Spring Boot의 강력함을 이해하기 위해 간단한 REST API를 만드는 방법을 알아보겠다
+
+여기서 하려는 작업은 간단한 REST API를 만드는 것이다 따라서 새 클래스를 만들 것이다 CourseController클래스로 만들겠다
+
+어떤 작업을 할까? 위와 같은 API를 만들 것이다 따라서 여기 있는 URL http://localhost:8080/courses  을 선택하고
+아래에 있는 [] 안에 있는 반환할 데이터를 선택한다 
+이제 할 작업은 이 URL/courses를 사용하여 간단한 REST API를 만드는 작업이다 
+누군가 이 URL을 입력할 때 할 작업은 이 데이터를 반환하는 것이다 
+따라서 Course 세부 사항을 id, name, author를 사용하여 반환한다 
+이 내용이 CourseController에서 반환하려는 내용이다 
+
+CourseController에서 하려는 작업은 무엇일까? REST API를 만들 것이다
+
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+⏺ CourseController 클래스파일
+
+
+
+package com.springstudy.springboot.learnspringboot;
+
+import java.util.*;
+
+import org.springframework.web.bind.annotation.*;
+
+
+//1: 따라서 RestController 주석을 사용한다 이제 이에 관한 @RestController 주석이 있으니 여기서 메소드를 만들고 //2: CourseController 안으로.. 
+
+@RestController                 
+public class CourseController {
+	
+	//2: 만들려는 링크를 노출할 수 있다 따라서 courses를 검색하여 반환하려면 다음과 같이 작성한다
+	//public List<Course> Course 목록을 반환할 테니 retrieveAllCourses라고 작성하겠다 이 메소드에는 매개변수가 없으니 메소드 본문을 작성해보자
+	//여기서 할 작업은 Course 목록을 반환하는 것이다 return Arrays.asList(null) 이라고 작성한다,
+	//여기서 asLsit는 java.util.Arrays의 메소드이다 여기서 null을 삭제하겠다 asList()안에 새 Course를 만들건데, new Course()를 입력하고 id, author 순으로 1, Learn AWS, in28minutes를 입력하면 new Course(1, "Learn AWS", "in28minutes")가 된다
+	//그리고 하나 더 만든다 더만든 부분은 id 2에 "Learn DevOps"로 하겠다 여기서 컴파일 오류가 여러 개 표시되는데,
+	//Course 클래스가 없기 때문이다 ctrl+1을 눌러서 해결하자 여기서 할 작업은 Course라는 클래스를 만드는 것이다 //3: ctrl+1로 클래스 생성 했으면 Course클래스 파일로..
+	
+
+	//4-1: @RequestMapping을 사용하면 된다 여기서 URL/courses를 매핑할 수 있다 
+	@RequestMapping("/courses")
+	public List<Course> retrieveAllCourses (){
+		
+		return Arrays.asList(
+				new Course(1, "Learn AWS", "in28minutes"),
+				new Course(2, "Learn DevOps", "in28minutes")
+				);
+	}
+	
+	//4: 앞으로 할 작업은 URL을 이 특정 메소드에 매핑하는 것이다 매핑하려는 url은 /courses다 
+	//누군가 /courses를 입력하면 이 코스 목록을 반환할 건데 방법은 @RequestMapping을 사용하면 된다 //4-1: retrieveAllCourses클래스위로 작성..
+
+	//5: 이제 여기에는 간단한 CoureseController가 있고, 여기서 /courses를 노출할 것이다
+	//http://localhost:8080/courses  이 URL을 사용할 수 있었야 하고 이 URL로 이동하면 Course 목록이 반환되어야 한다
+	//그러면 시작해 보곘다 Run as learn-spring-boot 그다음 브라우저 열어서 검색창에 http://localhost:8080/courses 치면
+	//사이트 검색결과 : [{"id":1,"name":"Learn AWS","author":"in28minutes"},{"id":2,"name":"Learn DevOps","author":"in28minutes"}]
+	//JSON 응답이 반환되는 것을 확인할 수 있다, 여기선 두 개의 코스가 반환되었는데, 하나는 Learn AWS in28minutes고 하나는 Learn DevOps in28minutes 이다
+
+}
+
+
+------------------------------------------------------------
+
+
+⏺ Course 클래스파일
+
+
+package com.springstudy.springboot.learnspringboot;
+
+public class Course {
+	//3:포함할 모든 속성을 여기서 정의한다
+	//id를 포함하려면 private long id, 그리고, private String name, private String author,이런식으로 이러한 필드는 코스를 위해 저장할 필드이다
+
+	private long id;
+	private String name;
+	private String author;
+	
+	//늘 하던 대로 여기서 몇 가지 메소드를 만들어 보겠다 Constructor를 만들고 Getters 메소드, toString 메소드도 만든다
+	//생성해보겠다 마우스 오른쪽 버튼 클릭하고 Generate to String()..을 선택한다 toString()메소드를 생성한다 다음으로 Getters를 생성하겠다 Getters가 생성되었다
+	//일반적으로 toString 메소드는 맨마지막에 표시한다 Course클래스의 객체를 출력할 때마다 toString()메소드가 호출되고 코스의 모든 세부 사항이 출력된다, 여기에 있는 getter 메소드를 통해 필요할 때마다 코스의 값을 검색할 수 있다
+	//마지막으로 필요한 것은 Constructor이다 (생성으로 생성하기..) id, name author을 허용하는 constructor가 생성되었다
+	//이 내용은 new Course(1, "Learn AWS", "in28minutes") 이 내용과 정확이 일치한다 차례대로 id, name, author이다 이제 모든 파일에서 코드가 컴파일된다//4: CourseController클래스 파일로..
+	
+	//Constructor
+	//Getters
+	//toString
+	public Course(long id, String name, String author) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.author = author;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+
+	public String getName() {
+		return name;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+	
+	@Override
+	public String toString() {
+		return "Course [id=" + id + ", name=" + name + ", author=" + author + "]";
+	}
+	
+}
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+/*
+정리)
+여기서 확인했듯 Spring Boot를 사용해 REST API를 만드는 것은 매우 쉽다
+다른 것에는 집중할 필요가 없고 비즈니스 로직에만 집중하면 된다 
+하고 싶은 작업이 무엇인가? Spring bean이나 xml을 하나도 설정하지 않아도 된다
+Spring Boot로 어떻게 이런 일이 가능할까?
+
+다음 단계부터 알아보겠다
+*/
+
+
+Understanding Power of Spring Boot
+
+-----------------------------------------------------------------------------------------
+|  // http://localhost:8080/courses                                                     |                                
+|  [                                                                                    |                                                                        
+|    {                                                                                  |         
+|        "id" : 1,                                                                      |            
+|        "name" : "Learn AWS",                                                          |          
+|        "author" : "in28minutes"                                                       |                       
+|    }                                                                                  |              
+|  ]                                                                                    |                    
+-----------------------------------------------------------------------------------------                        
+
+● 1: Create a Spring Boot Project
+● 2: Build a simple REST API using Spring Boot
+
+
+이전 두 단계에선 아주 쉽게 Spring Boot Project를 만들고 간단한 REST API를 노출할 수 있었는데
+Spring Boot를 사용해 정말 수월하게 작업할 수 있었다 
+하지만 Spring Boot를 사용할 때 백그라운드에서 많은 일이 발생한다 
+Spring Boot를 최대한 잘 활용하려면 Spring Boot 백그라운드에서 무슨 일이 발생하는지 파악해야 한다
+다음 학습에 알아보도록 하겠다
