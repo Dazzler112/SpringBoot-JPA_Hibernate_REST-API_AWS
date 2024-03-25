@@ -1,0 +1,71 @@
+
+
+What's the Most Important Goal of Spring Boot?
+
+● Help you build PRODUCTION-READY apps QUICKLY
+ ■ Build QUICKLY
+  ▢ Spring Initailizer
+  ▢ Spring Boot Starter Project
+  ▢ Spring Boot Auto Configuration
+  ▢ Spring Boot DevTools
+ ■ Be PRODUCTION-READY
+  ▢ Logging
+  ▢ Different Configuration for Different Environments
+   ◦ Profiles, ConfigurationProperties
+  ▢ Monitoring (Spring Boot Actuator)
+
+
+
+
+Spring Boot를 사용해 간단한 REST API를 빌드해 봤는데, 이번에는 Spring Boot의 가장 중요한 목표가 무엇인지 알아보겠다
+
+● Help you build PRODUCTION-READY apps QUICKLY
+Spring Boot의 가장 중요한 목표는 프로덕션 환경에서 사용 가능한 애플리케이션을 빠르게 빌드할 수 잇도록 돕는 것이다
+
+여기서 매우 중요한 단어가 두 개 나온다
+'QUICKLY (빠르게)', 개발자는 빠르게 애플리케이션을 빌드하기를 바라고 또한 'PRODUCTION-READY(프로덕션 환경에서 사용 가능한)' 애플리케이션을 원한다
+
+애플리케이션을 프로덕션 환경에 배치하려면 많은 기능이 애플리케이션에 있어야 한다 
+따라서 Spring Boot 목표는 이러한 두 가지를 가능하게 하는 것이다 (빠르게, 프로덕션 환경에서 사용가능하게)
+그럼 Spring Boot를 사용해 애플리케이션을 빠르게 빌드하는 몇 가지 기능을 살펴보겠다
+ ■ Build QUICKLY
+  ▢ Spring Initailizer
+  ▢ Spring Boot Starter Project
+  ▢ Spring Boot Auto Configuration
+  ▢ Spring Boot DevTools
+이미 Spring Initailizer는 살펴봤는데 이를 통해 Spring Boot 프로젝트를 쉽게 만들 수 있다 
+이것은 웹사이트인데, 주소는 start.spring.io이다 
+애플리케이션을 빠르게 빌드하는 데 도움이 되는 다른 기능은 Spring Boot Starter Project, Spring Boot Starter Project, Spring Boot Auto Configuration, Spring Boot DevTools가 있다
+Spring Boot Starter Project를 사용하면 프로젝트의 의존성을 빠르게 정의할 수 있고, 
+Spring Boot Auto Configuration을 사용하면 클래스 경로에 있는 의존성에 따라 자동으로 설정이 제공된다,
+Spring Boot DevTools를 통해서 수동으로 서버를 다시 시작하지 않고도 애플리케이션을 변경할 수 있다
+
+다음 세 단계에서 이  (▢ Spring Boot Starter Project ▢ Spring Boot Auto Configuration ▢ Spring Boot DevTools) 세가지 기능을 살펴본다
+
+애플리케이션을 빠르게만 빌드하면 될까? 아니
+ ■ Be PRODUCTION-READY
+또한 프로덕션 환경에 사용 가능하도록 만들어야 한다
+애플리케이션을 프로덕션으로 게시할 때 중요한 모든 기능이 있어야 한다
+  ▢ Logging
+  ▢ Different Configuration for Different Environments
+   ◦ Profiles, ConfigurationProperties
+  ▢ Monitoring (Spring Boot Actuator)
+예를 들어 로깅이 필요하고
+여러 환경에 맞는 다양한 설정을 제공할 수 있어야 한다
+일반적으로 애플리케이션에는 여러 환경이 있는데, dev 환경, qa환경, stage 환경, prod 환경이 있으니까 이러한 환경에 맞는 다양한 설정이 있어야한다
+또한 애플리케이션을 모니터링 할 수 있어야 한다
+메모리가 충분한지 확인하고 애플리케이션의 측정항목을 살펴볼 수 있어야 한다
+Spring Boot는 프로덕션 가능한 상태로 매우 빠르게 도달하는 데 도움이 되는 여러 기능을 제공한다
+Spring Boot는 기본 로깅을 제공하고 profiles, ConfigurationProperties와 같은 기능을 제공하며 Spring Boot Actuator도 제공한다
+
+
+
+
+
+
+
+정리)
+이 단계에선 Spring Boot의 중요한 목표에 관해 알아보고 중요한 Spring Boot 기능 몇 가지를 이 특정 목표에 매핑했다
+이후 단계에선 이러한 기능을 개별적으로 살펴보겠다
+Spring Initializer는 이미 알아봤으니 
+다음 단계에선 Spring Boot Starter Project를 알아보겠다 
