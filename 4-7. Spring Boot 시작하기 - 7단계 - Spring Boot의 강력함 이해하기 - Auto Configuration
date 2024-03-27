@@ -1,0 +1,181 @@
+
+Exploring Spring Boot Auto Configuration
+
+● I need lot of Configuration to build Spring app:
+ ■ Component Scan, DispathcerServlet, Data Sources, JSON Conversion, ...
+● How can I simplify this?
+ ■ Auto Configuration: Automated configuration for tour app
+  ▢ Decided based on:
+   ◦ Which frameworks are in the Class Path?
+   ◦ What is the existing configuration (Annotations etc)?
+● Example: Spring Boot Starter Web 
+ ■ Dispatcher Servlet (DispatcherServletAutoConfiguration)
+ ■ Embedded Servlet Contatiner - Tomcat is the default 
+   (EmbeddedWebServerFactoryCustomizerAutoConfiguration)
+ ■ Default Error Pages (ErrorMvcAutoConfiguration)
+ ■ Bean <-> JSON
+   (JacksonHttpMessageConverersConfiguration)
+
+이전 단계에선 Spring Boot Starter Project를 알아봤는데 
+이번 단계에선 Spring Boot Auto Configuration을 알아보겠다
+
+● I need lot of Configuration to build Spring app:
+일반적으로 Spring Boot를 사용하여 웹 애플리케이션을 빌드할 때면 많은 설정이 필요하다
+ ■ Component Scan, DispathcerServlet, Data Sources, JSON Conversion, ...
+컴포넌트 스캔, DispatcherServlet을 설정해야 하고 데이터베이스와 통신하려면 데이터 소스를 설정해야 한다 
+또한 Bean에서 JSON, JSON에서 Bean으로 변환을 설정해야 한다 
+따라서 일반적인 Spring 애플리케이션을 빌드하려면 정말 많은 것들을 설정해야 한다 
+● How can I simplify this?
+이런 작업을 간소화할 수 없을까? 
+ ■ Auto Configuration: Automated configuration for tour app
+애플리케이션 용 자동화 설정인 Auto Configuration을 쓰면 된다
+  ▢ Decided based on:
+   ◦ Which frameworks are in the Class Path?
+어떻게 생성될까?? 자동 설정은 클래스 경로에 있는 프레임워크에 따라 생성된다 
+pom.xml에서 여러 Starter Project를 추가할 수 있고 그러면 많은 프레임워크를 가져온다
+따라서 클래스 경로에 있는 프레임워크에 따라 많은 것들을 자동 설정할 수 있다
+   ◦ What is the existing configuration (Annotations etc)?
+또다른 요소는 기존 설정이다
+Spring Boot는 디폴트 자동 설정을 제공한다 하지만 자체 설정을 제공하여 이를 오버라이드 할 수 있다
+ 
+   ◦ Which frameworks are in the Class Path?
+   ◦ What is the existing configuration (Annotations etc)?
+이 두 가지가 모두 Auto Configuration을 결정하는 데 사용된다 
+클래스 경로에 있는 프레임워크나 클래스, 제공된 기존 설정에 따라 결정된다
+
+그럼 모든 Auto Configuration 로직은 어디에서 정의될까?
+모든 Auto Configuration 로직은 특정 jar에서 정의되는데, 여기 경로의 Maven Dependencies에서 확인할 수 있다
+spring-boot-autoconfigure.jar에서 가능하다
+여기 들어가 보면 자동 설정 클래스가 많은 것을 확인할 수 있다 
+아래로 스크롤하면 org.springframework.boot.autoconfigure.web 패키지가 있다
+웹 애플리케이션 개발 및 REST API와 관련된 모든 자동 설정이 이 패키지와 그 하위 패키지에서 설정된다
+
+자동 설정을 좀더 자세히 알아보려면 application.properties를 열면된다
+application.properties는 src/main/resources에 있다 src/main/resources로 이동하면 application.properties가 있으며 application.properties로 이동해서 로깅 수준을 설정할 수 있다
+logging.level.org.springframework=debug 라고 입력하겠다
+이 뜻은 이 특정 패키지 org.springframework를 디버그 수준에서 로깅하려는 것이다 그래서 logging.level.org.springframework라고 입력했다
+이 내용을 저장하고, 변경하려면 서버를 중지했다 다시 시작해야한다 다시 실행하면 로그가 훨씬 많이 표시된다
+디폴트 로깅 수준은 INFO이다, INFO는 아주 적은 정보를 출력한다 하지만 DEBUG로 변경하면 많은 정보가 출력되는 것을 확인할 수 있다
+
+============================
+CONDITIONS EVALUATION REPORT
+============================
+
+
+Positive matches:
+-----------------
+
+   AopAutoConfiguration matched:
+      - @ConditionalOnProperty (spring.aop.auto=true) matched (OnPropertyCondition)
+.....
+
+   DispatcherServletAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.web.servlet.DispatcherServlet' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+.....
+EmbeddedWebServerFactoryCustomizerAutoConfiguration.TomcatWebServerFactoryCustomizerConfiguration matched:
+      - @ConditionalOnClass found required classes 'org.apache.catalina.startup.Tomcat', 'org.apache.coyote.UpgradeProtocol' (OnClassCondition)
+ 
+ErrorMvcAutoConfiguration#basicErrorController matched:
+      - @ConditionalOnMissingBean (types: org.springframework.boot.web.servlet.error.ErrorController; SearchStrategy: current) did not find any beans (OnBeanCondition)
+.......
+
+Negative matches:
+-----------------
+
+   ActiveMQAutoConfiguration:
+      Did not match:
+         - @ConditionalOnClass did not find required class 'jakarta.jms.ConnectionFactory' (OnClassCondition)
+....
+로그를 자세히 살펴보면 CONDITIONS EVALUATION REPORT가 있는데 여기에는 Positive matches와 Negative matches가 있다
+Negative matches는 자동 설정되지 않은 항목이고 Positive matches는 자동 설정된 항목이다 
+DispatcherServlet은 자동 설정되었다 ErrorMVC도 자동 설정되었고 Tomcat도 자동 설정되었다
+
+이 모든 자동 설정은 이 특정 jar인 spring-boot-autoconfigure.jar에서 확인한 코드에 기반한다 
+그럼 여기서 클래스 하나를 선택해 보겠다 DispatcherServletAutoConfiguration을 살펴보자
+ctrl+shift+t 를 눌러 클래스를 열자 이클래스는 어디에 있을까? spring-boot-autoconfigure.jar에 있다
+
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
+@AutoConfiguration(after = ServletWebServerFactoryAutoConfiguration.class)
+@ConditionalOnWebApplication(type = Type.SERVLET)
+@ConditionalOnClass(DispatcherServlet.class)
+public class DispatcherServletAutoConfiguration {
+그리고 여기서 이 특정 자동 설정이 사용 설정되는 시점에 관한 설정을 확인할 수 있다
+이것은 웹 애플리케이션이나 REST API를 위해 사용 설정된다 그리고 클래스 경로에 DispatcherServlet이 있을 때 사용 설정된다 
+Spring Web Starter애 포함했기 때문에 DispatcherServlet가 이미 클래스 경로에 있다, 따라서 DispatcherServlet이 자동 설정된다
+
+ErrorMvcAutoConfiguration라는 것도 있었다 클래스를 봐보자
+
+@AutoConfiguration(before = WebMvcAutoConfiguration.class)
+@ConditionalOnWebApplication(type = Type.SERVLET)
+@ConditionalOnClass({ Servlet.class, DispatcherServlet.class })
+@EnableConfigurationProperties({ ServerProperties.class, WebMvcProperties.class })
+public class ErrorMvcAutoConfiguration {
+
+	private final ServerProperties serverProperties;
+
+	public ErrorMvcAutoConfiguration(ServerProperties serverProperties) {
+		this.serverProperties = serverProperties;
+	}
+이것은 디폴트 오류 페이지를 설정하는 내용이다 
+그럼 디폴트 오류 페이지는 뭘까? 
+전에 URL 주소 localhost:8080/courses를 입력했을때 적절한 응답이 반환됐었는데,
+그런데 어떤 것도 매핑되지 않은 URL을 입력한다고 가정해 보겠다 예를 들어 courses/10을 입력하고 엔터키를 눌러보면
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Wed Mar 27 21:22:16 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+
+Whitelabel Error Page가 표시된다 Not Found라 나온다 '이 페이지를 찾을수 없습니다'가 나오고 상태는 404이다
+따라서 애플리케이션이 URL이 매핑되지 않았음을 파악하여 적절한 오류 메시지를 사용자에게 표시할 수 있는 것이다
+어떻게 이럴 수 있을까?
+
+바로 ErrorMvcAutoConfiguration 클래스 덕분이다 
+Spring Boot는 자동으로 오류 페이지를 설정한다  
+여기서 Whitelabel Error Page를 ErrorMvcAutoConfiguration클래스에서 검색해보면
+Whitelabel Error Page가 생겨난 것을 확인할 수 있다
+Spring Boot Auto Configuration으로 자동 설정된 것이다
+
+Spring Boot는 클래스 경로에 있는 프레임워크에 따라 많은 것들을 자동 설정한다는 것을 살펴보고 있는데
+● Example: Spring Boot Starter Web 
+Spring Boot Starter web이 좋은 예이다 
+Spring Boot Starter Web을 사용하면
+ ■ Dispatcher Servlet (DispatcherServletAutoConfiguration)
+ ■ Embedded Servlet Contatiner - Tomcat is the default 
+ ■ Default Error Pages (ErrorMvcAutoConfiguration)
+   (EmbeddedWebServerFactoryCustomizerAutoConfiguration)
+ ■ Bean <-> JSON
+   (JacksonHttpMessageConverersConfiguration)
+이 모든 것들이 자동으로 설정된다
+Dispatcher Servlet , Embedded Servlet Container가 있다
+Tomcat을 사용하여 애플리케이션을 실행할 테니 기본적으로 Tomcat이 자동 설정된다 
+Default Error Pages도 자동 설정된다
+JSON 변환도 자동 설정된다 JSON 변환은 Jackson 프레임워크에서 실행된다,
+Spring Boot Auto Configuration은 Spring Boot Starter Web이 클래스 경로에 있을 때 Bean에서 JSON 으로 MessageConverters를 자동으로 제공한다
+
+	@RequestMapping("/courses")
+	public List<Course> retrieveAllCourses (){
+		
+		return Arrays.asList(
+				new Course(1, "Learn AWS", "in28minutes"),
+				new Course(2, "Learn DevOps", "in28minutes")
+				);
+	}
+
+[{"id":1,"name":"Learn AWS","author":"in28minutes"},{"id":2,"name":"Learn DevOps","author":"in28minutes"}]
+이것이 우리 메소드에서 Bean 배열 리스트를 반환할 때 자동으로 JSON으로 변환된 이유이다
+이와 같은 마법은 JacksonHttpMessageConvetersConfiguration덕분에 일어나는 것이다 
+
+
+
+
+
+
+
+
+이 단게에선 Spring Boot Auto Configuration을 살펴봤다 
+이전 단계에선 Spring Boot Starter Project가 많은 의존성을 불러온다는 것을 알아봤고 
+Spring Boot Auto Configuration은 의존성, 작업, 클래스를 살펴보고 애플리케이션을 위한 자동 설정을 제공한다 
+Spring Boot Auto Configuration의 모든 로직은 jar 파일인 spring-boot-autoconfigure.jar에 있다
