@@ -1,0 +1,147 @@
+
+Exploring Spring Boot Starter Projects
+
+● I need a lot of frameworks to build application features:
+ ■ Build a REST API: I need Spring, Spring MVC, Tomcat, JSON conversion...  
+ ■ Write Unit Tests: I need Spring Test, JUnit, Mockito, ...
+
+● How can I group them and make it easy to build applicagtions?
+ ■ Starters: Convenient dependency descriptors for diff. features
+
+● Spring Boot provides variety of starter projects:
+ ■ Web Application & REST API - Spring Boot Starter Web (spring-webmvc, spring-web, spring-boot-starter-tomcat, spring-boot-starter-json)
+ ■ Unit Tests - Spring Boot Starter Test
+ ■ Talk to database using JPA - Spring Boot Starter Data JPA
+ ■ Talk to database using JDBC - Spring Boot Starter JDBC
+ ■ Secure your web application or REST API - Spring Boot Starter Security
+
+
+Spring Boot에서 중요한 기능 중 하나는 Spring Boot Starter Project이다
+
+● I need a lot of frameworks to build application features:
+일반적으로 애플리케이션을 빌드할 때는 프레임워크가 많이 필요하다
+ ■ Build a REST API: I need Spring, Spring MVC, Tomcat, JSON conversion...  
+예를 들어 REST API를 빌드하려면 Spring 프레임워크, Spring MVC 프레임워크가 필요하고 Tomcat도 필요하고, 애플리케이션을 실행하려면 JSON 변환을 실행해야 한다
+
+	@RequestMapping("/courses")
+	public List<Course> retrieveAllCourses (){
+		
+		return Arrays.asList(
+				new Course(1, "Learn AWS", "in28minutes"),
+				new Course(2, "Learn DevOps", "in28minutes")
+				);
+	}
+이 REST API를 보면 Course 목록을 반환하는데 
+[{"id":1,"name":"Learn AWS","author":"in28minutes"},{"id":2,"name":"Learn DevOps","author":"in28minutes"}]
+응답을 보면 JSON응답이다,
+이를 JSON 변환이라고 한다, 자바 코스 목록에서 JSON 목록으로 변환하는 것이다
+
+따라서 REST API를 빌드할 때마다 이러한 것들이 모두 필요하다 
+ ■ Write Unit Tests: I need Spring Test, JUnit, Mockito, ...
+단위 테스트를 작성한다고 가정해 보면 Spring Test 프레임워크가 필요하고 JUnit 프레임워크, Mockito 프레임워크가 필요하다
+따라서 애플리케이션 기능을 빌드할 때마다 많은 프레임워크가 필요하다 
+● How can I group them and make it easy to build applicagtions?
+문제는 이러한 프레임워크를 그룹화해서 애플리케이션을 쉽게 빌드할 수 있는지인데
+ ■ Starters: Convenient dependency descriptors for diff. features
+이러한 기능을 Starter Project가 제공한다 
+Starter Project는 다양한 기능을 위한 편리한 의존성 디스크립터를 제공한다
+
+여기 pom.xml을 열어보면.
+learn-spring-boot에 있다( /learn-spring-boot/pom.xml ) learn-spring-boot아래에 pom.xml이 있다 여기서 모든 Maven 의존성을 정의한다
+
+    <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+    <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+여기를 보면 두 가지 Starter Project를 사용하고 있는데 사용하고 있는 spring-boot-starter-web과 spring-boot-starter-test이다
+spring-boot-starter-web으로 REST API와 웹 애플리케이션을 빌드할 수 있고 spring-boot-starter-test로 단위 테스트를 작성할 수 있다
+여기에 Ctrl+클릭을 실행하면 spring-boot-starter-web이 열린다 
+
+<description>Starter for building web, including RESTful, applications using Spring MVC. Uses Tomcat as the default embedded container</description>
+spring-boot-starter-web은 Spring MVC를 사용해 애플리케이션, RESTful을 비롯한 웹을 빌드하는 스타터이다
+
+아래로 좀더 내려가보면
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+      <version>3.3.0-M3</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-json</artifactId>
+      <version>3.3.0-M3</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
+      <version>3.3.0-M3</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>6.1.5</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>6.1.5</version>
+      <scope>compile</scope>
+    </dependency>
+여러 의존성이 정의되어 있다 여기선 어떤 의존성을 정의하고 있을까?
+첫 번째 의존성을 통해서는 Spring 컨텍스트를 실행할 수 있다 Bean에서 JSON, JSON에서 Bean으로 변환할 건데 
+이 작업을 spring-boot-starter-json이 담당한다 JSON 변환을 지원하는 것이다
+Tomcat에서 애플리케이션을 실행하려 한다 그러면 spring-boot-starter-tomcat을 사용해야 한다
+그리고 Spring MVC 프레임워크를 사용하여 REST API를 빌드하려면 여기 이 의존성이 필요하다 
+
+여기서 알 수 있듯이 Spring Boot Starter는 특정 종류의 애플리케이션을 빌드하는 데 필요한 의존성을 모든 정의한다, 예를 들어 웹 애플리케이션이나 REST API를 빌드하려면
+일반적으로 여기 있는 의존성이 필요하고 모두 사전 정의되어 있다
+
+따라서 Spring Boot Starter는 편리한 의존성 디스크립터이다 
+웹 애플리케이션을 빌드하려고 한다면 A, B, C, D, E, F, G가 필요한데 Starter를 사용하면 이 모든 것이 사전 정의되어 있다
+
+● Spring Boot provides variety of starter projects:
+Spring Boot는 다양한 Starter Project를 제공한다
+특정 프로젝트에 필요한 기능에 따라 다양한 Starter Project를 사용할 수 있다
+ ■ Web Application & REST API - Spring Boot Starter Web (spring-webmvc, spring-web, spring-boot-starter-tomcat, spring-boot-starter-json)
+웹 애플리케이션이나 REST API를 빌드한다면 Spring Boot Starter Web을 사용하면 된다 
+의존성을 확인했었는데, spring-webmvc, spring-web이 있었고 이 둘은 Spring MVC이고 tomcat과 JSON 변환도 있었다 이와 마찬가지로 다른 Starter도 여럿 있었다
+ ■ Unit Tests - Spring Boot Starter Test
+단위 테스트를 쉽게 작성하려면 Spring Boot Starter Test를 사용하면 된다 
+ ■ Talk to database using JPA - Spring Boot Starter Data JPA
+데이터베이스와 통신하려면 가령 Oracle이나 MySQL과 같은 데이터베이스를 사용하고 JPA를 통해 데이터베이스와 통신하기 위한 코드를 작성하려 한다고 가정해 보자
+이 같은 시나리오에선 Spring Boot Starter Data JPA를 사용하면 된다 
+ ■ Talk to database using JDBC - Spring Boot Starter JDBC
+JDBC를 사용하여 데이터베이스와 통신하려는 경우에 Spring Boot Starter JDBC를 사용하면 된다
+ ■ Secure your web application or REST API - Spring Boot Starter Security
+웹 애플리케이션을 보호하거나 REST API를 보호하려는 경우에는 Spring Boot Starter Security를 사용하면 된다 
+
+
+
+
+
+
+
+
+
+이번 단계에선 Spring Boot Starter Project를 알아봤다 
+여기에선 두 가지가 중요하다 
+● 하나는 Spring Boot Starter Project가 편리한 의존성 디스크립터라는 것이다
+특정 종류의 애플리케이션을 빌드하려면 일련의 의존성이 필요할 수 있다 
+예를 들어 웹 애플리케이션을 빌드하려면 여러 의존성이 필요하다 ( spring-webmvc, spring-web, spring-boot-starter-tomcat, spring-boot-starter-json )
+이 모든 의존성은 Starter Project에 사전 정의되어 있다 
+● 다른 하나는 Spring Boot가 다양한 Starter Project를 제공한다는 사실이다 
+사용 사례에 따라 올바른 Starter Project를 선택할 수 있다
+
+그럼 클래스 경로에 올바른 의존성이 있으면 다 된 것일까? 아니다!
+의존성을 설정해야 한다 ( spring-webmvc, spring-web, spring-boot-starter-tomcat, spring-boot-starter-json )
+다음 단계에 알아보도록 하겠다.
