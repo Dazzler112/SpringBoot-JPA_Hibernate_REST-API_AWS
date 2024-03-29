@@ -1,0 +1,110 @@
+
+
+
+
+                                                                              Spring Boot
+                                                                            PRODUCTION-READY
+
+
+
+
+
+
+이전 단계에선 애플리케이션을 빠르게 개발할 수 있도록 Spring Boot가 제공하는 기능을 살펴봤는데, 이번 단계부턴
+프로덕션 환경에서 사용 가능한 애플리케이션을 쉽게 만들 수 있도록 Spring Boot의 중요한 기능을 몇 가지 알아보겠다
+
+
+
+Managing App. Configuration using Profiles
+                                                                                                                                       Application                                  
+● Applications have different environments: Dev, QA, Stage, Prod, ...                                            Environments         Configuration                                                     
+● Different environments need different configuration:                                                                            ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ                                                   
+ ■ Different Databases                                                                                                           |  ________________    |                          
+ ■ Different Web Services                                                                                            _____       | |      Dev       |   |                                   
+● How can you provide different configuration for different environments?                                     ______|_____|ㅡㅡㅡㅡ>| Configuration  |   |                            
+ ■ Profiles: Environment specific configuration                                                              |      |_____|      | |________________|   |                                 
+● How can you define externalized configuration for your application?                                        |      |_____|      |                      |                       
+                                                                                                             |       Dev         |                      |                       
+                                                                                                             |        _____      |   ________________   |                                  
+                                                                                             ______          |       |_____|     |  |      Test      |  |                                 
+                                                                                            |      \  ㅡㅡㅡㅡ|ㅡㅡㅡ>|_____|ㅡㅡㅡㅡ>|  Configuration |  |                                                         
+                                                                                            |JAR    |        |       |_____|     |  |________________|  |                                                          
+                                                                                             ㅡㅡㅡㅡ         |        Test       |                      |                                 
+                                                                                            Source           |       _____       |  ________________    |                                               
+                                                                                            Bundle           |      |_____|      | |     Prod       |   |                                            
+                                                                                                             |______|_____|ㅡㅡㅡㅡ>| Configuration  |   |                                           
+                                                                                                                    |_____|      | |________________|   |                                    
+                                                                                                                   Production    |ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ|                                                      
+                                                                                                                                                                                   
+                                                                                                                                                                        
+                                                                                                                                                                        
+                                                                                                                                                                        
+
+첫 번째 살펴볼 기능은 프로필을 사용하여 애플리케이션 설정을 관리하는 기능이다
+● Applications have different environments: Dev, QA, Stage, Prod, ...   
+애플리케이션에 관해 말하자면 애플리케이션에는 다양한 환경이 있다 
+개발 환경, QA환경, 스테이지 환경, 프로덕션 환경이 있다 
+● Different environments need different configuration: 
+동일한 애플리케이션의 다양한 환경에는 다양한 설정이 필요하다, 
+동일한 코드에서 다양한 환경의 다양한 설정이 있어야 한다
+ ■ Different Databases
+ ■ Different Web Services  
+다른 데이터베이스와 통신하거나 다른 웹 서비스를 호출할 수도 있다 
+● How can you provide different configuration for different environments?   
+ ■ Profiles: Environment specific configuration 
+개발 환경은 개발 데이터베이스와 통신하고 테스트 환경은 테스트 데이터베이스와 통신하며 
+프로덕션 환경은 프로덕션 데이터베이스와 통신한다 이것이 프로필의 개념이다
+프로필을 통해 환경별 설정을 제공할 수 있다
+● How can you define externalized configuration for your application? 
+
+
+그럼 내 환경에 맞는 다양한 항목을 설정해 보자
+dev 환경이 있을수 있고, qa환경이 있을수 있고 stage환경, prod 환경이 있을 수 있다
+다양한 환경에 맞는 설정을 관리해야 할 때마다 이러한 각 환경을 위한 별도의 프로필을 만들면 된다
+dev용 프로필, qa용 프로필, stage용 프로필, prod용 프로필을 만들 수 있는 것이다
+그리고 이러한 각 환경을 위한 별도의 설정을 만들 수 있다 어떻게 하냐고? 간단하게 해 보자
+
+--------------
+dev
+~~~~
+
+prod
+--------------
+일단 환경이 dev환경과 prod 환경 두 개만 있다고 가정하자
+현재 application.properties가 있는데, application.properties 파일은 src/main/resourses 아래에 있다
+
+-----------------------------------------------------------------
+
+⏺ application.properties
+
+
+logging.level.org.springframework=debug
+-----------------------------------------------------------------
+
+현재 여기에는 logging.level.org.springframework=debug가 있다
+이것은 정보를 디버그 수준에서 출력하는 것이다
+하지만 내 dev 환경에선 디버그 수준에서가 아니라 trace 수준에서 정보를 출력하려고 한다
+
+--------------
+dev
+~~~~
+logging.level.org.springframework=trace
+
+prod
+~~~~
+--------------
+
+trace는 더 내려오고, 훨씬 더 많은 로그를 출력한다 
+이제 prod 환경을 이야기해 보자, prod 프로필에선 info 수준에서 구성하려고 한다 
+
+--------------
+dev
+~~~~
+logging.level.org.springframework=trace
+
+prod
+~~~~
+logging.level.org.springframework=info
+--------------
+모든 정보를 로깅하는 게 아니라 중요한 정보만 로깅하려고 한다
+그러면 어떻게 해야 할까?
