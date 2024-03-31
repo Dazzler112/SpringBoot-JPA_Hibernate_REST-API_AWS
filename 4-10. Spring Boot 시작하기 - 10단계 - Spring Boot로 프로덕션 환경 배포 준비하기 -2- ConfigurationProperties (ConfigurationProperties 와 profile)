@@ -161,3 +161,94 @@ public class CurrencyConfigurationController {
 검색하면 application.properties에서 설정한 값이 이렇게 표시된다, default.in28minutes.com, defaultusername, defaultkey가 표시된다
 -------------------------------------------------------------------------------------------------------------
 
+다시 application.properties로 가서
+
+-------------------------------------------------------------------------------------------------------------
+
+⏺ application.properties
+
+
+logging.level.org.springframework=debug
+spring.profiles.active=dev
+
+#프로퍼티를 http://default1.in28minutes.com로 변경하고 저장해 보겠다
+currency-service.url=http://default1.in28minutes.com
+currency-service.username=defaultusername
+currency-service.key=defaultkey
+
+-------------------------------------------------------------------------------------------------------------
+
+변경후 사이트를 새로고침하면
+
+-------------------------------------------------------------------------------------------------------------
+
+🟢 localhost:8080/currency-configuration 검색결과 :
+
+
+{
+"url": "http://default1.in28minutes.com",
+"username": "defaultusername",
+"key": "defaultkey"
+}
+
+이제 application.properties에서 들어온 값이 표시된다,
+-------------------------------------------------------------------------------------------------------------
+
+현재 application.properties 프로필은 dev인데, 이러한 프로퍼티를 dev프로필에서 오버라이딩 하지 않을 것이다
+따라서 application-dev로 설정된 디폴트 프로퍼티를 사용한다
+그런데 dev 프로필에서 다른 프로퍼티를 사용하려면 어떻게 해야할까?
+application-dev.properties로 이동하여 여기서 설정하면 된다
+
+-------------------------------------------------------------------------------------------------------------
+
+⏺ application-dev.properties
+
+
+logging.level.org.springframework=trace
+
+#url은 dev.in28minutes, username은 devusername, key는 devkey로 한다
+currency-service.url=http://dev.in28minutes.com
+currency-service.username=devusername
+currency-service.key=devkey
+
+#여기서 하고 있는 작업은 dev 환경에서 다른 값을 설정하고 있는 것이다 저장하고
+-------------------------------------------------------------------------------------------------------------
+
+그리고 새로고침하면 이제 dev환경에서 들어오는 값이 표시된다
+
+-------------------------------------------------------------------------------------------------------------
+
+🟢 localhost:8080/currency-configuration 검색결과 :
+
+
+{
+"url": "http://dev.in28minutes.com",
+"username": "devusername",
+"key": "devkey"
+}
+
+-------------------------------------------------------------------------------------------------------------
+
+이와 같이 복잡한 애플리케이션 설정을 만들어야 한다면, 그러한 상황에선
+@ConfigurationProperties를 사용하면된다,
+
+@ConfigurationProperties(prefix = "currency-service")
+@Component
+public class CurrencyServiceConfiguration {....
+
+@ConfigurationProperties는 사용하기 아주 쉬운데 Spring 컴포넌트를 만들고 @ConfigurationProperties로 어노테이션을 달면 된다
+
+	private String url;
+	private String username;
+	private String key;
+
+여기에 원하는 만큼 프로퍼티를 입력할 수 있다
+여기에 수백 개의 프로퍼티를 정의해 놓은 애플리케이션을 본 적이 있는데, 
+이것은 모든 애플리케이션 관련 설정을 위한 중앙집중화된 클래스 역할을 한다
+
+
+
+Spring Boot의 ConfigurationProperties와 프로필의 조합은 정말 강력하다 
+이를 통해 애플리케이션에 필요한 모든 설정을 외부화 할 수 있다
+
+이 단계에선 ConfigurationProperties와 프로필에 관해 알아봤다 
