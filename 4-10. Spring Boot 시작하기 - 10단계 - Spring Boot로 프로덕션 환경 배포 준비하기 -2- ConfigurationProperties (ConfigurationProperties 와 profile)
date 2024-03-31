@@ -1,0 +1,163 @@
+
+
+이전 단계에선 프로필을 알아봤다 
+프로필을 사용하면 다양한 환경에 맞는 여러 설정을 보유할 수 있었다
+이 단계에선 애플리케이션의 복잡한 설정을 지정하는 방법을 살펴본다
+
+그럼, 현재 통신하고 있는 통화 서비스가 있으며 이 서비스의 여러 값을 설정한다고 가정하자
+
+------------------------------------------------------------------------------------------------------------
+
+⏺ application.properties
+
+
+logging.level.org.springframework=debug
+spring.profiles.active=dev
+
+#currency-service.url, currency-service.username, currency-service.key를 설정하려 한다
+#또한 다른 여러 서비스를 위해서도 다양한 설정이 필요하다고 가정해 보겠다
+currency-service.url=
+currency-service.username=
+currency-service.key=
+
+?
+------------------------------------------------------------------------------------------------------------
+Spring Boot를 사용하여 이 애플리케이션 설정을 관리할 수 있는 방법은 무엇일까?
+여기서 프로퍼티 값을 정의하고 Spring Boot 애플리케이션에서 활용할 수 있는 방법은 무엇일까?
+애플리케이션을 위해 애플리케이션 설정을 많이 생성하려는 경우 Spring Boot에서 권장되는 방식은 configuration 프로퍼티를 사용하는 것이다
+
+클래스를 만들어 보자
+
+
+-------------------------------------------------------------------------------------------------------------
+
+
+⏺ CurrencyServiceConfiguration 클래스파일
+
+
+
+package com.springstudy.springboot.learnspringboot;
+
+import org.springframework.boot.context.properties.*;
+import org.springframework.stereotype.*;
+
+//1: 이제 여기서 정의하려는 내용은 뭘까? 다시 applicagtion.properties애 았는 ,url, username, key 값을 정의하려 한다
+//여기서는 이 값을 어떻게 정의하는지 살펴보겠다
+//currency-service.url=
+//currency-service.username=
+//currency-service.key=
+
+//2: 우선 ConfigurationProperties라는 어노테이션을 추가해야 한다 사용할 접두사는 currency-service이다
+//모든 값에 같은 접두사를 사용할 것이므로 ctrl+space를 누르면 여기 prefix가 있다, 그러면 prefix로 currency-service를 설정하면 된다
+@ConfigurationProperties(prefix = "currency-service")
+//3-2: Spring으로 이를 관리할 것이다 따라서 @Component를 추가해야 한다
+//이제 애플리케이션이 준비되었다, 애플리케이션은 ConfigurationProperties와 이것들을( //currency-service.url=, username=, key= ) 이해한다 이 값을 어디에서 설정할까??
+//바로 application.properties에서 설정하면 된다 //4: application.properties로...
+@Component
+public class CurrencyServiceConfiguration {
+
+	//3: 그렇다면 보유할 프로퍼티는 무엇일까? private String url, username, key이다
+	//이것이 CurrencyServiceConfiguration에 저장할 세 가지 속성이다
+	private String url;
+	private String username;
+	private String key;
+	
+	//3-1: 이제 생성자와 setter를 생성해 보겠다, 
+	//url,username, key를 선택하고 getter,setter를 생성한다
+	//prefix(접두사)는 currency-service로 정의되고 모든 프로퍼티도 정의되어 있다
+	//또 위로 가서 @Component 어노테이션을 추가해야 한다 //3-2:CurrencyServiceConfiguration 위로 component 어노테이션 추가...
+	
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getKey() {
+		return key;
+	}
+	public void setKey(String key) {
+		this.key = key;
+	}
+	
+}
+
+-------------------------------------------------------------------------------------------------------------
+
+
+
+-------------------------------------------------------------------------------------------------------------
+
+⏺ application.properties
+
+
+logging.level.org.springframework=debug
+spring.profiles.active=dev
+
+#url은 http://default.in28minutes.com으로 하고 두 번째는 defaultusername 세 번째는 defaultkey로 한다 
+currency-service.url=http://default.in28minutes.com
+currency-service.username=defaultusername
+currency-service.key=defaultkey
+
+-------------------------------------------------------------------------------------------------------------
+이제 application.properties에는 이런 프로퍼티가 설정되어 있고// CurrencyServiceConfiguration엔 CurrencyServiceConfiguration이 있는데 이것을 여기 있는 프로퍼티에 매핑한다
+이제 코드가 작동하는지, application.properties에서 CurrncyServiceConfiguration으로의 매핑이 작동하는지 확인해 보곘다
+빠르게 확인할 수 있는 한 가지 방법은 간단한 컨트롤러를 만드는 것이다
+그럼 CouserController를 복사해서 붙여 넣고 이름을 CurrencyConfigurationController로 지정한다
+
+
+-------------------------------------------------------------------------------------------------------------
+
+
+⏺ CurrencyConfigurationController 클래스파일
+
+
+
+package com.springstudy.springboot.learnspringboot;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController                 
+public class CurrencyConfigurationController {
+	//3: 여기서 할 작업은 자동으로 연결하는 것이다, 그럼 @Autowired라고 입력하고 private CurrencyServiceConfiguration configuration;을 입력한다
+	//이제 여기서 만든 Bean을 자동 연결 했다 Spring이 이 Bean(CurrencyServiceConfiguration)을 만들면 채워넣고 여기서 자동 설정한다
+	//이제 할 일은 여기서 만든 간단한 서비스의 응답으로 이를 반환하는 것이다 //4: 다시 CurrencyServiceConfiguration 클래스 안으로..
+	@Autowired
+	private CurrencyServiceConfiguration configuration;
+	
+	//1: 여기에선 currency-configuration을 반환하고
+	@RequestMapping("/currency-configuration")
+	//2: 여기는 이 list를 반환하는 게 아니라 CurrencyServiceConfiguration을 반환한다, .
+	//그리고 Spring에서 만든 이 CurrencyServiceConfiguration의 인스턴스를 가져오려 한다 여기 @Componenet가 있는데 Spring이 이것의 인스턴스를 만든다
+	public CurrencyServiceConfiguration retrieveAllCourses (){
+		
+		//4: 이를 통해 값을 살펴볼 수 있는데, 값은 지금 설정해 보겠다 //실행하고 localhost:8080/currency-configuration 검색..
+		return configuration;
+	}
+	
+}
+
+-------------------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------------------
+
+🟢 localhost:8080/currency-configuration 검색결과 :
+
+
+{
+"url": "http://default.in28minutes.com",
+"username": "defaultusername",
+"key": "defaultkey"
+}
+
+검색하면 application.properties에서 설정한 값이 이렇게 표시된다, default.in28minutes.com, defaultusername, defaultkey가 표시된다
+-------------------------------------------------------------------------------------------------------------
+
