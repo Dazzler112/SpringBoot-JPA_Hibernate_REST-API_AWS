@@ -1,0 +1,248 @@
+
+Monitor Application using Spring Boot Actuator
+                                                                                                                                                                                                                                    
+● Monitor and manage your application in your production                                                                                                                                                                                                                                    
+● Provides a number of endpoints:                                                                                                                                                                                                                                    
+ ■ beans - Complete list of Spring beans in your app                                                                                                                                                                                                                                    
+ ■ health - Application health information                                                                                                                                                                                                                                    
+ ■ metrics - Application metrics                                                                                                                                                                                                                                    
+ ■ mappings - Details around Request Mappings                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+                                                                                                                                                                                                                          
+                                                                                                                                                                                                                                    
+
+이번에는 프로덕션 환경에서 사용 가능한 애플리케이션의 또 다른 중요 기능인 모니터링을 알아보자
+애플리케이션의 백그라운드에서 어떤 일이 발생하는지 확인하고 싶을 수 있다 
+이를 가능하게 하는 Spring Boot 기능이 Spring Boot Actuator이다 
+
+● Monitor and manage your application in your production
+이를 통해 프로덕션 단계의 애플리케이션을 모니터링하고 관리할 수 있다 
+● Provides a number of endpoints:
+Spring Boot Actuator는 여러 개의 엔드포인트를 제공한다 
+ ■ beans - Complete list of Spring beans in your app   
+애플리케이션에 포함된 모든 Spring beans를 이 beans 엔드포인트를 사용하여 확인할 수 있다
+ ■ health - Application health information  
+health 엔드 포인트로는 애플리케이션의 상태 정보를 확인할 수 있다, 애플리케이션이 제대로 작동하는지 보는 것이 health이다
+ ■ metrics - Application metrics     
+애플리케이션과 관련된 여러 가지 metrics도 제공된다, metrics 엔드포인트를 사용하면 되고 
+ ■ mappings - Details around Request Mappings    
+애플리케이션에서 설정된 모든 요청 매핑 관련 세부 사항을 확인하려면 mappings 엔드포인트를 사용하면 된다
+
+Spring Boot Actuator에서 노출하는 다른 엔드포인트도 많은데 여기에는 몇 가지 선별해서 표시했다
+그럼 Spring Boot Actuator는 어떻게 사용할까?
+늘 그랬듯 아주 쉽다 
+
+pom.xml로 가보자
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+이것을 복사하고 spring-boot-starter-actuator로 변경한후 저장한다
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>            <=== 생성
+		</dependency>
+
+다운로드가 끝나면 이제 위로 이동하여 자바 애플리케이션을 실행할 수 있다
+상단의 실행버튼에서 LearnSpringBootApplication을 선택하여 실행해 보겠다
+...
+...
+2024-04-01T19:47:27.060+09:00[0;39m [32mDEBUG[0;39m [35m8544[0;39m [2m---[0;39m [2m[learn-spring-boot] [  restartedMain][0;39m [2m[0;39m[36mo.s.b.a.ApplicationAvailabilityBean     [0;39m [2m:[0;39m Application availability state ReadinessState changed to ACCEPTING_TRAFFIC
+애플리케이션이 잘 실행되고 있다 
+그리고 브라우저로 이동하여 URL localhost:8080/actuator를 입력해 보겠다
+
+{
+  "_links": {
+    "self": {
+      "href": "http://localhost:8080/actuator",
+      "templated": false
+    },
+    "health": {
+      "href": "http://localhost:8080/actuator/health",
+      "templated": false
+    },
+    "health-path": {
+      "href": "http://localhost:8080/actuator/health/{*path}",
+      "templated": true
+    }
+  }
+}
+
+JSON응답이 이와 같이 표시된다 현재 URL로 연결되는 self 링크가 있고 health URL로 연결되는 health 링크가 있다
+health URL http://localhost:8080/actuator/health를 클릭하면
+{
+"status": "UP"
+}
+애플리케이션의 상태가 표시된다
+애플리케이션의 상태는 현재 'UP'으로 실행 중임을 나타낸다 
+기본적으로 Actuator를 실행하면 health 엔드포인트만 노출한다 
+Actuator의 더 많은 기능을 사용하고 싶다면 application.properties에서 기능을 사용 설정해야 한다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+logging.level.org.springframework=debug
+spring.profiles.active=dev
+
+currency-service.url=http://default1.in28minutes.com
+currency-service.username=defaultusername
+currency-service.key=defaultkey
+
+#application.properties로 이동하여, 추가 엔드포인트를 설정하는 것이기 때문에 다음과 같이 입력한다 
+#management.endponints.web.exposure.include=*
+#이렇게하면 Actuator에서 제공하는 모든 엔드포인트가 노출된다 애플리케이션이 시작된 것을 확인할 수 있다
+
+management.endponints.web.exposure.include=*
+
+----------------------------------------------------------------------------------------------------------------------
+
+이제 다시 URL로 와서 Actuator URL을 새로 고침한다, 
+
+{
+  "_links": {
+  "self": {
+    "href": "http://localhost:8080/actuator",
+    "templated": false
+  },
+  "beans": {
+    "href": "http://localhost:8080/actuator/beans",
+    "templated": false
+  },
+  "caches-cache": {
+    "href": "http://localhost:8080/actuator/caches/{cache}",
+    "templated": true
+  },
+  "caches": {
+    "href": "http://localhost:8080/actuator/caches",
+    "templated": false
+  },
+  "health": {
+    "href": "http://localhost:8080/actuator/health",
+    "templated": false
+  },
+  "health-path": {
+    "href": "http://localhost:8080/actuator/health/{*path}",
+    "templated": true
+  },
+  "info": {
+    "href": "http://localhost:8080/actuator/info",
+    "templated": false
+  },
+  "conditions": {
+    "href": "http://localhost:8080/actuator/conditions",
+    "templated": false
+  },
+  "configprops": {
+    "href": "http://localhost:8080/actuator/configprops",
+    "templated": false
+  },
+  "configprops-prefix": {
+    "href": "http://localhost:8080/actuator/configprops/{prefix}",
+    "templated": true
+  },
+  "env": {
+    "href": "http://localhost:8080/actuator/env",
+    "templated": false
+  },
+  "env-toMatch": {
+    "href": "http://localhost:8080/actuator/env/{toMatch}",
+    "templated": true
+  },
+  "loggers": {
+    "href": "http://localhost:8080/actuator/loggers",
+    "templated": false
+  },
+  "loggers-name": {
+    "href": "http://localhost:8080/actuator/loggers/{name}",
+    "templated": true
+  },
+  "heapdump": {
+    "href": "http://localhost:8080/actuator/heapdump",
+    "templated": false
+  },
+  "threaddump": {
+    "href": "http://localhost:8080/actuator/threaddump",
+    "templated": false
+  },
+  "metrics-requiredMetricName": {
+    "href": "http://localhost:8080/actuator/metrics/{requiredMetricName}",
+    "templated": true
+  },
+  "metrics": {
+    "href": "http://localhost:8080/actuator/metrics",
+    "templated": false
+  },
+  "sbom": {
+    "href": "http://localhost:8080/actuator/sbom",
+    "templated": false
+  },
+  "sbom-id": {
+    "href": "http://localhost:8080/actuator/sbom/{id}",
+    "templated": true
+  },
+  "scheduledtasks": {
+    "href": "http://localhost:8080/actuator/scheduledtasks",
+    "templated": false
+  },
+  "mappings": {
+    "href": "http://localhost:8080/actuator/mappings",
+    "templated": false
+  }
+  }
+}
+
+localhost:8080/actuator를 새로고침 했다, 이제 엔드포인트가 많이 표시되어 있다 .
+여기 표시된 엔드포인트를 모두 알아야 할 필요는 없다 
+
+
+중요한 몇 가지만 간단히 살펴보겠다 
+Spring Boot Actuator beans를 보면 로드된 모든 Spring beans가 표시된다 
+
+{
+"contexts": {
+"learn-spring-boot": {
+"beans": {
+"endpointCachingOperationInvokerAdvisor": {
+"aliases": [],
+"scope": "singleton",
+"type": "org.springframework.boot.actuate.endpoint.invoker.cache.CachingOperationInvokerAdvisor",
+"resource": "class path resource [org/springframework/boot/actuate/autoconfigure/endpoint/EndpointAutoConfiguration.class]",
+"dependencies": [
+"org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration",
+"environment"
+]
+},
+
+....
+.....
+
+"courseController2": {
+"aliases": [],
+"scope": "singleton",
+"type": "com.springstudy.springboot.learnspringboot.CourseController2",
+"resource": "file [C:\\Users\\LG\\Downloads\\learn-spring-boot\\learn-spring-boot\\target\\classes\\com\\springstudy\\springboot\\learnspringboot\\CourseController2.class]",
+"dependencies": []
+},
+앞서 course리소스를 만들었다 
+앞서 courseController를 만들었다 이에 대한 bean이 있다
+
+"org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration$DispatcherServletRegistrationConfiguration": {
+"aliases": [],
+"scope": "singleton",
+"type": "org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration$DispatcherServletRegistrationConfiguration",
+"dependencies": []
+},
+"preserveErrorControllerTargetClassPostProcessor": {
+"aliases": [],
+"scope": "singleton",
+"type": "org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration$PreserveErrorControllerTargetClassPostProcessor",
+"resource": "class path resource [org/springframework/boot/autoconfigure/web/servlet/error/ErrorMvcAutoConfiguration.class]",
+"dependencies": []
+},
+DispatcherServlet에 대한 bean도 있고 ErrorMVC설정에 관한 bean도 있다 
+따라서 자동 설정된 모든 것에 대해서는 여기 표시된 bean을 확인하면 된다 
+특정 항목이 자동 설정되었는지 아닌지를 확인하려면 이 방법을 사용해도 된다 
+
