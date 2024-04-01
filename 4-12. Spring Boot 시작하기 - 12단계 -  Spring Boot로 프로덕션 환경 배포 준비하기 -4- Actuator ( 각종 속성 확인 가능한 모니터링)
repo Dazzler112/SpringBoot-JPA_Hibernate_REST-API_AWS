@@ -246,3 +246,235 @@ DispatcherServlet에 대한 bean도 있고 ErrorMVC설정에 관한 bean도 있�
 따라서 자동 설정된 모든 것에 대해서는 여기 표시된 bean을 확인하면 된다 
 특정 항목이 자동 설정되었는지 아닌지를 확인하려면 이 방법을 사용해도 된다 
 
+지금까지 localhost:8080:/actuator/beans를 확인했다 이제 닫고 
+health는 이미 확인했지? health는 기본적으로 노출되므로 항상 표시된다
+
+다음 살펴볼 엔드포인트는 configprops로, 주소는 localhost:8080/actuator/configprops이다
+열어 보면 애플리케이션의 application.properties에서 설정할 수 있는 모든 항목이 표시된다
+이 강의 코스에서 만든 항목도 표시되는데
+
+"currencyServiceConfiguration": {
+  "prefix": "currency-service",
+  "properties": {
+    "url": "******",
+    "key": "******",
+    "username": "******"
+  },
+  "inputs": {
+      "url": {
+      "value": "******",
+      "origin": "class path resource [application-dev.properties] - 3:22"
+    },
+      "key": {
+      "value": "******",
+      "origin": "class path resource [application-dev.properties] - 5:22"
+    },
+      "username": {
+      "value": "******",
+      "origin": "class path resource [application-dev.properties] - 4:27"
+    }
+  }
+},
+
+currencyServiceConfiguration를 만들었었다, 따라서 currencyService의 값을 설정할 수 있다
+"prefix": "currency-service",
+  "properties": {
+    "url": "******",
+    "key": "******",
+    "username": "******"
+설정 방법은 currency-service.url, currency-service.key, currency-service.username을 사용한다
+여기 표시된 값이 현재 값이다 값 dev.in28minutes.com은 application=dev.properties에서 사용한다
+이와 마찬가지로 다른 값도 확인할 수 있다
+
+
+/actuator에서 env로 이동하면 env 엔드 포인트가 표시된다
+env 엔드포인트는 환경에 관한 세부 사항을 모두 표시한다 
+
+"propertySources": [
+{
+    "name": "server.ports",
+      "properties": {
+      "local.server.port": {
+      "value": "8080"
+      }
+  }
+},
+8080포트를 사용하고 
+
+"name": "systemProperties",
+"properties": {
+  "java.specification.version": {
+  "value": "17"
+},
+"sun.jnu.encoding": {
+  "value": "******"
+},
+  "java.class.path": {
+  "value": "******"
+},
+자바 17을 사용한다 사용중인 인코딩도 표시되며 
+애플리케이션에 설정된 클래스 경로도 표시된다, 또한 실행되는 환경에 관한 많은 세부 사항이 여기에 표시된다
+자바, JVM, Tomcat에 관한 정보 등 모든 사항이 여기에 표시된다
+
+
+마지막으로 살펴볼 것은 metrics이다
+열어보면 반환된 metrics 목록이 표시된다 
+
+{
+  "names": [
+  "application.ready.time",
+  "application.started.time",
+  "disk.free",
+  "disk.total",
+  "executor.active",
+  "executor.completed",
+  "executor.pool.core",
+  "executor.pool.max",
+  "executor.pool.size",
+  "executor.queue.remaining",
+  "executor.queued",
+  "http.server.requests",
+  "http.server.requests.active",
+  "jvm.buffer.count",
+  "jvm.buffer.memory.used",
+  "jvm.buffer.total.capacity",
+  "jvm.classes.loaded",
+  "jvm.classes.unloaded",
+  "jvm.compilation.time",
+  "jvm.gc.live.data.size",
+  "jvm.gc.max.data.size",
+  "jvm.gc.memory.allocated",
+  "jvm.gc.memory.promoted",
+  "jvm.gc.overhead",
+  "jvm.gc.pause",
+  "jvm.info",
+  "jvm.memory.committed",
+  "jvm.memory.max",
+  "jvm.memory.usage.after.gc",
+  "jvm.memory.used",
+  "jvm.threads.daemon",
+  "jvm.threads.live",
+  "jvm.threads.peak",
+  "jvm.threads.started",
+  "jvm.threads.states",
+  "logback.events",
+  "process.cpu.time",
+  "process.cpu.usage",
+  "process.start.time",
+  "process.uptime",
+  "system.cpu.count",
+  "system.cpu.usage",
+  "tomcat.sessions.active.current",
+  "tomcat.sessions.active.max",
+  "tomcat.sessions.alive.max",
+  "tomcat.sessions.created",
+  "tomcat.sessions.expired",
+  "tomcat.sessions.rejected"
+  ]
+}
+ "application.started.time",애플리케이션 시작 시간 "disk.free", 디스크 여유 공간 "disk.total", 총공간이 표시되고
+  "executor.pool.core", "executor.pool.max", "executor.pool.size", 풀에 관한 metric도 확인할 수 있다
+ "jvm.buffer.count",.... 또한 JVM 관련 matrics도 여러 개 표시된다
+  "http.server.requests",라는 특정 metric를 살펴 보겠다 복사해서 /  "http.server.requests",를 붙여넣는다
+
+그러면 http.server.requests에 관한 모든 metrics가 표시된다
+
+  "name": "http.server.requests",
+  "baseUnit": "seconds",
+  "measurements": [
+    {
+      "statistic": "COUNT",
+      "value": 5
+    },
+    {
+      "statistic": "TOTAL_TIME",
+      "value": 0.1927512
+    },
+    {
+      "statistic": "MAX",
+      "value": 0
+    }
+],
+충분하게 표시된다 요청개수는 5이고, 이러한 요청을 처리하는 총 실행 시간은 0.1927512이며, 요청 처리하는 최대 시간은 0이다
+
+이제 다시 actuator로 가자, 이 URL 페이지를 열 번 정도 새로 고침 한다 그리고 다시 http://localhost:8080/actuator/metrics/http.server.requests 특정 metrics로 들어온다
+  "name": "http.server.requests",
+  "baseUnit": "seconds",
+  "measurements": [
+    {
+      "statistic": "COUNT",
+      "value": 22
+    },
+    {
+      "statistic": "TOTAL_TIME",
+      "value": 0.2520088
+    },
+    {
+      "statistic": "MAX",
+      "value": 0.004971
+    }
+],
+그러면 요청 개수가 증가한 것을 확인할 수 있다 (22)
+따라서 이것은 애플리케이션으로 들어오는 요청의 횟수를 추적하는 것이다
+
+
+실제로 이것은 애플리케이션과 애플리케이션이 실행되는 환경에 관한 많은 정보를 제공한다 
+애플리케이션에 관한 여러 가지 metrics를 얻을 수 있고 
+자바 런타임 또는 JVM과 애플리케이션이 실행되는 Tomcat서버에 관한 metrics도 다양하게 얻을 수 있다
+
+Actuator에 관해 기억해야 할 중요한 한 가지는 여러 엔드포인트를 사용 설정하면 
+해당 정보를 수집한다는 것이고 정보를 많이 수집하면 CPU와 메모리가 많이 사용된다는 점이다
+일반적으로 엔드포인트를 포함하려면 명시적으로 설정해야 한다 
+
+-------------------------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+logging.level.org.springframework=debug
+spring.profiles.active=dev
+
+currency-service.url=http://default1.in28minutes.com
+currency-service.username=defaultusername
+currency-service.key=defaultkey
+
+#예를 들어 health, metrics를 설정할 수 있는데 이것이 사용하는 유일한 엔드포인트라고 예를 들어보자.. 이것을 사용 설정
+management.endpoints.web.exposure.include=health,metrics
+
+-------------------------------------------------------------------------------------------------------------
+
+actuator로 다시 오면 이러한 엔드포인트만 현재 노출되어 있다
+
+{
+  "_links": {
+    "self": {
+    "href": "http://localhost:8080/actuator",
+    "templated": false
+  },
+    "health": {
+    "href": "http://localhost:8080/actuator/health",
+    "templated": false
+  },
+    "health-path": {
+    "href": "http://localhost:8080/actuator/health/{*path}",
+    "templated": true
+  },
+    "metrics-requiredMetricName": {
+    "href": "http://localhost:8080/actuator/metrics/{requiredMetricName}",
+    "templated": true
+  },
+    "metrics": {
+    "href": "http://localhost:8080/actuator/metrics",
+    "templated": false
+  }
+  }
+}
+
+health와 metrics이다
+
+
+
+
+
+
+이 단계에선 프로덕션 환경의 애플리케이션을 모니터링하는 방법을 알아봤다 
+사용할 수 있는 Spring Boot 기능은 Spring Boot Actuator이다
