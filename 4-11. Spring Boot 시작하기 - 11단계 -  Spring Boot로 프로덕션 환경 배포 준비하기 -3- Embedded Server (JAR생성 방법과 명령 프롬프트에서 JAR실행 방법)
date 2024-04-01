@@ -1,0 +1,215 @@
+
+
+Simplify Deployment with Spring Boot Embedded Servers
+
+● How do you deploy your application?                                                                       __________________________________  
+ ■ Step 1 : Install Java                                                                                   (         WAR Approach (OLD)       )
+ ■ Step 2 : Install Web/Application Server                                                                  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▢ Tomcat/WebSphere/WebLogic etc                                                                           __________________________________                                                                                                                                    
+ ■ Step 3 : Deploy the application WAR (Web ARchive)                                                       |                WAR               |           
+  ▢ This is the OLD WAR Approach                                                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                            
+  ▢ Complex to setup!                                                                                       __________________________________                                                                                                                                    
+                                                                                                           |            Web Server            |
+● Embedded Server - Simpler alternative                                                                    |  (Tomcat/Weblogic/WebSphere etc) |        
+ ■ Step 1 : Install Java                                                                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              
+ ■ Step 1 : Run JAR file                                                                                    __________________________________                                                                                                                                    
+ ■ Make JAR not (Credit: Josh Long!)                                                                       |                JAVA              |           
+ ■ Embedded Server Examples:                                                                                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                             
+  ▢ spring-boot-starter-tomcat                                                                              __________________________________  
+  ▢ spring-boot-starter-jetty                                                                              (         Embedded Approach        )
+  ▢ spring-boot-starter-undertow                                                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                             
+                                                                                                            __________________________________                                                                                                                                    
+                                                                                                           |               JAR                |
+                                                                                                           |   (Embedded Server - Tomcat ..)  |        
+                                                                                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              
+                                                                                                            __________________________________                                                                                                                                    
+                                                                                                           |                JAVA              |           
+                                                                                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              
+                                                                                                                                    
+
+이 단계에선 Embedded Server에 관해 알아보겠다 
+Spring Boot Embedded Server를 사용하여 배포를 간소화하는 방법은 무엇일까?
+개발자들은 프로덕션에 무언가를 배포할 때 프로세스가 아주 간단하기를 바란다 왜일까?
+
+왜냐면 환경이 여러개 있기 때문이다
+dev환경, qa환경, stage환경, production 환경이 있다 
+일반적으로 빠른 접근 방식을 따르고 있다면 하루에 여러 배포를 실행하고 있을 수 있다
+따라서 최대한 배포 프로세스를 간단하게 만드는 것이 정말 중요하다 
+● How do you deploy your application?
+이전에 사용한 애플리케이션 배포 방식을 간략히 살펴 보겠다
+WAR 방식이라고도 하는데
+ ■ Step 1 : Install Java
+먼저 자바를 설치해야 한다
+ ■ Step 2 : Install Web/Application Server 
+자바를 설치한 후에는 웹 서버나 애플리케이션 서버를 설치해야 한다 
+  ▢ Tomcat/WebSphere/WebLogic etc    
+Tomcat, Weblogic, WebSphere는 알고 있지? 모두 웹 서버나 애플리케이션 서버로 유명하다
+먼저 자바를 설치하고 특정 웹 서버를 설치한다
+ ■ Step 3 : Deploy the application WAR (Web ARchive)  
+  ▢ This is the OLD WAR Approach 
+  ▢ Complex to setup!
+그런 다음 애플리케이션 WAR 파일을 배포한다
+이것이 이전에 사용한 WAR 방식인데, 설정하기에 좀 복잡하다,
+세 단계가 있으니까 자바를 설치하고 웹서버를 설치한 후 WAR를 배포할 수 있다
+
+● Embedded Server - Simpler alternative
+ ■ Step 1 : Install Java 
+ ■ Step 1 : Run JAR file   
+Embedded Server의 개념은 더 단순한 대안이다 
+Ebbeded Sever를 사용하면 Tomcat과 같은 서버가 이미 JAR 파일에 포함되어 있다
+따라서 자바를 설치하기만 하면 JAR 파일을 실행할 수 있다
+
+지금 바로 실제로 확인해 보자
+IDE로 가서 learn-spring-boot 프로젝트를 마우스 오른쪽 클릭 > Run As > Maven build를 선택 > Goals 에 clean install을 입력 > Run
+mvn clean install이라는 명령을 실행하게 된다
+프로젝트에서 clean install을 실행하면 콘솔에 무언가 막 출력이 된다
+/* 콘솔창 ==>
+.
+..
+...
+[[1;34mINFO[m] Installing C:\Users\LG\Downloads\learn-spring-boot\learn-spring-boot\target\learn-spring-boot-0.0.1-SNAPSHOT.jar to C:\Users\LG\.m2\repository\com\springstudy\springboot\learn-spring-boot\0.0.1-SNAPSHOT\learn-spring-boot-0.0.1-SNAPSHOT.jar
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;32mBUILD SUCCESS[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  30.133 s
+[[1;34mINFO[m] Finished at: 2024-04-01T17:29:22+09:00
+[[1;34mINFO[m] [1m------------------------------------------------------------------------
+*/
+처음 실행하면 완료되는 데 2분 정도 걸릴 수 있다
+그리고 권장되는 작업은 
+[[1;34mINFO[m] The original artifact has been renamed to C:\Users\LG\Downloads\learn-spring-boot\learn-spring-boot\target\learn-spring-boot-0.0.1-SNAPSHOT.jar.original
+이 라인으로 이동햐여 복사하는 것이다, Building.jar이다
+jar이 빌드되고 있는데 어떤 jar가 출력되고 있는지 보자
+C:\Users\LG\Downloads\learn-spring-boot\learn-spring-boot\target\learn-spring-boot-0.0.1-SNAPSHOT.jar.original
+jar 파일이 생성되는 특정 폴더가 있는 것을 확인할 수 있다 그리고 learn-spring-boot-0.0.1-SNAPSHOT.jar 이것이 jar 파일 이름이다
+이제 터미널 또는 명령프롬프트를 열고 이 특정 폴더에 cd \Users\LG\Downloads\learn-spring-boot\learn-spring-boot\target\ 엔터 다음에 이 특정 폴더를 붙여 넣고 엔터 키를 누르고 이쪽으로 이동하여 ls(Mac 또는 Linux)나 dir을 입력한다
+
+C:\Users\LG\Downloads\learn-spring-boot\learn-spring-boot\target> dir
+ C 드라이브의 볼륨에는 이름이 없습니다.
+ 볼륨 일련 번호: D67F-0185
+
+ C:\Users\LG\Downloads\learn-spring-boot\learn-spring-boot\target 디렉터리
+
+2024-04-01  오후 05:29    <DIR>          .
+2024-04-01  오후 05:29    <DIR>          ..
+2024-04-01  오후 05:28    <DIR>          classes
+2024-04-01  오후 05:28    <DIR>          generated-sources
+2024-04-01  오후 05:28    <DIR>          generated-test-sources
+2024-04-01  오후 05:29        24,114,109 learn-spring-boot-0.0.1-SNAPSHOT.jar
+2024-04-01  오후 05:29             6,846 learn-spring-boot-0.0.1-SNAPSHOT.jar.original
+2024-04-01  오후 05:29    <DIR>          maven-archiver
+2024-04-01  오후 05:28    <DIR>          maven-status
+2024-04-01  오후 05:29    <DIR>          surefire-reports
+2024-04-01  오후 05:28    <DIR>          test-classes
+               2개 파일          24,120,955 바이트
+               9개 디렉터리  99,576,926,208 바이트 남음
+
+이 특정 폴더에 있는 모든 파일이 표시된다
+learn-spring-boot-0.0.1-SNAPSHOT.jar파일이 있는데 이 파일은 여기서 생성되었다
+이제 이 jar 파일을 실행해 보겠다
+
+cmd에서 계속 
+java -jar를 입력하고 해당 jar 파일 이름을 붙여 넣는다 ( java -jar learn-spring-boot-0.0.1-SNAPSHOT.jar )
+그러면 java -jar java -jar learn-spring-boot-0.0.1-SNAPSHOT.jar가 된다, 실행하기 전에 올바른 버전의 자바가 설치되어 있는지 확인해라
+
+C:\Users\LG\Downloads\learn-spring-boot\learn-spring-boot\target>java --version
+java 17.0.6 2023-01-17 LTS
+Java(TM) SE Runtime Environment (build 17.0.6+9-LTS-190)
+Java HotSpot(TM) 64-Bit Server VM (build 17.0.6+9-LTS-190, mixed mode, sharing)
+지금 Spring Boot 3를 사용하고 있으므로 자바 17이상이 있어야 한다 자바 17 이상이므로 ㅇㅋ
+
+그럼, 자바 파일을 실행해 보자
+java -jar learn-spring-boot-0.0.1-SNAPSHOT.jar
+.
+..
+...
+....
+2024-04-01T18:01:22.880+09:00 ERROR 2240 --- [learn-spring-boot] [           main] o.s.b.d.LoggingFailureAnalysisReporter   :
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+
+C:\Users\LG\Downloads\learn-spring-boot\learn-spring-boot\target>
+
+애플리케이션이 이제 실행되는데, 오류가 하나 표시된다 Port 8080 was already in use. 라고 표시된다
+이유가 뭘까? 여기서 실행된 애플리케이션이 있기 때문이다 
+그럼 sts에실행되어 있으면 중지하고 다시 cmd에서 실행해보자
+
+
+{
+"url": "http://dev.in28minutes.com",
+"username": "devusername",
+"key": "devkey"
+}
+JAR파일을 사용하여 애플리케이션을 아주 쉽게 실행할 수 있다, 그리고 여기서 애플리케이션의 URL을 다시 실행할 수 있고 모든 내용이 잘 표시된다
+
+[
+{
+"id": 1,
+"name": "Learn AWS",
+"author": "in28minutes"
+},
+{
+"id": 2,
+"name": "Learn DevOps",
+"author": "in28minutes"
+},
+{
+"id": 3,
+"name": "Learn Azure",
+"author": "in28minutes"
+},
+{
+"id": 4,
+"name": "Learn GCP",
+"author": "in28minutes"
+}
+]
+courses를 입력하면 다시 강의 courses 목록이 표시된다 
+Sprgin Boot를 사용하여 빌드된 애플리케이션을 실행하려면 자바만 설치하면 됐다, 일단 자바를 설치한 후
+JAR파일을 만들면 JAR 파일을 실행할 수 있다 
+웹 서버는 설치하지 않아도 된다, 웹 서버가 JAR 파일의 일부이기 떄문이다 
+
+Spring Boot Starter Web을 열려면 
+pom.xml로 이동하여 spring-boot-starter-web을 연다 (ctrl+클릭으로 열기)
+아래로 스크롤 하면 spring-boot-starter-web이 자동으로 spring-boot-starter-tomcat을 가져온 것을 볼 수 있다,
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
+      <version>3.3.0-M3</version>
+      <scope>compile</scope>
+    </dependency>
+이 tomcat은 이미 JAR에 포함되어 있으니, 애플리케이션을 실행하는 데는 자바만 있으면 된다
+자바만 설치하면 JAR 파일을 실행할 수 있다, 이로써 전체 배포 프로세스가 간소화된다
+
+다시 돌아가보자 cmd에 실행중인 것은 ctrl+c를 눌러 종료하고,
+배포 프로세스는 간소화 할 수 있다 그래서
+ ■ Make JAR not (Credit: Josh Long!) 
+조쉬 롱이다, Spring 과 Spring Boot 개발자 대변자인 조쉬 롱은 WAR가 아니라 JAR을 만들라고 한다 
+Spring Boot는 여러 Embedded Server를 지원하는데 
+ ■ Embedded Server Examples: 
+  ▢ spring-boot-starter-tomcat   
+  ▢ spring-boot-starter-jetty 
+  ▢ spring-boot-starter-undertow 
+디폴트는 spring-boot-starter-tomcat으로, 기본적으로 사용되는 서버이다    
+하지만 jetty이나 Undertow같은 다른 서버도 있으며 이 또한 지원된다
+
+
+
+
+
+
+이 단계에선 Embedded Server에 관해 알아봤고 
+애플리케이션을 정말 쉽게 배포할 수 있었다 
+애플리케이션이 Embedded Sever를 사용하고 있다면 자바만 설치하면 된다 
+자바를 설치하고 나면 JAR을 실행할 수 있다 
