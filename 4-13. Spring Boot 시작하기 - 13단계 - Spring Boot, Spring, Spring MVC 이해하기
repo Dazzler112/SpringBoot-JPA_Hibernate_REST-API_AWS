@@ -1,0 +1,91 @@
+
+
+Understanding Spring Boot vs Spring MVC vs Spring
+                                                                                                                                                                                                          
+● Spring Boot vs Spring MVC vs Spring: What's in it?                                                                                                                                                                                                          
+ ■ Spring Framework: Dependency Injection                                                                                                                                                                                                          
+  ▢ @Component, @Autowired, Component Scan etc..                                                                                                                                                                                                          
+  ▢ Just Dependency Injection is NOT sufficient (You need other frameworks to build apps)                                                                                                                                                                                                          
+   ◦ Spring Modules and Spring Projects Extend Spring Eco System                                                                                                                                                                                                          
+     ▫ Provide good intergration with other frameworks (Hibernate/JPA, JUnit & Mockito for Unit Testing)                                                                                                                                                                                                       
+ ■ Spring MVC (Spring Modules): Simplify building web apps and REST API                                                                                                                                                                                                          
+  ▢ Building web applications with struts was very complex                                                                                                                                                                                                          
+  ▢ @Controller, @RestController, @RequestMapping("/courses")                                                                                                                                                                                                          
+ ■ Spring Boot (Spring Project): Build PRODUCTION-READY apps QUICKLY                                                                                                                                                                                                          
+  ▢ Starter Projects - Make it easy to build variety of applications
+  ▢ Auto Configuration - Eliminate configuration to setup Spring, Spring MVC and other frameworks!
+  ▢ Enable non functional requirements (MFRs):                                                                                                                                                                                                          
+   ◦ Actuator: Enables Advanced Monitoring of applications                                                                                                                                                                                                          
+   ◦ Embedded Server: No need for separate application servers!                                                                                                                                                                                                          
+   ◦ Logging and Error Handling                                                                                                                                                                                                          
+   ◦ Profiles and ConfigurationProperties                                                                                                                                                                                                          
+                                                                                                                                                                                                          
+                                                                                                                                                                                                          
+                                                                                                                                                                                                          
+
+지난 몇 단계에선 Spring Boot의 중요한 기능을 알아봤다 
+이 단계에선 Spring Boot와 Spring MVC, Spring Framework를 비교해보겠다
+● Spring Boot vs Spring MVC vs Spring: What's in it? 
+ ■ Spring Framework: Dependency Injection  
+Spring Framework는 의존성 주입이 전부이다
+의존성을 정의하고 의존성을 식별하여 자동으로 연결하는 것이다
+의존성을 정의하고 의존성을 식별하여 자동으로 연결하는 것이다
+  ▢ @Component, @Autowired, Component Scan etc..   
+다양한 주석을 사용하여 의존성을 정의할 수 있다 @Component, @Service 등 많은 주석을 사용할 수 있다 
+의존성을 정의한 후에는 의존성을 식별해야 하는데 여기서 컴포넌트 스캔이 유용하다
+특정 패키지에서 컴포넌트 스캔을 실행하여 해당 패키지에서 정의된 모든 컴포넌트를 식별할 수 있다
+모든 컴포넌트와 의존성을 식별하고 나면 이를 자동으로 연결할 수 있다
+이것이 Spring Framework의 코드 작업이다
+  ▢ Just Dependency Injection is NOT sufficient (You need other frameworks to build apps)   
+하지만 의존성 주입만으론 강력한 애플리케이션을 빌드할 수 없다 
+다른 프레임워크가 필요하다
+   ◦ Spring Modules and Spring Projects Extend Spring Eco System                                                                                                                                                                                                          
+     ▫ Provide good intergration with other frameworks (Hibernate/JPA, JUnit & Mockito for Unit Testing)  
+데이터베이스와 통신해야 한다면 Hibernate 또는 JPA가 필요하겠지 단위 테스트를 작성한다면 Junit과 Mockito가 필요하다
+Spring Modules와 Spring Projects는 Spring 생태계를 확장한다
+이를 통해 다른 프레임워크와 잘 통합할 수 있다 
+데이터베이스와 통신하려는 경우 Spring을 통해 Hibernate JPA와 원할하게 통합할 수 있고 
+단위 테스트를 작성하려는 경우에도 Spring을 통해 Junit Mockito와 잘 통합할 수 있다 
+Spring Framework의 핵심은 의존성 주입이고 Spring Modules와 Spring Project는 Spring 생태계를 확장하여 다른 프레임워크와 쉽게 통합할 수 있도록 지원한다
+ ■ Spring MVC (Spring Modules): Simplify building web apps and REST API 
+그럼 Spring MVC는 무엇일까? Spring MVC는 Spring Module이다
+Spring MVC의 핵심은 웹 애플리케이션과 REST API의 빌드 과정을 간소화하는 것이다 웹 앱과 REST API에만 집중한다
+  ▢ Building web applications with struts was very complex   
+Spring MVC 이전에 가장 많이 사용된 프레임워크는 Struts였다
+Struts를 사용해 웹 애플리케이션을 빌드하는 작업은 매우 복잡했다 포함된 강한 결합이 많이 있었다 
+하지만 Spring MVC는 Struts보다 더 나은 웹 애플리케이션 빌드 방법을 제공한다
+  ▢ @Controller, @RestController, @RequestMapping("/courses")     
+Spring MVC를 사용하면 @Controller, @RestController, @RequestMapping과 같은 주석을 사용할 수 있다
+모두 Spring MVC의 일부로 정의한 것이다 
+앞서 REST API를 빌드할 때 @RestController와 @RequestMapping을 사용했다 
+Spring 프레임워크의 핵심은 의존성 주입이고 Spring MVC는 웹 애플리케이션을 쉽게 빌드하도록 지원한다
+Spring 프레임워크와 Spring MVC를 사용해 보면서 여러가지 설정이 pom.xml, web.xml, applicationcontext.xml에 필요한 것을 확인했는데,
+Spring과 Spring MVC를 사용하여 아주 간닪나 애플리케이션을 빌드할 때도 그랬다
+ ■ Spring Boot (Spring Project): Build PRODUCTION-READY apps QUICKLY     
+그래서 Spring Boot가 필요하다 Spring Boot는 Spring Project이다, 앞서 설명했듯이 
+목표는 프로덕션 환경에 사용 가능한 애플리케이션을 빠르게 빌드하도록 지원하는 것이다 
+Spring Boot 주요 기능은 Starter Project와 Auto Configuration이다 
+  ▢ Starter Projects - Make it easy to build variety of applications
+  ▢ Auto Configuration - Eliminate configuration to setup Spring, Spring MVC and other frameworks!
+웹 애플리케이션을 개발하려는 경우 web starter가 필요한 모든 의존성을 가져온다, 
+Auto Configuration을 사용하면 Spring과 Spring MVC, 다른 프레임워크를 설정할 필요가 없다 
+클래스 경로에 있는 항목에 따라 디폴트 설정을 자동으로 제공한다 
+  ▢ Enable non functional requirements (MFRs):   
+또한 Spring Boot는 여러 가지 비기능 요구사항도 사용 설정한다
+   ◦ Actuator: Enables Advanced Monitoring of applications 
+애플리케이션을 모니터링하려면 Actuator를 사용하면 되고 
+   ◦ Embedded Server: No need for separate application servers!    
+Embedded Server는 애플리케이션의 배포 과정을 간소화한다
+   ◦ Logging and Error Handling   
+Spring Boot는 디폴트 로깅과 오류처리도 제공한다 
+   ◦ Profiles and ConfigurationProperties     
+또한 Spring Boot는 프로필과 ConfigurationProperties를 통해 애플리케이션 설정을 간소화한다
+
+
+
+
+
+
+이 단계에선 Spring Boot와 Spring MVC, Spring을 피교해 봤다 
+이제는 Spring Boot가 Spring MVC나 Spring의 경쟁자가 아닌 것을 알겠지?
+Spring Boot는 Spring MVC와 Spring을 쉽게 사용할 수 있도록 하는 래퍼이다 
