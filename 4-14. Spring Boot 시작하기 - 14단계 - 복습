@@ -1,0 +1,30 @@
+
+
+Spring Boot - Review
+
+● Goal: 10,000 Feet overview of Spring Boot
+ ■ Help you understand the terminology!                                                                                                                                                                                                    
+  ▢ Starter Projects                                                                                                                                                                                                    
+  ▢ Auto Configuration
+  ▢ Actuator
+  ▢ DevTools
+● Advantages: Get started quickly with production ready features!                                                                                                                                                                                                    
+                                                                                                                                                                                                    
+
+
+                                                                                                                                                                                                  
+● Goal: 10,000 Feet overview of Spring Boot
+이 섹션의 목표는 Spring Boot를 대략적으로 살펴보는 것이었는데 
+ ■ Help you understand the terminology! 
+  ▢ Starter Projects      
+  ▢ Auto Configuration
+  ▢ Actuator
+  ▢ DevTools
+Spring Boot의 중요한 용어를 설명하여 이해를 도왔다 Starter Projects, Auto Configuration, Actuator, DevTools 등이다
+● Advantages: Get started quickly with production ready features!    
+또한 Spring Boot의 장점을 설명했다 
+Spring Boot를 사용하면 프로덕션 환경에 사용 가능한 기능을 빠르게 시작할 수 있다 
+
+
+
+지금까지 학습한 내용은 앞으로 더 많은 기능을 빌드할 때 매우 유용할 것이다
