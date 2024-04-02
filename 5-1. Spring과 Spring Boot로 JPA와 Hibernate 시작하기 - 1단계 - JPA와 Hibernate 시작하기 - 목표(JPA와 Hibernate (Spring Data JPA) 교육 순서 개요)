@@ -1,0 +1,81 @@
+
+
+
+
+
+                                                                                                     JPA and Hibernate
+                                                                                                        in 10 Steps
+
+
+
+
+
+
+
+Getting Started with JPA and Hibernate
+                                                                                         ______________________                                                                                                                            
+● Build a Simple JPA App using Modern Spring Boot Approach                              |   Spring Data JPA    |                                                                                                                       
+● Get Hands-on with JPA, Hibernate and Spring Boot                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                             
+ ■ World before JPA - JDBC, Spring JDBC                                                  ______________________                                                                                                                            
+ ■ Why JPA? Why Hibernate? (JPA vs Hibernate)                                           |         JPA          |                                                                                                                   
+ ■ Why Spring Boot and Spring Boot Data JPA?                                             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+                                                                                         ______________________                                                                                                                             
+                                                                                        |     Spring JDBC      |                                                                                                                      
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+                                                                                         ______________________                                                                                                                            
+                                                                                        |         JDBC         |                                                                                                             
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+                                                                                                                                                                        
+                                                                                                                                                                        
+                                                                                                                                                                                                                                                                                                                                             
+
+이번 섹션은 10단계로 배우는 JPA와 Hibernate이다
+이번 섹션에선 JPA와 Hibernate를 소개하려 한다 
+● Build a Simple JPA App using Modern Spring Boot Approach 
+Spring Boot를 현대적으로 접근해서 간단한 JPA 애플리케이션을 만들어볼 것이다 
+● Get Hands-on with JPA, Hibernate and Spring Boot 
+직접 해 보면서 JPA와 Hibernate를 배우게 된다 
+ ■ World before JPA - JDBC, Spring JDBC  
+ JPA이전의 세계를 먼저 이해하고 JDBC와 Spring JDBC도 다루겠다
+  ■ Why JPA? Why Hibernate? (JPA vs Hibernate)
+  그 후에는 왜 JPA를 써야 하는지 알아볼 것이다 왜 Hibernate인지 
+  JPA와 Hibernate의 차이는 뭔지 배우겠다 
+   ■ Why Spring Boot and Spring Boot Data JPA? 
+   또 Spring Boot가 있으면 Spring Boot Data JPA로 JPA를 아주 쉽게 사용할 수 있는데 그 과정도 이해해 볼것이다
+
+
+
+이번 섹션에는 어떤 방식으로 접근할까?
+
+
+
+Learning JPA and Hibernate - Approach
+                                                                                         ______________________                                                                                                                            
+● 01: Create a Spring Boot Project with H2                                              |   Spring Data JPA    |                                                                                                                       
+● 02: Create COURSE table                                                                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                             
+● 03: Use Spring JDBC to play with COURSE tabel                                          ______________________                                                                                                                            
+● 04: Use JPA and Hibernate to play with COURSE table                                   |         JPA          |                                                                                                                   
+● 05: Use Spring Data JPA to play with COURSE table                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+                                                                                         ______________________                                                                                                                             
+                                                                                        |     Spring JDBC      |                                                                                                                      
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+                                                                                         ______________________                                                                                                                            
+                                                                                        |         JDBC         |                                                                                                             
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+                                                                                                                                                                        
+                                                                                                                                                                        
+                                                                                                                                                                        
+● 01: Create a Spring Boot Project with H2 
+먼저, H2를 인메모리 데이터베이스로 사용해서 Spring Boot 프로젝트를 생성한다 
+● 02: Create COURSE table
+그 다음 H2 Database에 COURSE 테이블을 생성한다 
+● 03: Use Spring JDBC to play with COURSE tabel 
+테이블이 준비되면 JDBC를 사용해서 COURSE 테이블의 데이터를 활용해볼 것이다
+● 04: Use JPA and Hibernate to play with COURSE table
+Spring JDBC를 이해하고 나면 JPA와 Hibernate를 사용해서 동일한 작업을 하고 JPA와 Hibernate의 차이점을 살펴본다
+● 05: Use Spring Data JPA to play with COURSE table
+끝으로는 Spring Data JPA를 사용하게 된다 
+
+
+
+그러니까 이번 섹션에서 단계별로 접근해서 JPA와 Hibernate, Spring Data JPA를 배우는 것이다
