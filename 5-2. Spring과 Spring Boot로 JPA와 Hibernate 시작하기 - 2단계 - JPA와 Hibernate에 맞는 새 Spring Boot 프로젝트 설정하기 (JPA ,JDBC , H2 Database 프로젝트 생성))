@@ -1,0 +1,87 @@
+
+
+이번 단계에서 Spring Boot 프로젝트를 생성하겠다
+https://start.spring.io/로 검색해 쉽게 프로젝트 생성을 해보자 spring initializer라고도 한다
+
+Project 생성
+1: Poject탭은 Maven을 빌드도구로 >2: 언어는 Java >3: Spring Boot 탭은 (M3)(마일드스톤)를 사용하겠다 ( 혹시 교육중 더높은버전이나 (M4)(M5)를 보면 그대로 사용하면된다 )
+>4: 그다음 Project Metadata항목으로 와서= Group탭 ID를 com.springstudy.springboot로 저장하겠다 >5: Artifact탭은 learn-jpa-and-hibernate 인데 각 단어 사이에 하이픈으로 구분해 주겠다 
+>6: 나머지 항목은 기본값으로 하겠다  (다시한번 기억해야 할 것은 Spring Boot 3 에는 최소한 Java 17이 필요하다) 
+>7: 이제 JDBC를 활용해볼 텐데 JPA도 그렇고 인메모리 DB도 사용할 것이다 이것들을 어떻게 내 애플리케이션에 맞게 구성할까? 바로 종속성을 추가하는 것이다 오른쪽의 | ADD DEPENDENCIES |클릭
+>7-1: 첫 번째는 웹이다 1.Spring Web -간단한 웹 애플리케이션을 만들 수 있게 도와주는 시작 프로젝트이다 Spring Web 추가 2.JDBC 다음 추가할 것은 JDBC 이다 - jdbc라 검색하면 Spring Data JDBC가 뜬다 Spring Data를 사용해 SQL 소스의 데이터를 플레인 JDBC로 영속화한다 돼있다 클릭
+3. Spring Data JPA인데 ,jpa검색 Spring Data 와 Hibernate를 사용해 Java Persistence API로 SQL 스토어의 데이터를 영속화한다돼있다 클릭 4. 마지막 추가하려는 것은 DB이다 H2 Database인데,h2검색 적은 용량에 빠른 인메모리 데이터베이스를 제공한다 돼있다 그럼 먼저 H2를 사용해 볼까? 클릭
+>8: Spring Boot 프로젝트를 생성할 준비가 완료됐다 아라의 | GENERATE | 클릭 >9: GENERATE 누르면 압축파일이 받아질 것이다 압추풀고 컴퓨터에 폴더로 넣으면 된다 그리고 IDE실행
+>10: File > Import > Existing Maven Projects 클릭 Browse클릭 해당 폴더선택 Finish 클릭 (가져오는 데 시간이 좀 걸린다)
+
+
+<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+이제 종속성을 갖췄다, spring-boot-starter-data-jdbc가 Spring Data JDBC와 연결되고 
+spring-boot-starter-data-jpa는 Spring Data JPA와 같다, spring-boot-starter-web은 Spring Web
+h2database도 H2 Database
+늘 그렇듯 다른 Spring Boot 프로젝트들 처럼 spring-boot-starter-test 종속성이 있다
+
+실행법은 쉽다
+ser/main/java 폴더에 패키지 안의 LearnJpaAndHibernateApplication
+
+package com.springstudy.springboot.learnjpaandhibernate;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class LearnJpaAndHibernateApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(LearnJpaAndHibernateApplication.class, args);
+	}
+
+}
+
+Spring 컨텍스트를 실행하는 파일이다 우클릭>Run as> Java 애플리케이션을 선택한다 
+애플리케이션이 실행된게 보일 것이다
+2024-04-02T19:53:47.331+09:00[0;39m [32m INFO[0;39m [35m8604[0;39m [2m---[0;39m [2m[           main][0;39m [2m[0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+여기 보면 JDBC 초기화가 진행되고 있고
+2024-04-02T19:53:47.360+09:00[0;39m [32m INFO[0;39m [35m8604[0;39m [2m---[0;39m [2m[           main][0;39m [2m[0;39m[36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m:[0;39m Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+JPA 초기화도 되고 있다 
+커넥션 풀이 여기 설정되고 있는 게 보일것이고, 
+2024-04-02T19:53:48.353+09:00[0;39m [32m INFO[0;39m [35m8604[0;39m [2m---[0;39m [2m[           main][0;39m [2m[0;39m[36morg.hibernate.Version                   [0;39m [2m:[0;39m HHH000412: Hibernate ORM core version 6.4.4.Final
+Hibernate 설정도 여기서 진행되고 있다
+2024-04-02T19:53:49.508+09:00[0;39m [32m INFO[0;39m [35m8604[0;39m [2m---[0;39m [2m[           main][0;39m [2m[0;39m[36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m:[0;39m Tomcat started on port 8080 (http) with context path '/'
+마지막으로 Tomcat이 포트 8080에서 실행되고 있다 
+애플리케이션 전체 시작 과정이 몇 초 걸리지 않는다 
+보다시피 백그라운드에서 여러 가지 마법이 일어나는 것이다
+
+
+
+
+
+
+
+이번 단계에서 spring initializer를 사용해 프로젝트를 생성해봤는데 
+IDE로 가져와 Spring Boot 애플리케이션을 실행했다 
+이 시작 과정에서 여러가지 마법이 일어났는데 같이 이 마법을 풀어보자
+이어지는 단계에서 차근차근 해보겠다 
