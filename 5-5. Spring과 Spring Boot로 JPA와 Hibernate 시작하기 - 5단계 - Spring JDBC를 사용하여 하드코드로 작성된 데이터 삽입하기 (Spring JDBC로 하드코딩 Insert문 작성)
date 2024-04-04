@@ -1,0 +1,127 @@
+
+
+Spring JDBC를 사용하여
+
+INSERT INTO course(id, name, author)
+VALUES(1,'Learn AWS','in28minutes');
+
+이 쿼리를 실행해볼 건데 어떻게 할 수 있을까? 
+
+먼저 클래스를 생성한다 CourseJdbcRepository란 클래스명으로 생성하려 한다 
+COURSE 테이블과 연결할 리포지토리를 생성하려는 것이다
+
+Spring JDBC를 사용해서 DB에 쿼리를 실행할 건데 
+Spring JDBC를 사용해서 쿼리를 실행할 때 필요한게 무엇일까??
+
+
+-------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ CourseJdbcRepository 클래스파일
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.jdbc;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.jdbc.core.*;
+import org.springframework.stereotype.*;
+
+//1-1: 그리고 @Repository라고 입력한다 이게 DB에 연결되는 것이다 
+//보통 Spring에서 클래스가 DB에 연결될 때 어노테이션은 Repository이다 //이제 Repository가 있고 클래스 안에는 JdbcTemplate 클래스가 있다 //2: 다시 아래로 클래스안에서 작성...
+@Repository
+public class CourseJdbcRepository {
+
+	//1: JdbcTemplate이다 이름은 springJdbcTemplate로 하고 private으로 한다 그리고 Autowired 어노테이션 입력//1-1: 그리고 클래스 위에 작성
+	@Autowired
+	private JdbcTemplate springJdbcTemplate;
+	
+	//2-1: 그럼 여기에 private static String을 생성한다 INSERT_QUERY 값으로 큰따옴표 3쌍을 넣어줄 것이다, 큰 따옴표 3개 그리고 다시 한번 큰 따옴표 3개이다
+	//이 큰 따옴표 3개와 큰 따옴표 3개를 텍스트 블록이라고 한다 여기에 원하는 타입을 넣을수 있다 실행하려는 쿼리를 붙여넣기할 것이다
+	//INSERT INTO course(id, name, author) VALUES(1,'Learn AWS','in28minutes');다, 여기서 실행하려는 쿼리다 
+	//텍스트블록의 장점은 쿼리 형식을 그대로 유지할 수 있다는 것이다 이 쿼리를 보면 아주 이해하기 쉽다 이제 할 일은 이 쿼리를 실행하는 것이다 //3: 다시 public void insert() 로..
+	private static String INSERT_QUERY = 
+			"""
+			INSERT INTO course(id, name, author)
+		    VALUES(1,'Learn AWS','in28minutes');	
+		    	
+			""";
+	
+	
+	//2: 그리고 여기에는 쿼리를 실행해야한다 public void insert라고 하고 아직은 세부사항은 넣지 않겠다 나중에 여기에 COURSE 객체를 전달하는 방법을 알아볼 것이다
+	//지금은 간단한 방법으로 실행하려고 하니 springJdbcTemplate.을 입력한다 알겠지만 Spring JdbcTemplate에는 SQL쿼리를 실행할 수 있는 메서드가 많다
+	//우리는 update라고 하는 쿼리를 사용할 건데 쿼리를 실행해야한다 update로 할 수 있는 것이다 커서를 올려보면 Issue a single SQL update operation (such as an insert, update or deletestatement) => 단일 SQL 업데이트 작업을 실행한다고 한다
+	//예를 들어 구문을 삽입, 업데이트하거나 삭제한다 그럼 바로 update를 입력하고, 실행할 이 SQL 구문을 넣어준다//실행할 SQL 구문은 이미 있다 //2-1: 위에 변수하나 더 생성...
+
+	//3: 그럼 업데이트 하고 이 insert 쿼리를 실행해야겠지? ,update 메서드가 쿼리 삽입에다 업데이트, 또 삭제를 실행할 때도 쓰이니 좀 웃기는거 같다..
+	//이제 마지막이지, 쿼리 실행으로 돌아가겠다 //이제 애플리케이션 시작 단계에 이 쿼리를 실행하려고 한다 애플리케이션이 시작할 떄 이 insert 쿼리를 실행하려면 어떻게 해야 할까?
+	//그래서 Spring Boot가 CommandLineRunner라는 개념을 제공하는 것이다 이제 course.jdbc 패키지로 가서 course.jdbc 패키지에 새 클래스를 생성해 보겠다.//4:CourseJdbcCommandLineRunner 클래스파일로..
+	public void insert () {
+		springJdbcTemplate.update(INSERT_QUERY);
+	}
+}
+
+---------------------------------------------------------------------
+
+
+⏺ CourseJdbcCommandLineRunner 클래스파일
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.jdbc;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.*;
+import org.springframework.stereotype.*;
+
+//4: 시작할 때 실행되게 하려면 implements CommandLineRunner를 입력해야 한다
+//하지만 여기에 구현해야 할 메서드가 정의되어 있다, ctrl+1 눌러서 Add unimplemnented methods추가(구현되지 않은 메서드 추가) 클릭
+
+//5-1: 먼저 @Component로 시작 해보자 CommandLineRunner를 컴포넌트로 표시하면 Spring Framework가 컴포넌트 스캔에서 찾을 수 있다 //다음으로 할 일은 바로 CourseJdbcRepository를 사용하는 건데 아까 생성해 놓은 CourseJdbcRepository다 //5-2: 클래스 안으로...
+@Component
+public class CourseJdbcCommandLineRunner implements CommandLineRunner{
+
+	//5-2: CourseJdbcRepository를 private로 하고 repository라고 하겠다 그리고 Autowired 어노테이션을 넣어준다 이제 쿼리를 실행할 수 있다 //5-3: run 메소드 안으로...
+	@Autowired
+	private CourseJdbcRepository repository;
+	
+	//5: CommandLineRunner를 보면 Bean이 SpringApplication 안에 포함되어 있을 때 실행된다는 의미로 쓰이는 인터페이스라고 되어있다
+	//Spring 애플리케이션 시작 시에 실행될 로직이 있을때 CommandLineRunner를 활용할 수 있다 아래에 제시되어 있는 run 메서드가 보이지, 시작할 때 실행된다 여기에선 뭘 하게 될까??
+	//쿼리 즉, insert 쿼리를 실행하겠지, 그러려면 해야 할 일은 몇 가지를 자동 실행하는 것이다//5-1: 일단 클래스위로..
+	@Override
+	public void run(String... args) throws Exception {
+		//5-3: repository.insert()를 입력한다 CourseJdbcRepository에 이 쿼리를 호출하는 insert 메서드를 생성했다// 이제 애플리케이션이 실행되고 있으면 정지 후 다시 시작
+		//그리고 H2콘솔로 연결해서 DB가 있는지 확인해 보자 //H2Console로 확인...
+		repository.insert();
+		
+	}
+	
+}
+
+
+-------------------------------------------------------------------------------------------------------------------------
+H2 Console이 접속돼 있으면 새로고침하고 다시 연결
+-------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ H2 Console
+
+
+SELECT * FROM COURSE 
+
+--------------------------------
+실행결과 :
+
+SELECT * FROM COURSE;
+ID  	NAME  	AUTHOR  
+1	Learn AWS	in28minutes
+(1 row, 3 ms)
+
+1,	Learn AWS,	in28minutes 이 이제 COURSE 안에 삽입되어 있다 
+-------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+이번 단계에선 Spring JDBC를 활용해서 간단한 쿼리를 실행해봤고 
+다음 단계에선 좀 더 복잡한 작업을 해보겠다
