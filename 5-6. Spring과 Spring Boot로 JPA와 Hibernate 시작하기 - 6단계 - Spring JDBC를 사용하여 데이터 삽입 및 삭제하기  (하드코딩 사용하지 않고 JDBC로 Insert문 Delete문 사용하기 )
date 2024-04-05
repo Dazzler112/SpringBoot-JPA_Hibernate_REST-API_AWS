@@ -227,3 +227,127 @@ ID  	NAME  	AUTHOR
 
 
 
+• Delete 
+
+삭제하는 메서드를 생성해보자 특정 ID로 과정을 삭제하고 싶다면 어떻게 할 수 있을까 
+delete 쿼리를 작성해 보겠다 쿼리는 아주 간단하다 
+delete from course where id = 라고 한다음 특정 값을 넣는다 
+이걸 사용하여 쿼리를 작성하면 된다 
+매서드를 생성해 주겠다 
+
+------------------------------------------------------------------------------------------------------------
+
+
+⏺ CourseJdbcRepository2 클래스파일
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.jdbc;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.jdbc.core.*;
+import org.springframework.stereotype.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.*;
+
+
+@Repository
+public class CourseJdbcRepository2 {
+
+	@Autowired
+	private JdbcTemplate springJdbcTemplate;
+	
+	private static String INSERT_QUERY = 
+			"""
+			INSERT INTO course(id, name, author)
+		    VALUES(?,?,?);	
+		    	
+			""";
+
+  //2:여기 insert 대신에 delete 쿼리를 활용해야겠지 
+  //블록 안에는 delete from course가 되겠지 열은 필요없고 조건은 where id=?로 한다음 여기에서 ID를 deleteById로 전달해준다//그리고 CourseJDBCCommandLineRunner에서 이걸 실행해보곘다 //3: CourseJDBCCommandLineRunner 클래스파일로..
+	private static String DELETE_QUERY = 
+			"""
+			DELETE FROM course 
+      WHERE id = ?;	
+		    	
+			""";
+
+	public void insert (Course course) {
+		springJdbcTemplate.update(INSERT_QUERY, 
+								  course.getId(), 
+								  course.getName(), 
+								  course.getAuthor()
+								  );
+	}
+
+  //1: 메서드를 생성하겠다, public void deleteById이다 ID로 삭제하려는 것이다, long id를 전달해주고 
+  //이제 할 일은 업데이트를 실행하는 건데, 전달하려는 유일한 값은 ID이다 //2: 위로..
+	public void deleteById (long id) {
+		springJdbcTemplate.update(DELETE_QUERY,
+								              id
+								              );
+	}
+}
+
+--------------------------------------------------------
+
+
+⏺ CourseJdbcCommandLineRunner 클래스파일
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.jdbc;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.*;
+import org.springframework.stereotype.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.*;
+
+@Component
+public class CourseJdbcCommandLineRunner implements CommandLineRunner{
+
+	@Autowired
+	private CourseJdbcRepository2 repository;
+
+	@Override
+	public void run(String... args) throws Exception {
+
+		repository.insert(new Course(1, "Learn AWS Now!", "in28minutes"));
+		repository.insert(new Course(2, "Learn Azure Now!", "in28minutes"));
+		repository.insert(new Course(3, "Learn DevOps Now!", "in28minutes"));
+
+    //3: 행을 삭제하는 방법은 repository.deleteById를 입력하고 1을 넣어준다 //서버를 멈췄다 재시작하면 가져온 값을이 보이겠지? 이제 H2 콘솔을 새로 고침하면 최신 데이터가 보일 것이다
+		repository.deleteById(1);
+	}
+	
+}
+
+--------------------------------------------------------
+
+
+⏺ H2 Console
+
+
+SELECT * FROM COURSE 
+
+
+--------------------------------------------------
+
+실행결과 :
+
+SELECT * FROM COURSE;
+ID  	NAME  	AUTHOR  
+2	Learn Azure Now!	in28minutes
+3	Learn DevOps Now!	in28minutes
+(2 rows, 2 ms)
+
+보이지? 2,3행이다 왜지?
+
+repository.deleteById(1);
+
+1행을 삽입하고 나서 즉시 CommandLineRunner에서 삭제했기 때문이다
+------------------------------------------------------------------------------------------------------------
+
+
+
+이번에는 Spring JDBC를 좀 더 활용해봤다
