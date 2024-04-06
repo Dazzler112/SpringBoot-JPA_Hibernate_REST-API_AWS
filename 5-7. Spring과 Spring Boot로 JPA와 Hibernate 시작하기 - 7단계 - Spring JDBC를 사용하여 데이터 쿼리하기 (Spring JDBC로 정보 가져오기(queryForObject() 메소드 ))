@@ -1,0 +1,123 @@
+
+
+Spring JDBC 마지막 단계로 DB에서 데이터 불러오기를 해보겠다 
+
+그럼 CourseJdbcRepository로 가보겠다 
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ CourseJdbcRepository3 클래스파일
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.jdbc;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.jdbc.core.*;
+import org.springframework.stereotype.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.*;
+
+
+@Repository
+public class CourseJdbcRepository3 {
+
+	@Autowired
+	private JdbcTemplate springJdbcTemplate;
+	
+	private static String INSERT_QUERY = 
+			"""
+			INSERT INTO course(id, name, author)
+		    VALUES(?,?,?);	
+		    	
+			""";
+	
+	private static String DELETE_QUERY = 
+			"""
+			DELETE FROM course WHERE id = ?;
+		    	
+			""";
+	//1: Select쿼리를 실행할 것이다 selectById 쿼리도 실행해보자
+	//select * from course가 되겠고 이미 이 select * from course는 실행했고, 특정 과정에 대해서만 세부항목을 얻을 것이다
+	//그래서 select * from course 와 where id=?를 입력한 것이다 아래에 필요한 메서드를 생성해보자//1-1: 아래에서 생성...
+	private static String SELECT_QUERY = 
+			"""
+			SELECT * FROM course WHERE id = ?;
+		    	
+			""";
+
+	public void insert (Course course) {
+		
+		springJdbcTemplate.update(INSERT_QUERY, 
+								  course.getId(), 
+								  course.getName(), 
+								  course.getAuthor()
+								  );
+	}
+	
+	public void deleteById (long id) {
+		springJdbcTemplate.update(DELETE_QUERY,
+								  id
+								  );
+	}
+	
+	//1-1: 쿼리를 실행할 때 Course를 돌려받게 된다 findById(long id)를 입력한다
+	//이제 할 일은 이 쿼리를 실행해서 결과를 돌려받는 것이다 따라서 update 메서드는 사용할 수 없는데 이때 query라는 메서드를 선택하면 된다 
+	//결과 하나만 돌려받을 거라면, 예를 들어 ID로 쿼리를 할 때는 하나의 과정만 돌려받게 된다, 그런 상황에선 queryForObject를 쓸 수 있다
+	//특정 객체를 생성한다는 뜻이다, 이제 이 select 쿼리를 실행할 것이다// 이제 아주 중요한 두 가지를 해야 하는데 실행하려는 select 쿼리가 있다
+	//이제 할 일은 결과를 매핑하는 것이다, select쿼리를 실행할 때 얻게 되는 게 뭘까? SELECT * FROM COURSE를 실행하면 | 2 Learn Azure Now In28minutes, 3 Learn DevOps Now! In28minutes |실행하면 이런 결과 세트를 돌려받게 된다
+	//우리가 하려는 건 이 결과 세트를 가져와 Course Bean에 매핑하는 것이다
+	//그러니까 ResultSet를 Bean에 매핑하고, id도 입력값으로 보내야 한다 queryForObject(SELECT_QUERY, null ,id); 그러니까 여기 세 번째 매개변수는 id니까 id가 입력값이다
+	//여기 보이는 두 번째 매개변수는 결과 세트를 Bean으로 매핑해준다, 결과 세트를 Bean으로 매핑해주는 것을 Row Mapper라고 하는데 Row Mapper는 결과 세트의 각 행을 특정 Bean에 연결해준다
+	//특정 상황에서 테이블에 있는 열의 이름을 Bean에 있는 이름과 정확히 짝을 이룬다 Course의 id, name, author와 테이블의 id, name, author를 보면 된다
+	//따라서 BeanPropertyRowMapper라는 것을 사용할 수 있다 그럼 바로 BeanProperty를 입력하자 new BeanPropertyRowMapper<>() Course 클래스에 매핑할 것이니 Course.class를 입력하고 
+	//여기에는 id를 매개변수로 사용해서 select쿼리를 실행하고 있지 그러니 이 select쿼리에서 id 값이 들어갈 것이고 BeanPropertyRowMapper를 사용해서 결과를 매핑하는데 어느 클래스로 매핑하지? Course클래스로 매핑한다 그럼 저장 findById쿼리를 실행해야겠다 //2: CommandLineRunner 클래스파일로..
+	public Course findById (long id) {
+		//ResultSet -> Bean => Row Mapper =>
+		return springJdbcTemplate.queryForObject(SELECT_QUERY,
+												 new BeanPropertyRowMapper<>(Course.class),	
+												 id
+										  		 );
+		
+	}
+}
+
+------------------------------------------------------------------
+
+
+⏺ CourseJdbcCommandLineRunner 클래스파일
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.jdbc;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.*;
+import org.springframework.stereotype.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.*;
+
+@Component
+public class CourseJdbcCommandLineRunner implements CommandLineRunner{
+
+	@Autowired
+	private CourseJdbcRepository3 repository;
+	
+	@Override
+	public void run(String... args) throws Exception {
+
+		repository.insert(new Course(1, "Learn AWS Now!", "in28minutes"));
+		repository.insert(new Course(2, "Learn Azure Now!", "in28minutes"));
+		repository.insert(new Course(3, "Learn DevOps Now!", "in28minutes"));
+		repository.deleteById(1);
+
+    //2: deleteById 다음에 할 일은 syso를 추가하는 것이다 그리고 이제 repository.findById(2)를 입력한다 3에도 findById를 넣겠다
+    //1은 오류가 날 테니까 안쓰는데, 2와 3은 알맞은 값을 돌려줄 것이다 확인해보자 //애플리케이션 시작
+    System.out.println(repository.findById(2));
+    System.out.println(repository.findById(3));
+    /* 실행결과 =>
+    Course [id=0, name=null, author=null]
+    Course [id=0, name=null, author=null]
+    두 가지가 출력되는데 둘 다 비어있다 왜일까?
+    제대로 작동 안하는 이유는 Course클래스파일로 가면 여기에 Getters만 있고 Setters가 없다  
