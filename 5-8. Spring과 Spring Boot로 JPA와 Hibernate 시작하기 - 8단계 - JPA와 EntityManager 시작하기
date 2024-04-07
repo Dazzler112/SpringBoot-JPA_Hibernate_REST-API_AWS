@@ -1,0 +1,195 @@
+
+
+지난 단계에선 Spring JDBC를 활용해봤는데, 
+Spring JDBC를 활용할 때 Java 코드는 간단한 데 비해 쿼리는 정말 복잡해질 수 있다
+---------------------------------------------------------
+	private static String INSERT_QUERY = 
+			"""
+			INSERT INTO course(id, name, author)
+		    VALUES(?,?,?);	
+		    	
+			""";
+	
+	private static String DELETE_QUERY = 
+			"""
+			DELETE FROM course WHERE id = ?;
+		    	
+			""";
+
+	private static String SELECT_QUERY = 
+			"""
+			SELECT * FROM course WHERE id = ?;
+		    	
+			""";
+---------------------------------------------------------
+여기선 테이블 하나만 활용하고 있어서 이 쿼리들이 조금은 단순해 보일 수 있지만 
+시간이 지나면서 테이블을 점점 더 많이 가져올수록 쿼리 작성은 정말 복잡해진다
+그래서 JPA가 다른 접근 방식을 사용하는 것이다
+JPA를 활용하게 되면 Course Bean을 DB에 존재하는 테이블로 직접 매핑하게 된다
+
+SELECT * FROM COURSE;
+ID  	NAME  	AUTHOR  
+2	Learn Azure Now!	in28minutes
+3	Learn DevOps Now!	in28minutes
+(2 rows, 2 ms)
+DB에 COURSE 테이블이 있고 ,ID, 이름, 작성자가 있다 
+이걸 public class Course { 여기로 직접 매핑하게 될 텐데, 여기에 생성한 이것을 엔티티라고 한다
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ Course 클래스파일
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course;
+
+//1: 우리가 해야할 일은 매핑을 하는 @Entity를 입력하는 건데 Java Bean과 테이블 사이에 매핑을 생성하고 그 매핑을 이용해서 값을 삽입하고 
+//값을 검색하고 테이블에서 작업을 수행한다 //이번 단계에서 실제 이 방식이 어떻게 작동하는지 살펴보겠다
+//Course 클래스에 @Entity를 입력하고 가져오기를 하겠다 jakarta.persistence.Entity를 사용할 것이다 아래에 hibernate.annotaions도 나오는데, 지금은 hibernate.annotaions는 무시하고 jakarta.persistence.Entity만 활용해보겠다//1-1: Course클래스 안으로..
+@Entity
+
+//1-2: 이게 Course_Details라는 테이블로 매핑된다고 해보자 매핑을 여기다 넣을 수 있다 하지만 굳이 이럴 필요는 없다, 테이블과 이름이 같기 때문이다 //1-3: name 변수로...
+//@Entity (name = "Course_Details")
+public class Course {
+
+  //1-1: 이제 이걸 기본 키로 정의하는 어노테이션 하나를 더 추가할 건데 @Id를 넣고, jakarta.persistence Id를 가져오기를 하겠다, name과 author는 이것들도 여기 필드로 매핑할 수 있으니까
+  @Id
+	private long id;
+
+  // @Column을 입력하고 ctrl+Space bar를 눌러 Java와 Jakarta.persistence.Column을 가져올 수 있다 이건 이름이 name인 column에 매핑된다고 입력하고,
+
+  //1-3: 그리고 여기에 넣은 Column 값도 사실 필요가 없다, 여기 name이 여기 테이블에 있는 | ID  |	NAME  |	AUTHOR | NAME과 일치하고 author도 여기있는 AUTHOR과 일치하기 때문이다 꼭 필요한 건 아니다 
+  //Bean 속성을 여기 있는 테이블의 다른 열에 매핑할 수 있지만 우린 굳이 그러지 않아도 된다, 엔티티와 테이블에서 이름이 같기 때문이다 
+  안쓰거나 or @Column(name = "name") 
+  private String name;
+
+  //author도 똑같이 생성해주면 되겠다 //여기에 생성하는 것은 이 Bean에서 테이블로 연결되는 매핑이다 //지금 Bean 이름과 테이블 이름이 같으니 다행이다 하지만 Bean과 테이블 이름을 다르게 하고 싶다면 그렇게 할 수도 있다//1-2: 다시 Course위로 ...
+  안쓰거나 or @Column(name = "author")
+  private String author;
+	
+	public Course () {
+		
+	}
+	
+	
+	public Course(long id, String name, String author) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.author = author;
+	}
+
+
+	public long getId() {
+		return id;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public String getAuthor() {
+		return author;
+	}
+	
+	
+	public void setId(long id) {
+		this.id = id;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+
+	@Override
+	public String toString() {
+		return "Course [id=" + id + ", name=" + name + ", author=" + author + "]";
+	}
+
+}
+
+----------------------------------------------------------------------------------------------------------
+이게 첫 단계이다 JPA를 사용할 때마다 Java Bean을 테이블에 매핑하는 것이다,
+엔티티가 정의되면 이 엔티티를 활용할 레포지토리를 생성할 수 있다 
+course 패키지로 가서 ctrl+N을 눌러 새 클래스를 생성한다 CourseJpaRepository라 이름을 만든다음 course.jpa 패키지에 넣고 생성
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ CourseJpaRepository 클래스파일
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.jpa;
+
+import org.springframework.stereotype.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.*;
+
+import jakarta.persistence.*;
+
+
+//1: 이게 DB로 연결되니 @Repository가 되겠다// JPA를 활용해서 DB에 연결하려면 EntityManager라고 하는 것을 활용해야한다 //2: 클래스 안으로..
+@Repository
+public class CourseJpaRepository {
+	//2: 엔티티는 생성했고, EntityManager를 활용해서 엔티티를 관리할 것이다 바로 jakarta.persistence.EntityManager다
+	//entityManager라고 입력하고 ctrl+스페이스를 누는다 , 이것도 private로 해주고 @Autowired 작성, JPA로 JDBC에서 했던 것과 똑같은 순서로 똑 같은 작업을 할 건데
+	//먼저 뭔가를 삽입한 다음 삭제하고 그다음 findById를 써서 값을 검색하는 것이다 insert 작업부터 해 보곘다 그럼 여기서 먼저 행을 삽입하는 것부터 해보겠다
+	//SpringJdbcTemplate를 활용하면서 행을 삽입하는 방법은 살펴봤다 update 메서드를 호출했고, insert 쿼리를 실행하고 모든 값을 전달했다 JPA에선 어떻게 하는지 살펴보자//3: 아래에서 작성..
+//	@Autowired
+	
+	//4: 보면 ( Expresses a dependency on a container-managed EntityManager and itsassociated persistence context. ) PersitenceContext가 컨테이너 관리형 EntityManager및 그에 연결된 영속성 컨텍스트와의 종속성을 나타낸다고 돼있다
+	//그러니까 Autowired 대신 PersistenceContext라는 더 구체적인 어노테이션을 사용하고 있다 //여기서 할 일이 또 있는데 deleteById와 findById다 JPA로는 이 작업을 하는 것도 아주 쉽다 //5: insert메소드 아래로..
+	@PersistenceContext 
+	private EntityManager entityManager;
+	
+	//3: public void insert를 입력하고 (Course course)를 전달하겠다 이제 entityManager를 사용해보겠다
+	public void insert (Course course) {	
+		//3-1: entityManager를 보면 엔티티를 활용할 수 있는 메서드가 아주 많다 지금은 행을 삽입할 것이니, 행을 삽입할 수 있는 메서드는 entityManager.merge이고 Course를 입력해주면 끝이다, 모든 매핑이 이미 다 되어 있다
+		//merge는 어떻게 할까? 
+		/*merge 메서드 원리 ==>
+		@Entity
+		public class Course {
+			
+			@Id
+			private long id;
+			
+			private String name;
+			
+			private String author;
+		여기에 매핑된다 ID 필드는 id, Name 필드는 name, AUTHOR는 author 그리고 Course Bean은 COURSE 테이블로 매핑된다
+		이 매핑이 전무 이미 생성되어 있다 그러니까 entityManager.merge를 입력하고 course만 전달하면 되는것이다	
+		*/
+		entityManager.merge(course);
+	}
+	//어노테이션할 때 더 좋은 방법이 있는데 @Autowired 대신에 @PersistenceContext를 넣어도 된다//4:entityManager로..3
+
+  //5: public Course findById에 (long id)를 넣어주고 JPA에선 어떻게 하지? entity이다 entityManager.여기에는 find를 입력한다 뭘 찾으려고 하는거지?
+  //(Cours.class고, )기본키를 전달할건데 기본키는 id이다 그리고 돌려받아야 하니 return findById는 간단하다 이제 deleteById를 해보겠다//6:아래에서 게속..
+	public Course findById(long id) {
+		return entityManager.find(Course.class, id);
+	}
+  //6: deleteById는 empty값을 돌려준다 맞지? deleteById를 입력하는데, delete를 실행하는 방식이 좀 더 복잡하다 
+  //해야 할 일이 엔티티를 찾는 거니까 entityManager.find(Course.class)를 입력한다 ctrl+1로 지역 변수에 할당하고, course를 입력하고 return entityManager.remove로 (course) 하고 저장 return타입이 void니까 return을 지울수 있겠지?
+	public void deleteById(long id) {
+		Course course = entityManager.find(Course.class, id);
+		entityManager.remove(course);
+	}
+  //여기서 보다시피 JPA를 활용한다면 작업이 정말 쉬워진다 
+  //동일한 CommandLineRunner 즉, CourseJdbcCommandLineRunner를 사용해서 JPA 코드도 실행할 수 있다 그러면 이제 이름을 바꾸겠다 그리고 패키지도 course로 이동시키자//7: CourseCommandLineRunner 클래스파일로..
+}
+
+------------------------------------------------------------
+
+
+
+
+----------------------------------------------------------------------------------------------------------
