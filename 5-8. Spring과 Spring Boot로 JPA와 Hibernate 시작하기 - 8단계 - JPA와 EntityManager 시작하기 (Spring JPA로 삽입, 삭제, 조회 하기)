@@ -191,5 +191,119 @@ public class CourseJpaRepository {
 
 
 
+⏺ CourseCommandLineRunner 클래스파일
 
+
+package com.springstudy.springboot.learnjpaandhibernate.course;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.*;
+import org.springframework.stereotype.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.*;
+
+@Component
+public class CourseCommandLineRunner implements CommandLineRunner{
+
+	//@Autowired
+	//private CourseJdbcRepository3 repository;
+
+  //7: JpaRepository를 활용하려고 하니, CourseJpaRepository로 해야겠지? 저장한 다음 실행하여보자
+	@Autowired
+	private CourseJpaRepository repository;
+
+	@Override
+	public void run(String... args) throws Exception {
+
+		repository.insert(new Course(1, "Learn AWS Now!", "in28minutes"));
+		repository.insert(new Course(2, "Learn Azure Now!", "in28minutes"));
+		repository.insert(new Course(3, "Learn DevOps Now!", "in28minutes"));
+		repository.deleteById(1);
+		System.out.println(repository.findById(2));
+		System.out.println(repository.findById(3));
+
+		/* 실행결과 ==>
+		Caused by: jakarta.persistence.TransactionRequiredException: EntityManager with actual transaction for current thread - cannot reliably process 'merge' call
+		at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke
+		지금은 JPA로 하고 있는데 EntityManager with actual transaction EntityManager에 트랜잭션이 없다고 한다 
+		*/
+		JPA로 쿼리를 실행하려고 할 때마다 트랜잭션을 허용해야 하는데, 이때 필요한 것이 @Transactional이라는 어노테이션을 추가하는 것이다//8: CourseJpaRepository 클래스파일로..
+	}
+	
+}
+
+------------------------------------------------------------
+
+⏺ CourseJpaRepository 클래스파일
+
+
+@Repository
+//8: @Transactional을 넣어주고 다시 실행해보겠다
+@Transactional
+public class CourseJpaRepository {
+
+	@PersistenceContext 
+	private EntityManager entityManager;
+..	
+...
+------------------------------------------------------------
+
+애플리케이션 다시 실행후 결과 ==>
+Course [id=2, name=Learn Azure Now!, author=in28minutes]
+Course [id=3, name=Learn DevOps Now!, author=in28minutes]
+
+이제 데이터를 돌려받고 있는게 보이지? Learn Azure Now!와 Learn DevOps Now!이다
+이제 정말 활실히 해야 할 것이 애플리케이션을 멈추고 CommandLineRunner로 가서 
+
+		repository.insert(new Course(1, "Learn AWS Now!", "in28minutes"));
+		repository.insert(new Course(2, "Learn Azure Now!", "in28minutes"));
+		repository.insert(new Course(3, "Learn DevOps Now!", "in28minutes"));
+		repository.deleteById(1);
+		System.out.println(repository.findById(2));
+		System.out.println(repository.findById(3));
+여기 데이터를 Learn AWS Now! 에서 Learn AWS JPA등으로 변경하는 것이다 후에 다시 실행
+-----------------------------------
+다시 실행후 결과 ==>
+
+Course [id=2, name=Learn Azure Jpa!, author=in28minutes]
+Course [id=3, name=Learn DevOps Jpa!, author=in28minutes]
+
+지금 모든 작업이 JPA로 이루어지고 있는 것을 보고 있다 
+확실히 하는 차원에서 application.properties로 가서 프로퍼티를 하나 더 추가혀면 된다 //9: application.properties파일로..
+
+------------------------------------------------------------
+
+⏺ application.properties파일
+
+spring.h2.console.enabled=true
+spring.datasource.url=jdbc:h2:mem:testdb
+
+#하나 더 추가하면 되는데 spring.jpa.show-sql=true를 입력한다, JPA를 실행하고 있으르 때 생성된 SQL을 확인하려면 이걸 application.properties에 추가하면 된다 
+#멈추고 애플리케이션을 시작하면 
+spring.jpa.show-sql=true
+
+------------------------------------------------------------
+
+애플리케이션 다시 실행결과 ==>
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Hibernate: insert into course (author,name,id) values (?,?,?)
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Hibernate: insert into course (author,name,id) values (?,?,?)
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Hibernate: insert into course (author,name,id) values (?,?,?)
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Hibernate: delete from course where id=?
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Course [id=2, name=Learn Azure Jpa!, author=in28minutes]
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Course [id=3, name=Learn DevOps Jpa!, author=in28minutes]
+
+바로 여기에 실행되는 모든 쿼리가 보인다 
+보고 있는 내용은 백그라운드에서 일어난다, JPA 작업을 실행할 때마다 SQL 쿼리가 실행되고 있는 것이다
 ----------------------------------------------------------------------------------------------------------
+
+
+
+
+이번 단계에선 JPA 진도를 많이 나갔다 
+다음 단계에선 JPA에서 중요한 사항들 몇가지들을 복습하겠다.
