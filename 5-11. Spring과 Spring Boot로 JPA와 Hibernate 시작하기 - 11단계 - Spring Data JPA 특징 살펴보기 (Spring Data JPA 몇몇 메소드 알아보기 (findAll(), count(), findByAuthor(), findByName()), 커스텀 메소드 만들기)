@@ -1,0 +1,162 @@
+
+
+JDBC, JPA, Spring Data JPA를 파악했으니 Spring Data JPA를 좀 더 파헤쳐보겠다
+CommandLineRunner로 돌아가보자
+
+
+-----------------------------------------------------------------------------------------------------------
+
+
+⏺ CourseCommandLineRunner 클래스파일
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.*;
+import org.springframework.stereotype.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.jpa.*;
+
+@Component
+public class CourseCommandLineRunner implements CommandLineRunner{
+
+//	@Autowired
+//	private CourseJpaRepository repository;
+    
+    @Autowired
+    private CouserSpringDataJpaRepository repository;
+
+	@Override
+	public void run(String... args) throws Exception {
+   
+		repository.save(new Course(1, "Learn AWS Jpa!", "in28minutes"));
+		repository.save(new Course(2, "Learn Azure Jpa!", "in28minutes"));
+		repository.save(new Course(3, "Learn DevOps Jpa!", "in28minutes"));
+
+    repository.deleteById(1l);
+		
+    System.out.println(repository.findById(2l));
+		System.out.println(repository.findById(3l));
+
+    //1: 여기에서 SpringDataJpaRepository에 몇 가지를 추가해볼것이다
+    //그럼 repository.findAll을 입력한다 과정을 전부 찾을 건데 이게 그 방법이다
+    //syso을 입력한 다음 멈췄다가 시작해서 뭐가 출력되는지 보자 애플리케이션을 다시 시작해보면
+    repository.findAll();
+    /*출력결과 ==>
+    LearnJpaAndHibernateApplication in 3.542 seconds (process running for 4.125)
+    Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+    Hibernate: insert into course (author,name,id) values (?,?,?)
+    Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+    Hibernate: insert into course (author,name,id) values (?,?,?)
+    Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+    Hibernate: insert into course (author,name,id) values (?,?,?)
+    Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+    Hibernate: delete from course where id=?
+    Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+    Optional[Course [id=2, name=Learn Azure Jpa!, author=in28minutes]]
+    Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+    Optional[Course [id=3, name=Learn DevOps Jpa!, author=in28minutes]]
+    모든 과정이 여기에 출력되는 게 보인다 
+    출력된 마지막 목록이 과정 2개였는데, 여기에 실행되는 쿼리가 보인다  Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+    그러니까 SELECT * FROM COURSE라는 쿼리를 실행하고 있는 걸 알 수 있다
+    */
+
+    //2: 원한다면 repository.count라는 걸 써서 엔티티가 몇 개 있는지 셀 수도 있다 SELECT COUNT(*)과 비슷하다 
+    System.out.println(repository.count()); 
+
+    /*
+    SpringDataJpaRepository에서 좋아하는 멋진 기능이 커스텀 메서드를 추가할 수 있다는 것이다
+    //지금 JpaRepository가 정의하는 메서드가 몇 가지 있는데 그걸 활용할 수 있다 
+    public interface CouserSpringDataJpaRepository extends JpaRepository<Course, Long>{
+
+    }
+    */
+    //그런데 여기에 몇 가지 커스텀 메서드도 정의할 수 있다 
+    //예를 들어 Course를 보면 author이 있다, author로 검색하고 싶다면 그런 상황에선 명명 규칙을 따라야 한다 //3: CouserSpringDataJpaRepository인터페이스로...
+
+    //4: repository.findByAuthor("in28minutes")를 입력해준다 
+    System.out.println(repository.findByAuthor("in28minutes"));
+    //Bean 문자열로도 findByAuthor을 입력하겠다 그래야 제대로 돌아가겠지 애플리케이션을 멈췄다 다시시작
+    /* 실행결과 ==>
+      ..
+      ...
+      Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+      Optional[Course [id=3, name=Learn DevOps Jpa!, author=in28minutes]]
+      Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0
+      [Course [id=2, name=Learn Azure Jpa!, author=in28minutes], Course [id=3, name=Learn DevOps Jpa!, author=in28minutes]]
+      Hibernate: select count(*) from course c1_0
+      2
+      Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.author=?
+      [Course [id=2, name=Learn Azure Jpa!, author=in28minutes], Course [id=3, name=Learn DevOps Jpa!, author=in28minutes]]
+      Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.author=?
+      []
+
+      뭐가 보이니 여기에 쿼리의 결과가 나온다 
+      Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.author=? 여기가 author 쿼리가 있는 부분이다
+      author in28minutes에 대한 쿼리는 이것이다 여기 [Course [id=2, name=Learn Azure Jpa!, author=in28minutes], Course [id=3, name=Learn DevOps Jpa!, author=in28minutes]] 행 2개가 출력된게 보이지?,
+      이건 
+      Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.author=?
+      []
+      author을 Bean문자열로 한 쿼리라서 출력된 행이 없다
+      */
+      //이제 Course 이름으로 검색하는 메서드를 작성해보자 //5: CouserSpringDataJpaRepository 인터페이스로..
+
+      //6:repository.findByName("")을 입력해준다 그런데 name은 특정해줘야 한다 Learn AWS Jpa!와 Learn DevOps Jpa!로 해보자
+      //애플리케이션을 멈췄다 다시 시작하고 
+      System.out.println(repository.findByName("Learn AWS Jpa!"));
+      System.out.println(repository.findByName("Learn DevOps Jpa!"));
+      /*실행결과 ==>
+      Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.name=?
+      []
+      Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.name=?
+      [Course [id=3, name=Learn DevOps Jpa!, author=in28minutes]]
+      첫 번째 결과에 아무것도 안나온건 delete가 있어서 그렇고 두번째는 
+      [Course [id=3, name=Learn DevOps Jpa!, author=in28minutes]]Learn DevOps Jpa가 출력되었다 
+      */
+    }
+	
+}
+
+----------------------------------------------------------------
+
+
+
+⏺ CouserSpringDataJpaRepository 인터페이스
+
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.springdatajpa;
+
+import java.util.*;
+
+import org.springframework.data.jpa.repository.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.*;
+
+public interface CouserSpringDataJpaRepository extends JpaRepository<Course, Long>{
+	
+	//3: 명명 규칙은 findBy 다음에 클래스의 속성 이름이 나온다 클래스의 속성 이름은 author이다 
+	//findByAuthor을 입력한다 인터페이스에 findByAuthor로 메서드를 정의해야 한다 소문자 a만 대문자 A로 바꿔주고 
+	//findByAuthor이 입력값으로 뭘 받지? (author)을 입력값으로 받아야지? 그럼 뭘 반환하지? 당연히 Course 목록을 반환한다, List<Course>라 하고 이제 가서 findByAuthor을 입력하면 된다 
+	//저장 후 CourseCommandLineRunner로 가서...//4:CourseCommandLineRunner 클래스파일로..
+	List<Course> findByAuthor(String author);
+
+  //5: findByName으로 메서드를 정의하면 이름으로 검색할 때 여러 과정이 나올 것이다 저장하고 //6: CourseCommandLineRunner클래스파일로..
+	List<Course> findByName(String name);	
+}
+
+
+-----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+지금까지 몇 단계에 걸쳐서 Spring JDBC부터 JPA, Spring Data JPA까지 전부 살펴봤다 
+Spring Data JPA의 위력도 알 수 있었다 
