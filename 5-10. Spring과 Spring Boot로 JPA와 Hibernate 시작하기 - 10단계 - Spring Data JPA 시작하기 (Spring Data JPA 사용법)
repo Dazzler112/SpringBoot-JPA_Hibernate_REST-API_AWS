@@ -1,0 +1,164 @@
+
+
+JDBC to Spring JDBC to JPA to Spring Data JPA
+                                                                                         ______________________                                                                                                                            
+● JDBC                                                                                  |   Spring Data JPA    |                                                                                                                       
+ ■ Write a lot of SQL queries! (delete from todo where id=?)                             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                             
+ ■ And write a lot of Java code                                                          ______________________                                                                                                                            
+● Spring JDBC                                                                           |         JPA          |                                                                                                                   
+ ■ Write a lot of SQL queries (delete from todo where id=?)                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+ ■ BUT lesser Java code                                                                  ______________________                                                                                                                             
+● JPA                                                                                   |     Spring JDBC      |                                                                                                                      
+ ■ Do NOT worry about queries                                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+ ■ Just Map Entities to Tables!                                                          ______________________                                                                                                                            
+● Spring Data JPA                                                                       |         JDBC         |                                                                                                             
+ ■ Let's make JPA even more simple!                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   
+ ■ I will take care of everything!                                                                                                                                      
+                                                                                                                                    
+
+
+지난 단계에서 이렇게 배웠다, JDBC로는 SQL 쿼리를 많이 작성하고 Java 코드도 많이 작성하지만 
+Spring JDBC로는 SQL 쿼리를 많이 작성하는데 Java 코드는 적게 작성한다고 
+그리고 JPA로는 쿼리를 신경쓸 필요가 없다 주요 부분은 엔티티를 테이블에 매핑하기만 하고 EntityManager를 활용하면 된다 
+
+그럼 Spring Data JPA는 어떤 문제를 해결할까?
+● Spring Data JPA 
+ ■ Let's make JPA even more simple! 
+Spring Data JPA로는 JPA가 한결 더 간편해진다
+ ■ I will take care of everything!     
+EntityManager도 신경 쓸 필요가 없다 이게 다 알아서 해준다 
+그럼 바로 Spring Data JPA의 마법을 살펴볼까?
+
+CourseJpaRepository로 가보겠다 새로운 인터페이스를 생성하겠다  
+Course가 엔티티 클래스지?, 여기에 매핑을 정의했다 이제 CouserSpringDataJpaRepository를 생성하고 course.springdatajpa에 넣겠다 
+Spring Data JPA를 이용할 때는 인터페이스를 활용하는데, JpaRepository라는 특정 인터페이스를 extends로 상속받아야 한다
+
+-----------------------------------------------------------------------------------------------------------
+
+
+⏺ CouserSpringDataJpaRepository 인터페이스파일
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.springdatajpa;
+
+import org.springframework.data.jpa.repository.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.*;
+
+//1: extends JpaRepository 상속 이건 JPA 특정 Repository 상속에 해당하고 org.springframework.data.jpa.repository패키지 안에 있다
+//extends JpaRepository라 입력하고 <T,ID>에 처음으로 설정할 것은 어떤 엔티티를 관리할지이다 우리는 Course를 관리할 거지? ID 필드는 뭘까? ID필드는 Long 타입이다
+//그럼 Course 클래스에는 public class Course가 엔티티이고, ID필드는 Long 타입이다 (Course 클래스 봐서 확인해봐 맞는지 아닌지)
+//이제 Spring Data JPA를 활용해보자 CourseCommandLineRunner로 돌아가서 //2: CourseCommandLineRunner클래스파일로..
+public interface CouserSpringDataJpaRepository extends JpaRepository<Course, Long>{
+
+}
+
+
+-------------------------------------------------------------
+
+
+
+⏺ CourseCommandLineRunner 클래스파일
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course;
+
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.*;
+import org.springframework.stereotype.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.jpa.*;
+
+@Component
+public class CourseCommandLineRunner implements CommandLineRunner{
+
+  //2: 여기에 JpaRepository를 사용하려는 건 아니다 우리는 새로운 것을 사용하려는 것이다 우리에겐 새로 알게된 아이가 있다, 아래에서 계속 작성..
+//	@Autowired
+//	private CourseJpaRepository repository;
+    
+    //2: @Autowired private CouserSpringDataJpaRepository repository를 입력하고 저장
+    //이렇게 SpringDataJpaRepository는 사용이 아주 쉽다 이제 할 일은 insert를 save로 바꿔주는 것이다 //2-1: run메소드로...
+    @Autowired
+    private CouserSpringDataJpaRepository repository;
+
+	@Override
+	public void run(String... args) throws Exception {
+   
+    //2-1: save를 넣고 ,SpringDataJpaRepository의 메서드는 insert가 아니라 save이다 
+		repository.save(new Course(1, "Learn AWS Jpa!", "in28minutes"));
+		repository.save(new Course(2, "Learn Azure Jpa!", "in28minutes"));
+		repository.save(new Course(3, "Learn DevOps Jpa!", "in28minutes"));
+
+    //이제 타입만 바꿔주면 되는데, 여기에 정수를 전달하고 있다 매서드는 long 타입을 예상하기 때문에 끝에 l을 붙여주고 그러면 1l, 2l, 3l이 된다
+		//CourseJpaRepository와 CourseJdbcRepository에서 사용하는 메서드는 이름은 반드시 일치시켜줘야한다 deleteById와 findById 메서드가 SpringDataJpaRepository에서 제공되고 있기때문이다
+    repository.deleteById(1l);
+		
+    System.out.println(repository.findById(2l));
+		System.out.println(repository.findById(3l));
+
+    //이어서 repository.을 입력하면 엔티티를 활용할 수 있는 여러 가지 메서드를 폭넓게 제공하고 있다, 여기에서 Spring Data JPA를 활용할 때마다 EntityManager에 연결할 필요가 전혀 없다
+    //EntityManager도 백그라운드에서 이루어지니까 JpaRepository를 extends로 상속받아 인터페이스를 생성하기만 하면 되고, 좋은 메서드가 아주 많이 제공되고 있다
+    //이용할 수 있는 엔티티를 세어볼 수 있고 엔티티를 삭제하거나 원하면 많은 것들을 Batch로 삭제할 수도 있고 ID로 삭제할 수도 있다 
+    //더 아래로 내리면 existById가 보이는데, 이걸로 특정 ID를 가진 엔티티가 존재하는지 확인할 수 있다, findAll을 입력해서 특정 테이블에 있는 모든 인티티를 찾을수도 있고,
+    //이런 메서드들이 여기에 아주 많이 제공되어 있다 save메서드는 벌써 사용해 봤다 save엔티티를 업데이트하거나 삽입할 때 사용한다 지금은 이걸 지우겠다 세이브 후 서버 다시시작
+    //repository.
+	}
+	
+}
+
+
+-------------------------------------------------------------
+
+실행결과 ==>
+
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Hibernate: insert into course (author,name,id) values (?,?,?)
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Hibernate: insert into course (author,name,id) values (?,?,?)
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Hibernate: insert into course (author,name,id) values (?,?,?)
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+Hibernate: delete from course where id=?
+Hibernate: select c1_0.id,c1_0.author,c1_0.name from course c1_0 where c1_0.id=?
+
+로그를 보면 대부분이 전과 똑같다는 걸 알 수 있다 
+하지만 가장 큰 차이는 Spring Data JPA로는 코드를 훨씬 더 적게 써도 된다는 것이다
+CourseSpringDataJpaRepository인데 
+
+public interface CouserSpringDataJpaRepository extends JpaRepository<Course, Long>{
+
+}
+
+우리는 그냥 이 인터페이스만 생성하면 된다 
+-----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+JDBC to Spring JDBC to JPA to Spring Data JPA
+                                                                                         ______________________                                                                                                                            
+● JDBC                                                                                  |   Spring Data JPA    |                                                                                                                       
+ ■ Write a lot of SQL queries! (delete from todo where id=?)                             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                             
+ ■ And write a lot of Java code                                                          ______________________                                                                                                                            
+● Spring JDBC                                                                           |         JPA          |                                                                                                                   
+ ■ Write a lot of SQL queries (delete from todo where id=?)                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+ ■ BUT lesser Java code                                                                  ______________________                                                                                                                             
+● JPA                                                                                   |     Spring JDBC      |                                                                                                                      
+ ■ Do NOT worry about queries                                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+ ■ Just Map Entities to Tables!                                                          ______________________                                                                                                                            
+● Spring Data JPA                                                                       |         JDBC         |                                                                                                             
+ ■ Let's make JPA even more simple!                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   
+ ■ I will take care of everything!                                                                                                                                      
+                                                                                                                       
+
+몇 단계에 걸쳐서 Spring JDBC부터 JPA, Spring Data JPA까지 쭉 살펴봤다
+Spring Data JPA를 쓰면 JPA가 정말 쉬워진다는 걸 배웠다 
+엔티티를 정의하는 일만 하면 된다, 엔티티가 준비되고 나면 CouserSpringDataJpaRepository 클래스를 생성하고 
+JpaRepository를 상속받으면서 엔티티와 ID를 지정해주면 된다 
+이렇게 하면 많은 마법이 실제로 일어나는 걸 볼 수 있었다 
