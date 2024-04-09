@@ -1,0 +1,221 @@
+
+
+이번 섹션 마지막 단계인데, 가장 중요한 질문을 살펴보기로하자
+바로 Hibernate와 JPA의 차이이다 Hibernate는 뭘까? JPA는? 이 둘의 차이점은 뭐지?
+지난 몇 단계에서 JPA를 살펴봤는데 JPA를 이용하면 DB연결이 아주 쉬워졌다 
+
+CourseJpaRepository에서 사용한 임포트를 한번 보고 임포트를 살펴보자 
+
+--------------------------------------------------------
+
+
+CourseJpaRepository 클래스파일
+
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course.jpa;
+
+import org.springframework.stereotype.*;
+
+import com.springstudy.springboot.learnjpaandhibernate.course.*;
+
+import jakarta.persistence.*;
+import jakarta.transaction.*;
+
+@Repository
+@Transactional
+public class CourseJpaRepository {
+
+	@PersistenceContext 
+	private EntityManager entityManager;
+	
+	public void insert (Course course) {	
+		entityManager.merge(course);
+	}
+	
+	public Course findById(long id) {
+		return entityManager.find(Course.class, id);
+	}
+	
+	public void deleteById(long id) {
+		Course course = entityManager.find(Course.class, id);
+		entityManager.remove(course);
+	}
+}
+
+
+jakarta.persistence 여기도 jakarta.persistence이다 그다음 Course로 가보자
+
+--------------------------
+
+Course 클래스파일
+
+
+package com.springstudy.springboot.learnjpaandhibernate.course;
+
+import jakarta.persistence.*;
+
+@Entity
+public class Course {
+
+	@Id
+	private long id;
+	
+	private String name;
+	
+	private String author;
+
+	public Course () {
+		
+	}
+	
+	public Course(long id, String name, String author) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.author = author;
+	}
+
+
+	public long getId() {
+		return id;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public String getAuthor() {
+		return author;
+	}
+	
+	
+	public void setId(long id) {
+		this.id = id;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+
+	@Override
+	public String toString() {
+		return "Course [id=" + id + ", name=" + name + ", author=" + author + "]";
+	}
+
+}	
+
+우리가 사용하고 있는 어노테이션이 뭐지? jakarta.persistence.Entity와 jakarta.persistence.Id이다
+--------------------------------------------------------
+
+이번섹션에선 지금까지 Hibernate 어노테이션은 전혀 사용하지 않았는데 
+Maven 종속성으로 넘어가보겠다
+왼쪽의 Package Explorer의 Maven Dependencies를 열어보자
+Maven 종속성을 넓혀보면 jakarta.persistence-api-3.1.0.jar이 보이는데 이게 JPA JAR이다
+여기에 hibernate.jar도 보일것이다 위로 올라가 hib를 쳐보면 hibernate-core-6.4.4.Final.jar가 보인다 Hibernate도 클래스 경로에 있다는 걸 알 수 있다
+그럼 어떻게 Hibernate와 JPA 종속성이 들어왔을까? pom.xml을 열면 spring-boot-starter-data-jpa라는 게 보인다
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+아래의 Dependency Hierarchy를 들어가면 Filter에 hibernate를 쳐보겠다
+
+▼ 🧴 spring-boot-starter-data-jpa : 3.3.0-M3 [complile]
+  ▼ 🧴 hibernate-core : 6.4.4.Final [compile]
+    ▼ 🧴 hibernate-commons-annotations : 6.0.6 Final [runtime]
+Hibernate 종속성 두 가지가 보일건데, spring-boot-starter-data-jpa로 들어가고 있는 것이다
+
+그리고 이제 jpa를 검색해준다 jakarta.persistence.api인데
+▼ 🧴 spring-boot-starter-data-jpa : 3.3.0-M3 [complile]
+  ▼ 🧴 hibernate-core : 6.4.4.Final [compile]
+    ▼ 🧴 jakarta-persistence-api : 3.1.0 [complile]
+Jakarta Persistence API나 JPA가 어떻게 들어오지? 
+여기 보면 spring-boot-starter-data-jpa를 통해 들어오는 걸 알 수 있다 
+
+pom.xml에선 JPA와 Hibernate 둘 다 얻어오고 있는데 하지만 코드에선 JPA만 사용하고 있다 
+JPA 어노테이션만 사용했다 
+
+
+
+
+
+
+Hibernate vs JPA
+
+                                                                                         ______________________                                                                                                                            
+● JPA defines the specification. It is an API.                                          |      Application     |                                                                                                                       
+ ■ How do you define entities?                                                           ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                             
+ ■ How do you map attributes?                                                            ______________________                                                                                                                            
+ ■ Who manages the entities?                                                            |   Spring Data JPA    |                                                                                                                   
+● Hibernate is one of the popular implementations of JPA                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+● Using Hibernate directly would result in a lock in to Hibernate                        ______________________                                                                                                                             
+ ■ There are other JPA implementations (Toplink, for example)                           |         JPA          |                                                                                                                      
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+                                                                                         ______________________                                                                                                                            
+                                                                                        |       Database       |                                                                                                             
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            
+
+
+
+이런 맥락에서 보면 Hibernate와 JPA의 차이는 무엇일까?
+● JPA defines the specification. It is an API. 
+JPA는 기술명세를 정의한다 API이다.
+JPA는 인터페이스와 비슷하다 
+ ■ How do you define entities?
+엔터티가 무엇인지 정의하는 방식을 정의한다
+엔터티를 정의하는 방법은 @Entity 어노테이션을 추가하는 건데
+Course.java에서 @Entity 즉, jakarta.persistence.Entity를 활용했다 
+@Entity
+public class Course {....
+그러니까 JPA API를 사용하고 있는 것이다 
+기본 키는 어떻게 정의하지? jakarta.persistence.Id를 사용한다 , 
+	@Id
+	private long id;
+ ■ How do you map attributes? 
+속성은 어떻게 매핑할까?
+@Column이라는 어노테이션을 배웠다 @Column 어노테이션을 보면 이게 어디서 오고 있지? jakarta.persistence API에서 온다 
+
+ ■ Who manages the entities? 
+JPA를 이용하면 엔터티 정의, 속성매핑 그리고 EntityManager를 활용하는 것까지 가능해진다 
+예를 들어 EntityManager에 있는 메서드를 정의해준다 
+● Hibernate is one of the popular implementations of JPA
+그리고 Hibernate는 JPA에서 매우 인기 있는 구현체인데 JPA는 API를 정의하고 
+JPA는 객체를 테이블로 매핑하는 방식을 정의하고 Hibernate는 그걸 구현한다, 
+● Using Hibernate directly would result in a lock in to Hibernate
+Hibernate는 JPA에서 가장 인기 있는 구현체이다
+
+코드에서 Hibernate를 직접 사용할 수 있는 옵션이 있는데 Hibernate를 어떻게 직접 사용할까? Hibernate 어노테이션을 사용하는 것이다 
+
+package com.springstudy.springboot.learnjpaandhibernate.course;
+
+import jakarta.persistence.*;
+
+//예를들어 Entity로 가서 ctrl + 스페이스를 누르면 jakarta.persistence 엔터티가 보이는데,org.hibernate.annotations라는 엔터티도 있다 
+//org.hibernate.annotations 엔터티를 사용하면 Hibernate를 직접 사용하게 되는 것이다 하지만 우리는 Hibernate를 직접 사용하는 게 아니라 JPA를 사용하고 있는 것이다
+//Hibernate JAR를 클래스 경로에 추가해서 Hibernate를 JPA 구현체로 사용하고 있다
+@Entity
+public class Course {
+.....
+}
+
+코드에서 Hibernate 어노테이션을 직접 사용하지 않는 이유는 Hibernate로만 한정해서 쓰고 싶지 않기 때문이다
+ ■ There are other JPA implementations (Toplink, for example)      
+다른 JPA 구현체도 사용할 수 있는데 그 중 하나가 Toplink라고 하는 것이다 
+
+
+
+
+
+
+
+이번 단계에서 가장 중요하게 배울 점은 JPA가 API라는 것이다 
+기술 명세를 정의하고 엔터티를 매핑하는 방법, 속성을 매핑하는 방법, EntityManager를 활용하는 방법을 정의한다
+코드에서 항상 JPA를 사용하는 게 좋다 
+JPA를 코드에서 사용하고 나면 Hibernate를 JPA 구현체로 사용할 수 있다 
