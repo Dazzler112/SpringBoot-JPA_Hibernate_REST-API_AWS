@@ -1,0 +1,38 @@
+
+
+Building Your First Web Application
+                                                                                                                                          
+● Building Your First Web Application can be complex:                                                                                                                                          
+ ■ Web App concepts (Browser, HTML, CSS, Request, Response, Form, Session, Authentication)                                                                                                                                          
+ ■ Spring MVC (Dispatcher Servlet, View Resolvers, Model, View, Controller, Validations ..)                                                                                                                                          
+ ■ Spring Boot (Starters, Auto Configuration, ..)                                                                                                                                          
+ ■ Frameworks/Tools (JSP, JSTL, JPA, Bootstrap, Spring Security, MySQL, H2)                                                                                                                                          
+                                                                                                                                          
+● Goals: Build Todo Management Web App with a Modern Spring Boot Approach                                                                                                                                          
+ ■ AND explore all concepts in a HANDS-ON way                                                                                                                                          
+                                                                                                                                          
+                                                                                                                                          
+                                                                                                                                          
+                                                                                                                                          
+                                                                                                                                          
+                                                                                                                                          
+
+Spring Boot 에서 처음으로 웹 애플리케이션을 제작하려 하니 설례일 것이다 
+그럼 시작해 보겠다 
+● Building Your First Web Application can be complex: 
+너가 이해해야 하는 웹 애플리케이션 개념들이 많이 있다, 브라우저가 어떻게 작동하는지도 알아야 하고 
+ ■ Web App concepts (Browser, HTML, CSS, Request, Response, Form, Session, Authentication)     
+HTML, CSS, 요청, 응답, 양식, 세션, 인증 등도 알아야한다
+  ■ Spring MVC (Dispatcher Servlet, View Resolvers, Model, View, Controller, Validations ..)   
+그리고 Spring MVC 개념도 약간 알아야 한다, 디스패치 서블릿이나 뷰 리졸버, 모델, 뷰, 컨트롤러, 검증 등도 알아야 하고 
+  ■ Spring Boot (Starters, Auto Configuration, ..)           
+그리고 물론 Spring Boot도 알아야 한다, 사용해야 할 스타터나 트리거할 자동 설정도 알아야 한다 
+ ■ Frameworks/Tools (JSP, JSTL, JPA, Bootstrap, Spring Security, MySQL, H2)         
+그리고 또 많은 프레임워크와 툴을 통합해야 한다 너는 JSP, JSTL, JPA등을 통합해야 하고 Bootstrap 같은 CSS 프레임워크도 사용해야 할 것이다
+Spring Security를 써서 애플리케이션에 보안을 추가해야 하고, DB도 필요하고 MySQL이나 H2 같은게 필요하다
+ ● Goals: Build Todo Management Web App with a Modern Spring Boot Approach  
+ 이번 섹션의 목표는 현대적인 Spring Boot 접근법을 사용해서 To-do 관리 웹 애플리케이션을 구축하는 것이다 
+  ■ AND explore all concepts in a HANDS-ON way       
+우린 이런 모든 개념들을 실용적인 방식으로 탐색해볼 것이고 단계별 접근법을 사용해서 모든 걸 간단히 이해할 수 있을 것이다 
+
+
