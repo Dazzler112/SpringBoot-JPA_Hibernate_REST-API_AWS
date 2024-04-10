@@ -1,0 +1,22 @@
+
+
+우린 Spring Boot로 웹 애플리케이션을 제작하려 한다, 그러면 Spring Boot로 프로젝트를 생성해야 할 것이다 
+Spring Boot 프로젝트를 만드는 가장 쉬운 방법은 뭘까? 가장 쉬운 방법은 Spring initializr를 사용하는 방법이다 
+start.spring.io라는 웹사이트다 (3트)
+너는 여기로 와서 몇 가지를 선택한 다음에 프로젝트를 다운로드해서 이걸 IDE에서 임포트할 수 있다 
+그게 우리가 이 단게에서 우리가 할 일들이다 
+
+빌드 툴은
+Project 항목 Maven Project > Language 항목 Jave > Spring Boot3를 사용하고 있고 Spring Boot 항목은 마일스톤(M3) 별도 릴리즈 버전이 있으면 그걸 사용 그게 권장 사항이다 (다시 말하지만 SNAPSHOT은 절대 사용X 아직 개발중인 버전이다)
+> 여기에 몇 가지 중요한 걸 입력해야 하는데 Group ID와 Artifact ID이다 우리가 클래스를 만들 때 클래스 이름을 지정해야 한다, 그리고 패키지를 지정한다, 그것과 마찬가지로 너가 프로젝트를 만들 때는 언제나 그룹을 지정하고 아티팩트를 지정해야 한다
+ Project Metadate 항목의 Group명은 com.firstapplication.springboot이고 사용할 Artifact는  myfirstwebapp이다 그리고 최소한 Java 17을 사용하도록 하라 Spring Boot 3는 Java 17이상에서만 작동하기 때문이다 항상 Java 최신 버전을 사용하길 권장한다
+> 그리고 프로젝트를 사용할때는 의존성이 필요하다 이것들이 너가 프로젝트를 제작하는 데 필요한 프레임워크다 오른쪽의 Dependencies 항목에서 ADD DEPENDENCIES .. 버튼 클릭 1.우린 어떤 프로젝트를 제작하니? 우린 웹 애플리케이션을 제작하고, Spring Boot로 웹 애플리케이션을 구축하기 위해 너는 Spring Web이 필요하다 Spring MVC를 이용해서 RESTful을 비롯한 웹 애플리케이션을 구축한다 되어 있다 기본 임베디드 컨테이너로서 Apache Tomecat을 사용한다 Spring MVC를 사용해서 웹 애플리케이션을 구축할 것이고, 그게 Apache Tomcat에 배포될 것이다 그럼 Spring Web 사용 
+  2. 그리고 의존성 추가 이름은 DevTools이다, 보면 개발 경험 향상을 위해 빠른 애플리케이션 재시작, 라이브리로드, 구성을 제공한다고 되어 있다 우린 코드를 변경할 때마다 애플리케이션을 수동으로 재시작하길 원치 않는다, 그게 자동으로 되길 바란다 그게 바로 Spring Boot DevTools가 제공하는 기능이다 선택 
+  이렇게 모든 세부사항을 설정했고
+>  Generate를 클릭해 보자 그러면 다운로드 폴더로 zip 파일이 다운로드 될것이다 sts로 간후 오른쪽의 Package Explorer 에서 > 빈공간 오른쪽클릭 > import > Existing Maven Project > Root Directory에서 Browse 클릭해서 압축푼 폴더 선택후 > Finish 클릭 5~10분 다운후 사용 할 수 있다
+
+
+
+
+
+이번 단계에선 Spring initializr를 써서 SpringBoot 프로젝트르 만들었고, 프로젝트를 IDE에 임포트 했다 
