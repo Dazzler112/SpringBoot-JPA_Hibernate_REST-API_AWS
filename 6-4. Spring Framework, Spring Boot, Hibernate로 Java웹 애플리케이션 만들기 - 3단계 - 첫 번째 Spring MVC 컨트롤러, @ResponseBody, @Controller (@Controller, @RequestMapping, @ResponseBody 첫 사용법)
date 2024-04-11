@@ -1,0 +1,201 @@
+
+
+첫 번째 웹 애플리케이션 제작은 정말 복잡해 보일 수 있는데 그래도 한 번에 하나씩 배워가면, 
+나중에는 배운 모든 것들을 전체적으로 이해할 수 있게된다 
+이 강의에선 바로 그런 식으로 배우고 있다
+
+이번 단계에선 웹 에플리케이션으로 부터 간단한 Hello World란 응답을 제공하는 것부터 시작해 보겠다 
+
+com.firstapplication.springboot.myfirstwebapp으로 가보자
+여기서 새로운 클래스를 만들자 
+com.firstapplication.springboot.myfirstwebapp.hello 란 hello 패키지를 새로 만들고 그안에 SayHelloController라는 클래스를 만들 것이다
+우리가 앞으로 만드는 모든 패키지는 myfirstwebapp의 서브 패키지라는 점을 꼭 기억해주기 바란다 
+그럼 myfirstwebapp 아래에 hello라는 이름의 서브 패키지를 만들고 있는 것이다 
+그리고 그 안에 SayHelloController라는 이름을 넣는다 
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ SayHelloController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.hello;
+
+import org.springframework.web.bind.annotation.*;
+
+public class SayHelloController {
+
+	//1: 너는 여기에 Hello World 기능을 추가하려 한다 그럼 URL을 만들어 보자 "say-hello"라고 하고 
+	//이건 "Hello! What are you learning today?" 라는 문자열로 다시 응답을 해야 한다 
+	//이게 누군가가 우리 애플리케이션의 이 URL을 건드르면 우리가 리턴할 메시지라고 해보자 이걸 어떻게 할 수 있을까?
+	//너는 문자열을 리턴하는 걸 볼 수 있고 그럼 문자열을 리턴하는 메서드를 만들어보자
+	//그럼 public String이라고 한다, 우린 이걸 화면에 표시하길 원하기 때문에 문자열을 리턴해야 한다, 이름은 sayHello()라고 하자
+	
+	//"say-hello" => "Hello! What are you learning today?"
+	
+	//say-hello
+	// http://
+	
+	//1-1: @RequestMapping 너는 요청 URL을 이 메서드에 매핑할 수 있다 우린 URL을 이 메서드에 매핑하려고 한다 그럼 요청 URL을 이 메서드에 매핑하는 것이다
+	//여기서 매핑하려는 URL은 뭘까? say-hello를 "" 큰 따옴표 안에 넣는다 이렇게 괄호 안의 큰 따옴표 안에 say-hello라고 넣으려고 한다, 여기서 하는 건 아주 간단한 것이다, 
+	//@RequestMapping()에서 "say-hello"라고 하고 이 문자열을 리턴하고 있다 애플리케이션에서 이 URL을 건드리면 우린 return 안에 있는걸 리턴하려고 한다 
+	//또한 어플리케이션을 실행하려 하면 여기서 실행할 수가 없다 왜냐하면 main메서드가 없기 때문이다 그럼 main()매서드는 어디에 있을까? MyfirstwebappApplication에 main()메서드가 있다 저 클래스로 가서 Run As선택후 > 1 Java Application을 실행할 수 있다
+	@RequestMapping("say-hello")
+	public String sayHello() {
+		
+		//1 계속 : 그리고 코드를 약간 추가할 것이다 우린 여기 텍스트를 리턴하려 하지, 그리고 그 텍스트를 리턴하기 위해..	
+		//하지만 언제 이 텍스트를 리턴해야 할까? 누군가가 이 URL을 호출했을 때다, 즉 누군가 /say-hello로 갔을때 우린 이걸 리턴하려고 한다 
+		//그걸 어떻게 설정할 수 있을까? 그럼 이 메서드를 위해 어떻게 URL을 설정할 수 있을까? Spring MVC가 너희들에게 어노테이션을 제공한다 
+		//그게 바로 @RequestMapping이다,//1-1: sayHello()메소드 위에 작성..
+		return "Hello! What are you learning today?";
+	}
+}
+
+
+----------------------------------------------------------------------------------------------------------
+
+애플리 케이션이 시작되었으면 이 URL을 실행해볼 수 있다 이것의 URL을 어떻게 찾을까? 
+일반적으로 URL은 http://로 시작한다 이게 어디에 있을까? 당신의 로컬 컴퓨터의 로컬 호스트에 있다
+그리고 사용하는 포트는 뭘까? 콘솔에 확인해 볼수가 있다 로그를 살펴보면 사용중인 포트를 볼 수 있다 port 8086 (http) with context path '/'
+(Spring Boot가 사용하는 기본 포트는 8080이지만 내가 기존에 했던 다른 프로젝트들이 있었기에 8086으로 바꿈)
+그럼 localhost:8086이라 해주고 /를 넣은 다음 say-hello라 해주자
+http://localhost:8086/say-hello 이다 이게 URL이 될 것이고 이걸 가져다 실행해보자
+-----------------------------------------------------
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Thu Apr 11 17:49:53 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+No static resource say-hello.
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource say-hello.
+	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)
+-----------------------------------------------------
+Whitelabel 오류 페이지라고 나온다 이 애플리케이션은 /error에 대한 명시적 매핑이 없고 그래서 이런 폴백 화면을 보고 있다 
+오류는 404 Not Found 404오류이다, 404는 펯이지가 존재하지 않는다는 뜻이다 
+즉 이 페이지가 존재하지 않는다고 애플리케이션이 불평하고 있는 것인데 왜일까?
+                                                                |
+                                                                V
+● 404가 나온 이유
+이렇게 되는 이유는
+첫째, 너가 Spring에게 이게 Spring Bean이라는 걸 알려줘야 하기 때문이다 
+
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ SayHelloController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.hello;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+//2: 에러가 나온이유
+//2:이렇게 된 이유는 너가 Spring에게 Spring Bean이라는 걸 알려줘야 하기 떄문 
+//그럼 이게 Spring Bean이라는 걸 어떻게 Spring에게 알릴까? 어노테이션을 추가해야 한다 흔히 사용되는 어노테이션은 @Service나 @Component 같은 것들이다
+//여기서 우리가 만들고 있는 건 요청을 처리하는 웹 UI 관련 컴포넌트이다 그걸 Controller라고 한다, 그래서 너는 여기에 @Controller라는 어노테이션을 추가해야 한다 //저장하고 다시 서버 실행
+@Controller
+public class SayHelloController {
+	
+	//"say-hello" => "Hello! What are you learning today?"
+	
+	//say-hello
+	// http://localhost:8086/say-hello
+	
+
+	@RequestMapping("say-hello")
+	public String sayHello() {
+		return "Hello! What are you learning today?";
+	}
+}
+
+----------------------------------------------------------------------------------------------------------
+
+가서 URL을 다시 검색해보자
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Thu Apr 11 18:01:17 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+No static resource Hello! What are you learning today.
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource Hello! What are you learning today.
+	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)
+
+그래도 역시 오류가 나는 걸 볼 수 있는데 
+                                                          |
+                                                          V
+● 404가 다시 나온 이유
+지금 오류가 나는 이유는 기본값으로서, Spring MVC는 너가 문자열을 리턴할 때 그 이름으로 된 뷰를 검색하기 때문이다 
+return "Hello! What are you learning today?"; 이 문자열을 그대로 리턴하지는 않는다 
+즉 뷰라는 걸 검색할 건데, 그걸 찾지 못하겠다 그래서 이런 오류가 나는 것이다 
+
+그럼 이제 @ResponseBody라는 어노테이션을 추가할 것이다 
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ SayHelloController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.hello;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class SayHelloController {
+	
+	//"say-hello" => "Hello! What are you learning today?"
+	
+	//say-hello
+	// http://localhost:8086/say-hello
+	
+	//3:이제 @ResponseBody라는 어노테이션을 추가할 것이다 
+	//이 @ResponseBody 어노테이션이 하는역할은 이 메시지가 리턴한 것 그대로를 브라우저에 리턴하는 것이다
+	//그럼 우리가 여기서 리턴하는 문자열이 그대로 브라우저로 전송될 것이다 //저장하고 브라우저 새로고침..
+	@RequestMapping("say-hello")
+	@ResponseBody
+	public String sayHello() {
+		return "Hello! What are you learning today?";
+	}
+}
+
+
+----------------------------------------------------------------------------------------------------------
+                            |||
+                             V 
+
+------------------------------------------------------------------
+http://localhost:8086/say-hello 브라우저 뷰 안 ==>
+
+Hello! What are you learning today?
+
+------------------------------------------------------------------
+사이트 URL을 검색하면 Hello! What are you learning today? 라는 문자열이 보인다 
+그럼 우리가 여기서 하고 있는 건.. 너가 URL http://localhost:8086/say-hello을 건드리면 문자열을 리턴하는 것이고
+그리고 그렇게 할기 위해서 그 문자열을 리턴하는 Java 메서드를 만들었다 
+
+
+
+
+우린 say-hello의 URL을 매핑하려고 했고 
+그 부분에서 우리는 @RequestMapping 어노테이션을 사용했다 
+우린 "Hello! What are you learning today?" 이 문자열을 그대로 리턴하려고 했다 
+그래서 우린 @ResponseBody 어노테이션을 썼다, 그리고 우리는 Spring이 우리가 말하려는 걸 관리하길 원했다,
+즉 이게 웹 요청을 처리하는 부분이다, 
+그래서 @Controller라는 어노테이션을 추가했다 
+여기서 볼 수 있듯이, 우리는 많은 것들을 얘기하고 있다 
+우리가 컨트롤러를 더 많이 제작해가면 모든 개념이 더욱 명확해지는 걸 알게 될 것이다
+
+● white label page가 나오면 확인해 봐야 할 사항
+ 이 단게에서 문제가 발생했다면 너는 먼저 모든 임포트가 적절히 있는지 확인해야 한다 
+즉, 너의 임포트가 여기 있는 것과 일치하는지 확인해야 하고 
+여기에 @Controller와 @RequestMapping, @RespnseBody가 있는지 확인해야 하고 
+그리고 너의 URL이 이 @RequestMapping 안에 잇는 것과 같은지 확인해야 한다 
+
+또 하나, 너는 SayHelloController가 myfirstwebapp의 서브 패키지에 생성되었는지 확인할 수 있다 
+여기서 우린 myfirstwebapp.hello 안에 그걸 생성하고 있다 
+즉, SayHelloController는 Application 클래스가 있는 패키지의 서브 패키지 안에 있는 것이다 
