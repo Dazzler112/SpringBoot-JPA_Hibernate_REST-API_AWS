@@ -160,3 +160,186 @@ sayHello라고 나왔다 그게 어디서 왔을까?
 여기에 @ResponseBody가 있으면 Spring MVC는 여기 있는 걸 바로 리턴하게 된다 
 하지만 우린 이걸 바로 리턴하길 원치 않는다, 우린 뷰 또는 jsp로 리디렉션을 하길 원한다 
 
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ SayHelloController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.hello;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class SayHelloController {
+
+	// "say-hello-jsp" => sayHello.jsp
+	// /src/main/resources/META-INF/resources/WEB-INF/jsp/sayHello.jsp
+  // /src/main/resources/META-INF/resources/WEB-INF/jsp/welcom.jsp
+  // /src/main/resources/META-INF/resources/WEB-INF/jsp/login.jsp
+  // /src/main/resources/META-INF/resources/WEB-INF/jsp/todos.jsp
+
+  //5: 그래서 @ResponseBody 어노테이션을 삭제할 것이다, 그리고 저장 그리고 다시 사이트에 접속해보자
+	@RequestMapping("say-hello-jsp")
+	public String sayHelloJsp() {
+		return "sayHello";
+	}
+}
+
+
+------------------------------------------------------------------------
+
+● White Label 페이지가 나올경우..
+
+오류에 대한 더 자세한 내용을 알아봐야하려면 너는 application.properties에 구성을 추가하면 그렇게 할 수 있다 
+
+
+
+⏺ application.properties 파일
+
+
+spring.application.name=myfirstwebapp
+server.port=8086
+
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+
+# logging.level.org.springframework 라고 해주자 그럼 너가 가준 모든 컨트롤러를 보면, 시작 부분에 org.springframework가 있다 우린 모든 걸 여기에 로깅하길 원한다
+# 그럼 logging.level.org.springframework를 설정하고, 그걸 debug 레벨로 설정하려 한다, 지금까지 너가 어떤 로그를 보든지 콘솔창에INFO 또는 WARN이다 더 자세한 정보를 프린트하려 한다, 그리고 더 자세한 정보를 프린트 하려 한다면 debug레벨을 요청할 수 있다//
+# 저장 저장하면 애플리케이션 재시작하고 훨씬 많은 정보가 프린트되는 걸 보게된다, 그리고 여기 DEBUG도 보인다 2024-04-12T19:28:04.564+09:00 DEBUG 1972 --- [myfirstwebapp] 
+# 이제 일반적인 내용 외에 디버그 정보도 프린트되고 있고 그러면 문제를 디버깅하는 데 도움이 될 것이다
+
+logging.level.org.springframework=debug
+
+
+디버그를 보니 멀쩡히 됐는데 코드가 작동하지 않고 있다 작동하지 않은 이유는 누락된 jar이 하나 더 있기 때문이다 
+그리고 애플리케이션에 jar 또는 의존성을 추가하려면 그걸 pom.xml에 추가해야 한다
+
+
+⏺ pom.xml
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	
+	
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>	
+	
+	</dependencies>
+
+애플리케이션의 pom.xml을 열 거고, 여기에 간단한 jar을 하나 추가할 것이다 <dependency>라 해주고 모든 dependency는 <groupId>가 있다
+그리고 <artifactId>가 있다 추가하려는 아티팩트에 대한 groupId는 org.apache.tomcat.embed이다 또 artifactId는 spring-boot-starter-test
+jsp를 tomcat에서 실행하려면 이런 의존성이 필요하다 이걸 이미 tomcat이 제공한다는 점이 좋다 그래서 provided라는 <scope>를 넣어주자 그리고 저장
+
+또 pom.xml을 변경할 때마다 너는 애플리케이션을 재시작해야 할 것이다/ 정지하고 다시 시작하자 그리고 사이트를 새로고침
+---------------------------------------------------------------------------------------------------------------------------
+
+                                                                |     웹사이트 접속
+                                                                V
+---------------------------------------------------------------
+
+http://localhost:8086/say-hello-jsp 웹사이트 결과 ==>
+
+
+My first html page with body
+
+---------------------------------------------------------------
+
+됐다
+My first html page with body라고 나온 걸 볼 수 있다, 
+그럼 그게 jsp에서 오고 있는지 확인해 볼까? 어떻게 할 수 있을까?
+
+sayHello.jsp로 가서 title과 body에 -JSP라고 넣어주겠다 후에 저장후 다시 접속
+
+---------------------------------------------------------------
+⏺ sayHello.jsp 파일
+
+<html>
+  <head>
+    <title>My first HTML page - JSP</title>
+  </head>
+  <body>
+    My first html page with body - JSP
+  </body>
+</html>
+
+
+                          | 사이트 접속
+                          V
+-------------------------------------
+
+http://localhost:8086/say-hello-jsp 웹사이트 결과 ==>
+
+
+My first html page with body - JSP
+
+---------------------------------------------------------------
+
+두 곳에 모두 JSP가 있는 걸 볼 수 있다
+
+
+
+
+
+
+● 지금까지 간단한 복습
+그럼 지금까지 뭘 헀는지 간단하게 복습해보자
+
+jsp에 관련해 우린 /say-hello-jsp로 요청을 전송하고 있고 이 요청을 누가 처리하지?
+
+@Controller
+public class SayHelloController {....
+
+SayHelloController가 처리한다 그럼 이게 컨트롤러고, 이 컨트롤러 안에서 어떤 메서드가 이 URL에 매핑을 하니?
+
+	@RequestMapping("say-hello-jsp")
+	public String sayHelloJsp() {
+		return "sayHello";
+	}
+
+sayHelloJsp()이다
+그럼 이 안에 요청을 처리하는 이 메서드가 있다 그리고 무엇을 리턴하고 있냐?
+jsp의 이름을 리턴하고 있다 
+즉 jsp의 이름인 sayHello를 리턴하고 있다 
+
+그리고 Spring MVC는 뷰 리졸버라는 걸 사용하고 있다 
+우리는 어디서 뷰 리졸버를 설정할까?
+
+server.port=8086
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+logging.level.org.springframework=debug
+
+우린 여기서(application.properties) 뷰 리졸버를 설정한다 
+우린 
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+이게 prefix(접두어)고 suffix(접미어)라고 해주고 있다
+그리고 여기서는 sayHelloJsp()메서드가 리턴한 너의 뷰 이름에 이런 접두어와 접미어가 첨가된다
+
+즉 이 sayHello가 여기에 첨가된다 그래서 접두어 /WEB-INF/jsp/ 뒤에 sayHello라는 jsp의 이름이 나오고 그 뒤에는 이런 .jsp라는 접미어가 붙는다
+그럼 이게 생성되고, 요청은 이 jsp로 리디렉션된다
+
+/say-hello-jsp => SayHelloController - sayHelloJSP method => sayHello (뷰 리졸버)
