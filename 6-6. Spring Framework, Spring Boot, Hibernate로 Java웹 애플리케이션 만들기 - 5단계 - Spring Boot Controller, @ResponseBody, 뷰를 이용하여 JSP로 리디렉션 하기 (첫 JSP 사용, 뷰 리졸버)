@@ -1,0 +1,162 @@
+
+
+앞선 단계에서 우리는 컨트롤러가 HTML을 리턴하도록 하고 그걸 브라우저에 표시했다 
+
+	@RequestMapping("say-hello-html")
+	@ResponseBody
+	public String sayHelloHtml() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("<html>");
+		sb.append("<head>");
+		sb.append("<title>My first HTML page</title>");
+		sb.append("</head>");
+		sb.append("<body>");
+		sb.append("My first html page with body");
+		sb.append("</body>");
+		sb.append("</html>");
+		
+		return sb.toString();
+	}
+
+하지만 그게 아주 복잡한 걸 확인했다 
+시간이 지나면 이 코드를 관리하는 건 정말 어려워질 것이고, 그래서 우리는 뷰라는 걸 사용한다
+
+그리고 가장 널리 사용되는 뷰 기술은 JSP, Java Server Pages라고 부르는 것이다 
+가장 오래된 뷰 기술이고, 또한 오늘날에도 가장 널리 사용되는 뷰 기술이기도 하다 
+
+그럼 JSP를 이용해서 뷰를 만들고 이번 단계에서 그걸 작동시켜볼까?
+
+그럼 너는 sayHello.jsp라는 이름의 JSP 파일을 만들 것이고 
+이 파일의 내용은 
+<html>
+  <head>
+    <title>My first HTML page</title>
+  </head>
+  <body>
+    My first html page with body
+  </body>
+</html>
+이것과 같을 것이다 
+
+그리고 컨트롤러도 있어야 겠지?
+우리는 이 메서드를 사용해서 이 특정한 JSP 페이지로 리디렉션을 하려고 한다 
+그럼 너가 say-hello-jsp라는 URL로 가면 sayHello.jsp로 리디렉션을 하려고 한다
+그게 우리가 하려는 것이다 
+
+
+---------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ SayHelloController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.hello;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class SayHelloController {
+
+	//1:우리가 매핑하려는 URL은 "say-hello-jsp"이다 그리고 여기서 @ResponseBody를 원치 않는다 그 이유는 뭘까? 여기에 @ResponseBody를 두면 어떻게 될까?
+  //예를 들어 return에 sayHello라고 적고 이제 우리가 jsp로 리디렉션을 하기 전에 그 jsp를 만들어야 할 것이다//우리는 어디에 jsp를 만들까? //2: 아래에서 ----- 칸에서 작성..
+
+  //3: 우린 이제 sayHello.jsp파일을 준비했고, 그게 어떤 폴더에 있었지? /src/main/resources/META-INF/resources/WEB-INF/jsp/ 이 폴더가 jsp가 들어 있는 곳이고, 여기로 리디렉션을 하려고 한다 
+  //그리고 여기서 "sayHello"라는 걸 리턴하고 있지 그게 jsp의 이름이고, 예를 들어 너한태 10개의 jsp가 있다고 해보자 그걸 어디서 만들까?
+  // /src/main/resources/META-INF/resources/WEB-INF/jsp/ 이런식이다 이름은 welcom.jsp 같은게 될 수도 있고 또는 login.jsp같은 것도 될 수 있다 
+  //그리고 나중에 우리는 Todo도 다룰 건데 그럼 todos.jsp라고 할 수도 있겠다 그럼 대부분의 경우에 변경되는 건 이름뿐이라는 걸 알 수 있다, 그래서 우린 일정한 부분을 우리의 프로퍼티 파일에 저장한다 
+  //그럼 application.properties를 열거고 //4:application.properties 파일로...
+
+	// "say-hello-jsp" => sayHello.jsp
+	// /src/main/resources/META-INF/resources/WEB-INF/jsp/sayHello.jsp
+  // /src/main/resources/META-INF/resources/WEB-INF/jsp/welcom.jsp
+  // /src/main/resources/META-INF/resources/WEB-INF/jsp/login.jsp
+  // /src/main/resources/META-INF/resources/WEB-INF/jsp/todos.jsp
+	@RequestMapping("say-hello-jsp")
+	@ResponseBody
+	public String sayHelloJsp() {
+		return "sayHello";
+	}
+}
+
+------------------------------------------------------------------------
+
+
+⏺ JSP 기본 구조
+
+//2:
+일반적으로 모든 jsp는 특정한 폴더 안에서 만들어야 한다 그 폴더는 Spring Boot에 의해 정의되고, 그래서 너는 모든 jsp를 /src/main/resources/META-INF/resources/WEB-INF/jsp/ 이 폴더 안에서 만들어야한다
+이 구조의 일부가 이미 여기에 생성되어 있는걸 볼 수 있다 src/main/resources는 있지만 이 구조의 나머지를 만들어야 한다 META-INF/resources/WEB-INF/jsp를 만들어야 한다 여기가 우리가 jsp를 만들 수 있는 곳이다
+그럼 여기서 우린 sayHello.jsp라는 jsp를 만들 수 있다 그럼 가서 이 구조를 먼저 만들어보자
+Project Explorer에 우클릭 > New > Folder > 만들 때 대 소문자 구분 주의! 하면서 위의 META-INF/resources/WEB-INF/jsp 경로대로 만들어주기
+그리고 우린 jsp라는 폴더 안에 모든 뷰를 만드려고 한다 그래서 맨 끝에 jsp가 있는 것이다 이안에 우리는 파일을 만드려고 한다 jsp폴더에 우클릭>New > File을 선택하고 이름을 sayHello.jsp라고 하겠다
+
+햇깔릴수 있다 이름만 보면, MEAT-INF, resources, WEB-INF, jsp이고 이 구조가 src/main/resources 아래에 있어야 한다 그리고 
+sayHello.jsp파일 안에 HTML 코드를 붙여넣는다
+
+
+⏺ sayHello.jsp 파일
+
+
+<html>
+  <head>
+    <title>My first HTML page</title>
+  </head>
+  <body>
+    My first html page with body
+  </body>
+</html>
+
+그럼 우리가 컨트롤러에서 리턴한 앞의 HTML을 컨트롤러에 넣는 대신에 그걸 뷰 파일에 넣을 수 있다 
+이렇게 여기 있는 이 jsp 파일을 뷰라고 부른다 
+그리고 이게 형식화하기에 훨씬 쉬운걸 알 수 있다
+너가 뭔가를 추가, 삭제하거나 변경하려고 할 때 그걸 Java 코드에서보다 jsp에서 변경하는 게 훨씬 더 쉽다 그러면 이걸 저장//3: 다시 SayHelloController 클래스파일로..
+
+------------------------------------------------------------------------
+
+
+⏺ application.properties 파일
+
+
+spring.application.name=myfirstwebapp
+server.port=8086
+
+#/src/main/resources/META-INF/resources/WEB-INF/jsp/sayHello.jsp
+
+#//4: 그럼 application.properties에서 너는 뷰에 대한 요청을 받을 때마다 이걸 prefix를 써서 접두어로 사용하고 이걸 suffix접미어로 사용하겠다고 할 수 있다
+#suffix(접미어)는 아주 간단하다, jsp의 이름 끝에는 무엇이 있지? suffix는 끝에 추가할 부분이기 떄문에 .jsp라 해주면 된다
+#그럼 prefix(접두어)는 이걸 보면, 이런 모습이 되어야 겠지? sayHello 앞까지를 전부 적어주면 된다 그럼 이게 접두어가 되겠다 공백을 제거해 줘야 한다
+#이렇게 prefix와 suffix를 넣어줬고, jsp의 이름은 sayHello 이다// 이런 구성은 이미 Spring MVC에 이미 있다, 그리고 거기서 너는 손 쉽게 접두어와 접미어를 설정할 수 있다
+#그럼 spring.mvc.view.prefix라고 해준다, 아래도 똑같이 해주자 //그럼 우린 여기 view에 대해 prefix가 이것이라 해주는 것이다, view에 대해 suffix는 (.jsp)이것이고
+#또 하나 놀라운 게 있는데, 그건 Spring MVC가 이미 /src/main/resources/META-INF/resources 여기까지의 폴더 경로를 알고 있다는 점이다 이미 /src/main/resources/META-INF/resources 까지를 알고 있다, 그래서 그것마저도 알려줄 필요가 없다
+#그냥 /WEB-INF/jsp/라고만 해주면 된다 그럼 끝이다 이제 실제로 어떻게 작동하는지 볼까? 요청이 jsp로 리디렉션 되는지 확인해보자 저장하고 URL실행..//5: SayHelloController 클래스파일로..
+
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+
+---------------------------------------------------------------------------------------------------------------------------
+                                                        |  웹사이트 접속
+                                                        V
+---------------------------------------------------------------
+
+
+http://localhost:8086/say-hello-jsp 웹사이트 결과 ==>
+
+
+sayHello
+
+---------------------------------------------------------------
+
+sayHello라고 나왔다 그게 어디서 왔을까?
+
+	@RequestMapping("say-hello-jsp")
+	@ResponseBody
+	public String sayHelloJsp() {
+		return "sayHello";
+	}
+
+여기서 왔다 왜 그런걸까? 왜 그게 뷰가 아닐까?
+그게 뷰가 아닌 이류는 이 @ResponseBody때문이다 
+여기에 @ResponseBody가 있으면 Spring MVC는 여기 있는 걸 바로 리턴하게 된다 
+하지만 우린 이걸 바로 리턴하길 원치 않는다, 우린 뷰 또는 jsp로 리디렉션을 하길 원한다 
+
