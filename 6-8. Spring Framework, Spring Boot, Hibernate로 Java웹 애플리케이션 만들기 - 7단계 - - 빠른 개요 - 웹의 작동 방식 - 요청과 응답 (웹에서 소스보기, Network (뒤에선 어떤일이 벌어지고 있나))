@@ -1,0 +1,223 @@
+
+
+지난 몇 단계에서 많은 URL을 작성했다 
+이렇게 say-hello-jsp라고 입력하면  jsp로부터 응답을 받게 되고 
+
+--------------------------------------------------------
+
+http://localhost:8086/say-hello-jsp 웹사이트 ==>
+
+
+My first html page with body - JSP
+
+
+--------------------------------------------------------
+
+
+say-hello도 있다, 
+
+--------------------------------------------------------
+
+http://localhost:8086/say-hello 웹사이트 ==>
+
+
+Hello! What are you learning today?
+
+--------------------------------------------------------
+
+이렇게 응답을 리턴하고 있다
+우리가 이런 요청을 실행할 때는 백그라운드에서 많은 일들이 일어난다
+
+그럼 이번 단계에선 백그라운드에서 무슨일이 일어나는지 간단히 살펴보기로 하자
+
+현재 나는 chrome을 사용중...
+Chrome에서 URL인 localhost:8080/say-hello를 입력하면 
+
+Hello! What are you learning today? 
+
+이렇게 된다
+Hello! What are you learning today? 라고 나오지?
+너는 지급 웹 애플리케이션 제작 방법을 배우고 있다 
+그 사이트에서 오른쪽 클릭 > View Page Source(페이지 소스 보기)를 클릭하면 새 탭이 열리는게 보이고 리턴되고 있는 소스를 볼 수 있다
+---------------------------------------------------
+Hello! What are you learning today?
+---------------------------------------------------
+이 경우에 우린 순수한 텍스트 응답을 전송하고 있다
+하지만 다른 URL을 열어볼까?
+
+
+
+say-hello 대신 say-hello-html또는 say-hello-jsp를 열어보자
+그럼 URL이 나오는지 확인하고 
+http://localhost:8086/say-hello-html로 가보겠다
+View Page Source(페이지 소스 보기)를 눌러보자
+---------------------------------------------------
+<html><head><title>My first HTML page</title></head><body>My first html page with body</body></html>
+---------------------------------------------------
+그러면 여기에 페이지 소스가 실제로 HTML인 걸 볼 수 있다 
+이렇게 우린 HTML을 리턴하고 있다, 그리고 브라우저는 HTML을 이해하고 
+
+이런 식으로 표시하게 된다
+My first HTML page
+
+
+그리고 http://localhost:8086/say-hello-jsp 로 가도 똑같은 일이 일어난다
+    My first html page with body - JSP
+라고 나온다
+그리고 오른쪽 클릭해서 View Page Source를 클릭하면 
+
+
+<html>
+  <head>
+    <title>My first HTML page - JSP</title>
+  </head>
+  <body>
+    My first html page with body - JSP
+  </body>
+</html>
+
+여기서도 HTML을 리턴하는 걸 알 수 있다
+
+이렇게 이런 HTML을 리턴하면 브라우저가 그걸 이해하고 여기에 표시하게 된다
+
+
+
+
+그럼 sayHello.jsp로 가보자
+
+---------------------------------------------------------------------------
+
+⏺ sayHello.jsp 파일
+
+여기서 너가 원하는 어떤 HTML 태그도 사용할 수 있다 
+
+<html>
+  <head>
+    <title>My first HTML page - JSP</title>
+  </head>
+  <body>
+    <!-- 예를 들어 여기 헤딩은 원한다면 <h1>이라는 태그가 있다 <h1>은 Heading 1 이고 HTML에서 다른 태그를 쓸 수도 있다-->
+    <h1>Heading 1</h1>
+    <!-- 그럼 <h2>를 넣어보자 그리고 Heading 2라고 해보자-->
+    <h2>Heading 2</h2>
+    My first html page with body - JSP
+  </body>
+</html>
+
+이걸 저장하고 페이지 새로고침
+---------------------------------------------------------------------------
+                                          |
+                                          V
+---------------------------------------------------
+
+http://localhost:8086/say-hello-jsp 웹사이트 ==>
+
+Heading 1
+Heading 2
+My first html page with body - JSP
+
+(자세한건 사이트를 들어가야 확인 가능)
+---------------------------------------------------
+
+H1, H2가 있고 여기 다른 텍스트도 있는 걸 볼 수 있다
+이렇게 너는 HTML을 리턴할 수 있고 브라우저가 HTML을 이해해서 그걸 화면에 표시하게 된다 
+
+● 브라우저 Inspect와 Network 탭의 항목들
+
+이제 더 깊게 들어가서 더 자세히 알아보도록 하자
+
+오른쪽 클릭하고 inspect(검사)를 선택
+그리고 Network 탭으로 가길 권장한다 여기 많은 일이 일어나는 걸 볼 수 있고 여기서 Doc 항목을 선택하겠다  
+보는 것 처럼 say-hello-jsp가 있다 
+
+여기서 이 URL에 요청을 전송하고 있고, 그럼 너는 그걸 선택해서 
+많은 정보가 있는 걸 볼 수 있다 (say-hello-jsp를 클릭하면 Headers라는 항목이 생기고 여러 정보가 있는걸 확인 가능)
+Headers>General에 
+Request URL:  http://localhost:8086/say-hello-jsp 여기 요청 URL이 있고 http://localhost:8086/say-hello-jsp이다
+
+그아래에는 요청 메서드가 있고
+Request Method: GET 요청 메서드는 뭘까? 우리가 사용하고 있는 요청 메서드는 GET이다 
+잠시 후에 POST 같은 다른 요청 메서드도 살펴볼 것이고
+
+여기 상태 코드가
+Status Code: 🟢 200 OK
+200인 걸 볼 수 있다 성공적인 응답을 의미한다
+
+
+
+그럼 실제 새 탭을 열고 존재하지 않는 URL에 요청을 전송해보겠다
+그럼 say-hello-jsp-1이라고 해보자, 그 URL을 청취하고 있는 어떤 코드나 컨트롤러도 없다
+어떻게 되니? 아는데로 오류페이지가 나온다
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Sat Apr 13 19:26:14 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+No static resource say-hello-jsp-1.
+
+여기서 오른쪽 클릭 > Inspect를 선택해 다시 Network 탭으로 가서 새로고침을 하면 뭐가 보이냐?
+
+Status Code: 🟠404 Not Found
+이것의 상태 코드가 404인 걸 알 수 있다, 404는 페이지를 찾을 수 없다는 것이다
+HTTP 상태 코드는 오류가 있는지 성공인지를 나타낸다 
+
+
+
+우리가 say-hello-jsp를 실행했을 때는 200을 받았고 그건 성공입니다, 하지만 
+존재하지 않는 오류 URL을 실행하면 404라는 상태 코드를 받게 된다 페이지를 찾을 수 없다는 것이다
+이렇게 상태 코드에서 이런 내용을 알 수 있다
+이게 응답의 상태 코드다
+
+여기 응답 헤더가 몇 개 있는 걸 볼 수 있고, 요청 헤더들도 있다
+너가 Response 탭으로 가면 리턴되는 정확한 응답도 확인할 수도 있다 
+
+
+
+
+
+
+
+그럼 이번 단계에서 배운 내용을 간단히 복습해 보겠다
+
+
+How does Web work?
+                                                                                                                                                                                                                                                                                
+● A: Browser sends a request                                                             Request                                                    
+ ■ HttpRequest                                                           ___________   /          ↘   ___________                                                      
+● B: Server handles the request                                         |  Browser  |                |  Server   |                                              
+ ■ Your Spring Boot Web Application                                      ‾‾‾‾‾‾‾‾‾‾‾   ↖          /   ‾‾‾‾‾‾‾‾‾‾‾                                                    
+● C: Server returns the response                                                         Response                                                    
+ ■ HttpResponse                                                                                                                                              
+                                                                                                                                              
+                                                                                                                                              
+                                                                                                                                              
+                                                                                                                                              
+                                                                                                                                              
+
+여기 보면, 우리가 URL을 건드리면 브라우저가 요청을 전송하게 된다, 
+브라우저에 어떤 작용을 가하면 
+• A: Browser sends a request 
+브라우저는 애플리케이션에 요청을 전송할 것이고 
+ ■ HttpRequest
+그 요청을 HTTP 요청이라고 부른다
+● B: Server handles the request 
+그리고 우리 서버 또는 애플리케이션은 요청을 받으면 그 요청을 처리하게 된다 
+ ■ Your Spring Boot Web Application
+우린 어떤 애플리케이션을 제작하고 있지?
+우린 Spring Boot 웹 애플리케이션을 제작하고 있다
+● C: Server returns the response 
+그럼 Spring Boot 웹 애플리케이션이 요청을 받고, 그걸 처리하고, 응답을 다시 브라우저에 전송한다
+응답은 보통 HTML 형식이다,
+ ■ HttpResponse
+그리고 그걸 HttpResponse라고 부른다 
+
+
+
+이렇게 브라우저는 HTTP 요청을 전송하고 서버는 요청을 처리해서 HTTP 응답을 다시 전송한다 
+
+
+
+
+그럼 백그라운드에선 우리가 요청을 실행할 때마다 이런 전체적인 흐름이 이루어지게 된다 
+이번 단계의 목표는 웹이 어떻게 작동하는지 대략적인 모습을 보여드리는 것이다 
