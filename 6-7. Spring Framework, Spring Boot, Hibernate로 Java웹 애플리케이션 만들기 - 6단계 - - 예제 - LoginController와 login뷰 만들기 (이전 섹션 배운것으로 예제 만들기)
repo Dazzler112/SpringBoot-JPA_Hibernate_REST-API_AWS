@@ -1,0 +1,129 @@
+
+
+지난 단계에선 처음으로 뷰를 작동시켰고 jsp를 사용해서 간단한 웹 애플리케이션을 만들고 서버에 올려서 실행시켰다
+그럼 간단한 예제를 시작해보겠다
+
+
+## Login JSP
+
+/login => com.firstapplication.springboot.myfirstwebapp.login.LoginController => login.jsp
+
+
+지난 단계에서 우린 sayHello.jsp 파일을 만들었다 
+이번 단계에선 Login.jsp를 만들어서 전체적인 흐름을 더 확실히 이해해 보기로 하자
+이걸 예제로 풀어보겠다 
+너가 해야 할 일은 우리 사용자가 브라우저에 /login이라고 입력하면 그걸 처리하는 것이다 
+지금 /login이라고 입력하면 어떻게 될까? 쉽게 알 수 있지?
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Sat Apr 13 17:04:28 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+No static resource login.
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource login.
+	at 
+
+오류 페이지가 나오게 된다, 우린 그걸 처리하지 않았기 때문이다
+그럼 만일 사용자가 들어와서 http://localhost:8086/login을 입력하면 우리는 login.jsp라는 이름의 jsp 파일의 콘텐츠를 표시하려고 하고,
+리디렉션을 위한 코드는 LoginController에서 작성해야 한다 
+그걸 꼭 이 com.firstapplication.springboot.myfirstwebapp.login 패키지 안에 넣어야 한다 
+
+너가 com.firstapplication.springboot.myfirstwebapp.hello 이 패키지를 보면 sayHelloController는 이 hello 패키지 안에 있었고 
+너는 그것과 비슷하게 로그인 컨트롤러를 만들고 전체적인 흐름이 작동하게 하려고 한다 
+그럼 새로운 클래스를 만들어보자
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+//2: 우린 Spring이 이걸 처리하라고 해줘야 한다 그렇게 하려면 @Controller 어노테이션을 넣어줘야 한다
+//이렇게 @Controller 어노테이션을 추가할 수 있다 그리고 이제 되는지 확인해보자 
+//Whitelabel Error Page JSP file [/WEB-INF/jsp/login.jsp] not found
+//그래도 오류가 나온다, 로그인으로 가면 login.jsp를 찾을수 없다고 나온다 , 당연히 아직 jsp 파일을 만들지 않았기 때문이다 그럼 가서 만들어주자 //3:
+@Controller
+public class LoginController {
+
+  //리디렉션을 하는 URL을 여기에 넣어주려 한다 이렇게 /login URL을 넣으면 그게 login.jsp로 리디렉션 되겠다
+  // /login => com.firstapplication.springboot.myfirstwebapp.login.LoginController => login.jsp
+
+  //1: 메소드 명을 gotLoginPage()으로 하고 그리고 여기 login.jsp를 리턴하려 한다 @RequestMapping에 그냥 이름인 "login"만 리턴하고 return에 URL도 역시 그냥 "login"이다
+  //이걸 저장하고, 너는 URL/login으로 갈 수 있다 하지만 지금은 역시 오류가 날 건데 이유가 뭘까? /login URL을 컨트롤러에 매핑할 수 없기 때문이다, "/login"이라 하고 리소스를 찾을 수 없다고 나온다 /login을 전혀 찾지 못했다 왜일까? 왜 /login을 찾을 수 없나?
+  //그 이유는 우리가 여기서 어노테이션을 넣지 않았기 때문이다//2: LoginController 클래스 위로작성.. 
+	@RequestMapping("login")
+	public String gotLoginPage() {
+		return "login";
+	}
+}
+
+---------------------------------------------------------------------
+
+
+⏺ login.jsp 파일
+//3:
+(전에꺼 복붙해도 되지만 내가 대~~충 만든 페이지 사용함)
+이름을 login.jsp라고 하겠다 그리고 login.jsp에서 <title>을 Login Page라고 하자
+그리고 <body>에 Welcome to the login page!라고 넣어주자 그리고 페이지 새로고침
+
+<html>
+<head>
+<title>
+	Login Page
+</title>
+</head>
+<body>
+	<div style="display: flex; justify-content: center;">
+		Welcome to the login page!
+	</div>
+	<div style="display: flex; justify-content: center;">
+		<input type="text" name="id" />
+	</div>
+	<div style="display: flex; justify-content: center;">
+		<input type="password" name="password"/>
+	</div>
+	<div style="display: flex; justify-content: center;">
+		<input type="submit" value="login"/>
+	</div>
+</body>
+</html>
+
+--------------------------------------------------------------------------------------------------------------------------
+
+                                                        |
+                                                        V
+
+--------------------------------------------------------------------------
+
+http://localhost:8086/login 웹사이트 ==>
+
+                    Welcome to the login page!
+                    __________________________
+                   |                          |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                    __________________________
+                   |                          |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                            ___________
+                           |   login   |
+                            ‾‾‾‾‾‾‾‾‾‾‾
+(임시로 결과물 텍스트로 만든 것이니 확인은 직접 애플리케이션 실행후 웹페이지에서 확인..)
+--------------------------------------------------------------------------
+이제 jsp의 콘텐츠를 볼 수 있다 
+
+
+
+
+
+이렇게 너는 새로운 뷰를 추가하는 게 아주 쉽다는 걸 이미 확인했을 것이다
+우리가 앞에서 한 pom.xml과 application.properties 변경은 모두 한 번만 하면 되는 것이다
+이제 우리는 컨트롤러와 뷰 또는 jsp에만 집중할 수 있다 
+우린 적절한 패키지에 컨트롤러만 만들면 되었고, 그리고 뷰를 생성하고 컨트롤러에서 뷰로 쉽게 리디렉션을 할 수 있었다 
+너가 이 흐름을 더 다뤄보고 싶다면 새로운 컨트롤러를 만들고 또 다른 새로운 jsp로 리디렉션을 해보면 좋을 것이다
