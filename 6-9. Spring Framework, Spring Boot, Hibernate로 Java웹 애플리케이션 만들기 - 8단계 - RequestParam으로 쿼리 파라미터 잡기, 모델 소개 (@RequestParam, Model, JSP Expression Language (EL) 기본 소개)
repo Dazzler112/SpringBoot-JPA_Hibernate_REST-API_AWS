@@ -126,9 +126,14 @@ Request Param is Jhon
 </head>
 <body>
 	<div style="display: flex; justify-content: center;">
-		Welcome to the login page!
 
-    <!--2: 그럼 여기 어떤 이름이 있든지, 우린 그걸 login.jsp에서 사용할 수 있기를 원한다 그걸 어떻게 할 수 있을까? //3: 다시 LoginController 클래스파일로..-->
+    	<!--2: 그럼 여기 어떤 이름이 있든지, 우린 그걸 login.jsp에서 사용할 수 있기를 원한다 그걸 어떻게 할 수 있을까? //3: 다시 LoginController 클래스파일로..-->
+    
+	<!--4: JSP의 예전 버전에선 아주 아주 복잡했지만 10여년전 JSP는 Expression Language(EL)(표현 언어)라는 걸 도입했다 표현 언어는 $ 표시로 시작하고, 중괄호를 열고 중괄호를 닫는다
+	그 사이에 너는 변수 이름을 넣을 수 있다 이렇게 ${name}이다// 이 name은 너가 gotoLoginPage 메소드에서 model.put("name",xx)에 사용한 "name"과 일치해야 한다 
+	그럼 기본적으로 이렇고 page와 ! 사이에 ${name}을 넣고 jsp를 저장.. 페이지를 실행해보자 -->
+		Welcome to the login page ${name}!
+
 	</div>
 	<div style="display: flex; justify-content: center;">
 		<input type="text" name="id" />
@@ -144,3 +149,90 @@ Request Param is Jhon
 
 
 ---------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+  //http://localhost:8087/login?name=Ranga
+
+  //3: 아주 중요한 개념인 모델이 등장하는 부분이 바로 여기이다 너가 무엇이든 컨트롤러에서 jsp로 전달하려고 할 때, 너는 그걸 모델에 넣어서 그렇게 할 수 있다
+  //Spring MVC가 제공하는 옵션 중에는 ModelMap이라는 게 있다, 그럼 너는 ModelMap을 넣을 수 있고, 그 ModelMap에 추가해 jsp 값을 사용할 수 있다
+  //그걸 어떻게 구현하는지 알아볼까? 그럼 ModelMap이라고 입력하겠다 그리고 이것의 이름을 model이라고 해주겠다
+  //이제 model이 있고 이제 너가 jsp에 제공하려는 건 모두 model에 추가할 수 있다 그럼 컨트롤러에서 만일 너가 뷰에 뭔가를 제공하려고 한다면 그걸 너는 model에 넣으면 된다 그럼 그렇게 해보겠다
+
+  //Model
+	@RequestMapping("login")
+	public String gotLoginPage(@RequestParam String name, ModelMap model) {
+		
+		//3 계속: model.put()이라고 하고 너는 model에 뭘 넣으려고 하지? 너는 이름이 name인 속성을 넣으려고 한다 그럼 그 값은 무엇이 되어야 할까? 그 값은 name이어야 한다
+		//이렇게 Ranga등 무엇이 들어오든지 그건 이 name이라는 변수에 들어가고, 우리는 그걸 이름을 name으로 해서 model에 넣게 된다 
+		//이제 우린 이 값을 jsp에서 사용할 수 있다 //이제 그걸 jsp에서 사용하려면 model에서 값을 어떻게 잡을 수 있을까? //4: 다시 login.jsp 파일로.. 
+		model.put("name", name);
+		System.out.println("Request Param is " + name); //NOT RECOMENDED FOR PROD CODE
+		return "login";
+	}
+}
+
+
+------------------------------------------------------------------------------------------------------------------
+					|
+					V
+--------------------------------------------------------------------------
+
+//http://localhost:8087/login?name=Jhon 웹사이트 ==>
+
+                 Welcome to the login page Jhon!
+                    __________________________
+                   |                          |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                    __________________________
+                   |                          |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                            ___________
+                           |   login   |
+                            ‾‾‾‾‾‾‾‾‾‾‾
+(임시로 결과물 텍스트로 만든 것이니 확인은 직접 애플리케이션 실행후 웹페이지에서 확인..)
+--------------------------------------------------------------------------
+이렇게 Welcome to the login page Jhon!이라고 나왔다  
+원한다면 Ranga도 넣을 수 있고 RAvi도 넣을 수 있다
+이렇게 너가 URL의 일부로서 무얼 넣는지 이제 그걸 jsp에서 볼 수 있다 
+
+
+
+
+
+
+
+
+
+
+
+
+이번 단계에서 우린 요청 파라미터가 어떻게 작동하는지 알아봤고 
+우리가 쿼리 파라미터에 넣는 것을 너는 @RequestParam 어노테이션을 사용해서 컨트롤러 메서드에서 수락할 수 있고 
+public String gotLoginPage(@RequestParam String name, ModelMap model) {
+
+그걸 컨트롤러 메서드에 넣은 다음엔 그걸 뷰에 전달할 수 있고 그걸 jsp에서 표시하려면 너는 그걸 model에 넣어줘야 한다 
+model.put("name", name);
+
+그걸 model에 넣었으면 뷰가 그걸 자동으로 잡을 수 있다 
+Welcome to the login page ${name}!
+
+
+권장사항을 하나 알려주자면
+너는 일상 업무에서 사용할 기술적인 것들을 배우려 할 떄에는 항상 그걸 자세히 이해하는 게 아주 중요하다 
+교육자가 자주 사용하는 방법은 먼저 작동하는 예제를 만드는 것이고, 그게 지난 몇 단계에서 우리가 해온 것이라고 한다
+
+이제 우린 작동하는 예제를 갖게 되었다 
+우리가 작동하는 예제를 갖게 되면 그걸 세부적으로 분해해서 배우는 게 가장 좋다
+
+이번 예제는 내용을 분해해서 백그라운드에서 어떤 일이 일어나는지 이해하는 것이었고 다음 단계에 계속 해 보곘다
