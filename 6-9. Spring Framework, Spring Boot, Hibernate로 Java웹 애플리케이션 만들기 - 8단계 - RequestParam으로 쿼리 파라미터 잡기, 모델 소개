@@ -1,0 +1,146 @@
+
+
+지난 단계에서 우린 요청과 응답에 대해 약간 알아봤다 
+이번 단계에선 좀 더 나아가서 RequestPram에 대해 알아보자
+RequestPram이 뭔지, 그리고 그게 왜 필요한지 알아보겠다, 
+지금 URL인 localhost:8086/login을 실행하면 Welcom to the login page!가 나온다
+--------------------------------------------------------------------------
+
+http://localhost:8087/login 웹사이트 ==>
+
+                    Welcome to the login page!
+                    __________________________
+                   |                          |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                    __________________________
+                   |                          |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                            ___________
+                           |   login   |
+                            ‾‾‾‾‾‾‾‾‾‾‾
+(임시로 결과물 텍스트로 만든 것이니 확인은 직접 애플리케이션 실행후 웹페이지에서 확인..)
+--------------------------------------------------------------------------
+
+이제 예를 들어 이걸 더 확장해서 이름을 추가하려 한다고 해보자
+여기서 이름을 넣을 수 있길 원하고 
+그럼 여기서 Welcome to the login page Rang! 또는 Welcome to the login page Sathish! 라고 할 수 있을 것이다 그걸 어떻게 할까?
+이게 우리가 이번 단계에 다룰 내용이다 
+
+특정한 URL에 정보를 전달하는 가장 쉬운 방법은 쿼리 파라미터라는 걸 사용하는 방법이다
+그럼 너는 localhost:8086/login?name=라고 하고 Ranga를 넣어줄 수 있다
+일단 지금 그렇게 입력해보자 아주 간단하다 그냥 ?를 넣고 name=Ranga라고 해주면 된다 
+----------------------------------------------------------------
+http://localhost:8087/login?name=Ranga 웹사이트 ==>
+
+Welcome to the login page!
+
+----------------------------------------------------------------
+너는 그냥 Welcome to the login page!가 표시되는 걸 볼 수 있다 왜 그럴까?
+이걸 처리하는 코드를 아직 작성하지 않았기 때문이다 
+그럼 이 요청은 먼저 어디로 갈까?
+
+니가 이 URL을 입력하면 이 요청은 먼저 LoginController로 간다 
+
+------------------------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+  //1: 그럼 여기서 무슨일이 일어날까? 이름이 LoginController로 전달된다 하지만 LoginController는 지금 너가 name RequestParam을 전달하고 있다는 걸 알지 못한다
+  //그럼 이 메서드가 name 이라는 RequestPram을 받는다는걸 어떻게 LoginController에게 알려줄 수 있을까?
+  //너는 @RequestParam이라는 걸 사용해서 그렇게 할 수 있다
+
+  //http://localhost:8087/login?name=Ranga
+
+  //1 계속: @Request라고 하고 Ctrl+Spcae 를 눌러보자 그러면 @RequestParma을 임포트하는 옵션이 나올것이다 
+  //이건 어노테이션이고, Annotation which indicates that a method parameter should be bound to a webrequest parameter.  메서드 파라미터가 웹 요청 파라미터에 바인딩되어야 한다는 걸 표시하는 것이다
+  //우린 요청에서 name이라는 파라미터를 받고 그걸 취해서 이 @RequestParam에 바인딩할 것이다 그럼 그걸 사용해 보자, 이제 그 @RequestParam에 대해 세부정보를 줄 수 있다 그럼 RequestParam의 이름은 뭘까? name이다 그 값은 뭘까? 문자열 타입 값이다(Ranga)
+  //어떤 텍스트나 name으로 전송할 수 있다 그럼 파라미터의 타입은 String이고, 파라미터 이름은 name이다 그럼 이 name은 login?name=Ranga 여기 있는 name과 일치해야 한다 이제 요청 파라미터에서 나온 name은 이 변수에 연계된다
+	@RequestMapping("login")
+	public String gotLoginPage(@RequestParam String name) {
+		
+  //1 계속: 이제 우린 그게 실제로 작동하는 걸 볼 수 있을 것이다 그걸 어떻게 할까? 우린 우선 간단한 방법으로 해 보자
+  //프러덕션 애플리케이션에선 syso를 절대로 쓰지 말아라 다음 단계에서 우린 로깅에 대해 알아보고 모범적인 로깅 방식에 대해 이해해볼건데
+  //하지만 지금은 그냥 syso을 써서 "Request Param is" + 라고 하고 거기에 name을 첨부해보겠다
+      //아까 말한 대로 이건 프로덕션 코드에 대해 권장되는 방식이 아니다 그럼 이걸 저장하고 요청을 해보자
+      System.out.println("Request Param is" + name); //NOT RECOMENDED FOR PROD CODE
+      
+      return "login";
+	}
+}
+
+
+------------------------------------------------------------------------------------------------------------------
+
+사이트에 접속해 보고 로그를 봐보자
+
+
+com.firstapplication.springboot.myfirstwebapp.login.LoginController#gotLoginPage(String)
+Request Param is Ranga
+2024-04-14T23:54:54.415+09:00 DEBUG 17816 --- [myfirstwebapp] [nio-8087-
+
+이렇게 요청 파라미터가 이제 프린트되고 있고 여기서 Ranga를 볼 수 있다
+사실 원하는 이름은 아무 이름이나 넣을 수 있다 
+예를 들어 Sathish라고 해보자
+
+Page(String)
+Request Param is Sathish
+Sathish가 있다
+
+
+또는 Jhon도 좋다 이걸 콘솔에 볼 수 있다
+Page(String)
+Request Param is Jhon
+
+이렇게 여기 Jhon이 있지?
+
+
+
+이제 우리는 URL에서 값을 받아서 컨트롤러 코드에 전달할 수 있다 
+우린 뭘 하려고 하지?
+이제 우린 그걸 jsp에 전달하려고 한다 
+
+너의 login.jsp에서 그 이름을 사용할 수 있길 원한다
+
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ login.jsp 파일
+
+
+<html>
+<head>
+<title>
+	Login Page
+</title>
+</head>
+<body>
+	<div style="display: flex; justify-content: center;">
+		Welcome to the login page!
+
+    <!--2: 그럼 여기 어떤 이름이 있든지, 우린 그걸 login.jsp에서 사용할 수 있기를 원한다 그걸 어떻게 할 수 있을까? //3: 다시 LoginController 클래스파일로..-->
+	</div>
+	<div style="display: flex; justify-content: center;">
+		<input type="text" name="id" />
+	</div>
+	<div style="display: flex; justify-content: center;">
+		<input type="password" name="password"/>
+	</div>
+	<div style="display: flex; justify-content: center;">
+		<input type="submit" value="login"/>
+	</div>
+</body>
+</html>
+
+
+---------------------------------------------------------------------
