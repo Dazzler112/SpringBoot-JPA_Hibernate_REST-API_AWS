@@ -224,3 +224,188 @@ syso이 프린트 된 걸 보게 되고 하지만 debug 수준에서 로깅한 �
 	}
 보는 것처럼 logger.debug("Request param is {}", name); 이 메시지는 프린트되지 않고 있다, 왜냐면 우리가 이걸 debug 수준에서 로깅하고 있기 때문이다
 만일 이게 info 수준에서 프린트되길 원한다면, 가령 뭔가가 info 수준에서 프린트 되길 원한다면 
+
+
+-----------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.slf4j.*;
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+	private Logger logger = LoggerFactory.getLogger(getClass());
+	
+	//http://localhost:8087/login?name=Ranga
+	//Model
+	@RequestMapping("login")
+	public String gotLoginPage(@RequestParam String name, ModelMap model) {
+		model.put("name", name);
+		logger.debug("Request param is {}", name);
+
+    //3: logger.info()라고 하고 "I want this printed at info level"이라고 해줄 수 있다, 
+    logger.info("I want this printed at info level");
+    //다른 메서드도 많이 있다 logger.warn()도 있고 그럼 "I want this print at warn level" 이라고 할 수 있겠다
+    logger.warn("I want this print at warn level");
+    //이렇게 너가 설정한 내용에 떄라, 그 수준 이하의 모든 게 프린트될 것이다 기가 그걸 debug로 설정하면 debug, info, warn 수준이 프린트된다
+    //니가 info로 설정하면 info와 warn 수준만 프린트될 것이다//애플리케이션을 재시작하고 다시 URL을 실행해보자..
+
+		System.out.println("Request Param is " + name); //NOT RECOMENDED FOR PROD CODE
+		return "login";
+	}
+}
+
+-----------------------------------------------------------------------------------------------------
+
+URL 재접속 후 콘솔로그 화면:
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::             (v3.3.0-M3)
+
+2024-04-15T20:10:58.635+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : Starting MyfirstwebappApplication using Java 17.0.5 with PID 14564 (C:\Users\LG\Downloads\myfirstwebapp\myfirstwebapp\target\classes started by LG in C:\Users\LG\Downloads\myfirstwebapp\myfirstwebapp)
+2024-04-15T20:10:58.638+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : No active profile set, falling back to 1 default profile: "default"
+2024-04-15T20:10:58.706+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-04-15T20:10:58.707+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-04-15T20:11:00.035+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8087 (http)
+2024-04-15T20:11:00.051+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-04-15T20:11:00.052+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-04-15T20:11:00.281+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] org.apache.jasper.servlet.TldScanner     : At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2024-04-15T20:11:00.290+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-04-15T20:11:00.293+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1582 ms
+2024-04-15T20:11:00.738+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-04-15T20:11:00.786+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8087 (http) with context path '/'
+2024-04-15T20:11:00.797+09:00  INFO 14564 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : Started MyfirstwebappApplication in 2.568 seconds (process running for 3.04)
+2024-04-15T20:11:03.250+09:00  INFO 14564 --- [myfirstwebapp] [nio-8087-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-04-15T20:11:03.250+09:00  INFO 14564 --- [myfirstwebapp] [nio-8087-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-04-15T20:11:03.251+09:00  INFO 14564 --- [myfirstwebapp] [nio-8087-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2024-04-15T20:11:03.303+09:00  INFO 14564 --- [myfirstwebapp] [nio-8087-exec-1] c.f.s.m.login.LoginController            : I want this printed at info level
+2024-04-15T20:11:03.303+09:00  WARN 14564 --- [myfirstwebapp] [nio-8087-exec-1] c.f.s.m.login.LoginController            : I want this print at warn level
+Request Param is Jhon
+
+우린 지금 이걸 info에 설정했다 ( logging.level.com.firstapplication.springboot.myfirstwebapp=info )
+그럼 info에 설정하면 info와 warn 수준이 모두 프린트될 것이다
+여기에 무엇이 프린트되고 있지?
+I want this printed at info level 와 warn이 나와 있다, debug 수준은 전혀 프린트되지 않고 있다
+다양한 로깅 수준이 있다는 사실을 꼭 이해해야 하고, 그리고 너가 프린트하는 정보에 따라 꼭 적절한 로깅 수준을 사용하길 바란다 
+
+그럼 너가 뭔가를 개발하고 있을 때는 debug 수준을 사용할 수 있고 
+logger.debug("Request param is {}", name); 이건 프로덕션 로그에는 절대 프린트되지 않을것이다 일반적으로 프로덕션 로그는 info를 사용하도록 설정되기 때문이다 ( logger.info("I want this printed at info level"); )
+
+
+
+
+
+
+
+
+
+
+
+
+Understanding Logging
+
+ ------------------------------------------------------------------------------
+| logging.level.some.path=debug                                                |
+| logging.level.some.other.path=error                                          |
+| logging.file.name=logfile.log                                                |
+|                                                                              |
+| private Logger logger = LoggerFactory.getLogger(this.getClass());            |
+| logger.info("postConstruct");                                                |
+ ------------------------------------------------------------------------------
+
+● Knowing what to log is an essential skill to be a great programmer
+● Spring Boot makes logging easy
+  ■ spring-boot-starter-logging
+● Default: Logback with SLF4j
+
+이번 단계에서 우리는 로깅을 다뤘다 
+로깅은 초보 프로그래머들이 간과하기 쉬운 부분인데, 그래서 로깅을 대략적으로 소개하는 별도의 단계를 만들게 되었다 
+● Knowing what to log is an essential skill to be a great programmer
+로깅할 것을 아는 것은 훌륭한 프로그래머가 되기 위한 아주 중요한 필수 스킬이다 
+● Spring Boot makes logging easy
+그리고 앞서 논의한 대로, Spring Boot를 사용하면 아주 쉽다
+  ■ spring-boot-starter-logging
+Spring Boot는 spring-boot-starter-logginh을 제공하는데, 이건 로깅 활성화를 위해 사용하는 것이다
+우리가 spring-boot-starter-web을 pom.xml에 넣으면 어떻게 될까? 
+
+그럼 pom.xml로 가보자
+
+--------------------------------------------------------------------------------------
+
+⏺ pom.xml파일
+
+..
+...
+<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	
+	
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>	
+	
+		
+	
+	</dependencies>
+..
+...
+
+위에 spring-boot-starter-web이 있고  spring-boot-starter-logging은 그것의 전이 의존성이다
+그래서 너가 spring-boot-starter-web을 추가하면, 로깅은 자동으로 여기 포함된다
+
+하단의 Dependency Hierarchy 탭으로 가보면 Filter에서 logging이라고 입력한다
+
+그럼 하단에 spring-boot-starter-logging이 보일 것이다
+이 spring-boot-starter-logging은 spring-boot-starter-web이 가져온 의존성 중에 하나다
+
+▼ 🧴spring-boot-starter-web: 3.3.0-M3 [compile]
+  ▼ 🧴spring-boot-starter: 3.3.0-M3 [compile]
+    > 🧴spring-boot-starter-logging: 3.3.0-M3 [compile]
+--------------------------------------------------------------------------------------
+그리고 이게 우리가 로깅 프레임워크를 사용하게 해주는 의존성이다
+
+● Default: Logback with SLF4j
+Spring Boot가 사용하는 기본 로깅 프레임워크는 SLF4j를 사용하는 Logback이다
+
+
+
+
+
+
+
+
+이번 단계에선 우리는 로깅에 대한 자세한 내용을 많이 배웠고 
+초심자인 경우에 이 많은 정보가 좀 어려워 보일 수도 있는데 걱정할 필요은 없다
+너는 프로그래머로 성장하는 중에 로깅에 대해 많이 배울것이기 때문이다
+
