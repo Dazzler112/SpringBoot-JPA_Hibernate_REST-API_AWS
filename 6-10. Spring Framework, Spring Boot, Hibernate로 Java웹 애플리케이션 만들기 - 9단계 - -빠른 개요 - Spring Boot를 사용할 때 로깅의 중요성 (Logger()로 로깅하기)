@@ -1,0 +1,226 @@
+
+
+
+Understanding Logging
+
+ ------------------------------------------------------------------------------
+| logging.level.some.path=debug                                                |
+| logging.level.some.other.path=error                                          |
+| logging.file.name=logfile.log                                                |
+|                                                                              |
+| private Logger logger = LoggerFactory.getLogger(this.getClass());            |
+| logger.info("postConstruct");                                                |
+ ------------------------------------------------------------------------------
+
+로깅은 초보 프로그래머가 반드시 알아야 하는 중요한 부분이다
+프로덕션 중에 문제를 디버깅할 때 너는 오로지 로그를 확인하면서 모든 시간을 보내게 된다 
+그래서 로그에 무엇을 로깅하는지에 항상 주의해야 한다 
+그럼 이번 단계에서 로깅에 대해 대략적으로 살펴보겠다 
+
+Spring Boot에선 application.properties를 통해 로깅을 설정할 수 있다 
+너가 src/main/resources를 열어보면, 그 안에 application.properties라는 파일이 있다 
+그리고 그 안에서 너는 원하는 로깅 수준을 설정할 수 있다 
+
+예를 들어, 우린 여기서 logging.level.org.springframework를 debug로 설정했다 
+그럼 확실히 알기 위해 애플리케이션을 중지하고 다시 시작해보자
+
+2024-04-15T17:20:12.366+09:00  INFO 14812 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : Started MyfirstwebappApplication in 2.936 seconds (process running for 3.511)
+2024-04-15T17:20:12.368+09:00 DEBUG 14812 --- [myfirstwebapp] [  restartedMain] o.s.b.a.ApplicationAvailabilityBean      : Application availability state LivenessState changed to CORRECT
+..
+...
+
+많은 로그가 프린트되는 걸 볼 수 있고, DEBUG 로그고 있고 INFO로그도 있다, 그리고 우리가 debug 수준을 이용하면 많은 정보가 프린트된다
+개발 중 문제를 해결할 떄는 debug 수준을 사용할 수 있지만 debug 수준은 많은 로그를 프린트하고 
+그게 성능에 영향을 미기게 된다 
+그래서 너가 프로덕션 중에 애플리케이션을 실행할 때는 info 같은 걸 사용하려 할 수 있다
+
+수준을 info로 변경하면 어떻게 될까? 로그를 정리하고 애플을 정지한 다음 재시작을 해서 info인 경우에 어떤로그가 올라오는지 보자
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::             (v3.3.0-M3)
+
+2024-04-15T17:40:13.354+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : Starting MyfirstwebappApplication using Java 17.0.5 with PID 13780 (C:\Users\LG\Downloads\myfirstwebapp\myfirstwebapp\target\classes started by LG in C:\Users\LG\Downloads\myfirstwebapp\myfirstwebapp)
+2024-04-15T17:40:13.358+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : No active profile set, falling back to 1 default profile: "default"
+2024-04-15T17:40:13.424+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-04-15T17:40:13.424+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-04-15T17:40:14.741+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8087 (http)
+2024-04-15T17:40:14.756+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-04-15T17:40:14.756+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-04-15T17:40:14.956+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] org.apache.jasper.servlet.TldScanner     : At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2024-04-15T17:40:14.965+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-04-15T17:40:14.968+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1540 ms
+2024-04-15T17:40:15.417+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-04-15T17:40:15.465+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8087 (http) with context path '/'
+2024-04-15T17:40:15.477+09:00  INFO 13780 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : Started MyfirstwebappApplication in 2.514 seconds (process running for 3.005)
+
+info 수준을 사용하면 프린트되는 로그의 양이 훨씬 적은 걸 알 수 있다 
+이렇게 너는 이 프로퍼티 파일에서 내용을 설정해서 프린트하려는 로그의 양을 제어할 수 있다
+
+-----------------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+spring.application.name=myfirstwebapp
+server.port=8087
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+
+#여기서 우리는 패키지 이름을 지정한다, 그럼 org.springframework는 패키지의 이름이고 그럼 그 패키지에 있는 모든 클래스는 info수준에서 로깅될 것이다
+#너는 구체적인 클래스에 대해서도 모든 걸 설정할 수 있다 예를 들어, 애플리케이션의 모든 것에 대한 로깅을 제어하고 싶을 수 있다, 그럼 애플리케이션의 루트 패키지는 com.firstapplication.springboot.myfirstwebapp이고
+#그럼 그 루트 패키지를 복사하고 logging.level.com.firstapplication.springboot.myfirstwebapp=debug 라고 해 줄 수 잇다, 그러면 이제 이 패키지만 debug 수준에서 프린트될 것이다 그럼 나머지 모든 건 info 수준에 있는 걸 보게 될 것이고
+#하지만 springboot.myfirstwebapp 이 패키지에서 프린트하는 모든 건 debug 수준의 로깅이다
+
+logging.level.org.springframework=info
+logging.level.com.firstapplication.springboot.myfirstwebapp=debug
+-----------------------------------------------------------------------------------------------------
+              |
+              V
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::             (v3.3.0-M3)
+
+2024-04-15T18:17:41.902+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : Starting MyfirstwebappApplication using Java 17.0.5 with PID 14092 (C:\Users\LG\Downloads\myfirstwebapp\myfirstwebapp\target\classes started by LG in C:\Users\LG\Downloads\myfirstwebapp\myfirstwebapp)
+2024-04-15T18:17:41.906+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : No active profile set, falling back to 1 default profile: "default"
+2024-04-15T18:17:41.982+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-04-15T18:17:41.982+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-04-15T18:17:43.315+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8087 (http)
+2024-04-15T18:17:43.332+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-04-15T18:17:43.333+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-04-15T18:17:43.529+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] org.apache.jasper.servlet.TldScanner     : At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2024-04-15T18:17:43.538+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-04-15T18:17:43.541+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1555 ms
+2024-04-15T18:17:43.991+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-04-15T18:17:44.039+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8087 (http) with context path '/'
+2024-04-15T18:17:44.051+09:00  INFO 14092 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : Started MyfirstwebappApplication in 2.537 seconds (process running for 3.007)
+
+사실 지금은 애플리케이션에서 로그가 나오지 않고 있다, 그럼 먼저 우리 애플리케이션에 약간의 로깅을 추가하는 방법을 알아보자
+
+
+
+LoginController로 가보자
+앞서 우린 로그를 프린트하기 위해 syso을 썼다, 그건 권장하지 않는 것이고
+가장 좋은 방식은 Logger라는 걸 이용하는 방법일 것이다 
+
+-----------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.slf4j.*;
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+  //1: 여기 Loogger를 초기화할 것이고, 그럼 private Logger logger = 라고 하고 이건 팩토리 패턴이라는 걸 사용한다 그럼 LoggerFactory.getLogger()라고 하고 getLogger()안에 getClass()를 넣어주자
+	//그럼 LoggerFactory가 이미 임포트된 걸 볼 수 있다, org.slf4j.LoggerFactory가 임포트되었다 올바른 Logger를 임포트 해야한다 우리가 사용하는 Logger는 slfj이다 
+  //그럼 이제 디버깅을 해 볼까? 뭔가를 로깅해보자 메서드 코드로 가보자//2:gotLoginPage 메서드로..
+  private Logger logger = LoggerFactory.getLogger(getClass());
+	
+
+  //http://localhost:8087/login?name=Ranga
+	//Model
+	@RequestMapping("login")
+	public String gotLoginPage(@RequestParam String name, ModelMap model) {
+		model.put("name", name);
+    
+    //2: logger.debug()라고 할 수 있다 그리고 우린 name을 디버그하려 한다, 그러면 "Request param is" 라고 하고, 그걸 첨부하는 대신에 너는 중괄호를 열고 닫을 수 있다 이게 name으로 대체될 것이다 그리고 이걸 저장 그리고 URL로 들어가보자
+    logger.debug("Request param is {}", name);
+
+		System.out.println("Request Param is " + name); //NOT RECOMENDED FOR PROD CODE
+		return "login";
+	}
+}
+
+-----------------------------------------------------------------------------------------------------
+
+http://localhost:8087/login?name=Jhon에 접속하면 콘솔 로그에 가보면
+Request Param is Jhon이라고 나온 게 보일 것이고 이건 syso에서 나온 것이다
+너가 syso을 쓰면 수준 같은걸 전혀 설정할 수 없다
+
+하지만 여기서 너가 logger를 쓰면 수준을 제어할 수 있다
+2024-04-15T19:52:28.433+09:00 DEBUG 6516 --- [myfirstwebapp] [nio-8087-exec-1] c.f.s.m.login.LoginController            : Request param is Jhon
+우리는 이 패키지에 대해 debug 수준도 프린트하도록 설정했다 
+logging.level.com.firstapplication.springboot.myfirstwebapp=debug
+
+예를 들어 너가 그걸 프린트하길 원치 않는다고 해보자, 그런 경우에 너는 이걸 info 수준으로 변경할 수 있다, 그럼 너가 debug하길 원치 않고 그냥 info 수준을 프린트하고 싶으면 그걸 info로 변경하면 debug 수준 정보는 프린트 되지 않을 것이다 
+
+-----------------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+spring.application.name=myfirstwebapp
+server.port=8087
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+logging.level.org.springframework=info
+
+
+#그럼 info로 변경하고 다시 URL을 실행해보자
+logging.level.com.firstapplication.springboot.myfirstwebapp=info
+
+-----------------------------------------------------------------------------------------------------
+                            |
+                            V
+콘솔로그:
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::             (v3.3.0-M3)
+
+2024-04-15T19:59:02.925+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : Starting MyfirstwebappApplication using Java 17.0.5 with PID 8864 (C:\Users\LG\Downloads\myfirstwebapp\myfirstwebapp\target\classes started by LG in C:\Users\LG\Downloads\myfirstwebapp\myfirstwebapp)
+2024-04-15T19:59:02.929+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : No active profile set, falling back to 1 default profile: "default"
+2024-04-15T19:59:02.995+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-04-15T19:59:02.995+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-04-15T19:59:04.268+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8087 (http)
+2024-04-15T19:59:04.285+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-04-15T19:59:04.286+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+2024-04-15T19:59:04.484+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] org.apache.jasper.servlet.TldScanner     : At least one JAR was scanned for TLDs yet contained no TLDs. Enable debug logging for this logger for a complete list of JARs that were scanned but no TLDs were found in them. Skipping unneeded JARs during scanning can improve startup time and JSP compilation time.
+2024-04-15T19:59:04.493+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-04-15T19:59:04.496+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1498 ms
+2024-04-15T19:59:04.946+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-04-15T19:59:04.994+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8087 (http) with context path '/'
+2024-04-15T19:59:05.006+09:00  INFO 8864 --- [myfirstwebapp] [  restartedMain] c.f.s.m.MyfirstwebappApplication         : Started MyfirstwebappApplication in 2.475 seconds (process running for 2.967)
+2024-04-15T20:01:03.318+09:00  INFO 8864 --- [myfirstwebapp] [nio-8087-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-04-15T20:01:03.319+09:00  INFO 8864 --- [myfirstwebapp] [nio-8087-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2024-04-15T20:01:03.320+09:00  INFO 8864 --- [myfirstwebapp] [nio-8087-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+Request Param is Jhon
+
+syso이 프린트 된 걸 보게 되고 하지만 debug 수준에서 로깅한 다른 메시지는 프린트되지 않는 걸 보게 된다
+하지만 debug 수준에서 로깅한 다른 메시지는 프린트되지 않는 걸 보게 된다 
+
+
+그러면 LoginController로 가면
+
+	@RequestMapping("login")
+	public String gotLoginPage(@RequestParam String name, ModelMap model) {
+		model.put("name", name);
+		logger.debug("Request param is {}", name);
+		System.out.println("Request Param is " + name); //NOT RECOMENDED FOR PROD CODE
+		return "login";
+	}
+보는 것처럼 logger.debug("Request param is {}", name); 이 메시지는 프린트되지 않고 있다, 왜냐면 우리가 이걸 debug 수준에서 로깅하고 있기 때문이다
+만일 이게 info 수준에서 프린트되길 원한다면, 가령 뭔가가 info 수준에서 프린트 되길 원한다면 
