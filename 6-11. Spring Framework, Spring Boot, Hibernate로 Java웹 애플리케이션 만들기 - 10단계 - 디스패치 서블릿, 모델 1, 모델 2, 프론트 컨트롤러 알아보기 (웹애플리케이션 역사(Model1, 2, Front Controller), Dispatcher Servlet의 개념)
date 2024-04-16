@@ -1,0 +1,197 @@
+
+
+
+How does Web work?
+                                                                                                                                                                                                                                                                                
+● A: Browser sends a request                                                             Request                                                    
+ ■ HttpRequest                                                           ___________   /          ↘   ___________                                                      
+● B: Server handles the request                                         |  Browser  |                |  Server   |                                              
+ ■ Your Spring Boot Web Application                                      ‾‾‾‾‾‾‾‾‾‾‾   ↖          /   ‾‾‾‾‾‾‾‾‾‾‾                                                    
+● C: Server returns the response                                                         Response                                                    
+ ■ HttpResponse                                                                                                                                              
+                                                                                                                                              
+                                                                                                                                              
+앞선 단계에서 우리는 웹이 어떻게 작동하는지 배웠다 
+브라우저가 서버에 요청을 전송하고 서버가 응답을 다시 전송한다
+이제 우리는 이 서버에서 무슨 일이 일어나는지 좀 더 자세히 알아보려고 한다 
+서버에서는 웹 애플리케이션이 실행된다
+우린 Spring Boot를 이용해서 웹 애플리케이션을 제작하고, Spring Boot 안에는 Spring MVC가 있다 
+그럼 거기서 무슨 일이 일어날까? Spring MVC 안에선 어떻게 작업이 이루어질까?
+그게 우리가 이번 단계에서 자세히 알아볼 내용이고, Spring MVC를 사용하고 Spring MVC로 작업을 처리하기에 앞서 
+Java를 이용해서 웹 애플리케이션을 어떻게 개발해 왔는지 역사를 잠시 들여다 보겠다
+
+
+
+● Model 1 에 대한 설명
+
+
+Peek into History - Model 1 Arch
+                                                                                                                                                                          
+● ALL CODE in Views (JSPs, ...)                                                                  ___________                                                                        
+  ■ View logic                                                                                  (  Browser  )                                                                        
+  ■ Flow logic                                                                                   ‾‾‾‾‾‾‾‾‾‾‾                                                                        
+  ■ Queries to databases                                                                         /          \                                                               
+● Disadvantages:                                                                                ↙            ↘                                                             
+  ■ VERY complex JSPs                                                                    ___________         ___________
+  ■ ZERO separation of concerns                                                         (   JSP1    )       (    JSP2   )                                                            
+  ■ Difficult to maintain                                                                ‾‾‾‾‾‾‾‾‾‾‾         ‾‾‾‾‾‾‾‾‾‾‾                                                                        
+                                                                                              \                  /                                                           
+                                                                                                ↘              ↙                                                            
+                                                                                                  ___________                                                                      
+                                                                                                 (   Model   )                                                             
+                                                                                                  ‾‾‾‾‾‾‾‾‾‾‾                                                                        
+                                                                                                                                                                          
+                                                                                                                                                                          
+                                                                                                                                                                          
+                                                                                                                                                                          
+● ALL CODE in Views (JSPs, ...)
+Java로 웹 애플리케이션을 개발하는 가장 초기에는 뷰에 모든 코드를 담았다 
+우린 지금 sayHello.jsp가 있고 Welcome.jsp가 있다 그렇게 애플리케이션의 모든 코드가 jsp에만 있었다
+  ■ View logic 
+그래서 페이지를 표시하는 방법에 관한 로직이나 
+  ■ Flow logic
+어떤 페이지가 먼저 나와야 하는지, 다음에 나와야 하는지에 관련된 로직을 흐름로직이라 불렀다
+  ■ Queries to databases 
+그리고 데이터베이스가 있다면 데이터베이스를 쿼리해야 하고 데이터베이스에서 정보를 받아야 한다 그리고 그걸 화면에 표시해야 한다
+그런 모든 로직이 jsp에 있었다
+
+⏺ LoginController 클래스파일..
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+
+	@RequestMapping("login")
+	public String gotLoginPage(@RequestParam String name, ModelMap model) {
+		
+		model.put("name", name);
+
+		return "login";
+	}
+}
+
+컨트롤러는 전혀 없었고 당시에는 컨트롤러 개념이 없었고 
+
+⏺ Hello.jsp 파일..
+
+<html>
+  <head>
+    <title>
+    	Login Page
+    </title>
+  </head>
+  <body>
+    	Welcome to the login page ${name}!
+  </body>
+</html>
+
+모든 로직을 jsp에 기록했다
+그래서 jsp가 데이터베이스와 대화하고 정보를 받고 그걸 사용자에게 표시했다 그렇게 모든 게 jsp의 일부였다
+● Disadvantages: 
+  ■ VERY complex JSPs   
+그래서 결국은 아주 아주 복잡해지게 되었다
+  ■ ZERO separation of concerns 
+그리고 주제별로 구분되지도 않았다, 뷰 로직, 흐름 로직, 데이터베이스 로직 등 모든 게 jsp 안에 있었다 
+  ■ Difficult to maintain
+그리고 그런 구조는 유지하기가 아주 어려웠다
+★★★ 이렇게 컨트롤러 없이 jsp만 사용하는 아키텍처를 모델 1 아키텍처라고 부른다 ★★★
+
+
+
+
+
+● Model 2 에 대한 설명
+
+Peek into History - Model 2 Arch.
+                                                                                                                                                                          
+● How about separating concerns?                                                                 ___________                                                                        
+  ■ Model: Data to generate the view                                                            (  Browser  )                                                                        
+  ■ View: Show information to user                                                               ‾‾‾‾‾‾‾‾‾‾‾                                                                        
+  ■ Controller: Controls the flow                                                                /          \                                                               
+● Advantage: Simpler to maintain                                                                ↙            ↘                                                             
+● Concern:                                                                               ___________         ___________
+  ■ Where to implement common features to all Controllers?                              ( Servlet1  )       ( Servlet2  )                                                            
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾         ‾‾‾‾‾‾‾‾‾‾‾                                                                        
+                                                                                        ↙    \                  /      ↘                                                       
+                                                                                _______       \                /       _______                                                  
+                                                                               ( View1 )       \              /       ( View2 )                                                        
+                                                                                ‾‾‾‾‾‾‾  \      \            /       / ‾‾‾‾‾‾‾                                                 
+                                                                                           \     ↘          ↙      /                                                       
+                                                                                             ↘    ___________   ↙                                                                      
+                                                                                                 (   Model   )                                                                         
+                                                                                                  ‾‾‾‾‾‾‾‾‾‾‾                                                                       
+                                                                                                            
+그리고 우린 빠르게 모델 2 아키텍처로 진화하게 되었다 
+모델 2 아키텍처는 주제가 아주 분명하게 구분되었다 
+● How about separating concerns?  
+  ■ Model: Data to generate the view 
+모델은 뷰를 생성하는 데 사용하는 데이터이고
+  ■ View: Show information to user
+뷰는 정보를 사용자에게 보여주는 역할을 한다, 
+  ■ Controller: Controls the flow 
+그리고 컨트롤러 또는 서블릿이 전체 흐름을 제어한다
+● Advantage: Simpler to maintain  
+이제 로직이 주제별로 구분되어 있다는 게 장점이다
+흐름 로직은 서블릿으로 가고, 사용자에게 어떻게 보여줄지를 나타내는 뷰 로직은 뷰로 가고, 
+DB같은 것에서 데이터를 받는 방법에 관한 모든 정보는 모델로 간다
+
+그래서 이런 종류의 아키텍처는 유지가 더 쉽다 
+
+그렇지만
+● Concern:
+  ■ Where to implement common features to all Controllers?
+공통 기능을 모든 컨트롤러에 걸쳐 구현하는 방법이 고민이었다
+너에게는 많은 서블릿이 있고 너는 모든 서블릿에 걸쳐 구현하려고 하는 공통 기능이 있을 수 있다 
+예를 들어 너가 인증을 구현하려고 한다면 인증 로직은 모든 서블릿에 갈쳐 비슷하다
+그것을 모든 서블릿에 걸쳐 어떻게 공통적으로 구현할 수 있을까?
+
+
+
+
+
+● Model 2 의 Front Controller Pattern 에 대한 설명
+
+Model 2 Architecture - Front Controller
+                                                                                                                                                                          
+● Concept: All requests flow into a central controller                                           ___________                                                                        
+  ■ Called as Front Controller                                                                  (  Browser  )                                                                        
+● Front Controller controls flow to Controller's and View's                                      ‾‾‾‾‾‾‾‾‾‾‾                                                                        
+  ■ Common Features can be implemented in the Front Controller                                        ||                                                               
+                                                                                                      ↓↓                                                             
+                                                                                               _________________       
+                                                                                              ( FrontController )       
+                                                                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                
+                                                                                              /     /     \      \                                             
+                                                                                           ↙      ↙        ↘        ↘                                   
+                                                                                __________    _______    __________   _______                                                      
+                                                                               ( Servlet1 )  ( View1 )  ( Servlet2 ) ( View2 )                                                       
+                                                                                ‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾                                                           
+                                                                                      \         \             /          /                                 
+                                                                                         \        \          /         /                                  
+                                                                                             ↘      ↘       ↙        ↙                                                                                    
+                                                                                                   ___________                                                                                                                                                                                      
+                                                                                                  (   Model   )                                       
+                                                                                                   ‾‾‾‾‾‾‾‾‾‾‾                                          
+                                                                                                                         
+
+그래서 우리는 소위 프론트 컨트롤러 패턴으로 진화하게 되었다
+그래서 이건 프론트 컨트롤러가 있는 모델 2 아키텍처라고도 부른다 
+그럼 브라우저에서 오는 모든 요청은 단 하나의 컨트롤러로 가고, 그래서 보안 같은 기능을 더욱 쉽게 구현할 수 있게 된다 
+너는 보안 인증을 모두 이 레이어에서 구현할 수 있고
+그걸 체크한 다음 그걸 적절한 곳으로 전달할 수 있다, 그걸 적절한 컨트롤러나 서블릿 또는 적절한 뷰로 전달할 수 있다 
+● Concept: All requests flow into a central controller
+그래서 만든 요청이 중앙 컨트롤러로 흘러 가는 개념이다 
+  ■ Called as Front Controller
+그걸 프론트 컨트롤러라고 부른다 
+● Front Controller controls flow to Controller's and View's
+프론트 컨트롤러는 컨트롤러, 뷰, 서블릿으로 가는 흐름을 제어한다 
+  ■ Common Features can be implemented in the Front Controller  
+그리고 공통 기능은 프론트 컨트롤러에 구현되었다 
+그리고 항상 역사를 약간 알면 도움이 된다고 보는 편이고, 그래서 우린 디스패처 서블릿에 대해 알아보기 전에 
+모델 1 아키텍처, 모델 2 아키텍처, 그리고 프론트 컨트롤러가 있는 모델 2 아키텍처를 소개해 봤다
