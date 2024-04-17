@@ -1,0 +1,246 @@
+
+
+지난 몇 번의 단계에선 많은 이론을 살펴봤고
+이번 단계부턴 본격적으로 코드를 작성해보겠다 
+
+지금 우리 로그인 페이지에는 <body>에 그냥 간단히 Welcome to the login page ${name}!만 있다
+
+<html>
+<head>
+<title>Login Page</title>
+</head>
+<body>
+		Welcome to the login page ${name}!
+</body>
+</html>
+
+하지만 우린 여기에 적절한 양식을 구현하려고 한다 
+우린 사용자 ID와 패스워드를 받아서 사용자가 애플리케이션에 로그인하도록 할 수 있길 원한다 
+이번 단계와 다음 단계에 걸쳐서 간단한 로그인 페이지와 환영 페이지를 만들 것이다 
+
+사용자가 사용자 ID와 패스워드를 입력하면 그 사용자 ID와 패스워드를 검증하고 간단한 환영 페이지를 표시하는 것이다
+우리가 실제로 엔터프라이즈급 애플리케이션을 만들 때는 Spring Security같은 프레임워크로 검증을 할 것이고 
+작은 걸 만들어서 개념을 이해한 다음에 나중에 그걸 Spring Security로 대체할 것이다 
+
+지금은 우선 사용자 ID와 패스워드를 잡을 수 있는 간단한 페이지를 만드는 데 집중해보자
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+
+  //1: 먼저 @RequestParam을 삭제할 건데 이제 @RequestParam과 model은 더 이상 필요하지 않고
+  //그럼 여기서 @RequestParam과 ModelMap을 삭제하고 model.put또한 삭제하겠다 (불필요한 임포트 삭제 = Source > Organize Imports로 삭제 가능)//또한 @RequestParam과 Model을 없앴으니 JSP에서 ${name}도 필요없게됨//2:login.jsp로 가서 ${name}삭제./
+	@RequestMapping("login")
+	public String gotLoginPage() {
+
+		return "login";
+	}
+}
+
+----------------------------------------------------------------
+
+
+⏺ login.jsp 파일
+
+
+<html>
+<head>
+<title>
+	Login Page
+</title>
+</head>
+<body>
+
+  <!--2: ${name}을 삭제해주자-->
+  <!-- 이제 우리는 사용자로부터 약간 세부정보를 받으려 한다, 그리고 HTML에서 너가 사용자의 세부정보를 받기 위해 <form>이라는 걸 사용할 것이다-->
+  <!--<form>을 추가하고, <form> 안쪽에서 Name을 요구할 것이고 그리고 <input>요소를 추가 할 것이다-->
+		Welcome to the login page!
+  
+  <!-- 이렇게 <input type="text"라고 해주자 우리의 필드 name="name">이고 그걸 name으로 사용할 거고, 이걸 저장해보겠다-->
+  <!--그리고 양식을 만들 때는 항상 Submit 버튼이 있어야 한다 그럼 <input type="submit">이라고 해주자 //그리고 페이지 새로고침..-->
+  	<form action="">
+			Name: <input type="text" name="name">
+      
+  
+		</form>
+
+</body>
+</html>
+
+------------------------------------------------------------------------------------------------------------------
+                                                  |
+                                                  V
+----------------------------------------------------
+
+http://localhost:8087/login URL사이트 화면 ==>
+
+
+Welcome to the login page!
+       _______________________    _______
+Name: |                       |  | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾
+
+----------------------------------------------------
+
+Welcome to the login page!가 나오고, name과 submit(제출)이 나온다 
+이름을 Newjeans 라고 하고 Submit을 눌러보겠다
+
+그럼 너는 우리가 입력한 값이 쿼리 파라미터의 일부로서 가고 있는 걸 볼 수 있을 것이다
+그럼 패스워드 필드도 넣어보자
+
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ login.jsp 파일
+
+<html>
+<head>
+<title>
+	Login Page
+</title>
+</head>
+<body>
+
+		Welcome to the login page!
+  
+  <!--3: 그럼 그냥 Password: 라고 하겠다-->
+  <!--그리고 <input type="password"이고 name="password"이다 다시 새로고침-->
+  	<form>
+			Name: <input type="text" name="name">
+      Password: <input type="text" name="name">
+      <input type="submit">
+		</form>
+
+</body>
+</html>
+
+------------------------------------------------------------------------------------------------------------------
+                                                    |
+                                                    V
+-----------------------------------------------------------------------------
+
+http://localhost:8087/login URL사이트 화면 ==>
+
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |                       | Password:|                       | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+-----------------------------------------------------------------------------
+
+이제 name과 password가 있고 submit 버튼이 있다 
+이제 여기 name 과 password에 값을 넣어보자 name 엔 name으로 password엔 password란 값을 넣어 제출해 보겠다
+그러면 상단 검색창에 무엇이 보이니? http://localhost:8087/login?name=name&name=password
+보면 name=name&name=password라고 나온다 이게 URL에 있는 걸 볼 수 있다 
+
+정보를 URL에서 전송하는 건 그다지 않전하지 않다, 너가 특정 애플리케이션에 액세스할 때마다 
+너가 직접 애플리케이션에 액세스하는 게 아니라 인터넷을 통해서 엑세스하기 때문이다 
+그리고 인터넷에는 수많은 라우터가 있다, 그리고 모든 라우터가 이 URL을 볼 수 있다 
+그리고 너가 사용하는 이름과 패스워드를 볼 수 있다 그리고 그건 안전하지 않다
+더 자세히 알아볼까? 오른쪽 클릭을 하고 Inspect(검사)를 선택해라
+
+그리고 Network로 가고 이걸 다시 새로고침해 보겠다
+그러면 너는 요청이 이 URL로 가는 걸 볼 수 있고 login?name=name이고 password=password이다 
+
+그리고 Header를 볼까?
+Request URL:    http://localhost:8087/login?name=name&name=password
+Request Method: GET
+Status Code:    🟢 200 OK
+.....
+우리가 지금 사용하는 요청 메서드가 GET이라는 걸 알 수 있다
+너가 GET을 사용하면 모든 정보가 URL의 일부로서 전송된다, 그리고 이건 안전하지 않다 
+그래서 우리는 form을 만들 때마다 POST라는 걸 사용한다 
+
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ login.jsp 파일
+
+<html>
+<head>
+<title>
+	Login Page
+</title>
+</head>
+<body>
+
+		Welcome to the login page!
+  
+  <!--4: 그럼 여기로 가서 <form method="post">라고 할 수 있다-->
+  <!--이렇게 post 메서드를 사용할 수 있고, 그럼 어떻게 되는지 보자-->
+  	<form method="post">
+			Name: <input type="text" name="name">
+      Password: <input type="text" name="name">
+      <input type="submit">
+		</form>
+
+</body>
+</html>
+
+------------------------------------------------------------------------------------------------------------------
+                                                    |
+                                                    V
+-----------------------------------------------------------------------------
+
+http://localhost:8087/login URL사이트 화면 ==>
+
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |name                   | Password:|⚫⚫⚫⚫⚫⚫⚫⚫   | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+-----------------------------------------------------------------------------
+
+
+다시 login 페이지로 가서 name, password를 입력한다 그리고 submit 클릭
+http://localhost:8087/login
+이제 값이 URL의 일부분이 아니고 Network에 어떤 일이 일어나고 있는지 보자 
+login으로 가보고 Network탭의 doc에 있다
+
+Request URL:     http://localhost:8087/login
+Request Method:  POST
+Status Code:     🟢 200 OK
+Remote Address:  [::1]:8087
+Referrer Policy: strict-origin-when-cross-origin
+
+여기서 너는 요청 메서드가 이제 POST인걸 알 수 있다
+성공적으로 응답을 받고 있고
+또 Headers옆에 보면 새로운 Payload라는 탭이 있다 
+
+그리고 여기에 Form Data가 담겨있다
+name: name
+name: password
+여기 보면 name과 password가 이제 Form Data의 일부로써 전송되고 있는 것이다
+
+너가 웹사이트에 전송하려는 모든 보안 정보는 항상 post를 사용하는 것이 좋다 
+그리고 너가 post를 사용하면 모든 정보가 Form Data의 일부로서 전송된다 
+
+
+
+
+
+
+
+
+
+
+여기서 우리는 왜 post가 get보다 더 좋은지 이해하게 되었다 
+그리고 간단한 로그인 양식도 만들었다 
+이제 우리는 이 양식에서 데이터를 받아서 그걸로 누가 로그인하는지 사용자를 인증하려고 한다 
+그건 다음 단계에서 알아보겠다
