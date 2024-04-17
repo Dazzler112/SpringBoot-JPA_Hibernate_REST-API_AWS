@@ -155,3 +155,182 @@ org.springframework.web.HttpRequestMethodNotSupportedException: Request method '
 
 지금 추가해보자
 
+--------------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+	//login
+	//GET, POST
+	@RequestMapping(value="login",method = RequestMethod.GET)
+	public String gotLoginPage() {
+		
+		return "login";
+	}
+
+//2: 메소드명을 gotoWelcomePage()라고 해주겠다 그리고 URL은 동일하게 유지되지만 method는 POST가 된다
+//이렇게 너가 login에 POST 요청을 전송하면, 어떻게 하려고 하지? welcome페이지로 가려고 한다 //이렇게하고 저장하면 어떻게 되는지 보자
+	@RequestMapping(value="login",method = RequestMethod.POST)
+	public String gotoWelcomePage() {
+		
+		return "welcome";
+	}
+}
+
+
+--------------------------------------------------------------------------------------------------------
+                                                    |
+                                                    V
+-----------------------------------------------------------------------------
+
+http://localhost:8087/login URL사이트 화면 ==>
+
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |name                   | Password:|⚫⚫⚫⚫⚫⚫⚫⚫   | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+-----------------------------------------------------------------------------
+                                                                       |    
+login으로 가서 name, password를 작성하고 submit을 눌러보자               |
+                                                                      V
+-----------------------------------------------------------------------------
+
+http://localhost:8087/login URL사이트 화면 ==>
+
+
+Welcome to Welcome to in28minutes
+
+-----------------------------------------------------------------------------
+
+다음 페이지로 가고 Welcome to Welcome to in28minutes라고 나온다 
+그럼 이제 우리는 로그인 페이지에서 환영 페이지로 갈 수 있게 되었다 
+
+이렇게 흐름을 작동시켰으니 이제는 이름과 패스워드 세부정보를 잡을 차례이다 
+사용자가 입력한 이름과 패스워드를 이용해서 사용자를 인증하려고 한다 
+이름과 패스워드를 어떻게 잡을 수 있을까?
+앞에서 우리는 URL과 함께 전달되는 쿼리 파라미터를 잡기 위해서 RequestParam 어노테이션을 사용했다 
+그것과 비슷하다, RequestParam을 사용하면 양식 데이터도 잡을 수 있다 
+쿼리 파라미터와 양식 데이터에 너는 RequestParam을 쓸 수 있고 
+
+--------------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+	@RequestMapping(value="login")
+	public String gotLoginPage() {
+		
+		return "login";
+	}
+
+//3: 그럼 @RequestParam이라고 쓸 것이고 ctrl+space를 누르면 임포드가 될 것이다 그리고 @RequestParam에서 String으로 시작하고 name을 넣어주려 한다 그리고 패스워드에 대해서도 하나 더 넣어주려고 한다
+//그럼 @RequestParam String password 라고 해주자 우린 이걸 환영 페이지에 표시하려고 한다 그러면 너는 이걸 환영 페이지에 전달할 수 있을 것이다 어떻게 그걸 환영페이지에 전달할 수 있을까?
+//맞다 ModelMap에 넣어줘야 한다 ctrl+1 또는 ctrl+space로 ModelMap을 임포트 해주고 이렇게 우린 이름과 패스워드를 잡기 위해 필요한 모든 것들을 추가하고 있고 그걸 map에 넣어서 jsp에 표시한다 
+	@RequestMapping(value="login",method = RequestMethod.POST)
+	//login?name=Ranga RequestParam
+	public String gotoWelcomePage(@RequestParam String name, 
+								                @RequestParam String password, 
+								                ModelMap model) {
+
+  //앞서 우리가 Model을 사용한 방식과 아주 비슷하다  model.put()이라 하고 "name", name 이라넣고 "password",password라고 해준다 
+  //하지만 패스워드는 페이지에 표시하지 말아야겠지? 빠르게 추가한 다음에 작동하는지 확인하고, 나중에 삭제해보자
+    model.put("name", name);
+		model.put("password", password);
+
+		return "welcome";
+	}
+}
+
+이제 모든 게 model의 일부분이고 환영 페이지로 리디렉션을 하고 있다, 그리고 welcome.jsp에 Welcome to in28minutes라고 되어 있다
+
+----------------------------------------------------------
+
+⏺ welcome.jsp 클래스파일
+
+<html>
+  <head>
+    <title>
+    	Welcome Page
+    </title>
+  </head>
+  <body>
+  		<div>Welcome to Welcome to in28minutes</div> 
+      <!--3-1: 그러면 <div>를 하나 더 넣어볼까? YourName: 이라하고 EL표현을 쓰고 name이라고 해주자 ${name}-->
+      <div>Your Name: ${name}</div>
+
+      <!--그리고 또 하나를 넣고 Your Password:라 하고 ${password}를 넣어준다-->
+      <div>Your Password: ${password}</div>
+  </body>
+</html>
+
+
+--------------------------------------------------------------------------------------------------------
+
+우리가 여기서 하는 건 아주 간단한 것이다
+양식 데이터의 일부로서 받는 데이터를 name과 password라는 메서드에서 잡고 그걸 model에 넣는다,
+그리고 model을 사용해서 뷰에 표시한다 이렇게 우리는 기본적으로 모델 뷰 컨트롤러 패터에 따라 우리의 정보를 뷰에 표시하고 있다
+
+그럼 웹브라우저 login으로 가보자
+다시 login으로 요청을 전송하겠다 
+
+-----------------------------------------------------------------------------
+
+http://localhost:8087/login URL사이트 화면 ==>
+
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |name                   | Password:|⚫⚫⚫⚫⚫⚫⚫⚫   | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+-----------------------------------------------------------------------------
+                                                                    |
+이름을 name, pw를 dummy라고 넣어주고 submit을 누른다                   |
+                                                                    V
+-----------------------------------------------------------------------------
+
+http://localhost:8087/login URL사이트 화면 ==>
+
+Welcome to Welcome to in28minutes
+Your Name: name
+Your Password: dummy
+
+-----------------------------------------------------------------------------
+
+어떻게 됐냐?
+Welcome to Welcome to in28minutes라고 나오고 
+Your Name: name ,Your Password: dummy 라고 나온다 
+
+
+
+
+
+
+
+
+
+이번 단계에선 우린 로그인 양식을 구현해 봤다 
+우린 로그인 양식에서 세부정보를 잡아서 환영 페이지에 표시할 수 있었다 
+그럼 다음 단계에선 인증을 구현해보도록 하겠다 
