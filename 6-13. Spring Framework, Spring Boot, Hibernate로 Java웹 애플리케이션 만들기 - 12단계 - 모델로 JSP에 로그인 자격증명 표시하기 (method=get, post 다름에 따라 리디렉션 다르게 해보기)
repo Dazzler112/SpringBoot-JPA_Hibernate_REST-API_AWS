@@ -1,0 +1,157 @@
+
+
+지난 단계에서 우리는 간단한 로그인 양식을 만들었고 
+
+-----------------------------------------------------------------------------
+
+http://localhost:8087/login URL사이트 화면 ==>
+
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |name                   | Password:|⚫⚫⚫⚫⚫⚫⚫⚫   | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+-----------------------------------------------------------------------------
+이 로그인 양식에서 이름과 패스워드를 입력하고 엔터키를 누르면 다시 로그인 양식으로 돌아간다 
+여기서 너가 이걸 환영 페이지로 리디렉션 하는 방법을 알아봐야 겠지?
+너는 자격증명을 입력하면 환영페이지를 볼 수 있기를 원한다 
+
+
+그럼 먼저 환영페이지를 만들어보자 login.jsp를 복사 붙해서 재사용 해 보곘다 이름은 welcome.jsp라고 하겠다
+
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ Welcome.jsp 파일
+
+
+<html>
+<head>
+<!--1: 여기 있는 제목만 Welcome Page로 바꿔보자-->
+<title>
+	Welcome Page
+</title>
+</head>
+<body>
+<!--그리고 Welcome to in28minutes라고 해주자-->
+<!--그리고 간단한 <div>를 넣어보자-->
+	<div>Welcome to Welcome to in28minutes</div>  
+</body>
+</html>
+
+-----------------------------------------------------------------------------------------------------------------------
+이렇게 환영페이지를 만들었다 그럼 사용자가 login.jsp여기있는 Submit 버튼을 클릭하면 사용자를 환영 페이지로 리디렉션 하려고 한다 
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |                       | Password:|                       | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+그럼 여기서 오른쪽 클릭을 하고 inspect를 선택해보자
+그리고 Network로 가서 Doc을 보자 
+Request URL:      http://localhost:8087/login
+Request Method:   GET
+Status Code:      🟢 200 OK
+그러면 http://localhost:8087/login으로 가능 첫 번째 요청은 GET 요청이다
+우리가 브라우저에 URL을 입력하면 GET 요청을 전송하게 된다 
+
+하지만 이름과 패스워드를 입력하고 Submit을 클릭하면
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |name                   | Password:|⚫⚫⚫⚫⚫⚫⚫⚫   | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+다시 요청이 login으로 가고 
+Request URL:       http://localhost:8087/login
+Request Method:    POST
+Status Code:       🟢 200 OK
+Remote Address:    [::1]:8087
+Referrer Policy:   strict-origin-when-cross-origin
+
+하지만 Headers를 보면 이건 POST 요청인 걸 알 수 있다
+
+GET요청인 경우에는 우리가 여기에 URL을 입력하면 우리는 로그인 페이지를 보여주려고 한다 
+하지만 누군가 사용자 ID와 패스워드를 입력한 다음 Submit을 클릭하면 이건 POST 요청이고 
+POST 요청인 경우엔 우리는 환영 페이지를 표시하려고 한다 
+
+
+지금은 GET 요청과 POST 요청을 모두 이 메서드가 처리하고 있다 
+	@RequestMapping("login")
+	public String gotLoginPage() {
+		
+		return "login";
+	}
+즉, 이 메서드가 GET과 POST 요청을 모두 처리하고 있다 
+그럼 어떻게 이게 GET 요청만 처리하도록 할 수 있을까? 
+
+바로 여기서 너는 요청 메서드를 추가 파라미터로서 넣어줄 수 있다 
+
+--------------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+	//login
+	//GET, POST
+
+  //1: 그럼 먼저 여기 @RequestMapping에 value="login"이라고 해주자 그리고 ,를 넣고 ctrl+space를 누르면 매서드를 볼 수 있다, 여기에 다양한 파라미터가 허용되어 있지? 그중method가 있고, 
+  //이 method가 RequestMethod를 사용하게 하려 한다, Request라고 하고 ctrl+space누르면 나오고, .GET이라고 해주자 //오직 GET 요청에 대해서만 이 메서드를 사용하려는 것이다 POST 요청인 경우에 우린 다른 걸 하려고 한다//이제 이걸 저장하고 로그인 페이지 를 새로고침 해보자.. 
+	@RequestMapping(value="login",method = RequestMethod.GET)
+	public String gotLoginPage() {
+		
+		return "login";
+	}
+}
+
+
+--------------------------------------------------------------------------------------------------------
+                                                    |
+                                                    V
+-----------------------------------------------------------------------------
+
+http://localhost:8087/login URL사이트 화면 ==>
+
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |name                   | Password:|⚫⚫⚫⚫⚫⚫⚫⚫   | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+-----------------------------------------------------------------------------
+이름과 패스워드를 넣고 Submit을 클릭해보자
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Wed Apr 17 20:52:14 KST 2024
+There was an unexpected error (type=Method Not Allowed, status=405).
+Method 'POST' is not supported.
+org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' is not supported
+	at 
+
+오류가 나온다, Method POST가 지원되지 않늗다
+로그인 URL은 GET만 지원하고 POST는 지원하지 않는다 
+
+	@RequestMapping(value="login",method = RequestMethod.GET)
+	public String gotLoginPage() {
+		
+		return "login";
+	}
+그럼 여기 있는 이 메서드는 지금 GET만 지원한다 
+그럼 POST 메서드를 어떻게 추가할까?
+
+지금 추가해보자
+
