@@ -1,0 +1,167 @@
+
+
+Building your First Web Application
+
+                                                                                          in28Minutes  Home Todos
+                                                                                                                                                                                                                                                                                    
+                                                                                          Your Todos                                              
+                                                                                                                                        
+                                                                                          Description          Target Date        Is it Done?                         
+                                                                                          ________________________________________________________________________________________________                                              
+                                                                                                                                                        _________       _________   
+                                                                                          Learn AWS            10/06/2024         false                | Update  |     | Delete  |                
+                                                                                                                                                        ‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾
+                                                                                                                                                        _________       _________   
+                                                                                          Learn DevOps         10/06/2024         false                | Update  |     | Delete  |                
+                                                                                                                                                        ‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾                                                                                                                                        
+                                                                                                                                                        _________       _________   
+                                                                                          Learn React          10/06/2024         false                | Update  |     | Delete  |                
+                                                                                                                                                        ‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾                                                                                                                                        
+                                                                                                                                                        _________       _________   
+                                                                                          Learn Angular        10/06/2024         false                | Update  |     | Delete  |                
+                                                                                                                                                        ‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾                                                                                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                    
+                                                                                                                                                                                                                    
+                                                                                                                                                                                                                    
+                                                                                                                                                                                                                    
+                                                                                                                                                                                                                    
+                                                                                                                                                                                                                    
+
+지난 몇 단계에서 우린 Spring Boot를 이용한 웹 애플리케이션 제작의 기초지식을 이해했고 
+이제 우리는 Todo 관리 애플리케이션 제작을 위해 한 걸음 더 나아가는 데 필요한 모든 지식을 갖췄다 
+우리는 우리의 Todo를 관리할 수 있는 Todo관리 애플리케이션을 제작하려 한다 
+
+그럼 우리는 설명, 목표날짜, 완료 여부를 저장하려고 하고, 우리의 Todo를 보고 그걸 업데이트하거나 삭제할 수 있길 바란다,
+그리고 우리 웹 페이지에 적절한 구조를 추가하려고 한다 
+
+지금 우리 웹페이지의 형식이 엉망인데 
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |                       | Password:|                       | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+우린 그걸 적절히 형식화를 하고 위의 Todos 처럼 이런 게 나타나게 하려고 한다 
+
+그럼 이제 Todo를 보여주는 페이지를 만들어보겠다
+페이지 제작을 시작하기 전에 우리는 Todo를 저장하기 위한 Bean이 필요하다 
+
+
+## Todo
+
+id
+username
+description
+targetdDate
+done
+
+우린 Todo에 관해 흔히 뭘 저장하지? 그것에 id를 지정해야 하고 
+Todo의 소유자가 누구인지를 나타내는 username(사용자 이름)이 있어야 한다 
+다음으로 Todo에 대한 description(설명)이 필요하다 가령 AWS 배우기 같은거,
+그 다음은 목표 날짜이다 언제까지 AWS를 배울까?
+그리고 마지막으로는 완료 여부가 있을 것이다 그걸 done이라고 부르겠다 
+
+이것들이 우리가 Todo에 관해 저장하려는 것들이다 
+그럼 행마다 id가 있고 1일 수 있다, username 은 in28minutes일 수 있고 설명은 Azure, Google Cloud 또는 DevOps 학습 등이 되겠고
+targetDate는 아마 6개월 정도가 될수 있겠지? done은 그게 완료되었는지가 있을것이다
+
+
+그럼 세부정보들을 저장하기 위한 Java 클래스를 만들어보자
+
+com.firstapplication.springboot.myfirstwebapp 루트패키지에서 새 클래스를 만들어보자 사용하려는 패키지는 .todo이고 클래스 명은 Todo이다
+그럼 우린 Todo에 관한 모든 세부정보를 저장하기 위해 Bean을 만들고 있고, 저장하려는 것들은 
+id
+username
+description
+targetdDate
+done
+이것들이다 
+그럼 이것들을 저장하기 위해 멤법 변수를 간단히 만들어보자
+
+
+--------------------------------------------------------------------------------------------------
+
+
+⏺ Todo 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+
+//Database (MySQL)
+//Staitc List of todos => Database (H2, MySQL)
+
+public class Todo {
+
+  //1: 그럼 private int id라고 해주자, id는 정수를 쓸 수 있고 username은 문자열이니 private String username이라 해주자, 또 private String description;,
+  //그리고 목표 날짜는 LocalDate로 해준다 LocalDate는 Java Util에 있는 클래스고, 그걸 날짜로 저장할 수 있다 이렇게 Date대신 LocalDate를 쓰는게 좋다, 그럼 private LocalData targetDate라고 해주자
+  //그리고 마지막은 private boolean done이다 여기에 모두 넣었고, 우린 LocalDate를 임포트해야 할 것이다 실제로 java.time.LocalDate에서 임포트되는 걸 볼 수 있다 그리고 우린 이걸 이용해서 날짜를 지정할 것이다, 
+  //이렇게 멤버 변수를 준비했고 이제 생성자를 만들어 보자 //1-1 아래에서 계속..
+	private int id;
+	private String username;
+	private String description;
+	private LocalDate targetdDate;
+	private boolean done;
+
+  //1-1: Source > Generate Constructor using Field > 변수선택 > 생성 그럼 Todo라는 생성자가 생겼고 //1-2: get/setter 생성..
+  	public Todo(int id, String username, String description, LocalDate targetdDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetdDate = targetdDate;
+		this.done = done;
+  }
+  //1-2: 또 비슷하게 오른쪽클릭 > Source >Generate getter and setter > Select All > 생성 그럼 여기에 게터와 세터가 모두 생겼다 //1-3 아래에서계속..
+  	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public LocalDate getTargetdDate() {
+		return targetdDate;
+	}
+	public void setTargetdDate(LocalDate targetdDate) {
+		this.targetdDate = targetdDate;
+	}
+	public boolean isDone() {
+		return done;
+	}
+	public void setDone(boolean done) {
+		this.done = done;
+	}
+	
+	//1-3: 또 toString()메서드도 만드려고 한다 Source > Generate toString() > 모든 필드를 선택 이렇게 생성할 것이고 
+  	@Override
+	public String toString() {
+		return "Todo [id=" + id + ", username=" + username + ", description=" + description + ", targetdDate="
+				+ targetdDate + ", done=" + done + "]";
+	}
+
+  //이렇게 Todo를 충분히 준비했다 
+  //그럼 이 모든 Todo 세부정보를 어디에 저장할까? 일반적으로 너는 그걸 DB에 저장한다, 그럼 DB를 만들어야 하고 
+  //그럼 너는 예를 들어 MySQL, Oracle 같은 걸 만들게 된다 
+  //이 강의에선 우리는 차근차근 단계별로 접근할 건데 우린 먼저 Todo 리스트를 만들 거고 그럼 정적인 Todo 리스트를 만들 것이다
+  //그 다음에 실제 DB로 이동할 것이고 우리는 H2라는 인메모리 데이터베이스를 사용하고, MySQL도 데이터베이스로 사용할 것이다
+  //그럼 지금은 우선 앞으로 몇 번의 단계에서 정적인 Todo리스트를 만들어 볼 것이다, 그리고 이 정적인 Todo 리스트를 관리하기 위해 우리는 TodoService라는 걸 만들 것이다
+  //그럼 TodoSrvice를 만들어보자 //2: TodoService 클래스파일로..
+}
+
+-------------------------------------------------------------------
+
+
