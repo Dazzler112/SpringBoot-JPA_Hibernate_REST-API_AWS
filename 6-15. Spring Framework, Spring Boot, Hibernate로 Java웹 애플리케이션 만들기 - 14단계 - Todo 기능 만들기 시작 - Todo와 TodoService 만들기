@@ -165,3 +165,52 @@ public class Todo {
 -------------------------------------------------------------------
 
 
+⏺ TodoService 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+public class TodoService {
+  //2: TodoService 안에는 무엇이 있어야 할까? 우린 private 안에 Todo리스트를 담으려 한다, 그럼 private List<Todo> todos 라고 해준다 
+  //이게 정적 리스트가 되길 원한다, 그럼 private static List<Todo> todos;라고 하고 
+  private static List<Todo> todos;
+
+  //2계속..: 이걸 초기화하려고 한다, 그럼 뭔가를 초기화라려면.. 정적 변수를 초기화할 때는 static 블록을 만들어야 한다 
+  //그럼 todos.add()라고 하고 new Todo()라고 해준다 그럼 new Todo()를 만들기 위해 무엇이 필요할까? 많은 세부정보가 필요하지 
+  //첫째는 id고, 다음은 사용자 이름이다 즉 todo의 소유자를 말하는 것이고 그럼 in28minutes라고 넣어주자, 
+  //그리고 셋째는 설명이다 가령 "Learn AWS"라고 해보자, 다음은 목표 날짜인데 목표 날짜는 LocalDate.now()라고 할 수 있다 그리고 .plusYears()를 넣어서 다음 해까지 그걸 배우길 원한다고 해보자 그래서 LocalDate.now().plusYears(1)이라고 했다
+  //그리고 마지막은 완료 여부이다 완료했는지 아닌지를 말한다 지금은 false라고 해주겠다
+  //이렇게 첫 번째 todos를 넣었고 그리고 todos를 몇 개 더 만들어보자 3개를 더 만들어 보겠다 "Learn DevOps"이라 하고 그리고 "Learn Full Stack Development"도 넣을수 있다
+  //DevOps는 예를 들어 2년안에 배운다고 해보고, 풀 스택 개발은 3년 안에 배우겠다고 해보겠다 그냥 임의로 값을 넣을수 있다는걸 보여주려고 하는거다 값엔 너무 신경 nono
+	static {
+		todos.add(new Todo(1,"in28minutes","Learn AWS", 
+                      LocalDate.now().plusYears(1), false));
+    todos.add(new Todo(1,"in28minutes","Learn DevOps", 
+                      LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(1,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+
+  //이렇게 우린 정적인 Todo 리스트를 만들었고 그럼 메서드를 만들어 보겠다 
+  //우린 외부에서 이것들에 직접 액세스하길 원치 않고, 그래서 이걸 private로 만들었다
+  //그리고 우리는 여기에 Todo리스트를 리턴하기 위한 메서드를 넣어줄 것이다 //2-1: 아래에 계속 작성..
+
+  //2-1: 그럼 이걸 public이라고 하고 List<Todo>라고 해보자 우린 특정한 사용자에 관련된 Todo를 받으려고 한다 그럼 넌 findByUsername()이라고 하고 (String username)을 넣어주자
+  //그럼 username이 주어지면 우린 이 모든 Todo를 찾아서 그걸 리턴하려고 한다 간단히 하기 위해 전체 todos 리스트를 리턴하도록 하자// 우린 나중에 약간의 필터링을 할 건데 지금은 그냥 모든 todos를 리턴하고 있다  
+	public List<Todo> findByUsername(String username) {
+		return todos;
+	} 
+}
+
+--------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+우린 Todo를 좀 다루기 시작했고, 이번 단계에선 약간 지루한 내용을 다뤘다 
+우린 모든 세부정보가 담긴 Todo의 Bean을 만들었고 또 정적 todos 리스트가 있는 간단한 TodoSrvice를 만들었다 
+강의의 나중 부분에서 우리는 실제 데이터베이스로 이동할 것이고 이런게 좀 지루하다는 걸 알고 있고 
+다음 단계에선 좀 재미있는 내용들을 다뤄보겠다
