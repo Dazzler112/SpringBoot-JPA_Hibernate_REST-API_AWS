@@ -1,0 +1,216 @@
+
+
+지난 단계에서 우리는 Todo Bean을 만들고 TodoService를 준비했다
+이번 단계에선 Todo를 나열한 페이지를 만들어보겠다 
+
+## Todo
+
+id
+username
+description
+targetdDate
+done
+
+1. TodoController
+2. listTodos.jsp
+
+그럼 Todo를 나열한 페이지를 만들기 위해 넌 무엇을 해야할까? 
+먼저 너는 TodoController를 만들어야 한다 
+그 다음에는 listTodos.jsp로 리디렉션을 해야 한다
+
+그럼 바로 그것부터 시작해보자
+
+먼저 TodoController부터 해보겠다 
+toddo패키지에서 새로운 클래스생성 이름을 TodoController라고 하겠다
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+//1: 이건 Controller기 때문에 여기 @Controller라고 넣고 임포트하겠다 //1-1:TodoController안으로..
+@Controller
+public class TodoController {
+
+  //1-1: 그리고 이제 사용할 리스트를 위한 메서드를 여기에 만들 수 있다, Todo 리스트에 사용할 URL은 /list-todos라고 하자, 
+  //그럼 우리는 @RequestMapping이라고 하고 URL인 "list-todos"를 넣어준다 그리고 public이라고 하고 이게 뭘 리턴할까? String을 리턴하고 listAllTodos()를 리턴한다
+  //그리고 우리는 여기서 Todo 리스트를 받고 jsp 페이지로 리디렉션을 하려고 한다, 지금은 간단히 return "listTodos"라고 해줬다 이렇게 하면 listTodos.jsp로 리디렉션 될 것이다
+	//다음으론 listTodos.jsp를 만들어야한다 //2: listTodos.jsp 파일로...
+  @RequestMapping("list-todos")
+	public String listAllTodos() {
+		
+		return "listTodos";
+	}  
+}
+
+------------------------------------------------------------
+
+
+⏺ listTodos.jsp 파일
+
+
+
+<html>
+<head>
+<title>
+  <!--2:이걸 List Todos Page로 하고-->
+	List Todos Page
+</title>
+</head>
+<body>
+		<div>Welcome to in28minutes</div> 
+    <!--2-1: Your Todos are ${todos}라고 하자 우린 todos에 관해 model에 채워진 게 없지만 그냥 여기 넣어두겠다 그럼 어떻게 되는지 확인해볼까?-->
+		<div>Your Todos are ${todos}</div>
+</body>
+</html>
+
+
+---------------------------------------------------------------------------------------------------------------------
+                                                              |
+                                                              V
+-----------------------------------------------------------------------------
+
+http://localhost:8087/list-todos URL사이트 화면 ==>
+
+
+Welcome to in28minutes
+Your Todos are
+
+-----------------------------------------------------------------------------
+
+이렇게 이 페이지로 갈 수 있다 Welcome to in28minutes Your Todos are라고 나온다 
+
+그럼 지금 Todo를 채우기 위해 필요한 걸 해보겠다
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ TodoController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+@Controller
+public class TodoController {
+
+
+//3: 여기서 우린 TodoService를 사용하려 한다 private TodoService 라고 한 다음에 todoService 라고 한다 //3-1: 아래에 계속 작성..
+private TodoService todoService;
+
+//3-1: 그리고 항상 하듯이 생성자를 만든다 우클릭 > Source > Generate Constructor using Field > 전체 클릭
+//이렇게 생성자가 생겼고 그러면 자동으로 결합될 것이다, 이제 todoService를 사용해 Todo 리스트를 받을 수 있다,//3-2: listAllTodos 메소드 안으로..  
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+  @RequestMapping("list-todos")
+	public String listAllTodos() {
+    
+    //3-2: 그럼 todoService.findByUsername()이라고 하고 지금은 우선 간단히 "in28minutes"라고 하드코딩을 해보자 이걸 하드코딩하는 데는 이유가 있는데, 그건 다음 단계에서 살펴보기로 하자
+    //지금은 우선 하드코딩을 하고, 이건 Todo 리스ㅌ를 리턴할 것이다 그럼 ctr1+1로 구문을 새 지역 변수에 지정을 선택한다 이렇게 todos고, 이렇게 todos가 있으면 그걸 model에 넣는다
+    //그럼 우린 model을 사용할 수 있게 해야 한다 그럼 listAllTodos()에 ModelMap model 이라 적어주고 임포트 해주고 그다음 model.addAttribute()라고 하고 "todos",todos 라고 넣어주고 세미콜론으로 마무리를 한다 //3-3:listTodos.jsp로 
+    List<Todo> todos = todoService.findByUsername("in28minutes");
+    model.addAttribute("todos", todos);
+
+		return "listTodos";
+	}  
+}
+
+------------------------------------------------------------
+
+
+⏺ listTodos.jsp 파일
+
+
+<html>
+<head>
+<title>
+	List Todos Page
+</title>
+</head>
+<body>
+		<div>Welcome to in28minutes</div> 
+    <!--3-3:그럼 listTodos.jsp로 가보면 여기에 todos가 있지, 그리고 이름이  일치되야 한다 -->
+    <!--  model.addAttribute("todos", todos); 이렇게 우리는 "todos"로 속성을 추가하고 있고 그것들이 이 listTodos.jsp에서 보여주고 있다 이게 잘 되는지 한번 보자-->
+		<div>Your Todos are ${todos}</div>
+</body>
+</html>
+---------------------------------------------------------------------------------------------------------------------
+                                                |
+                                                V
+-----------------------------------------------------------------------------
+
+http://localhost:8087/list-todos URL사이트 화면 ==>
+
+사이트에 연결할 수 없음localhost에서 연결을 거부했습니다.
+다음 방법을 시도해 보세요.
+
+연결 확인
+프록시 및 방화벽 확인
+ERR_CONNECTION_REFUSED
+-----------------------------------------------------------------------------
+서버가 올라오지 않았는데 왜 서버가 올라오지 않았을까?
+
+Action:
+
+Consider defining a bean of type 'com.firstapplication.springboot.myfirstwebapp.todo.TodoService' in your configuration.
+
+로그에 TodoService 타입의 Bean을 저으이하라는 권고가 나왔다 
+우린 TodoService를 만들었지만, Spring이 이걸 관리해야 한다고 정의하지 않았다 
+                                            |                              
+                                            |
+                                            V
+-----------------------------------------------------------------------------
+
+
+⏺ TodoService 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+//4:그럼 @Service라고 하고 이걸 저장한다, 그럼 @Service를 추가했고 임포트를 정리한다 애플리케이션이 이제 다시 시작되었다 
+@Service
+public class TodoService {
+
+	private static List<Todo> todos;
+	static {
+		todos.add(new Todo(1,"in28minutes","Learn AWS", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(1,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(1,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+	
+	public List<Todo> findByUsername(String username) {
+		return todos;
+	} 
+}
+
+
+-----------------------------------------------------------------------------
+
+Caused by: java.lang.ExceptionInInitializerError: null
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method) ~[na:na]
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77) ~[na:na]
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499) ~[na:na]
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480) ~[na:na]
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:195) ~[spring-beans-6.1.5.jar:6.1.5]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:88) ~[spring-beans-6.1.5.jar:6.1.5]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1311) ~[spring-beans-6.1.5.jar:6.1.5]
+	... 36 common frames omitted
+Caused by: java.lang.NullPointerException: Cannot invoke "java.util.List.add(Object)" because "com.firstapplication.springboot.myfirstwebapp.todo.TodoService.todos" is null
+	at com.firstapplication.springboot.myfirstwebapp.todo.TodoService.<clinit>(TodoService.java:13) ~[classes/:na]
+	... 44 common frames omitted
+
+하지만 다시 오류가 나오고 있고 NullPointerException이다 
