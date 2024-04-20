@@ -214,3 +214,89 @@ Caused by: java.lang.NullPointerException: Cannot invoke "java.util.List.add(Obj
 	... 44 common frames omitted
 
 하지만 다시 오류가 나오고 있고 NullPointerException이다 
+                                            |                              
+                                            |
+                                            V
+-----------------------------------------------------------------------------
+
+
+⏺ TodoService 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+@Service
+public class TodoService {
+
+  //5-1: 여기서 우린 todos를 추가하고 있고 이걸 추가하기 전에 리스트를 만들어야 한다 new ArrayList<>();라고 적어주자 임포트 정리후 이렇게 해주면 새로운 ArrayList가 생성되고 다시 실행해보자... 
+	private static List<Todo> todos = new ArrayList<>();
+  
+
+	static {
+    //5: 여기서 이걸 초기화하지 않았기 때문이다 //5-1 : 다시 위의 변수로...
+		todos.add(new Todo(1,"in28minutes","Learn AWS", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(1,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(1,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+	
+	public List<Todo> findByUsername(String username) {
+		return todos;
+	} 
+}
+
+
+-----------------------------------------------------------------------------
+                                                              |
+                                                              V
+-----------------------------------------------------------------------------
+
+http://localhost:8087/list-todos URL사이트 화면 ==>
+
+
+Welcome to in28minutes
+Your Todos are [Todo [id=1, username=in28minutes, description=Learn AWS, targetdDate=2025-04-20, done=false], Todo [id=1, username=in28minutes, description=Learn DevOps, targetdDate=2026-04-20, done=false], Todo [id=1, username=in28minutes, description=Learn Full Stack Development, targetdDate=2027-04-20, done=false]]
+
+-----------------------------------------------------------------------------
+
+Welcome to in28minutes Your Todos are 라고 나오고 이런 내용들이 나온다, 놀랍지?
+이렇게 여기에 Todo를 나열할 수 있게 되었다 
+
+
+
+
+
+
+
+
+이 페이지는 외관이 좋지 않은데 
+페이지의 외관을 
+
+  in28Minutes  Home Todos
+                                                                                                                                                                                                                                                                                    
+  Your Todos                                              
+                                                                                                                                  
+  Description          Target Date        Is it Done?                         
+  ________________________________________________________________________________________________                                              
+                                                                                                                                                        _________       _________   
+   Learn AWS            10/06/2024         false                | Update  |     | Delete  |                
+                                                                                                                                                        ‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾
+                                                                                                                                                        _________       _________   
+   Learn DevOps         10/06/2024         false                | Update  |     | Delete  |                
+                                                                                                                                                        ‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾                                                                                                                                        
+                                                                                                                                                        _________       _________   
+   Learn React          10/06/2024         false                | Update  |     | Delete  |                
+                                                                                                                                                        ‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾                                                                                                                                        
+                                                                                                                                                        _________       _________   
+   Learn Angular        10/06/2024         false                | Update  |     | Delete  |                
+                                                                                                                                                        ‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾                   
+
+이런 모습으로 개선하려면, 해야 할 일이 아주 많다 
+그건 나중에 그렇게 할 것이고, 지금은 Todo 리스트를 받고 그걸 
+페이지에 표시할 수 있게 되었다,
+그럼 다음단계에선 기능을 더 추가해보고, 외관을 좀 아름답게 꾸며보자
