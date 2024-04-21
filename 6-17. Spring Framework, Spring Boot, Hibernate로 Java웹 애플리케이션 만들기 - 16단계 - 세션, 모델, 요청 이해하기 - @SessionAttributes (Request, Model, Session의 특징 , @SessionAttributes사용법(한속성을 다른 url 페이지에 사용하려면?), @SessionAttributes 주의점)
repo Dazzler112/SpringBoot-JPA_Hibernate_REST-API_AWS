@@ -278,3 +278,203 @@ Welcome만 나온다 ${name}을 프린트하지 않고 있다
 
 
 
+
+⚫ Session
+
+여러 요청에 걸쳐 값을 유지하길 원한다면 너는 세션을 사용할 수 있다 
+
+<html>
+<head>
+<title>
+	Welcome Page
+</title>
+</head>
+<body>
+		<div>Welcome to in28minutes</div> 
+		<div>Your Name: ${name}</div>
+		<%-- <div>Your Password: ${password}</div> --%>
+		<div><a href="list-todos">Manage</a>your todos</div>
+</body>
+</html>
+
+그럼 값을 이 세션에 어떻게 넣을 수 있을까?
+
+이 세션에 값을 넣으려면 @SessionAttribute라는 어노테이션을 사용하면 된다 
+
+------------------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+
+//1: 그럼 @SessionAttributes라고 입력하고 LoginController에서 임포트를 정리할 수 있다 그리고 세션에 어떤 속성을 넣으려고 하지?
+//우린 name 속성을 이 세션에 넣으려고 한다, 즉 model에 넣은 이 name 속성이고 ( model.put("name", name); ) , 우리는 그걸 추가로 세션에 넣으려고 한다 
+//❗ 중요사항 ❗하나 꼭 기억해야 할 중요한 내용이 있는데, 너가 SessionAttribute를 사용할 때는 항상 그 값을 사용하려는 모든 컨트롤러에 그걸 넣어줘야 한다는 점이다
+//그럼 넌 name을 model에 넣고 있는 LoginController에 그걸 넣어줬다 우린 또 그걸 다시 받아서 TodoController에서도 사용하려고 하지 그걸 TodoController에도 추가하려 한다//2: TodoController 클래스파일로....
+@SessionAttributes("name")
+public class LoginController {
+
+	private AuthenticationService auhtenticationService;
+
+	
+	public LoginController(AuthenticationService auhtenticationService) {
+		super();
+		this.auhtenticationService = auhtenticationService;
+	}
+
+	@RequestMapping(value = "login", method = RequestMethod.GET)
+	public String gotLoginPage() {
+
+		return "login";
+	}
+
+	@RequestMapping(value = "login", method = RequestMethod.POST)
+	// login?name=Ranga RequestParam
+	public String gotoWelcomePage(@RequestParam String name, @RequestParam String password, ModelMap model) {
+		if (auhtenticationService.authenticate(name, password)) {
+
+			model.put("name", name);
+//			model.put("password", password);
+
+			// Authentiacation
+			// name - in28minutes
+			// password - dummy
+
+			return "welcome";
+		}
+	    model.put("errorMessage", "Invalid Credentials Please try again");
+		return "login";
+	}
+}
+
+
+-------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+
+//2:그럼 @SessionAttributes("name")을 추가한다 
+//그럼 이름이 name인 모든 세션 속성은 model에서도 사용할 수 있게 될 것이다 이걸 저장하고 다시 login 페이지부터 실행해보자
+@SessionAttributes("name")
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+}
+
+
+------------------------------------------------------------------------------------------------------------
+
+로그인 페이지로 가서 in28minutes , dummy 입력 
+
+우린 환영 페이지에 있고 Manage를 클릭하면 
+
+Welcome to Welcome to in28minutes
+Your Name: in28minutes
+Manageyour todos
+
+                 |
+                 V
+-----------------------------------------------------------
+
+http://localhost:8087/list-todos 사이트 화면 ==>
+
+
+Welcome in28minutes
+Your Todos are [Todo [id=1, username=in28minutes, description=Learn AWS, targetdDate=2025-04-21, done=false], Todo [id=1, username=in28minutes, description=Learn DevOps, targetdDate=2026-04-21, done=false], Todo [id=1, username=in28minutes, description=Learn Full Stack Development, targetdDate=2027-04-21, done=false]]
+
+-----------------------------------------------------------
+
+이렇게 Welcome in28minutes가 나오는 걸 볼 수 있다
+
+
+이제 우리는 세션에 값을 저장하고 그걸 사용할 수 있게 되었다 
+
+
+
+
+
+
+
+
+
+
+
+Session vs Request Scope
+
+● All requests from browser are handled by our                         바탕 RGBA(0,0,0,0.3~4?)
+  web application deployed on a server                                          Please sign in                                                               
+● Request Scope: Active for a single request ONLY                                _________________________________________          
+  ■ Once the response is sent back, the request attributes will be              |   You have been signed out (바탕 연두계) | 
+    removed from memory                                                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                         
+  ■ These cannot be used for future requests                                     _________________________________________          
+  ■ Recommended for most use cases                                              | Username                                | 
+● Session Scope: Details stored across multiple requests                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                                                  
+  ■ Be careful about what you store in session (Takes addional                   _________________________________________          
+    memory as all details are stored on server)                                 | Password                                | 
+                                                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                                                  
+                                                                                 _________________________________________          
+                                                                                |                Sign in     (바탕 파랑)   | 
+                                                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                                                  
+                                                                                                                                                
+                                                                                                                                                
+                                                                                                                                                
+                                                                                                                                                
+                                                                                                                                                
+                                                                                                                                                
+                                                                                                                                                
+그럼 이번 세션에서 배운 중요한 내용들을 간단히 복습해보겠다 
+세션과 요청 범위를 비교해보자 간단히 둘을 비교해보겠다
+
+● All requests from browser are handled by our web application deployed on a server   
+브라우저에서 오는 모든 요청은 서버에 배포된 우리 웹 애플리케이션에 의해 처리된다 
+● Request Scope: Active for a single request ONLY 
+요청 범위는 오직 하나의 요청에만 적용되고
+  ■ Once the response is sent back, the request attributes will be removed from memory 
+요청이 다시 전송되면 요청 속성은 메모리에서 삭제될 것이다 우린 그 속성들을 더 이상 사용할 수 없다
+  ■ These cannot be used for future requests 
+그 이후에 이루어지는 요청에는 사용할 수 없다
+  ■ Recommended for most use cases    
+그리고 대부분의 활용 사례에서 그렇게 하는 게 좋다 
+● Session Scope: Details stored across multiple requests 
+하지만 세션 범위에선 세부정보가 다수의 요청에 걸쳐 저장된다 
+우린 요청이 로그인에서 환영 페이지까지 요청이 가고 name이 유지되는 걸 보았다 
+그럼 그 name은 세션 범위에 저장되었던 것이다 
+  ■ Be careful about what you store in session (Takes addional memory as all details are stored on server)  
+❗ 너는 세션에 저장할 때는 반드시 조심해야 한다 ❗
+그게 중요한 이유는 추가로 메모리를 차지하고 모든 세부정보가 서버에 저장되기 때문이다
+
+기본값으로서, 너가 model에 넣는 모든 것은 Request Scope(요청 범위)이기도 하다 
+하지만 너는 @SessionAttribute라는 어노테이션을 추가해서 세션 범위를 요청할 수 있다 
