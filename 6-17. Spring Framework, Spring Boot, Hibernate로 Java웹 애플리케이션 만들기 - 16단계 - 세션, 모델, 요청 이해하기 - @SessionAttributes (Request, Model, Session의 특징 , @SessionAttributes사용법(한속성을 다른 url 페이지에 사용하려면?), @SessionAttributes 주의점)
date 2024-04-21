@@ -1,0 +1,280 @@
+
+
+## Todo
+
+id
+username
+description
+targetdDate
+done
+
+TodoController
+listTodos.jsp
+
+## Request vs Model vs Session
+
+이번 단계에선 세 가지를 알아보려고 하는데 바로 요청, 모델, 세션이다 
+우리는 어떻게 진행되는지 이미 알고 있고, 우리가 어떤 값을 설정하면 그게 요청, 모델, 세션에 모두 들어가게 된다
+그럼 Request*요청 에 대해 알아보자
+
+⚫ Request(요청)
+
+먼저 로그인 페이지를 열고
+
+------------------------------------------------------------------------
+
+http://localhost:8087/login 페이지 화면 ==>
+
+Welcome to the login page!
+       _______________________            _______________________   _______
+Name: |                       | Password:|                       | | 제 출 |
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------
+
+그리고 우측 클릭 inspect(검사)를 선택 그리고 올바른 값을 입력(in28minutes, dummy)하고 전송하겠다
+Network 탭에서 Doc를 선택하고, 그럼 선택된 걸 볼 수 있다 보면 요청이 제출된 걸 볼 수 있다, 그리고 Payload에 있는 정보는 뭘까?
+
+Headers  Payload  Preview >>
+         ‾‾‾‾‾‾‾
+▼Form Data     view source     view URL
+name: in28minutes
+password: dummy
+
+in28minutes과 dummy이다 우리가 입력한 id와 pw이다 여기 제시된 값들은 이 요청에만 적용된다 
+그 정보는 다음 요청으로 전달되지 않을 것이다 
+
+만일 너가 환영 페이지,가령 Todo 페이지로 가면 이 값들은 사용할 수 없게 될 것이다
+
+그걸 확실히 이해하기 위해서 실제로 환영페이지를 열어보자
+
+-----------------------------------------------------------------------------
+
+
+⏺ welcome.jsp 파일
+
+
+<html>
+<head>
+<title>
+	Welcome Page
+</title>
+</head>
+<body>
+		<div>Welcome to Welcome to in28minutes</div> 
+		<div>Your Name: ${name}</div>
+
+		<!--여기에 URL을 추가할 것이다 그럼 <div>라고 하고 링크를 만들 것이다 <a href="list-todos">라고 하고Manage your todos라고 해보자 그리고 다시 로그인페이지로 값을 넣어보자-->
+		<div><a href="list-todos">Manage</a>your todos</div>
+</body>
+</html>
+
+-----------------------------------------------------------------------------
+                                        |
+                                        V
+------------------------------------------------------
+
+http://localhost:8087/login 사이트 화면 ==>
+
+Welcome to Welcome to in28minutes
+Your Name: in28minutes
+Manageyour todos
+
+------------------------------------------------------
+
+
+그럼 이 요청에는 모든 세부정보가 있을 것이다 Payload를 보면
+
+Headers  Payload  Preview >>
+         ‾‾‾‾‾‾‾
+▼Form Data     view source     view URL
+name: in28minutes
+password: dummy
+
+in28minutes와 dummy가 있고 
+하지만 우리가 Todo 페이지로 가면 우리는 새로운 요청을 생성하게 된다 (Manage)클릭
+                                                      |
+                                                      V
+------------------------------------------------------
+
+http://localhost:8087/list-todos 사이트 화면 ==>
+
+
+Welcome to in28minutes
+Your Todos are [Todo [id=1, username=in28minutes, description=Learn AWS, targetdDate=2025-04-21, done=false], Todo [id=1, username=in28minutes, description=Learn DevOps, targetdDate=2026-04-21, done=false], Todo [id=1, username=in28minutes, description=Learn Full Stack Development, targetdDate=2027-04-21, done=false]]
+
+
+------------------------------------------------------
+
+그럼  Todo 페이지로 가면 새로운 요청인 list-todos가 생성되고 
+
+Headers  preview  Response >>
+‾‾‾‾‾‾‾         
+Request URL:      http://localhost:8087/list-todos
+Request Method:   GET
+Status Code:      🟢200 OK
+Remote Address:   [::1]:8087
+Referrer Policy:  strict-origin-when-cross-origin
+
+Response Headers        ▢ Raw
+.....
+
+하지만 앞선 요청 세부정보인 in28minutes와 dummy는 모두 사라진 걸 볼 수 있다 
+이렇게 요청에 있는 모든 값들은 오직 그 요청에 대해서만 유효하다 
+오직 다음 페이지를 렌더링하기 위해서만 사용된다 
+그 다음에는 전혀 사용할 수 없게 된다 
+
+
+
+⚫ Model
+
+이제 모델을 살펴보자
+우리의 LoginController로 가보겠다
+
+------------------------------------------------------------------------------------------------------------
+
+
+⏺ LoginController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class LoginController {
+
+	private AuthenticationService auhtenticationService;
+
+	
+	public LoginController(AuthenticationService auhtenticationService) {
+		super();
+		this.auhtenticationService = auhtenticationService;
+	}
+
+	@RequestMapping(value = "login", method = RequestMethod.GET)
+	public String gotLoginPage() {
+
+		return "login";
+	}
+
+	@RequestMapping(value = "login", method = RequestMethod.POST)
+	// login?name=Ranga RequestParam
+	public String gotoWelcomePage(@RequestParam String name, @RequestParam String password, ModelMap model) {
+		if (auhtenticationService.authenticate(name, password)) {
+
+			model.put("name", name);
+//			model.put("password", password);
+
+			// Authentiacation
+			// name - in28minutes
+			// password - dummy
+
+			return "welcome";
+		}
+	    model.put("errorMessage", "Invalid Credentials Please try again");
+		return "login";
+	}
+}
+
+-----------------------------------------------
+
+⏺ welcome.jsp 파일
+
+
+<html>
+<head>
+<title>
+	Welcome Page
+</title>
+</head>
+<body>
+		<div>Welcome to Welcome to in28minutes</div> 
+		<div>Your Name: ${name}</div>
+
+		<!--여기에 URL을 추가할 것이다 그럼 <div>라고 하고 링크를 만들 것이다 <a href="list-todos">라고 하고Manage your todos라고 해보자 그리고 다시 로그인페이지로 값을 넣어보자-->
+		<div><a href="list-todos">Manage</a>your todos</div>
+</body>
+</html>
+
+------------------------------------------------------------------------------------------------------------
+그럼 LoginController에서 우린 model에 뭘 넣고 있지?
+맞다 우리는 name을 model에 넣고 있다, 그리고 이게 welcome 페이지로 리디렉션 되고 있다
+그리고 welcome 페이지에서 우리는 name이라는 값을 잡고있다 (${name})
+잘 작동하고 있다 우리가 앞에서 살펴본 그대로이다
+                              |
+                              V
+-------------------------------------
+
+http://localhost:8087/login 사이트 화면 ==>
+
+Welcome to Welcome to in28minutes
+Your Name: in28minutes
+Manageyour todos
+
+-------------------------------------
+그럼 여기서 Your Name: in28minutes를 볼 수 있다 
+그게 <div>Your Name: ${name}</div> 여기서 오고 있다
+
+하지만 너는 다음 페이지로 가면 (  <div><a href="list-todos">Manage</a>your todos</div> )  model 안의 값들도 사용하지 못하는 걸 보게 될 것이다
+
+그럼 예를 들어 listTodos 페이지로 가보자
+
+------------------------------------------------------------------------------------------------------------
+
+⏺ listTodos.jsp 파일
+
+<html>
+<head>
+<title>
+	List Todos Page
+</title>
+</head>
+<body>
+    <!--그리고 Welcome to in28minutes 대신에 Welcome ${name} 이라고 해보자 그리고 login페이지 에서 다시 시작-->
+		<%--<div>Welcome to in28minutes</div>--%> 
+    <div>Welcome ${name}</div> 
+		<div>Your Todos are ${todos}</div>
+</body>
+</html>
+
+------------------------------------------------------------------------------------------------------------
+
+로그인 페이지로 가서 in28minutes, dummy라고 입력하고
+
+-------------------------------------
+
+localhost:8087/login 페이지 화면 ==>
+
+Welcome to in28minutes
+Your Name: in28minutes
+Manageyour todos
+
+-------------------------------------
+
+너는 model로부터 in28minutes가 오는 걸 볼수 있다 ,왜냐면 login에서 우린 그걸 model에 넣었고 
+welcome 페이지에서 그걸 model로부터 표시하고 있기 때문이다
+
+니가 Manage를 클릭하면 name이 나오지 않는게 보일 것이다
+                                |
+                                V
+-------------------------------------
+
+http://localhost:8087/list-todos 페이지 화면 ==>
+
+Welcome
+Your Todos are [Todo [id=1, username=in28minutes, description=Learn AWS, targetdDate=2025-04-21, done=false], Todo [id=1, username=in28minutes, description=Learn DevOps, targetdDate=2026-04-21, done=false], Todo [id=1, username=in28minutes, description=Learn Full Stack Development, targetdDate=2027-04-21, done=false]]
+
+-------------------------------------
+
+Welcome만 나온다 ${name}을 프린트하지 않고 있다 
+
+그 이유는 너가 model에 뭔가를 넣으면, 기본값으로서 그 요청의 범위에서만 사용할 수 있기 때문이다 
+
+
+그게 더 오래 살도록 하려면 너는 그걸 세션이라는 것에 넣어야 한다
+
+
+
