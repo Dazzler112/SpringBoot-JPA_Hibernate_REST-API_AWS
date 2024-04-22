@@ -1,0 +1,400 @@
+
+
+이번 단계부터는 우리 애플리케이션의 외관과 느낌에 약간 집중해보겠다 
+
+--------------------------------------------------------------------------------------------
+
+Welcome in28minutes
+Your Todos are [Todo [id=1, username=in28minutes, description=Learn AWS, targetdDate=2025-04-23, done=false], Todo [id=1, username=in28minutes, description=Learn DevOps, targetdDate=2026-04-23, done=false], Todo [id=1, username=in28minutes, description=Learn Full Stack Development, targetdDate=2027-04-23, done=false]]
+
+--------------------------------------------------------------------------------------------
+
+지금은 위에처럼 페이지 외관이 별로 좋지 않지?
+
+이제 우리는 이걸 적절한 HTML 테이블에 표시할 거고, 페이지 형식을 좀 더 다듭어 보겠다 
+
+<html>
+  <head>
+    <title>
+    	List Todos Page
+    </title>
+  </head>
+  <body>
+  		<div>Welcome ${name}</div> 
+  		<div>Your Todos are ${todos}</div>
+  </body>
+</html>
+
+지금까지 우리는 모델에서 온 값들을 표시하기 위해 표현 언어를 사용해 왔다 
+표현 언어는 간단한 것들을 표시하는 데 사용한다 
+그럼 우리는 값을 표현하기 위해 컨트롤러에서 모델에 값을 넣을 때 표현 언어를 사용했다 
+모든 정적 콘텐츠와 모든 하드코딩된 콘텐츠는 HTML 태그에서 오는 것들이다 
+이렇게 <html>, <head>, <title>, <body>, <div> 등이 있다 이 모든 것은 HTML 태그이다
+지금까지 모든 동적 콘텐츠는 Expression Language(표현 언어)였다
+
+⚫ JSTL의 필요성
+
+하지만 우리가 동적 콘텐츠를 중심으로 더욱 복잡한 걸 하고 싶은 경우가 상당히 많다
+예를 들어, 이 Todo는 컨트롤러에서 유입되는 값들의 동적 리스트이다 
+너는 그걸 테이블에 나열하고 싶다고 해보자
+그걸 하려면 Expression Language(표현 언어)만으로는 충분하지 않겠지
+
+그 부분에서 우리는 JSTL 태그를 사용한다 
+
+JSTL을 사용하기 위해서 우린 몇 가지 의존성을 pom.xml에 추가해야 한다 
+먼저 그걸 해보자 pom.xml로 가서 의존성 몇 개 추가해보자 그럼 tomcat-embed-jasper바로 아래에 의존성을 추가해보자
+
+-------------------------------------------------------------------
+
+⏺ pom.xml 파일
+
+
+...
+	<dependencies>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	
+	
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>	
+
+    <!--<dependency>를 추가하고 평소처럼 <goroupId>를 넣는다 그리고<artifactId>를 넣자, 우린 의존성 2개를 추가해야 하고, 그럼 이걸 다시 복사하자-->
+    <!--그럼 지금 의존성 2개를 추가하고 있고 첫 번째 의존성은 JSTL API의존성이고, 두 번째는 JSTL구현 의존성이다 의존성은 jakarta.servlet.jsp.jstl이다 그리고 artifactId는 jakarta.servlet.jsp.jstl.api다 여기 오탈자를 내지 않도록 조심해라 오탈자가 있으면 pom.xml에 오류가 나기 때문이다-->
+    <!--정확하게 의존성을 입력했는지 확인하고 다른 의존성도 확인해보자 지금한 이건 JSTL API이고, JSTL 구현물도 사용하려고 한다 구현물은 org.eclipse.jetty고 artifactId는 glassfish-jstl이다 저장해주자-->
+		<!--저장을 마치면 모든 오류가 사라지는게 보일 것이다, 우리가 의존성을 추가하자마자 Maven이 그 의존성을 다운로드하는 걸 볼 수 있다 완료했으면 서버를 껐다 다시 시작해야 적용이 된다-->
+    <dependency>
+			<groupId>jakarta.servlet.jsp.jstl</groupId>
+			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>glassfish-jstl</artifactId>
+			<version>11.0.20</version>
+		</dependency>
+
+</dependencies>
+....
+
+-------------------------------------------------------------------
+
+이제 우리는 jsp에서 JSTL 태그를 사용할 수 있다 
+그럼 listTodos.jsp로 가보겠다
+
+
+------------------------------------------------------------------------------------------------
+
+⏺ listTodos.jsp 파일
+
+<!-- 1: 이제 JSTL 태그를 사용하기 전에 그걸 임포트해야 한다 그걸 위해 우린 taglib을 사용할 수 있다-->
+<!-- <%taglib%> 이라 쓰고 우린 태그 라이브러리를 임포트하려 하고 각각의 태그 라이브러리는 uri와 연관되어 있고 우리는 코어 태그 라이브러리를 사용하려 한다-->
+<!-- 우리는 for 반복문을 사용해서 모든 Todo를 반복하려 하고 그 기능은 JSTL 코어 라이브러리가 제공한다 //잠시 아래 JSTL Core 설명으로...-->
+<!--그럼 taglib이라고 하고 prefix는 "c"이다 우리가 코드에서 사용할 이름이 c라고 하는 것이다, 그리고 uri는 이것이다 그럼 넌 이걸 사용할 수 있고 //2:아래에 계속 작성...-->
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+
+<html>
+<head>
+<title>
+	List Todos Page
+</title>
+</head>
+<body>
+		<div>Welcome ${name}</div> 
+		<div>Your Todos are ${todos}</div>
+
+    <!--2: 그럼 우리는 <c:forEach>라는 태그를 사용하려고 한다 우린 모든 todos를 반복하길 원하지 그럼 item="${todos}"라고 해주면 모든 todos를 반복하게 될 것이다 이건 향상된 for 반복문과 아주 아주 비슷하다-->
+    <!--그리고 우리가 사용하려는 변수의 이름은 "todo"이다 var="todo" 그리고 우린 그걸 테이블에 표시하려고 한다 그럼 여기에 테이블을 넣겠다-->
+    <!--<table> 이라고 하고 약간 형식을 잡아주겠다 -->
+		<table>
+			<thead>
+        <tr>
+          <!--2-3:그럼 <th>라고 하고 Todo의 id를 표시하자-->
+          	<th>id</th>
+          <!--2-3:또 <th>라 하고 Description이라고 넣고-->
+    				<th>Description</th>
+          <!--2-3:또 <th>Target Date-->
+    			<th>Taget Date</th>
+          <!--2-3:그리고 <th>Is Done? 이라고 넣는다-->
+    			<th>Is Done?</th>
+        </tr>
+        <!--2-4:이렇게 이건 모두 헤더이고 사실 모든 th는 <tr>안에 있어야 한다 그래서 경고나 나왔던 것이다 그래서 안에 <tr>을 넣어주고-->
+        <!--2-4:우린 여기서 이렇게 기본적인 테이블 구문을 작성하고 있다 우린 테이블을 만들고 있고 우리가 테이블을 만들 때 제목 행 즉 <tr>을 <thead>안에 만들어야 한다 -->
+        <!--2-4:모든 컨텐츠 즉 데이터는 <tbody>안에 만들어야 한다 그리고 여기서 우리는 행을 더 추가할 수 있고, 그럼 우린 각각의 Todo에 대해 한 행을 만들 수 있다 -->
+      </thead>
+      <!--2-1:그리고 table안에 <thead>를 넣어야 하고, <c:forEach>이건 <tbody>안에 넣어야 겠다-->
+			
+      <tbody>
+      <!--2-1:이렇게 <table>의 <tbody>안에 for문을 표시하고, thead안에는 모든 제목을 넣을 수 있다 -->
+			<c:forEach items="${todos}" var="todo">
+        <!--2-5: <tr>이라고 하고 한다음 그안에 데이터를 넣어줄 것이다 테이블 안에선 우린 <td>를 써서 데이터를 표시하고 그럼 그렇게 해보자 <td>가 4개 있으므로 이걸 복사해보겠다-->
+          <!--2-6: 첫번째 것은 id의 값이다, 그러면 ${todo.id}라고 넣어준다-->
+          <td>${todo.id}</td>
+          <!--2-6: 다음은 Description이다 그럼 ${todo.description}이라고 한다-->
+					<td>${todo.description}</td>
+          <!--2-6: 세번째는 ${todo.targetDate}고-->
+					<td>${todo.targetDate}</td>
+          <!--2-6: 네 번째는 ${todo.done}이다-->
+					<td>${todo.done}</td>
+          <!--2-7: 여기서 우린 그걸 반복하면서 <td>를 생성하고 있다 그럼 한번 우리 코드가 더 개선되었는지 실행해보자-->
+			</c:forEach>
+			</tbody>
+		</table>
+</body>
+</html>
+
+List Todos 페이지 새로고침....
+------------------------------------------------------------------------------------------------
+
+
+🟠 부록 JSTL Core
+
+너가 jstl core tags를 검색해보면 JSTL core라는 페이지를 보게되고 해당 사이트에 들어가면 제공된 모든 기능을 볼 수 있다 
+마치 너가 Java 코드에서 if를 사용할 수 있듯이, 너가 jsp에서 if를 쓰려면 이 if JSTL 태그를 사용할 수 있다 
+너는 forEach를 써서 다양한 타입의 컬렉션을 반복 할 수 있고 catch를 사용해 jsp에서 예외를 처리할 수 있다
+JSTL에는 이렇게 다양한 기능들을 제공하고 우리는 forEach를 사용할 것이다
+그리고 여기 있는 태그 라이브러리도 확인할 수 있다 우린 정확히 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %> 이걸 입력 해야겠지? 해당 내용을 복사하고 //다시 listTodos.jsp로.. 
+
+JSTL core
+---------------------------------------------------------------------------------------------------------------------------------
+Standard Syntax:
+     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+XML Syntax:
+     <anyxmlelement xmlns:c="http://java.sun.com/jsp/jstl/core" />
+---------------------------------------------------------------------------------------------------------------------------------
+JSTL 1.1 core library
+______________________________________________________________________
+Tag Library Information
+Display Name	             | JSTL core
+Version	                   | 1.1
+Short Name	               | c
+URI	                       | http://java.sun.com/jsp/jstl/core
+---------------------------------------------------------------------------------------------------------------------------------
+
+Tag Summary   => 더 확실한 설명을 보고 싶으면 https://docs.oracle.com/javaee/5/jstl/1.1/docs/tlddocs/c/tld-summary.html 로
+__________________________________________________________________________________________________________________________________________________________________________________________
+catch	    |   Catches any Throwable that occurs in its body and optionally exposes it.
+choose	  |   Simple conditional tag that establishes a context for mutually exclusive conditional operations, marked by <when> and <otherwise>
+if	      |   Simple conditional tag, which evalutes its body if the supplied condition is true and optionally exposes a Boolean scripting variable representing the evaluation of this condition
+import	  |   Retrieves an absolute or relative URL and exposes its contents to either the page, a String in 'var', or a Reader in 'varReader'.
+forEach	  |   The basic iteration tag, accepting many different collection types and supporting subsetting and other functionality
+forTokens	|   Iterates over tokens, separated by the supplied delimeters
+out	      |   Like <%= ... >, but for expressions.
+otherwise	|   Subtag of <choose> that follows <when> tags and runs only if all of the prior conditions evaluated to 'false'
+param	    |   Adds a parameter to a containing 'import' tag's URL.
+redirect	|   Redirects to a new URL.
+remove	  |   Removes a scoped variable (from a particular scope, if specified).
+set	      |   Sets the result of an expression evaluation in a 'scope'
+url	      |   Creates a URL with optional query parameters.
+when	    |   Subtag of <choose> that includes its body if its condition evalutes to 'true'
+__________________________________________________________________________________________________________________________________________________________________________________________
+---------------------------------------------------------------------------------------------------------------------------------
+Tag Library Validator
+org.apache.taglibs.standard.tlv.JstlCoreTLV	Provides core validation features for JSTL tags.
+
+🟠
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+Welcome
+Your Todos are
+id	Description	Taget Date	Is Done?
+1	Learn AWS	2025-04-23	false
+1	Learn DevOps	2026-04-23	false
+1	Learn Full Stack Development	2027-04-23	false
+
+---------------------------------------------------------------------------------------------
+
+이렇게 모든 Todo가 추가된 걸 볼 수 있고 그런데 id가 모두 1이다, 그럼 안된다 바로 고쳐보자 TodoService로 가서..
+
+
+------------------------------------------------------------------------------------------------
+
+
+⏺ TodoService 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+
+@Service
+public class TodoService {
+
+//3: 각각이 같은 id를 가지면 안 되겠다 그럼 각각에 다른 id를 추가하고 다시 새로고침 해 보자
+	private static List<Todo> todos =new ArrayList<>();
+	static {
+		todos.add(new Todo(1,"in28minutes","Learn AWS", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(2,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(3,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+	
+	public List<Todo> findByUsername(String username) {
+		return todos;
+	} 
+}
+
+
+------------------------------------------------------------------------------------------------
+                                            |
+                                            V
+---------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+Welcome
+Your Todos are
+id	Description	Taget Date	Is Done?
+1	Learn AWS	2025-04-23	false
+2	Learn DevOps	2026-04-23	false
+3	Learn Full Stack Development	2027-04-23	false
+
+---------------------------------------------------------------------------------------------
+
+이렇게 Todo가 나열되었고 이런저런 Todo가 있다
+그럼 모든 jsp에 대해 약간 포매팅을 해보자
+
+listTodos.jsp로 갈 것이다
+
+------------------------------------------------------------------------------------------------
+
+
+⏺ listTodos.jsp 파일
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<html>
+<head>
+<title>
+	List Todos Page
+</title>
+</head>
+<body>
+		<!-- 4: 그리고 Welcome 다음에 <hr>을 넣고 이걸 -->
+		<div>Welcome ${name}</div> 
+		<!--4-1: 이건 H1으로 바꿔줄 것이다 더 나은지 보겠다-->
+		<h1>Your Todos</h1>
+		
+		<table>
+			<thead>
+				<tr>
+				<th>id</th>
+				<th>Description</th>
+				<th>Taget Date</th>
+				<th>Is Done?</th>
+				</tr>			
+			</thead>
+			<tbody>
+			<c:forEach items="${todos}" var="todo">
+				<tr>
+					<td>${todo.id}</td>
+					<td>${todo.description}</td>
+					<td>${todo.targetDate}</td>
+					<td>${todo.done}</td>
+				</tr>
+			</c:forEach>
+			</tbody>
+		</table>
+</body>
+</html>
+
+------------------------------------------------------------------------------------------------
+					|
+					V
+-------------------------------------------------------------
+
+Welcome in28minutes
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Your Todos
+id	Description		Taget Date	Is Done?
+1 Learn AWS			2025-04-23	false
+2 Learn DevOps			2026-04-23	false
+3 Learn Full Stack Development	2027-04-23	false
+
+-------------------------------------------------------------
+로그인하고 들어가면 Welcome in28minutes라 나오고, Yout Todos등등 나온다
+
+그럼 비슷하게 다른 jsp 파일도 변경해보자, welcome.jsp로 가서
+
+------------------------------------------------------------------------------------------------
+
+⏺ welcome.jsp
+
+
+<html>
+<head>
+<title>
+	Welcome Page
+</title>
+</head>
+<body>
+	<!--5:이걸 모두 삭제하고 그냥 Welcome ${name}만 써보자-->
+		<div>Welcome ${name}</div> 
+	<!--5-1:그리고 그아래 <hr>이라 넣고 닫는다-->
+		<hr>
+		<div><a href="list-todos">Manage</a>your todos</div>
+</body>
+</html>
+
+------------------------------------------------------------------------------------------------
+그럼 예전 페이지로 돌아가 login으로 가서 in28minutes와 dummy를 입력하면  |
+								      |
+								      V
+-------------------------------------------------------------------------------
+
+http://localhost:8087/login 페이지화면 ==>
+
+Welcome in28minutes
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Manageyour todos
+
+-------------------------------------------------------------------------------
+
+이제 페이지가 이런 모습이고 Welcome in28minutes와 Manageyour todos와
+Welcome in28minutes
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Your Todos
+id	Description		Taget Date	Is Done?
+1 Learn AWS			2025-04-23	false
+2 Learn DevOps			2026-04-23	false
+3 Learn Full Stack Development	2027-04-23	false
+
+
+Your Todos가 나온다, 아직도 해야 할 일이 있다, 메뉴나 로그인, 로그아웃 등등이 남았다 
+하지만 예전보다는 훨씬 포맷이 갖춰졌다
+다음 단계에선 우린 CSS 프레임워크를 가져와 이것의 외관과 느낌을 더 개선해 보겠다 
