@@ -166,3 +166,158 @@ bootstrap.min.js를 사용할 것이고 오른쪽 Copy Qualified Name을 선택
 /META-INF/resources/webjars/bootstrap/5.1.3/css/bootstrap.min.css
 /META-INF/resources/webjars/bootstrap/5.1.3/js/bootstrap.min.js 
 /META-INF/resources/webjars/jquery/3.6.0/jquery.min.js
+
+
+그럼 가서 그것들을 추가해보자 그럼 listTodos.jsp에서 
+이것들을 붙여넣을 것이다
+
+---------------------------------------------------------------------------------------------------------------
+
+
+⏺ listTodos.jsp 파일
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<html>
+  <head>
+    <!--1: 너가 웹페이지를 로딩할 때는 언제나 CSS 파일이 먼저 로딩될 것이다 너는 <link>태그를 써서 CSS를 추가할 수 있다, 그럼 <link>라고 입력하고 그리고 link에 너는 href 속성을 추가할 수 있다 -->
+    <!--너의 css 파일이 어디에 있냐? 그리고 또 하나는 스타일시트이다, 그럼 그게 "stylesheet"라고 해준다 rel="stylesheet" 이건 이게 css 파일이라고 알려주는 것이고, 우리는 여기 안에 href를 넣을 수 있다-->
+    <!--하나 기억할 점은, 너가 webjars로부터 파일을 사용할 때 언제나 META-INF/resources/를 지정할 필요가 없다는 점이다, 그럼 넌 META-INF/resources/를 삭제할 수 있다 -->
+    <!--이렇게 바로 webjars/로 시작하면 된다 webjars/bootstrap/5.1.3/css/bootstrap.min.css 그리고 여기에 넌 bootstrap.min.css를 넣으려고 한다-->
+    <!--그럼 그게 href=""여기 들어가야 하는 값이다, 최상단에서 <head> 바로 아래에 우리는 css 파일을 넣어준다 -->
+    <link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+
+    <!--2:그리고 우린 JavaScript 파일도 로딩하려고 한다 보통 JavaScript는 HTML로 할 수 있는 것들에 추가로 역동적인 것들을 많이 넣는 데 사용한다 -->
+    <!--그리고 너는 JavaScript파일을 추가하려 할 떄는 항상 <body>의 종료 태그의 바로 앞에다가 넣는다 //2-1: 아래로..-->
+    <link>
+    <title>
+    	List Todos Page
+    </title>
+  </head>
+  <body>
+  		<!-- <div>Welcome to in28minutes</div> -->
+  		<div>Welcome ${name}</div> 
+  		<hr>
+  		<h1>Your Todos</h1>
+  		
+  		<table>
+  			<thead>
+  				<tr>
+  				<th>id</th>
+  				<th>Description</th>
+  				<th>Taget Date</th>
+  				<th>Is Done?</th>
+  				</tr>			
+  			</thead>
+  			<tbody>
+  			<c:forEach items="${todos}" var="todo">
+  				<tr>
+  					<td>${todo.id}</td>
+  					<td>${todo.description}</td>
+  					<td>${todo.targetDate}</td>
+  					<td>${todo.done}</td>
+  				</tr>
+  			</c:forEach>
+  			</tbody>
+  		</table>
+      
+      <!--2-1: 그럼 여기에 넣어주겠다 그리고 실제로 JavaScript를 넣기 위해 이 <script>태그를 사용한다 그럼<script>라고 넣고 src=라고 하고 이 파일들에 대한 링크를 넣는다 -->
+      <!--그럼 이렇게 webjars와 jquery를 복사해서 넣는다 그리고 저장 그리고 이제 우리의 Todos 페이지를 다시 실행해보자-->
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js "></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+  
+  </body>
+</html>
+
+---------------------------------------------------------------------------------------------------------------
+                                              |
+                                              V
+---------------------------------------------------------------------
+
+http://localhost:8087/list-todos 사이트 화면 ==>
+
+
+Welcome in28minutes
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Your Todos
+id	Description		Taget Date	Is Done?
+1 Learn AWS			2025-04-23	false
+2 Learn DevOps			2026-04-23	false
+3 Learn Full Stack Development	2027-04-23	false
+
+
+---------------------------------------------------------------------
+
+이 형식이 약간 변한 걸 볼 수 있다 (직접 웹사이트에 봐야 확인 가능 폰트나 여백 스타일등이 바뀜)
+이건 Bootstrap 때문이다, 그리고 오른쪽 클릭을 하고 inspect(검사)를 선택 그리고 Network탭으로 가서 새로고침
+Doc를 보면 list-todos만 있는 걸 볼 수 있고, 그리고 list-todos에서 Response를 보면 webjars에 대한 링크를 볼 수 있다 
+
+-------------------------------------------------------------------------------------------
+Response탭 내용 ==>
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			List Todos Page
+		</title>
+	</head>
+	<body>
+			<!-- <div>Welcome to in28minutes</div> -->
+			<div>Welcome in28minutes</div> 
+			<hr>
+			<h1>Your Todos</h1>
+			
+			<table>
+				<thead>
+					<tr>
+					<th>id</th>
+					<th>Description</th>
+					<th>Taget Date</th>
+					<th>Is Done?</th>
+					</tr>			
+				</thead>
+				<tbody>
+				
+					<tr>
+						<td>1</td>
+						<td>Learn AWS</td>
+						<td>2025-04-24</td>
+						<td>false</td>
+					</tr>
+				
+					<tr>
+						<td>2</td>
+						<td>Learn DevOps</td>
+						<td>2026-04-24</td>
+						<td>false</td>
+					</tr>
+				
+					<tr>
+						<td>3</td>
+						<td>Learn Full Stack Development</td>
+						<td>2027-04-24</td>
+						<td>false</td>
+					</tr>
+				
+				</tbody>
+			</table>
+			
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js "></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	</body>
+</html>
+-------------------------------------------------------------------------------------------
+
+이렇게 상단에 webjars/bootstrap에 대한 링크가 있다 그리고 하단에는 bootstrap과 jquery 모두에 적용되는
+JavaScript 파일에 대한 링크가 있다 
+그럼 Network탭에 Doc에서 All로 바꾸면 여기 list-todos가 있는게 보이고 그리고 bootstrap.min.css가 적절히 다운로드 된 것도 보일 것이다,
+그리고 bootstrap.min.js가 있고 jquery.min.js도 다운로드 되어 있다 
+브라우저로 되돌아오는 첫 번째 응답은 list-todos에서 오는 것이고, 브라우저는 list-todos의 콘텐츠에 bootstrap css파일에 대한 링크와 JavaScript 파일에 대한 링크가 있는 걸 발견한다
+즉 bootstrap.min.js와 jquery.min.js에 대한 링크다
+그러면 브라우저는 그것들도 모두 다운로드하게 된다 
+
+그래서 너는 list-todos, bootstrap.min.css, bootstrap.min.js, jquery.min.js 각각에 대한 별도의 요청을 보게되는 것이다
+
+
+너는 Bootstrap을 준비하기 위해 많은 어려운 작업을 해야 하는 걸 알게 되었다 
+하지만 Bootstrap을 사용하면 엄청난 일들을 할 수 있다 그럼 그걸 다음 단계에서 확인해보자
