@@ -1,0 +1,101 @@
+
+
+지난 단계에서 우린 Bootstrap을 준비했고 이번 단계에선 그걸 사용해보겠다
+그럼 listTodos.jsp로 가서 Bootstrap을 사용해보자
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ listTodos.jps 파일
+
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			List Todos Page
+		</title>
+	</head>
+	<body>
+
+      <!--모든 컨텐츠를 <div> 태그 안에 넣고 class="container"를 써 주는 게 좋다 여기에서 우리는 특정한 클래스를 쓰고 있고 이렇게 container 클래스가 페이지의 본문 전체를 담고 있는 것이다 그게 Bootstrap의 권고사항 중에 하나다-->
+      <!--그럼 너는 <body>의 모든 콘텐츠를 여기에 넣고 전체적으로 안쪽으로 탭을 주겠다 이렇게 우리는 <div class="container"> 안에 모든걸 넣었고 -->
+      <div class="container">
+
+        <!--이제 Welcome ${name}에 신경 쓰길 원치 않는다, 그럼 그걸 삭제하고 <hr>도 삭제하자-->
+        <!--<div>Welcome ${name}</div> 
+  			<hr>-->
+        <!--그럼 너는 Your Todos라고 하고 <table>이라고 해줄 것이다 어떻게 되는지 볼까?-->
+  			<h1>Your Todos</h1>
+  			
+  			<table>
+  				<thead>
+  					<tr>
+  					<th>id</th>
+  					<th>Description</th>
+  					<th>Taget Date</th>
+  					<th>Is Done?</th>
+  					</tr>			
+  				</thead>
+  				<tbody>
+  				<c:forEach items="${todos}" var="todo">
+  					<tr>
+  						<td>${todo.id}</td>
+  						<td>${todo.description}</td>
+  						<td>${todo.targetDate}</td>
+  						<td>${todo.done}</td>
+  					</tr>
+  				</c:forEach>
+  				</tbody>
+  			</table>
+			
+      </div>
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	
+	</body>
+</html>
+
+----------------------------------------------------------------------------------------------------------------------------
+                                                |
+                                                V
+----------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지 화면 ==>
+
+
+      Your Todos
+      
+      id	Description	                Taget Date	Is Done?
+      1	Learn AWS	                    2025-04-24	false
+      2	Learn DevOps	                2026-04-24	false
+      3	Learn Full Stack Development	2027-04-24	false
+
+----------------------------------------------------------------------
+
+페이지는 이런 모습이고 모두 중앙에 와 있는 걸 볼 수 있다
+class="container"가 그걸 하고 있다 
+너가 class를 삭제하고 저장하면 이렇게 왼쪽으로 가는 걸 볼 수 있다
+                                                  |
+                                                  V
+----------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지 화면 ==>
+
+
+Your Todos
+      
+id	Description	                Taget Date	Is Done?
+1	Learn AWS	                    2025-04-24	false
+2	Learn DevOps	                2026-04-24	false
+3	Learn Full Stack Development	2027-04-24	false
+
+----------------------------------------------------------------------
+
+하지만 container를 사용하면 모든게 중앙에 잘 와있는 걸 보게 된다
+
+
+
