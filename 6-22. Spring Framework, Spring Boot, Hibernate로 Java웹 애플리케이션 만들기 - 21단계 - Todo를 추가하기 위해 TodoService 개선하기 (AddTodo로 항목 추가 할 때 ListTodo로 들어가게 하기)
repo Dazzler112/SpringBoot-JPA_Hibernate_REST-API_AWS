@@ -107,3 +107,182 @@ public class TodoService {
 }
 
 ---------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage() {
+		
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(@RequestParam String description, ModelMap model) {
+    //3: 우린 description을 받는 @RequestParam이 있다 임포트를 정리해서 RequestParam을 임포트하고 description이 있고 그럼 특정한 메서드를 호출하기 위해 우리가 뭘 해야하는지 한 번 보자
+    //todoService.addTodo()라고 하고, description이 필요할 거고 사실 첫 번째는 username이 되어야 한다, 그럼 username이 필요하고 username이 필요하면 model이 필요할 것이다 그럼 ModelMap이라 하고 (@RequestParam String description) 여기서 model을 추가하고, 그럼 넌 model.get("name")이라고 하고 로그인한 사용자의 이름을 받을 것이다
+    //그리고 그걸 String으로 타입캐스트를 해준다 간단히 하기 위해 넌 그걸 변수로 추출할 것이다 ( ( (String)model.get("name") )이부분을 긁어서 Refactor > Extract Local Variable > 이름을 username이라고 함 ) 이렇게 username이 생겼고, description이 있고 
+    //다음은 LocalData다, 그럼 너는 LocalDate.now()라고 입력할 거고 나중에 우린 목표 날짜를 잡는 필드도 추가할 것이다, 그러면 사용자는 Todo에 넣으려는 목표 날짜를 선택할 수 있게 된다 하지만 지금은 그냥 목표 날짜가 1년 후라고 해 주겠다 그럼 plusTears(1)이라고 해주자, 그럼 LocalDate.now().plusYears(1)이고
+    //우리는 그냥 Todo를 만들고 있기 때문에 미완료이다, 그럼 false라고 해주자 그럼 이걸 저장해보자
+    String username = (String)model.get("name");
+		todoService.addTodo(username, description,
+                LocalDate.now().plusYears(1), false);
+
+		return "redirect:list-todos";
+	}
+}
+
+
+---------------------------------------------------------------------------------------------------------------
+
+
+
+지금까진 우리는 백그라운드에 있는 정적 리스트에 Todo를 추가하기 위한 로직을 리턴했다
+
+	static {
+		todos.add(new Todo(++todosCount,"in28minutes","Learn AWS", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+여기서 기억해야 할 점은 이게 정적 리스트라는 점이다 
+서버가 재시작될 때마다 이 정적 리스트느 새로고침 된다 그럼 너는 Todo를 추가해도 
+즉 너가 10개의 Todo를 추가해도 서버를 재시작하면 너가 추가되는 모든 Todo는 사라지게 된다
+우린 나중에 MySQL 같은 영구적인 DB를 사용할 때 이걸 수정할 것이다
+지금은 우선 이것만 기억해두면 되고 
+
+
+그럼 로그인 페이지로 가서  거기서 시작해보자
+
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/login 페이지 화면==>
+
+              Login
+                     _________________________             _________________________     _______
+              Name: |in28minutes              | Password: |⚫⚫⚫⚫⚫             |   | 제 출 |
+                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+name, password를 입력한다 (in28minutes, dummy)                        |
+                                                                     V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/login 사이트화면 ==>
+
+Welcome in28minutes
+
+Manage your todos
+
+---------------------------------------------------------------------------------------------------------
+Manage를 클릭하고                                                     |
+                                                                     V
+---------------------------------------------------------------------------------------------------------
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      1	Learn AWS	                        2025-04-24	   false
+      -----------------------------------------------------------
+      2	Learn DevOps	                    2026-04-24	   false
+      -----------------------------------------------------------
+      3	Learn Full Stack Development	    2027-04-24     false
+      -----------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---------------------------------------------------------------------------------------------------------
+ Add Todo를 클릭한다                                                   |
+                                                                      V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn Google Cloud   | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+그럼 가서 Google Cloud를 배울 수 있는지 보자                             |
+그럼 Learn Google Cloud를 입력하고 Submit을 누른다                       V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지 화면 ==>
+
+      Your Todos
+
+      id Description	                   Taget Date	      Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      1  Learn AWS                       2023-04-28       false
+      --------------------------------------------------------------
+      2  Learn DebOps                    2024-04-28       false
+      --------------------------------------------------------------
+      3  Learn Full Stack Development    2024-04-28       false
+      --------------------------------------------------------------
+      4  Learn Google Cloud              2024-04-28       false
+      --------------------------------------------------------------
+      __________
+     | Add Todo |
+      ‾‾‾‾‾‾‾‾‾‾
+---------------------------------------------------------------------------------------------------------
+됐다 이제 그 Google Cloud가 여기 나열된 걸 볼 수 있고, 목표 날짜도 정해져 있는 걸 볼 수 있다           |        
+그럼 Add Todo를 누르고 설명을 넣지 않고 Submit을 클릭해보자                                          V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지 화면 ==>
+
+      Your Todos
+
+      id Description	                   Taget Date	      Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      1  Learn AWS                       2023-04-28       false
+      --------------------------------------------------------------
+      2  Learn DebOps                    2024-04-28       false
+      --------------------------------------------------------------
+      3  Learn Full Stack Development    2024-04-28       false
+      --------------------------------------------------------------
+      4  Learn Google Cloud              2024-04-28       false
+      --------------------------------------------------------------
+      5                                  2024-04-28       false
+      --------------------------------------------------------------
+      __________
+     | Add Todo |
+      ‾‾‾‾‾‾‾‾‾‾
+---------------------------------------------------------------------------------------------------------
+
+보는 것처럼 비어 있는 값도 받고 있다
+이렇게 아직 검증 작업이 없다
+이게 우리가 다음 단계에서 해결할 문제이다
