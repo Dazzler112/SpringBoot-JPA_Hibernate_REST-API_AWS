@@ -1,0 +1,109 @@
+
+
+이번 단계에선 사용자가 입력한 세부정보로 새로 Todo를 추가하는 방법을 알아보겠다
+
+사용자는 페이지에 Todo 설명을 입력한다 그걸 어떻게 잡을까?
+
+---------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage() {
+		
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	//1: 맞다 RequestParam을 추가할 수 있다 그럼 너는 @RequestParam String description을 넣을 수 있고, 새로운 Todo를 만들 수 있다
+  public String addNewTodo(@RequestParam String description) {
+		
+    //1-1:여기서 모든 로직을 집접 넣지 않고 우리는 모든 로직을 TodoService로 옮겨보려고 한다 //2:TodoService 클래스파일로..
+		return "redirect:list-todos";
+	}
+}
+
+---------------------------------------------------------------------
+
+
+⏺ TodoService 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+
+@Service
+public class TodoService {
+
+	private static List<Todo> todos =new ArrayList<>();
+
+  //2-2:그럼 너는 private static int 라는 변수를 써서 Todo의 개수를 계산할 것이다 그럼 너는 todosCount =라고 하고 우리가 3개의 Todo를 추가했으면 여기에 3개의 Todo가 있을 것이다
+//  private static int todoCount = 3;
+  //2-3:다른 방법은 이걸 0으로 초기화를 하고, 매번 ++todosCount를 할 수 있다 
+  private static int todosCount = 0;
+
+  //2-3 계속: (여기도 1,2,3 숫자부분을 ++todosCount로 수정...)
+  //여기서 ++todosCount를 할 수 있다 , 그럼 너가 새로운 Todo를 추가하면, 즉 여기에 4개의 Todo를 추가해도 문제가 생기지 않을 것이다//2-4: 다시 addTodo 메소드 안으로...
+	static {
+		todos.add(new Todo(1,"in28minutes","Learn AWS", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(2,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(3,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+	
+	public List<Todo> findByUsername(String username) {
+		return todos;
+	} 
+
+  //2: 이 안에 모든 로직을 작성할 것이다
+  //그럼 너는 여기서 Todo를 추가하기 위한 메서드를 만들어 보겠다, public void addTodo() 라 하고, 니가 넣으려는 파라미터는 String name이고
+  //누구의 Todo를 추가하려고 하지? 그럼 String username이라고 하고 우린 Todo의 설명을 추가할 수 있기를 원하고 목표 날짜도 원한다 그럼 LocalDate targetDate를 추가하자 마지막은 불리언 값이다 boolean done 이다
+		public void addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		//2-1: 그럼 여기에 있는 값들을 받으면 우린 뭘 해야 하나? 여기 있는 값 리스트에 추가해야 할 것이다 //2-2위의 todos 변수명 아래에 작성...
+
+    //2-4: 그러면 새로운 Todo가 추가되면 다시 id는 ++todosCount가 될 것이다 그럼 우리는 실제로 새로운 Todo를 생성할 수 있다, Todo todo = new Todo()라고 하고 Todo()안에 ++todosCount를 넣는다 그리고 안에 username, description, targetDate, done) 이라고 해주자
+  	//그리고 이걸 todos.add()에 넣어준다 이렇게 우리는 addTodo()메서드를 준비했고 이제 우리는 이 메서드를 addNewTodo()에서 호출해야 한다 그걸 어떻게 해야 할까?? //3: TodoController클래스의 addNewTodo 메소드로...
+		Todo todo = new Todo(++todosCount, username, description, targetDate, done);
+		todos.add(todo);
+
+  }
+
+}
+
+---------------------------------------------------------------------
