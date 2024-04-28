@@ -1,0 +1,235 @@
+
+
+지난 단계에선 우리는 설명 없는 Todo도 추가할 수 있는 걸 보았는데 
+그럼 검증을 추가해야 겠지? 이번 단계에선 검증에 대해 더 탐구해 보자
+
+지금 todo.jsp 파일을 보고 있고, 그리고 여기서 우린 프론트엔드 검증을 좀 추가할 수 있다
+
+-----------------------------------------------------------------------------------------------------------
+
+
+⏺ todo.jsp 파일
+
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			Add Todo Page
+		</title>
+	</head>
+	<body>
+			<!-- <div>Welcome to in28minutes</div> -->
+			<div class="container">
+			
+				<h1>Enter Todo Details</h1>
+				<form method="post">
+
+          <!--1: 여기 required="required"라고 적어줄 수 있다 이렇게 우리는 여기서 required라는 이름의 속성을 Description 필드에 추가했다 그럼 어떻게 되는지 볼까?-->
+					Description: <input type="text" name="description" required="required"/>
+					<input type="submit" class="btn btn-success"/>
+				
+				</form>
+				
+			</div>
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	
+	</body>
+</html>
+
+-----------------------------------------------------------------------------------------------------------
+                                                    |
+                                                    V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |                     | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+                    ㅅ______________________
+                   | ❗이 입력란을 작성하세요. |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---------------------------------------------------------------------------------------------------------
+
+이제 너가 비어 있는 Todo를 추가하고 엔터키를 누르면
+너가 Todo가 비어 있는 채로 Submit을 누르면 "이 필드를 채워라" 라고 나온다
+
+❗ 프론트엔드 검증에서 기억해야 할 중요한 사실이 하나 있는데, 
+너가 HTML로 구현한 검증이나 JavaScript로 구현한 검증은 해커가 아주 쉽게 건너뛸 수 있다는 점이다 ❗
+
+그래서 항상 최선의 방식은 서버 측 검증인 것이다
+너는 Java 코드 안에서 검증을 구현하려고 할 수 있다
+Spring Boot 와 Spring MVC를 사용하면 아주 쉽게 검증을 구현할 수 있다
+
+
+
+
+Validations with Spring Boot
+                                                                                                                                                                  
+● 1: Spring Boot Starter Validation                                                                                                                                                                  
+  ■ pom.xml                                                                                                                                                                  
+● 2: Command Bean (Form Backing Object)                                                                                                                                                                  
+  ■ 2-way binding (todo.jsp & TodoController.java)                                                                                                                                                                  
+● 3: Add Validations to Bean                                                                                                                                                                 
+  ■ Todo.java                                                                                                                                                                  
+● 4: Display Validation Errors in the View                                                                                                                                                                  
+  ■ Todo.java                                                                                                                                                                      
+                                                                                                                                                                  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+                                                                                                                                            
+네 가지 단계가 있다
+● 1: Spring Boot Starter Validation      
+첫째는 검증과 관련된 starter 프로젝트를 임포트하는 것이다
+이름은 spring-boot-starter-validation이다 
+  ■ pom.xml    
+우린 그걸 pom.xml에 추가할 것이다
+● 2: Command Bean (Form Backing Object)     
+둘째로 우리는 커맨드 빈 또는 양식 보조 객체라는 개념을 사용해야 할 것이다 
+  ■ 2-way binding (todo.jsp & TodoController.java)           
+우리가 이걸 하면 양방향 바인딩이라는 개념을 구현하게 된다
+● 3: Add Validations to Bean      
+셋째는 Bean에 검증을 추가하는 단계이다
+우리는 검증을 추가하고, 설명 필드에 대해 최소 문자 개수가 10개라고 알릴 수 있다
+그리고 목표 날짜에 대해서는 항상 현재 날짜 또는 미래 날짜가 되길 원한다고 할 수 있다 
+  ■ Todo.java    
+너는 그걸 todo.java에 추가할 수 있다 
+● 4: Display Validation Errors in the View   
+  ■ Todo.java    
+그리고 네 번째는 검증 오류를 뷰에 표시하는 단계이다
+검증을 하면 너는 검증 오류를 todo.jsp라는 뷰에 표시하길 원한다 
+이것들이 검증을 추가하는 네 가지 단계이고 
+
+
+
+그럼 spring-boot-starter-validation을 pom.xml에 추가하는 것부터 시작해볼까?
+그럼 pom.xml을 열어보겠다
+
+-----------------------------------------------------------------------------------------------------------
+
+
+⏺ pom.xml 파일
+
+
+...
+	<dependencies>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+<!--2:그리고 여기에 spring-boot-starter-validation을 추가하려고 한다-->
+<!--그럼 약간 포맷을 잡아주고 우리의 spring-boot-starter-validation을 넣어주겠다 저장하고-->
+<!--지금 jar가 다운로드되고 있는 걸 볼 수 있고 starter의 일부인 모든 관련된 jar 파일들도 여기에 다운로드되고 있다 -->
+<!--이렇게 spring-boot-starter-validation.jar이 준비되었고, 평소와 같이 pom.xml을 변경한 경우에는 정지하고 애플리케이션 을 정지한 다음 다시시작해야 한다-->
+    <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	
+	
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>	
+	
+		<dependency>
+			<groupId>jakarta.servlet.jsp.jstl</groupId>
+			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>glassfish-jstl</artifactId>
+			<version>11.0.20</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>5.1.3</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>3.6.0</version>
+		</dependency>	
+
+	</dependencies>
+...
+
+-----------------------------------------------------------------------------------------------------------
+
+이렇게 첫 단계를 마쳤다 이제 우리는 커맨드 빈 또는 양식 보조 객체라는 개념을 구현할 차례이고 ● 2: Command Bean (Form Backing Object)  
+그걸 하기 전에 우리가 뭘 하고 있는지 간단히 알아보도록 하자
+
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn Google Cloud   | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+Todo양식에 설명이 입력되면, 
+
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(@RequestParam String description, ModelMap model) {
+		String username = (String)model.get("name");
+		todoService.addTodo(username, description, 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+우리는 그걸 이 addNewTodo()메서드에 바인딩한다 설명을 어떻게 바인딩할까?
+@RequestParam을 사용한다 가령 여기에 필드가 10개 있다고 해보자, 그럼 너는 그런 RequestParam을 10개 추가해야 할 것이다 그러면 코드가 아주 아주 복잡해지겠지
+여기 있는 설명, 목표 날짜, 완료 여부 같은 모든 필드를 추가하는 대신에 즉 그걸 모두 넣고 사용해서 RequestParam에 바인딩하는 대신에 우리는 그걸 직접 Todo Bean에 바인딩할 수 있다
+
+우린 이미 Todo.java Bean을 만들었고 
+그럼 이 Todo Bean에 직접 바인딩하면 어떨까?
+
+
+
+public class Todo {
+
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	private int id;
+	private String username;
+	private String description;
+	private LocalDate targetDate;
+	private boolean done;
+.....
+여기 Todo안에 Description이라는 필드가 있는 게 보이지? 그럼 값을 취해서 그걸 직접 Description에 바인딩하면 어떨까?
+나중에 우리가 예를 들어 targetDate나 done 같은 다른 필드를 추가할 때, 그것들은 자동으로 이 Bean에 바운딩될 것이다
+너는 여기 있는 바인딩을 전혀 변경할 필요가 없다 그게 바로 커맨드 빈 또는 양식 보조 객체라는 개념이다, 
+여기에 어떤 양식이 있든지 우리는 Todo 또는 Todo Bean을 보조 객체 또는 커맨드 빈으로 사용하고 있다 그걸 어떻게 구현하는지 지금 알아보겠다
+
