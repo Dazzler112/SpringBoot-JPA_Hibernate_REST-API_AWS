@@ -233,3 +233,346 @@ public class Todo {
 너는 여기 있는 바인딩을 전혀 변경할 필요가 없다 그게 바로 커맨드 빈 또는 양식 보조 객체라는 개념이다, 
 여기에 어떤 양식이 있든지 우리는 Todo 또는 Todo Bean을 보조 객체 또는 커맨드 빈으로 사용하고 있다 그걸 어떻게 구현하는지 지금 알아보겠다
 
+
+-----------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage() {
+		
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+  //3: 먼저 이 @RequestParam String description을 삭제해보겠다 그리고 우린 뭘 하려고 하지? 우린 직접 Todo 빈에 바인딩하려고 한다
+  //중요한 점은 ModelMap이 첫 번째 파라미터가 되어야 한다는 점이고 두 번째 파라미터는 우리가 추가할 것이 되어야 한다 그럼 Todo todo 라고 해주자,
+  //이렇게 ModelMap에 바인딩하는 대신, 우리는 그걸 직접 Todo Bean에 바인딩하라고 Spring MVC에 알려주고 있다 이제 description이 더 이상 존재하지 않기 때문에 오류가 나올 것이다
+	public String addNewTodo(ModelMap model) {
+		String username = (String)model.get("name");
+    
+    //3-1: 그럼 여기서 descrition 대신에 todo.getDescription()이라고 해줄 것이다 그게 TodoController에서의 첫 번째 변경사항이고
+    //이제 우리는 이 양식 보조 객체를 jsp에서도 사용하려고 한다 그걸 어떻게 해야 할까? //4:todo.jsp 파일로..
+		todoService.addTodo(username, description, 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+}
+
+-----------------------------------------------------------------------------------------------------------
+jsp에서 양식 보조 객체를 설정하기 위해 너는 Spring 양식 태그 라이브러리를 사용해야 한다 Google 에서 spring form tag library documentation을 검새갛면 View technologies란 페이지가 나온다
+( https://docs.spring.io/spring-framework/docs/3.2.x/spring-framework-reference/html/view.html <= 사이트 참조 )
+너는 거기 가서 form tag library를 검색할 수 있고 그러면 
+
+ As you will see in the following examples, the form tags make JSPs easier to develop, read and maintain.
+Spring이 많은 태그를 제공하고 그걸로 양식을 아주 쉽게 다룰 수 있다는걸 볼 수 있다 이 양식 태그는 JSP를 쉽게 개발하고 읽고 유지하게 해준다고 나와 있다
+그럼 Spring 양식 태그 라이브러리를 사용하기 위해
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+너는 이걸 jsp에 추가해야 한다
+
+이건 너의 임포트 구문과 비슷하다
+
+-----------------------------------------------------------------------------------------------------------
+
+⏺ todo.jsp파일
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!--4:그럼 jsp에서 우리는 Spring 양식 라이브러리를 임포트하고 "form"이라는 접두어를 제공한다 그럼 이제 우리는 이 양식 태그들을 사용할 수 있다 그럼 먼저 양식 태그를 업데이트해보자-->
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			Add Todo Page
+		</title>
+	</head>
+	<body>
+			<!-- <div>Welcome to in28minutes</div> -->
+			<div class="container">
+			
+				<h1>Enter Todo Details</h1>
+        
+        <!--4-1: 그럼 <form:form>을 넣고-->
+        <!--6: 그럼 너는 modelAttribute="todo"라고 해서 여기에 속성을 추가해야 한다, 너는 이 양식을 이addNewTodo(ModelMap model, Todo todo)  todo에 매핑해야 한다 그리고 우린 여기 이addNewTodo의 todo와 여기의 modelAttribute="todo" todo의 이름이 일치하도록 해야 한다-->
+				<form:form method="post" modelAttribute="todo">
+
+          <!--6-1: 다음으로 우린 description필드도 매핑해야 한다 우리는 description 필드를 todo Bean의 description 필드에 매핑해야 한다 (Todo클래스의..)description Bean의 	private String description; 이 필드이다 그걸 어떻게 할 수 있을까?-->
+          <!--6-1 계속: 우리는 양식 라이브러리에 있는 또 다른 태그를 사용해서 그걸 할 수 있다 그게 바로 form:input이다 너는 여기에 <form:input>을 넣으면 path를 추가할 수 있다 그럼 너는 path="description"이라고 할 수 있다-->
+          <!--6-1 계속: 안에서 우리는 이 form 요소를 여기 있는 (Todo클래스의..)description 이라는 멤버 변수에 매핑하려고 한다 그게 우리가 path를 통해 설정하고 있는 것이다 저장 하고 이제 확인해보자-->
+          Description: <form:input type="text" path="description" required="required"/>
+					<input type="submit" class="btn btn-success"/>
+
+        <!--4-1 계속: 여기에도 form:을 넣는다, 양식 태그 라이브러리 안에서 접두어(prefix)는 form이고 우리는 <form> 태그를 사용하려고 한다, 그리고 "post"라는 메서드를 추가하고 있다//5:TodoController 클래스파일의 newAddTodo메소드로...-->
+        </form:form>
+				
+			</div>
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	
+	</body>
+</html>
+
+----------------------------------------------------------------
+
+
+
+⏺ TodoController 클래스파일
+
+
+ackage com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage() {
+		
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, Todo todo) {
+		String username = (String)model.get("name");
+
+    //5:이제 우리는 이걸 TodoController클래스의 addNewTodo메소드의 todo.getDescription()이 Bean에 연결하려고 한다
+    //그럼 너는 이 메서드의 이 속성에 그걸 연결하려고 한다 Todo클래스의 private String description; 여기에 속성을 추가해서 그렇게 할 수 있다//6: 다시 위의 todo.jsp파일로... 
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+}
+
+-----------------------------------------------------------------------------------------------------------
+                                                                          |                          
+                                                                          V                       
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면==>
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      1	Learn AWS	                        2025-04-28	   false
+      -----------------------------------------------------------
+      2	Learn DevOps	                    2026-04-28	   false
+      -----------------------------------------------------------
+      3	Learn Full Stack Development	    2027-04-28     false
+      -----------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---------------------------------------------------------------------------------------------------------
+
+여기 List Todos Page를 다시 로딩하고 Add Todo를 누르면.. 
+
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Sun Apr 28 22:02:25 KST 2024
+There was an unexpected error (type=Internal Server Error, status=500).
+Neither BindingResult nor plain target object for bean name 'todo' available as request attribute
+java.lang.IllegalStateException: Neither BindingResult nor plain target object for bean name 'todo' available as request attribute
+
+오류가 날 것이다
+BindingResult 또는 가용한 Bean이름 'todo'에 대한 플레인 타깃 객체가 요청 속성과 다르다고 나온다 
+문제가 뭘까?
+
+문제는 TodoController의 showNewTodoPage() 메서드이다
+
+---------------------------------------------------------------------------------------------------------
+
+
+
+⏺ TodoController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+  //7: 그건 add-todo가 호출되면 호출되는 메서드이다, 이건 todo라는 속성을 모델에 설정하지 않고 있다, 그럼 빨리 그렇게 해보자
+  //그럼 너는 (ModelMap model)이라고 해 주자
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage() {
+    //7-1: 그 안에 우리는 todo라는 속성을 추가하려고 한다 그럼 너는 새로운 Todo를 만들자 Todo todo = new Todo();라고 하고 지금은 값들을 하드코딩할 것이다
+    String username = (String)model.get("name");
+    
+    //7-1 계속: 첫 번째 필드는 id이고 지금 new Todo의 id를 0이라고 넣을 것이고 다음은 사용자 이름이다, model에서 username을 가져올 수 있고, 그럼 너는 String username = (String)model.get("name");라고 해주자 그리고 model로 부터 username을 사용할 거고
+    //다음은 설명이다 new Todo에 비어있는 설명을 넣을 것이다 다음은 목표 날짜인데 LocalDate.now().plusYears(1)ㄹ고 할 수 있다 우리가 addNewTodo에서 사용한 것과 동일하다 그걸 기본값으로 해보자, 지금으로부터 1년이 기본값 목표 날짜이다
+    //그리고 마지막은 완료 여부이다 우린 새로운 Todo를 만들고 있고 그럼 false라고 해주자
+    //우리가 새로운 Todo를 생성할 때 여기에서 우리는 기본값들을 설정하고 있다 그리고 우리가 이 Bean을 model에 넣으면 우리가 여기서 설정하려는 값은 여기에 있는 것에 바운딩될 것이다, 
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+    
+    //7-1 계속: 그럼 model.put()이라고 하고 jsp에서 <form:form method="post" modelAttribute="todo"> 모델어트리뷰트에서 todo를 받고있으니 "todo"이다 코드가 컴파일 되고 //그럼 다시 사이트list-todos로 돌아가서 Add Todo를 클릭해보자....
+    model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, Todo todo) {
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+}
+
+---------------------------------------------------------------------------------------------------------
+                                                      |
+                                                      V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면==>
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      1	Learn AWS	                        2025-04-24	   false
+      -----------------------------------------------------------
+      2	Learn DevOps	                    2026-04-24	   false
+      -----------------------------------------------------------
+      3	Learn Full Stack Development	    2027-04-24     false
+      -----------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---------------------------------------------------------------------------------------------------------
+add Todo 클릭!!                                                |
+                                                               V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |                     | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+페이지가 로딩된다 이제 한 번 빈 값으로 제출하려고 시도해 보자       |
+                                                               V                                                  
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |                     | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+                    ㅅ______________________
+                   | ❗이 입력란을 작성하세요. |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---------------------------------------------------------------------------------------------------------
+이 필드를 채워주라고 나오지? 비어있다 아무 내용을 적고 submit을 누른다
+
+!!!!
+
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Sun Apr 28 22:31:36 KST 2024
+There was an unexpected error (type=Bad Request, status=400).
+Validation failed for object='todo'. Error count: 1
+org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public java.lang.String com.firstapplication.springboot.myfirstwebapp.todo.TodoController.addNewTodo(org.springframework.ui.ModelMap,com.firstapplication.springboot.myfirstwebapp.todo.Todo): [Field error in object 'todo' on field 'id': rejected value [null]; codes [typeMismatch.todo.id,typeMismatch.id,typeMismatch.int,typeMismatch]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [todo.id,id]; arguments []; default message [id]]; default message [Failed to convert value of type 'null' to required type 'int'; Failed to convert from type [null] to type [int] for value [null]]] 
+	at 
+
+너는 몇 가지 기본 검증이 트리거되는 걸 볼 수 있다
+객체에 대해 검증이 실패했고 그게 'todo'이며 오류 개수가 1개라고 나온다 ( Validation failed for object='todo'. Error count: 1 )
+그리고 오류 목록도 보여주고 있다 ( org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public java.lang.String )
+
+id필드가 null로 들어오고 있다고 한다
+이제 우리는 id와 done에 대해 숨은 변수를 만들려고 한다 
+숨은 변수가 뭘까? 간단히 살펴보도록 하자 
+
