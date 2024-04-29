@@ -546,3 +546,246 @@ http://localhost:8087/add-todo 페이지 화면 ==>
 하지만 여기에 오류가 표시되지 않고 있다
 그리고 그건 별로 좋지 않다 그럼 여기에 오류도 표시해 보자
 
+여기에 오류를 어떻게 표시할까? 우리는 todo.jsp로 가야한다
+양식 태그 라이브러리에는 양식 오류에 관한 태그도 제공한다
+너는 그냥 그에 대한 path만 넣어주면 된다 그럼 그렇게 해보자
+
+----------------------------------------------------------------------------------------------------
+
+
+⏺ todo.jsp 파일
+
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			Add Todo Page
+		</title>
+	</head>
+	<body>
+			<!-- <div>Welcome to in28minutes</div> -->
+			<div class="container">
+			
+				<h1>Enter Todo Details</h1>
+				<form:form method="post" modelAttribute="todo">
+					Description: <form:input type="text" path="description" 
+									required="required"/>
+        <!--5: <form:errors라고 하고 error에는 type이 필요하지 않다 너는 그냥 path만 넣고 />를 넣어주면 된다 그리고 어떻게 되는지 보자-->
+          <form:errors path="description"/>
+
+					<form:input type="hidden" path="id"/>
+					<form:input type="hidden" path="done"/>
+					<input type="submit" class="btn btn-success"/>
+				
+				</form:form>
+				
+			</div>
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	
+	</body>
+</html>
+
+----------------------------------------------------------------------------------------------------
+Learn이라고 하고 submit을 눌러보자                                |
+                                                                V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn                | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+                                               
+                                                | 제출 클릭
+                                                V
+
+
+
+      Enter Todo Details
+                    _____________________                               ________
+      Description: |Learn                | Enter atleast 10 characters |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+Enter atleast 10 characters 최소한 10글자를 입력하라고 나온다
+
+그럼 이게 경고처럼 보이도록 CSS 클래스를 추가해 보자
+
+---------------------------------------------------------------------------------------------------------
+
+
+⏺ todo.jsp 파일
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			Add Todo Page
+		</title>
+	</head>
+	<body>
+			<!-- <div>Welcome to in28minutes</div> -->
+			<div class="container">
+			
+				<h1>Enter Todo Details</h1>
+				<form:form method="post" modelAttribute="todo">
+					Description: <form:input type="text" path="description" 
+									required="required"/>
+
+          <!--6: 일반적으로 HTML 태그인 경우에 우리는 class= 라고 하고 클래스를 추가한다 하지만 이건 Spring 태그이다, Spring 태그에서 클래스를 추가하려면 cssClass 속성을 사용해야 한다-->
+					<!--설명을 보면 Equivalent to "class" - HTML Optional Attribute "class" HTML 속성에 해당한다고 나와 있다 그럼 cssClass를 추가해보자, 그리고 cssClass는 "text-warning" 이다 Bootstrap에 제공하는 클래스이다 경고 문구처럼 표시될 것이고 어떤 스타일인지 한 번 보겠다-->
+          <form:errors path="description"/>				
+									
+					<form:input type="hidden" path="id"/>
+					<form:input type="hidden" path="done"/>
+					<input type="submit" class="btn btn-success"/>
+				
+				</form:form>
+				
+			</div>
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	
+	</body>
+</html>
+
+---------------------------------------------------------------------------------------------------------
+다시 submit을 눌러보자                                           |
+                                                                V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn                | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+                                               
+                                                | 제출 클릭
+                                                V
+
+
+
+      Enter Todo Details
+                    _____________________                                      ________
+      Description: |Learn                | Enter atleast 10 characters(노란색) |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                      ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+이제 여기 경고 문구가 나온 걸 본 수 있다
+
+그럼 더 긴 걸 넣어볼까 Learn Google Cloud 라고 해보자 어떻게 될까?
+
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________                                      ________
+      Description: |Learn Google Cloud   | Enter atleast 10 characters(노란색) |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                      ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+                                                        |
+                                                        V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면==>
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      4	Learn AWS	                        2025-04-29	   false
+      -----------------------------------------------------------
+      5	Learn DevOps	                    2026-04-29	   false
+      -----------------------------------------------------------
+      6	Learn Full Stack Development	    2027-04-29     false
+      -----------------------------------------------------------
+      7 Learn Google Cloud                2025-04-29     false             
+      -----------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+
+들어가서 정상적으로 저장된다
+
+우린 검증을 구현할 수 있다 
+
+근대 기본설명(Default Desc)이 표시되는건 좋지 않다 그럼 그걸 되돌려보자
+
+---------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+......
+
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+
+    //7: "Default Desc" 삭제
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+
+......	
+
+---------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |                     | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+ㅇㅋ 됐다
+
+
+
+
+
+
+
+
+Validations with Spring Boot
+                                                                                                                                                                  
+● 1: Spring Boot Starter Validation                                                                                                                                                                  
+  ■ pom.xml                                                                                                                                                                  
+● 2: Command Bean (Form Backing Object)                                                                                                                                                                  
+  ■ 2-way binding (todo.jsp & TodoController.java)                                                                                                                                                                  
+● 3: Add Validations to Bean                                                                                                                                                                 
+  ■ Todo.java                                                                                                                                                                  
+● 4: Display Validation Errors in the View                                                                                                                                                                  
+  ■ Todo.java 
+
+이번 마지막 단계에서 우리는 Spring Boot 를 이용한 검증을 구현해 봤다
+우리가 검증을 구현할 때는 많은 개념들이 사용되는 걸 알게 되었다
+하지만 일단 작동되게만 해 놓으면 아주 매끄럽게 진행된다 
+지금은 양식에 필드가 하나만 있는데 
+나중에 커맨드 빈을 사용하면 새로운 필드를 추가하는 게 아주 아주 쉽다는 걸 알게 될 것이다
