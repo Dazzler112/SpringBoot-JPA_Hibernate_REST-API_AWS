@@ -1,0 +1,344 @@
+
+
+
+Validations with Spring Boot
+                                                                                                                                                                  
+● 1: Spring Boot Starter Validation                                                                                                                                                                  
+  ■ pom.xml                                                                                                                                                                  
+● 2: Command Bean (Form Backing Object)                                                                                                                                                                  
+  ■ 2-way binding (todo.jsp & TodoController.java)                                                                                                                                                                  
+● 3: Add Validations to Bean                                                                                                                                                                 
+  ■ Todo.java                                                                                                                                                                  
+● 4: Display Validation Errors in the View                                                                                                                                                                  
+  ■ Todo.java                                                                                                                                                                      
+
+지난 단계에서 우리는 Todo 양식에 커맨드 빈 또는 양식 보조 객체를 구현했고, 그게 양방향 바인딩을 구현하고 있다고 했다
+그걸 좀 자세히 알아보자
+
+Add Todo 페이지를 로딩할 때 우리는 Add Todo에 GET 요청을 전송하고 있다 
+	
+//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+
+이렇게 페이지가 로딩된다 우린 여기서 뭘 하고 있을까?
+우리는 Todo를 생성하고 그걸 
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+여기에 있는 양식에 매핑하고 있다 
+그럼 그걸 증명해볼까?
+여기서 값 몇 개를 예로 들어보자
+
+🔵 단방향 예시
+----------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+
+    //1: 여기서 "Default Des"라고 입력해보겠다
+    //이렇게 new Todo Bean에 넌 Default Description을 채우고 있다, 여기서 너가 어떤 값을 넣어도 너는 그걸 양식에서 볼 수 있을 것이다 그럼 돌아가서 Add Todo를 클릭해보자
+		Todo todo = new Todo(0, username, "Default Desc", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, Todo todo) {
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+}
+
+
+----------------------------------------------------------------------------------------------------
+                                                               |
+                                                               V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Default Desc         | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+
+이렇게 Default Desc가 들어온 걸 볼 수 있다
+이게 단방향 바인딩이다, 너가 컨트롤러에서 양식에 표시되는 값으로 바인딩되는 것이다
+그게 한 방향이고 
+
+
+🔵 두 번째 방향 예시
+
+두 번째 방향은 뭘까? 두번째 방향은 너가 여기에 입력하는 값이다
+그럼 Learning DevOps라고 적어보자
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learning DevOps      | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+이 값들은 POST 요청에 매핑되어야 한다
+우리는 POST 요청을 하고 있고, 이것이 Todo에 이루어지는 바인딩이다, 니가 Submit(제출)을 클릭하면 
+	
+@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, Todo todo) {
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+
+이 Learning DevOps가 Todo 변수의 Description 필드에 바인딩 될 것이다 그럼 Submit을 해보자
+                                                        |
+                                                        V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면==>
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      4	Learn AWS	                        2025-04-29	   false
+      -----------------------------------------------------------
+      5	Learn DevOps	                    2026-04-29	   false
+      -----------------------------------------------------------
+      6	Learn Full Stack Development	    2027-04-29     false
+      -----------------------------------------------------------
+      7 Learning DevOps                   2025-04-29     false
+      -----------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+Learning DevOps가 여기 들어오는 걸 볼 수 있다 
+이렇게 todoService.addTodo(username, todo.getDescription(), LocalDate.now().plusYears(1), false); 의 todo.getDescription() 여기 바인딩 되고 이게 Todo 리스트에 추가되고 그걸 http://localhost:8087/list-todos 여기서 볼 수 있는 것이다
+
+그래서 이걸 양방향 바인딩이라고 부른다, 너의 Bean에서 양식으로 바인딩되고, 너의 양식에서 Bean으로 바인딩 된다
+양방향 바인딩의 장점은 너에게 많은 유연성을 준다는 점이다 
+
+나중에 너는 우리가 검증을 구현할 때 오류를 표시하는 게 아주 쉬워지는 걸 보게 될 것이다
+지금 우리는 Description 필드만 매핑하고 있지 
+나중에 우리가 Target Date 필드를 매핑하면 Target Date 필드도 쉽게 매핑할 수 있게 된다
+
+
+
+
+Validations with Spring Boot
+                                                                                                                                                                  
+● 1: Spring Boot Starter Validation                                                                                                                                                                  
+  ■ pom.xml                                                                                                                                                                  
+● 2: Command Bean (Form Backing Object)                                                                                                                                                                  
+  ■ 2-way binding (todo.jsp & TodoController.java)                                                                                                                                                                  
+● 3: Add Validations to Bean                                                                                                                                                                 
+  ■ Todo.java                                                                                                                                                                  
+● 4: Display Validation Errors in the View                                                                                                                                                                  
+  ■ Todo.java  
+
+이제 양방향 바인딩이 무엇인지 알았고, 이제 다음단계로 넘어가볼까? 
+즉 Bean에 검증을 추가하고 검증 오류를 뷰에 표시하는 단계이다
+어떻게 검증을 Bean에 추가할 수 있을까?
+아주 아주 쉽다
+
+너는 Todo로 간다
+Todo파일, 즉 Todo.java를 열 수 있고 여기서 간단한 어노테이션을 써서 검증을 추가할 수 있다
+
+----------------------------------------------------------------------------------------------------
+
+
+⏺ Todo 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+
+import jakarta.validation.constraints.*;
+
+//Database (MySQL)
+//Staitc List of todos => Database (H2, MySQL)
+
+public class Todo {
+
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	private int id;
+	private String username;
+
+  //2:예를 들어 Description에 최소 길이를 설정하려 한다고 해보자, 그럼 넌 @Size라고 할 수 있고 그럼 이게 jakarta.validation.constraints에 구현된 걸 알 수 있다 이걸 선택하면 너는 여기 임포트가 되는 걸 보게 될 것이다
+	//이렇게 jakarta.validation.constraints.Size라고 나온다 그리고 여기 @Size()에서 너는 min=이라고 하고, 예를 들어 10이라고 적을 수 있다
+  //그리고 너는 메시지도 추가할 수 있다, 이 검증이 실패하면 어떻게 되는지를 말한다 "최소한 10글자를 입력하십시오"라고 해보자 
+  //✅ validation 여러종류: 다른 검증도 많이 추가할 수 있다, 만일 너가 여기서 @Size를 클릭하면 Size.class가 열리고 Size.class 자체가 많은 걸 지원하는 걸 볼 수 있다, min(),max()등등 아주 많다 ⇄ 아이콘을 클릭하면 jar로 갈 수 있고, 다른 검증도 아주 많이 있는걸 볼 수 있다 날짜가 미래 날짜인지 확인할 수 있고(FutureOfPresent.class), 뭔가 비어 있지 않은지(NotBlank.class), null이 아닌지도(NotNull.calss) 확인할 수 있다 이렇게 너는 많은 검증을 구현할 수 있고, 이 모든 것들이 모두 jakarta Validation API에서 오고있다
+  //우린 이 Spring Boot Starter Validation을 임포트해서 이 jar를 우리 프로젝트로 가져온다 이렇게 너가 구현할 수 있는 다른 검증도 아주 많고 지금은 그냥 간단히 이 Size 검증만 구현해보도록 하겠다 @Size(min=10, message="최소한 10글자를 입력하십시오") 라고 해주자 이러면 어떻게 되는지 한 번 볼까?
+	@Size(min=10, message="Enter atleast 10 characters")  
+  private String description;
+
+	private LocalDate targetDate;
+	private boolean done;
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public LocalDate getTargetDate() {
+		return targetDate;
+	}
+	public void setTargetDate(LocalDate targetDate) {
+		this.targetDate = targetDate;
+	}
+	public boolean isDone() {
+		return done;
+	}
+	public void setDone(boolean done) {
+		this.done = done;
+	}
+	
+	@Override
+	public String toString() {
+		return "Todo [id=" + id + ", username=" + username + ", description=" + description + ", targetDate="
+				+ targetDate + ", done=" + done + "]";
+	}
+
+
+}
+
+----------------------------------------------------------------------------------------------------
+                                                        |
+                                                        V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면==>
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      4	Learn AWS	                        2025-04-29	   false
+      -----------------------------------------------------------
+      5	Learn DevOps	                    2026-04-29	   false
+      -----------------------------------------------------------
+      6	Learn Full Stack Development	    2027-04-29     false
+      -----------------------------------------------------------
+      7 Learning DevOps                   2025-04-29     false
+      -----------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+그럼 Add Todo를 클리갛고 10글자 미만으로 입력을 해보자      |
+                                                        V
+---------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn AWS            | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+                                                        |
+Learn AWS라고 해보겠다 9글자만있고 제출을 클릭한다         V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면==>
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      4	Learn AWS	                        2025-04-29	   false
+      -----------------------------------------------------------
+      5	Learn DevOps	                    2026-04-29	   false
+      -----------------------------------------------------------
+      6	Learn Full Stack Development	    2027-04-29     false
+      -----------------------------------------------------------
+      7 Learn AWS                         2025-04-29     false
+      -----------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+검증이 트리거되지 않고 있다
+그냥 양식에 추가되고 있다
+
+검증이 트리거되기 전에 한 단계가 더 있다
+
+
