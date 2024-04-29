@@ -342,3 +342,207 @@ http://localhost:8087/list-todos 페이지화면==>
 검증이 트리거되기 전에 한 단계가 더 있다
 
 
+----------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "Default Desc", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+
+  //3: 바로 @Valid라는 어노테이션을 추가하는 단계다, 이렇게 그냥 @Valid라는 어노테이션을 추가하고 임포트 할 수 있다
+  //그럼 TodoController의 우리가 Bean에 바인딩하는 곳에 @Valid어노테이션을 추가한다 이렇게 해주면 바인딩이 이루어지기 전에 Todo Bean을 검증하게 된다 저장하고, 우리가 다시 검증으로 걸러낼수 있는지 한번 보자
+	public String addNewTodo(ModelMap model, Todo todo) {
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+}
+
+
+----------------------------------------------------------------------------------------------------
+                                                        |
+                                                        V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면==>
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      4	Learn AWS	                        2025-04-29	   false
+      -----------------------------------------------------------
+      5	Learn DevOps	                    2026-04-29	   false
+      -----------------------------------------------------------
+      6	Learn Full Stack Development	    2027-04-29     false
+      -----------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+Add Todo를 누르고 Learn이라고 입력하고 제출을 눌러보자            |
+                                                               V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn                | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+                                                              |
+                                                              V
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Mon Apr 29 19:23:52 KST 2024
+There was an unexpected error (type=Bad Request, status=400).
+Validation failed for object='todo'. Error count: 1
+org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public java.lang.String com.firstapplication.springboot.myfirstwebapp.todo.TodoController.addNewTodo(org.springframework.ui.ModelMap,com.firstapplication.springboot.myfirstwebapp.todo.Todo): [Field error in object 'todo' on field 'description': rejected value [Learn]; codes [Size.todo.description,Size.description,Size.java.lang.String,Size]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [todo.description,description]; arguments []; default message [description],2147483647,10]; default message [Enter atleast 10 characters]] 
+	at 
+......
+이제 검증이 트리거되는 걸 볼 수 있다
+그리고 메시지가 직접 여기에 표시된 걸 볼 수 있다 [Enter atleast 10 characters]
+[최소한 10글자를 입력하십시오] 라고 나온다 너가 원하는건 이게 아니였지?
+즉 너가 Add Todo를 클릭하고 Submit을 클릭하면 뭔가가 잘못 되었을 때 요소 바로 옆에 오류 메시지가 표시되어야 하겠지
+너는 아까 그런게 발생하는걸 원치 않았을거다
+
+그럼 그걸 어떻게 할까?
+
+----------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "Default Desc", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+  //4: 너는 또 다른 속성을 추가할 수 있다 그게 바로 BindingResult다 이렇게 너는 BindingResult 속성을 추가할 수 있고 그걸 result라고 부를 것이다
+  //임포트를 정리하고, 그러면 BindingResult도 임포트될 것이다 그럼 아래로 가서 result를 사용해보자
+	public String addNewTodo(ModelMap model, @Valid Todo todo) {
+
+    //4-1: 그럼 우리는 if(result.hasErrors())라고 해주고, 즉 검증 오류가 하나라도 있으면 list-todos 페이지로 가지 말라고 할 것이다 검증 오류가 있으면 todo 페이지로 돌아가도록 해야 한다 이걸 저장하고 돌아가서 submit을 눌러보자
+		if(result.hasErrors()) {
+			return "todo";
+		}
+  
+    String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+}
+
+----------------------------------------------------------------------------------------------------
+                                                               |
+                                                               V
+---------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn                | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+                                                | 제출 클릭
+                                                V
+
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn                | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+---------------------------------------------------------------------------------------------------------
+이제 너는 요청을 제출하면 검증 오류가 있으면 그 페이지로 돌아가는 걸 볼 수 있다
+
+하지만 여기에 오류가 표시되지 않고 있다
+그리고 그건 별로 좋지 않다 그럼 여기에 오류도 표시해 보자
+
