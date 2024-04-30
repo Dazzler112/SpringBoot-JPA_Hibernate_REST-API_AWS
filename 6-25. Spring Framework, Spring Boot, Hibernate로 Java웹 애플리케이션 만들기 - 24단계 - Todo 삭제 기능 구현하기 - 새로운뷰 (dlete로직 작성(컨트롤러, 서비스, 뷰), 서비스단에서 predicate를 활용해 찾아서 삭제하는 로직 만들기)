@@ -1,0 +1,694 @@
+
+
+지금 listTodos는 Todo를 나열하고 새로운 Todo를 추가하는 기능을 제공하고 있다 
+그럼 Todo를 삭제하고 업데이트를 할 수도 있으면 어떨까?
+그게 다음 몇 단계에서 우리가 구현할 기능들이다, 
+이번 단계에선 삭제 기능부터 시작해보자
+
+먼저 우리는 jsp로 가서 Todo를 삭제할 수 있는 버튼을 추가해야 할 것이다
+
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      4	Learn AWS	                        2025-04-28	   false
+      -----------------------------------------------------------
+      5	Learn DevOps	                    2026-04-28	   false
+      -----------------------------------------------------------
+      6	Learn Full Stack Development	    2025-04-28     false
+      -----------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+그럼 여기에 Todo삭제 버튼을 추가할 수 있을까?
+이런 Add Todo 버튼처럼 말이다
+안된다.
+
+왜 안될까?
+Todo 삭제 버튼은 특정한 Todo와 매칭되어야 하기 때문이다 
+
+그럼 너가 여기 모든 행에 Todo 삭제 버튼을 추가하면 사용자는 그 삭제 버튼을 사용해서 그 Todo를 삭제할 수 있을 것이다
+그럼 여기 각각의 Todo 바로 옆에 버튼이 있어야 할 것이다 예) 4	Learn AWS     2025-04-28	   false  | 삭제버튼 |
+그럼 listTodos.jsp로 가보자
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ listTodos.jsp 파일
+
+
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			List Todos Page
+		</title>
+	</head>
+	<body>
+			<!-- <div>Welcome to in28minutes</div> -->
+			<div class="container">
+				<h1>Your Todos</h1>
+				<table class="table">
+					<thead>
+						<tr>
+						<th>id</th>
+						<th>Description</th>
+						<th>Taget Date</th>
+						<th>Is Done?</th>
+
+            <!--1:비어 있는 <th>를 추가할 것이고 이걸 삭제에 사용할 것이다, 그리고 삭제 버튼을 위해//1-1: 아래로.. -->
+            <th></th>
+						</tr>			
+					</thead>
+					<tbody>
+					<c:forEach items="${todos}" var="todo">
+						<tr>
+							<td>${todo.id}</td>
+							<td>${todo.description}</td>
+							<td>${todo.targetDate}</td>
+							<td>${todo.done}</td>
+
+              <!--1-1: <td>가 필요할 것이다 그럼 여기 안에는 무엇이 들어가야 할까? 뭘 해야할까? 우린 링크를 만들고 href가 "delete-todo"로 가야한다-->
+              <!--1-2: 이렇게 delete-todo로 리디렉션되는 링크를 만들고, 그 안의 텍스트는 DELETE라고 해줄 수 있다 그럼 "btn" 클래스를 지정하고 저장한다 그리고 확인..-->
+              <td><a href="delete-todo" class="btn">DELETE</a></td>
+						</tr>
+					</c:forEach>
+					</tbody>
+				</table>
+				<a href="add-todo" class="btn btn-success">Add Todo</a>
+			
+			</div>
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	
+	</body>
+</html>
+
+--------------------------------------------------------------------------------------------------------------------------
+                                                                                        |
+                                                                                        V
+-----------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면==>
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      4	Learn AWS	                        2025-04-30	   false          DELETE
+      -------------------------------------------------------------------------------
+      5	Learn DevOps	                    2026-04-30	   false          DELETE
+      -------------------------------------------------------------------------------
+      6	Learn Full Stack Development	    2025-04-30     false          DELETE
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-----------------------------------------------------------------------------------------------
+좋다, 여기 DELETE가 있고 괜찮은데 외관이 썩 좋진 않다 btn-warning을 추가해서 색상을 지정해보자
+
+✅ listTodos.jsp 파일의 <td><a href="delete-todo" class="btn">DELETE</a></td> 이줄을 <td><a href="delete-todo" class="btn btn-warning">DELETE</a></td> 으로..
+btn-waring을 추가해서 색상을 추가해보자 삭제는 경고를 해줘야 하는 것이므로 여기에 btn-warning을 넣어줄 것이다 저장하고 다시 확인...
+                                                                                        |
+                                                                                        V
+-----------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면==>
+
+      Your Todos
+      
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________
+      4	Learn AWS	                    2025-04-30	   false     | DELETE(노바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      _______________
+      5	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      _______________
+      6	Learn Full Stack Development	    2025-04-30     false     | DELETE(노바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-----------------------------------------------------------------------------------------------
+
+이제 페이지가 보기 좋게 되었고 DELETE 버튼도 준비되었다
+이제 사용자는 이 DELETE 버튼을 클릭해서 이 Todo를 삭제할 수 있다
+그렇지만 너는 어떤 Todo를 삭제할지 알려줘야 한다
+여기 id 4번인 Todo를 삭제하려 한다고 어떻게 알릴 수 있을까? 또는 id 5번 또는 id 6번을 삭제하라고 말이다 그걸 어떻게 할까?
+
+그럼 아마 이 <td>${todo.id}</td>의 ${todo.id}를 잡아서 <td><a href="delete-todo" class="btn">DELETE</a></td> 여기 넣어야 할 것이다
+
+
+<td><a href="delete-todo" class="btn btn-warning">DELETE ${todo.id}</a></td>라고 하면
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      ________________
+      4	Learn AWS	                    2025-04-30	   false     | DELETE(노바탕)4 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      5	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕)5 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      6	Learn Full Stack Development	    2025-04-30     false     | DELETE(노바탕)6 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+이렇게 지금 우리는 설명 부분에 그걸 넣고 있다
+새로고침을 해보면 DELETE4, DELETE5, DELETE6이 있다 하지만 우린 그걸 href 즉 우리 URL의 일부로서 전송해야 한다
+우리는 <td><a href="delete-todo" class="btn btn-warning">DELETE ${todo.id}</a></td> 이것이 우리가 삭제하려는 Todo라고 컨트롤러에게 알려줘야 한다
+그걸 어떻게 할 수 있을까? 
+그 부분에 쿼리 파라미터를 사용할 수 있다
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ listTodos.jsp 파일
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			List Todos Page
+		</title>
+	</head>
+	<body>
+			<!-- <div>Welcome to in28minutes</div> -->
+			<div class="container">
+				<h1>Your Todos</h1>
+				<table class="table">
+					<thead>
+						<tr>
+						<th>id</th>
+						<th>Description</th>
+						<th>Taget Date</th>
+						<th>Is Done?</th>
+						<th></th>
+						</tr>			
+					</thead>
+					<tbody>
+					<c:forEach items="${todos}" var="todo">
+						<tr>
+							<td>${todo.id}</td>
+							<td>${todo.description}</td>
+							<td>${todo.targetDate}</td>
+							<td>${todo.done}</td>
+
+              <!--2: 이건 민감한 데이터가 아니기 때문에 그걸 쿼리 파라미터의 일부로서 전송할 수 있고 id=라고 해주고 즉 ${todo.id}를 붙여 넣을 수 있다, 그럼 저장하고 새로고침을 해보자-->
+							<td><a href="delete-todo" class="btn btn-warning">DELETE ${todo.id}</a></td>
+						</tr>
+					</c:forEach>
+					</tbody>
+				</table>
+				<a href="add-todo" class="btn btn-success">Add Todo</a>
+			
+			</div>
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	
+	</body>
+</html>
+
+--------------------------------------------------------------------------------------------------------------------------
+                                                                                        |
+                                                                                        V
+-----------------------------------------------------------------------------------------------
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      ________________
+      4	Learn AWS	                     2025-04-30	   false    | DELETE(노바탕)4 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      5	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕)5 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      6	Learn Full Stack Development	    2025-04-30     false     | DELETE(노바탕)6 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-----------------------------------------------------------------------------------------------
+이제 거기에 마우스 커서를 올리면 브라우저 하단에 그게 id 4라고 나오는 걸 볼 수 있다
+오른쪽 클릭을 하고 inspect를 선택해서 
+<a href="delete-todo?id=4" class="btn btn-warning">DELETE 4</a>
+링크가 delete-todo?id=4인걸 확인할 수도 있다
+
+아래도 오른쪽 클릭 > inspect를 선택해 보면
+<a href="delete-todo?id=5" class="btn btn-warning">DELETE 5</a>
+delete-todo?id=5인걸 알 수 있다 
+
+이렇게 우리는 삭제를 위해 컨트롤러를 구성할 수 있다
+그럼 계속해 볼까?
+컨트롤러로 가서 여기에서 우린 Todo를 삭제하려고 한다 그럼 간단한 것을 하나 선택해보자
+list-todos를 선택하고 복사 붙여넣어보자
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+
+  //3: 여기서 우리는 deleteTodo라고 해준다 그리고 우리가 listTodos.jsp에 넣은 링크는 delete-todo인데 그럼 여기에도 delete-todo라고 링크를 넣는다 
+  //그럼 deleteTodo()에서 	여기 (ModelMap model)이 필요하지 않고 우리는 이( delete-todo?id=${todo.id} ) id값을 잡기 위해 @RequestParam을 추가하려 한다 그럼 넌 @RequestParam이라 넣고 int id라고 넣고 임포트를 정리하면 RequestParam이 임포트되고
+  @RequestMapping("delete-todo")
+	public String listAllTodos(@RequestParam int id) {
+    //Delete todo
+
+    //3-1: 이제 우리는 특정한 id를 가진 Todo를 삭제하려고 한다, 그리고 삭제가 완료되면 List Todos Page로 돌아가려고 한다 
+    //그럼 우린 List Todos Page로 다시 리디렉션을 할 거고, 그럼 여기 있는 모든 걸 삭제할 수 있다 그리고 잘 작동하는지 확인해 볼까?
+    return "redirect:list-todos";
+
+	}
+
+}
+
+--------------------------------------------------------------------------------------------------------------------------
+                                                                                        |
+                                                                                        V
+-----------------------------------------------------------------------------------------------
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      ________________
+      4	Learn AWS	                    2025-04-30	   false     | DELETE(노바탕)4 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      5	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕)5 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      6	Learn Full Stack Development	    2025-04-30     false     | DELETE(노바탕)6 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-----------------------------------------------------------------------------------------------
+새로고침을 하고 DELETE를 클릭 
+좋다 다시 List Todos Page로 돌아오고 있다
+Todo를 삭제하고 있지는 않지, 우리가 아직 Todo를 삭제하는 로직을 구현하지 않았기 때문이다
+그럼 이제 Todo를 삭제하기 위한 로직을 구현해보겠다 그 로직을 어디에 구현할까?
+
+우린 그걸 todoService에 구현하려고 한다 여기가 Todo를 삭제하는 로직을 구현할 수 있는 서비스다
+그럼 TodoService 클래스로 가서 
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ TodoService 클래스파일
+
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+
+@Service
+public class TodoService {
+
+	private static List<Todo> todos =new ArrayList<>();
+	
+	private static int todosCount = 3;
+	
+	static {
+		todos.add(new Todo(++todosCount,"in28minutes","Learn AWS", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+	
+	public List<Todo> findByUsername(String username) {
+		return todos;
+	} 
+	
+	public void addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount, username, description, targetDate, done);
+		todos.add(todo);
+	}
+
+  //4:여기에서 Todo를 삭제하는 메서드를 구현해보겠다 그걸 public void deleteById라고 해보겠다 그리고 입력은 id만 넣으면 된다
+	public void deleteById(int id) {
+    //todo.getId() == id
+    //todo -> todo.getId() == id
+
+    //4-1: 그리고 여기서 너는 Todo를 삭제하려고 한다 그럼 todos.removeIf()라고 하고 여기에 predicate를 정의할 수 있다 predicate는 일종의 조건이다
+    //todos.removeIf(predicate) 라고 입력을하고 ctrl+1을 눌러 지역변수 'predicate' 생성하기를 선택한다
+    //이렇게 predicate 지역 변수가 생성된 걸 볼 수 있고 이제 너가 이 predicate에서 정의하려는 조건은 Todo를 삭제할 시기이다/ 너는 언제 Todo 리스트에서 Todo를 삭제할까? todo.getId가 이 id와 같을 때이다 //todo.getId() == id 여기서 id는 (int id) 위에 넣은 id다
+    //우리는 그 Todo를 삭제하려고 한다, 그리고 그 조건을 여기에 지정하려고 한다 predicate를 정의하는 가장 간단한 방법은 람다 함수를 이용하는 방법이다 Java 프로그래머에게 함수형 프로그래밍은 가장 중요한 스킬중 하나이다 그 람다 함수를 어떻게 간단히 작성할 수 있는지 알아보기로 하자
+    //람다함수로 작성하기 위해선 먼저 Bean의 이름을 정하고 -(하이픈) 을 넣은 다음에 부등호를 넣고 predicate를 넣어주면 된다, 너가 확인하려는 조건을 명시해주는 것이다//todo -> todo.getId() == id  그냥 이게 람다 함수이다 이러면 모든 행에 있는 모든 Bean, 즉 Todo에 있는 모든 Bean에 대해 이 조건을 실행하게 된다, 만일 모든 Bean의 todo에 대해 id가 매칭되는지 확인하고 매칭되면 삭제하게 될 것이다 
+		//그럼 실제로 여기에서 todo -> todo.getId() == id 이걸 predicate로 지정할 수 있다 이제 코드가 컴파일링 되는 걸 볼 수 있다
+    Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+    //좀 복잡해 보일수 있는데 간단히 말해 여기서 우리는 이 Todo에 매칭되는 id가 있는지 묻는 predicate를 정의하고 있다
+    //그리고 여기서 removeIf()는 뭘 하는것일까? 이 predicate를 모든 Todo에 실행하는 일을 한다 리스트에 10개의 Todo가 있다면 모든 Todo의 id가 이 조건에 매칭되는지 확인하게 되고
+    //그 조건에 매칭되면 그 Todo를 삭제할 것이다 실제로 어떻게 되는지 볼까? 저장하고 페이지 새로고침..
+}
+
+--------------------------------------------------------------------------------------------------------------------------
+                                                                                        |
+                                                                                        V
+-----------------------------------------------------------------------------------------------
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      ________________
+      1	Learn AWS	                     2025-04-30	   false     | DELETE(노바탕)1 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      2	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕)2 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      3	Learn Full Stack Development	    2025-04-30     false     | DELETE(노바탕)3 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-----------------------------------------------------------------------------------------------
+
+Todo를 삭제해보자
+!, 삭제되지 않고 있다, 왜냐면 우리가 그걸 호출하지 않았기 때문이다
+그럼 여기로 가서 호출해보자
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+
+    //5: 여기에서 todoService.deleteById()라고 하고 id를 넣는다 이제 이걸 저장 이제 작동하는지 확인해보자
+    todoService.deleteById(id);
+
+		return "redirect:list-todos";
+
+	}
+	
+}
+
+--------------------------------------------------------------------------------------------------------------------------
+                                                                                        |
+                                                                                        V
+-----------------------------------------------------------------------------------------------
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      ________________
+      1	Learn AWS	                    2025-04-30	   false     | DELETE(노바탕)1 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      2	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕)2 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      3	Learn Full Stack Development	    2025-04-30     false     | DELETE(노바탕)3 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-----------------------------------------------------------------------------------------------
+DELETE1번 클릭                                                                         |
+                                                                                       V
+-----------------------------------------------------------------------------------------------
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      ________________
+      2	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕)2 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------
+                                                                      ________________
+      3	Learn Full Stack Development	    2025-04-30     false     | DELETE(노바탕)3 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+좋다 작동한다 id 1번이 삭제되었다 그럼 이제 3번을 삭제해보자                    |
+                                                                            V
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      ________________
+      2	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕)2 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+id 3번도 삭제되었다
+-----------------------------------------------------------------------------------------------
+
+
+
+
+이번 단계에선 우리는 Todo에 삭제 기능을 구현하는 방법을 알아봤고 
+우리는 jsp에서 버튼을 추가해서 페이지에 표시되게 했고 
+dleteTodo()라는 컨트롤러 메서드를 매핑했고 todoService에서 매서드를 호출해서 여기서도 Todo를 삭제할 수 있게 되었다
+
+❗여기서 너는 우리가 정적 리스트를 사용하고 있다는 점을 기억해야 한다
+
+	static {
+		todos.add(new Todo(++todosCount,"in28minutes","Learn AWS", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	} ❗
+
+강의 후반부에 우리는 인메모리 데이터베이스 H2와 영구 데이터베이스 MySQL을 사용할 것이지만 
+
+하지만 그때까지는 꼭 너가 이 서버를 재시작할 때마다 여기로 가서 서버를 중지하고 시작해야 한다,
+코드를 변경했을 때도 마찬가지다, 서버 재시작을 트리거했을 때도 그렇다 
+
+그러면 모든 Todo가 되살아나는 걸 보게 될 것이다
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      ________________
+      1	Learn AWS	                    2025-04-30 	   false     | DELETE(노바탕)1 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      2	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕)2 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      ________________
+      3	Learn Full Stack Development	    2025-04-30     false     | DELETE(노바탕)3 |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+(서버 중지후 다시시작한 후 페이지 화면)
+
+이렇게 모든 Todo가 되돌아온 게 보일 것이고
+그래서 그 점을 너는 기억해야 한다
+
+그리고 너는 Todo 바로 옆에 있는 id를 삭제하려고 한다 
+
+<td><a href="delete-todo?id=${todo.id}" class="btn btn-warning">DELETE ${todo.id}</a></td>
+여기서 DELETE ${todo.id}여기 있는 이 id를 삭제하려는 것이다 ,즉 DELETE 텍스트 옆에 id가 표시되는 걸 원치 않고, 그럼 그렇게 해보자
+-------------------------------------------------------------------------------------
+					<c:forEach items="${todos}" var="todo">
+						<tr>
+							<td>${todo.id}</td>
+							<td>${todo.description}</td>
+							<td>${todo.targetDate}</td>
+							<td>${todo.done}</td>
+							<td><a href="delete-todo?id=${todo.id}" class="btn btn-warning">DELETE</a></td>
+						</tr>
+					</c:forEach>
+-------------------------------------------------------------------------------------
+                                          |
+                                          V
+-------------------------------------------------------------------------------------
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________
+      1	Learn AWS	                    2025-04-30	   false     | DELETE(노바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      _______________
+      2	Learn DevOps	                    2026-04-30	   false     | DELETE(노바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      _______________
+      3	Learn Full Stack Development	    2025-04-30     false     | DELETE(노바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------
+그럼 이제 여기에 DELETE만 보인다
+이제 페이지 외관이 꽤 괜찮고 이제 우리는 Todo를 추가하고 삭제할 수 있다, 이제 뭘 더 해야 할까?
+
+맞다, Todo를 업데이트해야한다
+그 방법은 다음 단계에서 알아보겠다
