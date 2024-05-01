@@ -7,15 +7,15 @@
       id	Description	                    Taget Date	   Is Done?
       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
                                                                       _______________
-      1	Learn AWS	                        2025-05-02	   false       | DELETE(노바탕) |
+      1	Learn AWS	                    2025-05-02	   false     | DELETE(노바탕) |
                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       -------------------------------------------------------------------------------
                                                                       _______________
-      2	Learn DevOps	                    2026-05-02	   false       | DELETE(노바탕) |
+      2	Learn DevOps	                    2026-05-02	   false     | DELETE(노바탕) |
                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       -------------------------------------------------------------------------------
                                                                       _______________
-      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |
+      3	Learn Full Stack Development	    2025-05-02     false     | DELETE(노바탕) |
                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       -------------------------------------------------------------------------------
 
@@ -98,15 +98,15 @@ http://localhost:8087/list-todos 페이지화면 ==>
       id	Description	                    Taget Date	   Is Done?
       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
                                                                       _______________      _______________
-      1	Learn AWS	                        2025-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+      1	Learn AWS	                     2025-05-02	   false     | Delete(노바탕) |   | Update (녹바탕) |
                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
                                                                       _______________      _______________
-      2	Learn DevOps	                    2026-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+      2	Learn DevOps	                    2026-05-02	   false     | Delete(노바탕) |   | Update (녹바탕) |
                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
                                                                       _______________      _______________   
-      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |   | Update (녹바탕) |
+      3	Learn Full Stack Development	    2025-05-02     false     | DELETE(노바탕) |   | Update (녹바탕) |
                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
 
@@ -238,15 +238,15 @@ http://localhost:8087/list-todos 페이지화면 ==>
       id	Description	                    Taget Date	   Is Done?
       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
                                                                       _______________      _______________
-      1	Learn AWS	                        2025-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+      1	Learn AWS	                    2025-05-02	   false     | Delete(노바탕) |   | Update (녹바탕) |
                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
                                                                       _______________      _______________
-      2	Learn DevOps	                    2026-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+      2	Learn DevOps	                    2026-05-02	   false     | Delete(노바탕) |   | Update (녹바탕) |
                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
                                                                       _______________      _______________   
-      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |   | Update (녹바탕) |
+      3	Learn Full Stack Development	    2025-05-02     false     | DELETE(노바탕) |   | Update (녹바탕) |
                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
 
@@ -277,3 +277,275 @@ java.lang.IllegalStateException: Neither BindingResult nor plain target object f
 그럼 todo 세부정보를 어떻게 model에 넣을까?
 여기 이미 샘플이 있다, 앞에서 showNewTodoPage를 썼고 여기서 비슷한 걸 사용해보자
 
+-----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+	
+	
+	@RequestMapping("update-todo")
+
+  //3: 우린 먼저 그 id에 대한 Todo 세부정보를 받아야 하고, 그걸 여기에 표시해야 한다 그럼 ModelMap을 추가해보자 우리는 model에 추가하기를 원하고 
+	public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+    //3-1: 우리는 model에 Todo를 추가하길 원한다 그럼 Todo todo = todoService.findById(id)라고 해주자 이 메서드는 아직 존재하지 않는다, 그럼 우리는 이 매서드를 만들어야 하고 ctrl+1을 눌러 Create method "findById(int)"를 선택한다
+    //5: 저장하면 코드가 컴파일되고
+    Todo todo = todoService.findById(id);
+    //5-1: 마지막으로 넌 이걸 model에 추가해야 한다, 그럼 model.addAttribute()라고 하고 "todo"라는 속성을 추가할 거고, 그것들이 우리가 todo.jsp에서 정한 이름과 매칭되어야 한다, modelAttribute="todo"다<=( <form:form method="post" modelAttribute="todo"> )
+    //그리고 우린 바로 그걸 여기 넣고 있다, 그리고 세미콜론을 넣는다, 그럼 Todo 세부정보가 자동으로 표시되는지 한 번 볼까?
+    model.addAttribute("todo",todo);
+
+		return "todo";
+
+	}
+}
+
+-------------------------------------------------------------------
+
+
+⏺ TodoService 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+import java.util.function.*;
+
+import org.springframework.stereotype.*;
+
+@Service
+public class TodoService {
+
+	private static List<Todo> todos =new ArrayList<>();
+	
+	private static int todosCount = 0;
+	
+	static {
+		todos.add(new Todo(++todosCount,"in28minutes","Learn AWS", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+	
+	public List<Todo> findByUsername(String username) {
+		return todos;
+	} 
+	
+	public void addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount, username, description, targetDate, done);
+		todos.add(todo);
+	}
+	
+	public void deleteById(int id) {
+		//todo.getId() == id
+		//todo -> todo.getId() == id
+		
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+
+  //4: 이제 findById(int id) 메서드가 생겼고, 너는 그걸 다시 받아야 한다 우린 deleteById()메서드에서 이미 id를 매칭하기 위해 predicate를 정의했다 그럼 똑같은 predicate를 사용해보자
+	public Todo findById(int id) {
+  //4-1:우리는 이 Todo 리스트에서(private static List<Todo> todos =new ArrayList<>();) 그 특정한 id에 매칭되는 Todo를 찾으려고 한다 
+  //그럼 여기세 http://localhost:8087/update-todo?id=1 <= id=1 이라고 넣거나 2 또는 3을 넣을수 있다, 너의 Todo에 따라 id를 넣어주고 그 id에 대해 Todo 리스트에서 우린 그 id를 매칭하고 그 특정한 Todo를 받으려고 한다 
+	//우린 여기서 그걸 하고 있다 이렇게 predicate는 우리가 id를 매칭하도록 도와준다,
+    Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+
+  //4-2:Todo 리스트에서 우리는 올바른 Todo를 식별하려고 한다 너는 for 반복문을 써서 Todo를 반복하고 올바른 것을 찾아서 되돌려 받을 수도 있고 혹은 함수형 프로그래밍을 사용할 수도 있다
+  //그럼 너는 todos.stream()이라고 해서 함수형 프로그래밍을 사용할 수 있다, 이렇게 todos의 스트림을 생성하고 있다, 하나씩 모든 Todo를 확인하려고 하고 그 안에서 filter를 사용하려고 한다 앞의 predicate를 사용해서 필터링을 하려고 한다,
+  //필터 리스트 또는 매칭 리스트에서 넌 첫 번째 것만 취할 것이다, 그럼 .findFirst()라고 해주자 그리고 원소를 찾으면 그걸 받기 위해 get()을 써준다 그리고 여기 세미콜론을 넣고 저장한다
+  //그리고 ctrl+1을 눌러 이 구문을 새로운 지역 변수에 저장할 것이다, 그리고 우린 이 todo를 리턴하려고 한다
+		Todo todo = todos.stream().filter(predicate).findFirst().get();
+
+  //4-3: 우리는 todo를 찾고 todo를 리턴한다 
+    return todo;
+	}
+  //우리는 아주 쉬운일을 하고 있다 우린 조건을 정의하고, Todo 스트림으로부터 그 조건을 기준으로 필터링을 하고 마지막에 단 하나의 원소를 찾아서 그걸 받은 다음에 그걸 리턴하고 있다
+  //그럼 이제 어떻게 되는지 볼까? 우린 TodoController로 가서 findById(id)를 써서 그걸 사용한다 //5:위의 TodoController 클래스파일로..
+
+}
+
+-----------------------------------------------------------------------------------------------------------------------
+                                                                           |
+                                                                           V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________      _______________
+      1	Learn AWS	                    2025-05-02	   false     | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________
+      2	Learn DevOps	                    2026-05-02	   false     | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________   
+      3	Learn Full Stack Development	    2025-05-02     false     | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+ list-todos에서 update 클릭 
+                                                                           |
+                                                                           V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn AWS            | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+첫 번째 Todo의 세부정보를 볼 수 있다                                           |
+그럼 돌아가서 2번째 Update를 눌러보자                                          V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn DevOps         | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+Learn DevOps 이다 그럼 돌아가서 3번째 걸 눌러보자                               |
+                                                                             V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________________   ________
+      Description: |Learn Full Stack Development | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+Learn Full Stack Development이다 상당히 멋지지 않나?
+이제 Update 페이지로 갈 수 있게 되었다 
+
+
+
+
+
+
+
+이번 단계에선 업데이트 기능을 구현하는 처음 몇 단계를 해보았다
+너는 뷰에 Update 버튼을 추가하고 그 버튼을 클릭하면 
+Todo 페이지에서 Todo 세부정보를 표시할 수 있게 되었다 
+그럼 너는 뭘 해야 할까?
+
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn AWS            | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+너는 이 세부정보를 취해서 그걸 업데이트하려고 한다 
+그럼 예를 들어 이걸 Learn AWS Now!로 변경해보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn AWS Now!       | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+                                                
+   너는 그걸 다시 저장하려고 한다, 니가 Submit을 누르면                                           
+                                                |
+                                                V
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn AWS Now!       | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+같은 페이지로 돌아가는 걸 볼 수 있다 
+이 기능이 작동하지 않는 거다 
+그걸 어떻게 하는지 다음 단계에서 알아보겠다
