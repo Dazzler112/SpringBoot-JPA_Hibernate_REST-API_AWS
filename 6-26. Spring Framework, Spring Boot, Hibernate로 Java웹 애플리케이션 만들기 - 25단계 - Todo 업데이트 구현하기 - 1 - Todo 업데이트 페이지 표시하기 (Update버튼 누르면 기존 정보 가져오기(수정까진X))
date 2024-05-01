@@ -1,0 +1,279 @@
+
+
+이번 단계에선 Todo 업데이트를 구현해보자 
+
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________
+      1	Learn AWS	                        2025-05-02	   false       | DELETE(노바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      _______________
+      2	Learn DevOps	                    2026-05-02	   false       | DELETE(노바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+                                                                      _______________
+      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      -------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+먼저 너는 여기에 Update 버튼을 추가해야 하고 Update 버튼을 추가한 다음에는 두 가지 작업을 더 해야 한다,
+Update 버튼을 클릭하면 Update Todo 페이지를 표시해야 하고,
+사용자가 Update Todo 페이지에서 Submit을 클릭하면 다시 Todo 리스트가 업데이트 되어야 한다
+
+그럼 뷰에 Update 버튼을 추가하는 첫 번째 변경부터 해보자
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ listTodos.jsp 파일
+
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			List Todos Page
+		</title>
+	</head>
+	<body>
+			<!-- <div>Welcome to in28minutes</div> -->
+			<div class="container">
+				<h1>Your Todos</h1>
+				<table class="table">
+					<thead>
+						<tr>
+						<th>id</th>
+						<th>Description</th>
+						<th>Taget Date</th>
+						<th>Is Done?</th>
+						<th></th>
+
+            <!--1: 여기에 비어 있는 <th>태그만 추가하면 되고 , 가서 Todo를 삭제하는 부분을 복사해서..-->
+						<th></th>
+						</tr>			
+					</thead>
+					<tbody>
+					<c:forEach items="${todos}" var="todo">
+						<tr>
+							<td>${todo.id}</td>
+							<td>${todo.description}</td>
+							<td>${todo.targetDate}</td>
+							<td>${todo.done}</td>
+							<td><a href="delete-todo?id=${todo.id}" class="btn btn-warning">Delete</a></td>
+
+              <!--1-1: 그걸 변경할 것이다 delete-todo가 아니라 update-todo가 되어야 하고, btn-warning대신 btn-success를 업데이트에 사용할 것이다, 그리고 실제로 Update라고 써주자 이렇게 Delete와 Update가 준비되었다 가서 새로고침을 해보자-->
+							<td><a href="update-todo?id=${todo.id}" class="btn btn-success">Update</a></td>
+						</tr>
+					</c:forEach>
+					</tbody>
+				</table>
+				<a href="add-todo" class="btn btn-success">Add Todo</a>
+			
+			</div>
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	
+	</body>
+</html>
+
+-----------------------------------------------------------------------------------------------------------------------
+                                          |
+                                          V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________      _______________
+      1	Learn AWS	                        2025-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________
+      2	Learn DevOps	                    2026-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________   
+      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+
+여기에 Delete와 Update 버튼이 생겼고 이제 Update를 사용해보도록 하자
+Update를 클릭하면 어떻게 될까?
+
+--------------------------------------------
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Wed May 01 18:05:54 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+No static resource update-todo.
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource update-todo.
+	at 
+--------------------------------------------
+
+오류이다 
+그럼 Update의 디스플에이 부분을 구현해보자
+
+그럼 TodoController로 돌아가서 
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+
+  //2:여기서 delete-todo를 복사하고 이름을 update-todo로 변경할 것이다
+  //실제로 Todo를 업데이트 하는 건 아니고 단지 Update Todo 페이지를 표시하고만 있다, 항상 메서드 이름을 분명하게 작성한다, 이 메서드 이름이 아주 중요한 건 아니어도 말이다
+  //왜냐면 여기에 매핑하는 URL이 이것보다는 더 중요하기 때문이다 하지만 클래스나 메서드, 지역 변수의 이름에 항상 신경을 쓰기 바란다 모든 이름을 적절히 정해야 한다 모든 이름이 적절히 정해지면 나중에 이 코드를 유지하기가 아주 쉬워지는 걸 알게 될 것이다 
+	//그럼 여기서 우리는 Update Todo 페이지를 보여주고 있다 잠시 후에 누군가가 Update Todo 페이지에서 Submit을 클릭하면 실제로 Todo를 업데이트하는 방법을 다룰건데, 하지만 지금은 그냥 Update Todo 페이지를 표시하는 데만 집중해보자, 그렇게 해보겠다
+  @RequestMapping("update-todo")
+	public String showUpdateTodoPage(@RequestParam int id) {
+		
+  //2-1:그리고 update-todo의 끝 부분에서 사용자가 Todo를 업데이트하려면 어디로 보내야 할까? 우리는 사용자를 Todo페이지로 보내야한다
+  //그럼 너는 여기서 사용자를 todo 페이지로 보내고 있고 이렇게 해주면 어떻게 될까?
+		return "todo";
+
+	}
+}
+
+-----------------------------------------------------------------------------------------------------------------------
+list-todos로 가서 Update를 누른다,                                          |
+                                                                           V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________      _______________
+      1	Learn AWS	                        2025-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________
+      2	Learn DevOps	                    2026-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________   
+      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Wed May 01 18:45:24 KST 2024
+There was an unexpected error (type=Internal Server Error, status=500).
+Neither BindingResult nor plain target object for bean name 'todo' available as request attribute
+java.lang.IllegalStateException: Neither BindingResult nor plain target object for bean name 'todo' available as request attribute
+	at org.springframework.web.servlet.support.BindStatus.<init>(BindStatus.java:153)
+	at 
+.....
+--------------------------------------------------
+그러면 오류가 날 것이다
+사용 가능한 바인딩 객체가 없다고 나온다 
+		return "todo";
+우리는 Todo 양식에 연결하고 있고, Todo 양식에서 뭘 예상하고 있을까? 
+
+				<form:form method="post" modelAttribute="todo">
+우리는 modelAttribute="todo"를 예상하고 있다 
+우린 todo라는 게 model에 있을 것으로 예상하고 있다 
+그럼 todo 세부정보를 어떻게 model에 넣을까?
+여기 이미 샘플이 있다, 앞에서 showNewTodoPage를 썼고 여기서 비슷한 걸 사용해보자
+
