@@ -1,0 +1,529 @@
+
+
+이번 강의에선 업데이트를 너의 Todo 리스트에 저장하는 작업을 해보자
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn AWS            | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+사용자가 Submit 버튼을 클릭하면 우리는 세부정보를 저장할 수 있기를 원한다
+
+
+그럼 가서 그걸 위한 새로운 메서드를 만들어보겠다
+앞에서 addNewTodo() 메서드를 만들었던 것처럼 updateTodo()메서드를 만들어야 할 것이다
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+	
+	
+  //1-1: 그리고 분명히 showUpdateTodoPage 메서드의 @RequsetMapping ("update-todo") 여기에 method=RequestMethod.GET 이라고 해줘야겠지?
+  //너가 update-todo 페이지를 표시하려 할 때, 요청을 전송할 것이다 이게 그 메서드다 update-todo 페이지에 제출 할 때, 즉 Todo를 업데이트하려고 할 때 우리는 이 메서드를 사용하려고 한다 그럼 저건 POST에 해당되고 이건 GET에 사용된다, 다른 속성을 추가했기 때문에 여기 이걸 value라고 구체적으로 해줘야 한다 value="update-todo"다 good //1-2: updateTodo메서드로...
+	@RequestMapping(value="update-todo", method=RequestMethod.GET)
+	public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+		Todo todo = todoService.findById(id);
+		model.addAttribute("todo",todo);
+		return "todo";
+
+	}
+
+  @RequestMapping(value="update-todo",method=RequestMethod.POST)
+  //1: 그럼 updateTodo()라고 해주고, 이것도 "update-todo"라고 해 줘야겠다, 하지만 이 메서드는 POST 메서드이다//1-1:showUpdateTodoPage 메서드로.. 그리고 분명히 showUpdateTodoPage 메서드의 @RequsetMapping ("update-todo") 여기에 method=RequestMethod.GET 이라고 해줘야겠지?
+	public String updateTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+
+    //1-2:그리고 아래 메서드의 if(result.hasErrors()) {..를 사용해주려고 한다 그럼 바인딩에 오류가 있으면 todo 페이지를 리턴하고 model에서 name을 받는다 
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+    //1-3:Todo를 추가하지 않고 여기서 Todo를 업데이트하려고 한다, 그럼 우리는 Todo를 업데이트하기 위한 새로운 메서드를 만드려고 한다 그럼 너는 todoService.updateTodo()라고 하고 거기에 todo 세부정보를 넣을 것이다
+		//ctrl+1을 눌러서 TodoService에서 updateTodo 메서드를 만든다//2:TodoService클래스파일의 updateTodo()메서드로...
+		todoService.updateTodo(todo);
+
+    //3:그리고 업데이트가 완료되면 너는 list-todos페이지로 리디렉션을 하려고 한다 그럼 웹 사이트로..
+
+		return "redirect:list-todos";
+	}
+
+}
+
+--------------------------------------------------------------
+
+
+⏺ TodoService 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+import java.util.function.*;
+
+import org.springframework.stereotype.*;
+
+import jakarta.validation.*;
+
+@Service
+public class TodoService {
+
+	private static List<Todo> todos =new ArrayList<>();
+	
+	private static int todosCount = 0;
+	
+	static {
+		todos.add(new Todo(++todosCount,"in28minutes","Learn AWS", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+	
+	public List<Todo> findByUsername(String username) {
+		return todos;
+	} 
+	
+	public void addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount, username, description, targetDate, done);
+		todos.add(todo);
+	}
+	
+	public void deleteById(int id) {
+		//todo.getId() == id
+		//todo -> todo.getId() == id
+		
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+
+	public Todo findById(int id) {
+		
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		Todo todo = todos.stream().filter(predicate).findFirst().get();
+		
+		return todo;
+	}
+
+  //2: Todo 업데이트를 구현하는 방법은 올바른 Todo를 찾고 여기서 세부정보를 서서히 업데이트하는 방법이다
+	public void updateTodo(@Valid Todo todo) {
+		//2-1: 여기서 빠른 방법을 사용할 건데, 그럼 deleteById()를 써서 그 특정한 id의 Todo를 삭제할 거고 그럼 todo.getId()라고 해준다
+    //이렇게 Todo를 삭제하고 있고, 그 Todo가 삭제되면 넌 가서 todos.add(todo)라고 할 수 있다 이렇게 하면 더 쉬울 거고, 가장 효율적인 방법은 아니지만 코드를 작성하기가 쉽다
+    //이렇게 deleteById(todo.getId())를 써서 Todo를 삭제하고 거기에 Todo를 추가한다 변경하기 위해 리스트에서 기존 값을 삭제하고 새로운 값을 추가한다 이걸 저장하고 TodoController로 돌아간다// 3: 위의 TodoController 클래스파일로...
+		deleteById(todo.getId());
+		todos.add(todo);
+	}
+	
+}
+
+
+----------------------------------------------------------------------------------------------------------------------
+                                                                           |
+                                                                           V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________      _______________
+      1	Learn AWS	                        2025-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________
+      2	Learn DevOps	                    2026-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________   
+      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+update 클릭                                                                |
+                                                                           V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _____________________   ________
+      Description: |Learn AWS            | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+                                                | 제출 클릭
+                                                V
+
+
+
+      Enter Todo Details
+                    _____________________                               ________
+      Description: |Learn AWS            | Enter atleast 10 characters |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               ‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+그리고 Learn AWS로 submit을 클릭한다,
+최소한 10글자를 입력하라고 나온다, 왜냐면 Learn AWS는 10글자가 되지 않기 때문이다 
+그럼 Learn AWS 대신 정적 리스트에 몇 글자를 더 추가해 보겠다
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoService 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+import java.util.function.*;
+
+import org.springframework.stereotype.*;
+
+import jakarta.validation.*;
+
+@Service
+public class TodoService {
+
+	private static List<Todo> todos =new ArrayList<>();
+	
+	private static int todosCount = 0;
+	
+	static {
+    //4: 그럼 "Get AWS Certified"라고 해보자 이제 이건 10글자가 넘고, 정적 Todo 리스트에 오류가 있는 걸 원치 않는다 그럼 다시 웹사이트로 돌아가보자..
+		todos.add(new Todo(++todosCount,"in28minutes","Get AWS Certified", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+	
+	public List<Todo> findByUsername(String username) {
+		return todos;
+	} 
+	
+	public void addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount, username, description, targetDate, done);
+		todos.add(todo);
+	}
+	
+	public void deleteById(int id) {
+		//todo.getId() == id
+		//todo -> todo.getId() == id
+		
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+
+	public Todo findById(int id) {
+		
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		Todo todo = todos.stream().filter(predicate).findFirst().get();
+		
+		return todo;
+	}
+
+	public void updateTodo(@Valid Todo todo) {
+		deleteById(todo.getId());
+		todos.add(todo);
+		
+	}
+	
+}
+
+----------------------------------------------------------------------------------------------------------------------
+                                                                              |
+                                                                              V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________      _______________
+      1	Get AWS Certified                 2025-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________
+      2	Learn DevOps	                    2026-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________   
+      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+이제 업데이트 내용이 반영되었고, update를 클릭하고                             |
+                                                                            V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _______________________   ________
+      Description: |Get AWS Certified Now! | |  제출  |
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾
+                                              
+----------------------------------------------------------------------------------------------------------------------
+Get AWS Certified 뒤에 Now!를 추가하고 submit을 누른다                                    | 
+                                                                                        V
+----------------------------------------------------------------------------------------------------------------------
+http://localhost:8087/list-todos 페이지화면 ==>
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________      _______________
+      2	Learn DevOps	                    2026-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________   
+      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________
+      1	Get AWS Certified Now!                      	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+
+좋다 Get AWS Certified Now!가 여기 나온다 하지만 Target Date가 없어진 걸 알 수 있다
+목표 날짜 값이 없어진 이유는 
+
+				<form:form method="post" modelAttribute="todo">
+					Description: <form:input type="text" path="description" 
+									required="required"/>
+					<form:errors path="description" cssClass="text-warning"/>				
+									
+					<form:input type="hidden" path="id"/>
+					<form:input type="hidden" path="done"/>
+					<input type="submit" class="btn btn-success"/>
+				</form:form>
+
+우리가 여기 있는 <form:form>에 그걸 채우지 않고 있기 때문이다
+우리는 여기서 목표 날짜를 넣지 않았고 그래서 Target Date가 사라졌다
+또 우리는 여기서 username도 넣지 않았다
+그래서 그 Bean에서 username도 사라지게 되었다
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ TodoController 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				LocalDate.now().plusYears(1), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+	
+	
+	@RequestMapping(value="update-todo", method=RequestMethod.GET)
+	public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+		Todo todo = todoService.findById(id);
+		model.addAttribute("todo",todo);
+		return "todo";
+
+	}
+	
+	@RequestMapping(value="update-todo",method=RequestMethod.POST)
+	public String updateTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+
+		String username = (String)model.get("name");
+
+  //5:넌 username을 숨은 변수로 넣길 원하지 않고 model에서 username을 받아서 그걸 todo 안에 설정하려고 한다, todo.setUsername(username)이라고 하고 이걸 저장할 것이다
+  //이렇게 username을 설정했으면 이제 남은 건 Target Date이다 그걸 고치는 방법은 다음 단계에서 알아보도록 하자
+		todo.setUsername(username);    
+    
+    todoService.updateTodo(todo);
+		
+		return "redirect:list-todos";
+	}
+}
+
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+      id	Description	                    Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                      _______________      _______________
+      1	Get AWS Certified                 2025-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________
+      2	Learn DevOps	                    2026-05-02	   false       | Delete(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                      _______________      _______________   
+      3	Learn Full Stack Development	    2025-05-02     false       | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+이제 우리의 Todo에 관련된 대부분의 중요한 기능이 작동하고 있다 
+하지만 몇 가지 부족한 부분이 있고, 우린 그걸 다음 단계에서 처리할 것이다
