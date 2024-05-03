@@ -1,0 +1,294 @@
+
+
+이제 Todo에 필요한 거의 모든 기능이 준비되었다, 
+이제 이 애플리케이션의 외관과 느낌을 개선하는 작업을 시작해보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+
+      Your Todos
+
+      Description	                      Taget Date	     Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                        _______________      _______________
+      Get AWS Certified                   2025-05-03	   false         | Delete(노바탕) |   | Update (녹바탕) |
+                                                                        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                        _______________      _______________
+      Learn DevOps	                      2026-05-03	   false         | Delete(노바탕) |   | Update (녹바탕) |
+                                                                        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                        _______________      _______________   
+      Learn Full Stack Development	      2025-05-03     false         | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+
+이제 우리는 여기 상단에 메뉴, 즉 내비게이션 바를 추가하려고 한다
+우리는 이번 단계에서 먼저 그걸 해볼 것이고 
+그리고 너가 이미 jsp 파일에서 봤겠지만, 중복된 부분이 많이 있다
+우리가 todo.jsp를 보거나 listTodos.jsp를 보면 반복되는 부분이 아주 많다 
+그럼 jsp에서 반복을 피하는 방법을 알아보기로 하자
+
+우리는 jsp 프래그먼트라는 개념을 사용할 것이다
+우리는 이번 단계에서 그 두가지를 알아볼 것이다
+
+그럼 먼저 내비게이션 바를 추가하는 것부터 시작해보자, 
+내이비게이션 바를 추가하려면 HTML과 Bootstrap 코드를 약간 작성해야 하고, 너에게 도움을 주기 위해
+Github 리포지토리에 올려놓은게 있다 (https://github.com/in28minutes/master-spring-and-spring-boot/tree/main/11-web-application#navigation---html--bootstrap) (Spring-Boot-Web-Application)
+
+Navigation - HTML + Bootstrap
+-----------------------------
+<nav class="navbar navbar-expand-md navbar-light bg-light mb-3 p-1">
+	<a class="navbar-brand m-1" href="https://courses.in28minutes.com">in28Minutes</a>
+	<div class="collapse navbar-collapse">
+		<ul class="navbar-nav">
+			<li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+			<li class="nav-item"><a class="nav-link" href="/list-todos">Todos</a></li>
+		</ul>
+	</div>
+	<ul class="navbar-nav">
+		<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+	</ul>	
+</nav>
+
+이런 스니펫이 있을 것이다 내비게이션을 위한 HTML 페이지 + Bootwstrap 스니펫이고 이걸 복사해 붙여 넣어보겠다 
+listTodos.jsp 파일 상단의 <body>안에 그걸 붙여 넣을 것이고 
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ listTodos.jsp
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<html>
+	<head>
+		<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+		<title>
+			List Todos Page
+		</title>
+	</head>
+<!--1: <body>위에 붙여넣을 것이고 8칸을 틀여 쓰고 코드가 어떻게 작동하는지 보기 전에 간단히 외관을 살펴보도록 하자-->
+    <nav class="navbar navbar-expand-md navbar-light bg-light mb-3 p-1">
+    	<a class="navbar-brand m-1" href="https://courses.in28minutes.com">in28Minutes</a>
+    	<div class="collapse navbar-collapse">
+    		<ul class="navbar-nav">
+    			<li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+    			<li class="nav-item"><a class="nav-link" href="/list-todos">Todos</a></li>
+    		</ul>
+    	</div>
+    	<ul class="navbar-nav">
+    		<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+    	</ul>
+    </nav>
+
+	<body>
+			<!-- <div>Welcome to in28minutes</div> -->
+			<div class="container">
+				<h1>Your Todos</h1>
+				<table class="table">
+					<thead>
+						<tr>
+						<th>Description</th>
+						<th>Taget Date</th>
+						<th>Is Done?</th>
+						<th></th>
+						<th></th>
+						</tr>			
+					</thead>
+					<tbody>
+					<c:forEach items="${todos}" var="todo">
+						<tr>
+							<td>${todo.description}</td>
+							<td>${todo.targetDate}</td>
+							<td>${todo.done}</td>
+							<td><a href="delete-todo?id=${todo.id}" class="btn btn-warning">Delete</a></td>
+							<td><a href="update-todo?id=${todo.id}" class="btn btn-success">Update</a></td>
+						</tr>
+					</c:forEach>
+					</tbody>
+				</table>
+				<a href="add-todo" class="btn btn-success">Add Todo</a>
+			
+			</div>
+			<script type="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+			<script type="webjars/jquery/3.6.0/jquery.min.js"></script>
+	
+	</body>
+</html>
+
+----------------------------------------------------------------------------------------------------------------------
+                                                                        |
+                                                                        V
+----------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                         _______________      _______________
+      Get AWS Certified                 2025-05-03	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________
+      Learn DevOps	                    2026-05-03	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________   
+      Learn Full Stack Development	    2025-05-03     false            | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+페이지를 새로고침해 보면, 이렇게 Home 링크와 Todos 링크, Logout 링크가 있다 
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Fri May 03 17:11:22 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+No static resource .
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource .
+	at 
+
+지금은 Home 링크가 작동하지 않는 걸 볼 수 있고 Logout 링크도 작동하지 않는 걸 볼 것이다
+그것도 수정할 것이다, 여기서 지금 작동하는 유일한 링크는 Todos 링크다, Todos를 누르면 이 링크로 오고
+
+
+너가 Add Todo를 클릭하면 todo.jsp로 오게 되는데
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+      Enter Todo Details
+                    _______________________   
+      Description  |                       |     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+                    _______________________   
+      Target Date  |2025-05-03             |     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+
+       ________     
+      | 제  출 |
+       ‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+
+그럼 이걸 todo.jsp에도 추가해보겠다
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ todo.jsp 파일
+
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+
+<html>
+<head>
+<link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="webjars/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.standalone.min.css" rel="stylesheet">
+<title>Add Todo Page</title>
+</head>
+
+    <!--2: 그럼 todo.jsp에서도 여기에 nav를 추가하려 한다고 해줄 수 있다 그리고 새로 고침 하면..-->
+		<nav class="navbar navbar-expand-md navbar-light bg-light mb-3 p-1">
+			<a class="navbar-brand m-1" href="https://courses.in28minutes.com">in28Minutes</a>
+			<div class="collapse navbar-collapse">
+				<ul class="navbar-nav">
+					<li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+					<li class="nav-item"><a class="nav-link" href="/list-todos">Todos</a></li>
+				</ul>
+			</div>
+			<ul class="navbar-nav">
+				<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+			</ul>
+		</nav>
+
+<body>
+	<!-- <div>Welcome to in28minutes</div> -->
+	<div class="container">
+
+		<h1>Enter Todo Details</h1>
+		<form:form method="post" modelAttribute="todo">
+			<fieldset class="mb-3">
+				<form:label path="description">Description</form:label>
+				<form:input type="text" path="description" required="required" />
+				<form:errors path="description" cssClass="text-warning" />
+			</fieldset>
+
+			<fieldset class="mb-3">
+				<form:label path="targetDate">Target Date</form:label>
+				<form:input type="text" path="targetDate" required="required" />
+				<form:errors path="targetDate" cssClass="text-warning" />
+			</fieldset>
+
+			<form:input type="hidden" path="id" />
+			<form:input type="hidden" path="done" />
+			<input type="submit" class="btn btn-success" />
+
+		</form:form>
+
+	</div>
+	<script src="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+	<script src="webjars/jquery/3.6.0/jquery.min.js"></script>
+	<script src="webjars/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>	
+	<script type="text/javascript">
+	$('#targetDate').datepicker({
+	    format: 'yyyy-mm-dd'
+	});
+	</script>
+	
+</body>
+</html>
+
+----------------------------------------------------------------------------------------------------------------------
+                                                                                    |
+                                                                                    V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+
+      Enter Todo Details
+                    _______________________   
+      Description  |                       |     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+                    _______________________   
+      Target Date  |2025-05-03             |     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+
+       ________     
+      | 제  출 |
+       ‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+
+Todo 세부정보에도 나오는 걸 알 수 있다 Todos를 누르고                    
+Update를 누르고, Todos로 돌아가고, 이리저리 가 보면 내비게이션 바 덕분에 외관과 느낌이 이제 훨씬 나아진 걸 알 수 있다
+
