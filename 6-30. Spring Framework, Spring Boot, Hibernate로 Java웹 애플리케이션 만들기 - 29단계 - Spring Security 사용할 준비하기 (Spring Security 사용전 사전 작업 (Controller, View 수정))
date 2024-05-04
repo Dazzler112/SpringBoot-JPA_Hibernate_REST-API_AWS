@@ -1,0 +1,151 @@
+
+
+다음 단계에선 Spring Security에 대해 알아보려고 한다 
+Spring Security는 인증을 아주 쉽게 구현할 수 있게 해주는 멋진 프레임워크이고 즉 로그인과 로그아웃에 관련된 것이다,
+Spring Security를 우리 애플리케이션에 사용하려면 약간의 준비 작업이 필요할 것이다
+
+이번 단계에선 그 작업을 해보겠다
+우리가 준비할 첫 번째 작업은 로그인 코드이다 
+
+우린 웹 애플리케이션 제작 방법을 이해하기 위해 앞에서 많은 로그인 코드를 작성했다
+그럼 그 코드를 삭제하고 이번 단계에선 그걸 welcome 코드로 변경해보겠다 
+
+먼저 그 부분부터 시작해보자
+그럼 우리의 LoginController로 가보자
+(Ctrl+shift+R로 해당클래스 검색해서 빨리 갈수 있다)
+
+-----------------------------------------------------------------------------------------------------
+
+
+
+⏺ LoginController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@SessionAttributes("name")
+public class LoginController {
+
+  //1-2: 이부분 삭제!!
+	/*
+**********************************************************************************
+  private AuthenticationService auhtenticationService;
+
+	
+	public LoginController(AuthenticationService auhtenticationService) {
+		super();
+		this.auhtenticationService = auhtenticationService;
+	}
+**********************************************************************************
+  */
+
+  //1-3: 임포트를 정리하고 저장한 다음에 여기로 와서 AuthenticationService 파일도 삭제하자!//1-4: AuthenticationService클래스 파일 삭제!
+
+  //1: 그리고 여길 보면, 많은 로그인 로직이 있고 우린 여기서 welcome 페이지만 필요하다
+  //로그인 기능은 Spring Security가 처리할 것이기 때문에 로그인 기능에 대해서는 신경 쓸 필요가 없고 
+  //우리는 이 "login"을 "/"로 변경할 것이다, 그럼 누군가가 애플리케이션의 루트로 가면 우리는 그들을 welcome 페이지로 보내려고 한다(return "login" 에서 "welcome"으로..)
+	@RequestMapping(value = "login", method = RequestMethod.GET)
+	public String gotLoginPage(ModelMap model) {
+
+  //그럼 너는 model을 gotoLoginPage() 메서드에 입력값으로서 전송할 것이고, 하드 코딩된 이름을 model에 넣을 것이다
+  //하지만 welcome.jsp를 보면 알겠지만 지금 welcome 페이지에서 우리는 사용자 이름을 표시하고 있다, 지금 넌 그 이름을 하드코딩하고 있다, 우린 몇 단계 안에 그걸 수정할 건데 지금은 우선 in28minutes라고 하드코딩을 하겠다 (model.put("name", "in28minutes";) 
+    model.put("name", "in28minutes");
+
+		return "welcome";
+	}
+
+  //1-1: 그리고 gotoWelcomePage 로직은 이제 필요가 없으니 지워주겠다 (/**/표시로 했지만 IDE에선 삭제돼 있을거임)
+  //그럼 삭제하고 위의 LoginController() 메소드 하고 AuthenticationService도 삭제해보자 //1-2: 위의 LoginController(), authenticationService 객체 삭제
+  /*
+  **********************************************************************************
+	@RequestMapping(value = "login", method = RequestMethod.POST)
+	// login?name=Ranga RequestParam
+	public String gotoWelcomePage(@RequestParam String name, @RequestParam String password, ModelMap model) {
+		if (auhtenticationService.authenticate(name, password)) {
+
+			model.put("name", name);
+//			model.put("password", password);
+
+			// Authentiacation
+			// name - in28minutes
+			// password - dummy
+
+			return "welcome";
+		}
+	    model.put("errorMessage", "Invalid Credentials Please try again");
+		return "login";
+	}
+**********************************************************************************
+*/
+
+}
+
+-------------------------------------------------
+
+
+
+⏺ AuthenticationService 클래스파일
+
+
+//1-4: 이 클래스 삭제!!
+
+/*
+**********************************************************************************
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+
+@Service
+public class AuthenticationService {
+
+	public boolean authenticate(String username, String password) {
+	
+
+		boolean isValidUserName = username.equalsIgnoreCase("in28minutes");
+
+		boolean isValidPassword = password.equalsIgnoreCase("dummy");
+
+		return isValidUserName && isValidPassword;
+		
+	}
+}
+**********************************************************************************
+*/
+-----------------------------------------------------------------------------------------------------
+이제 Home으로 가보면 Welcome in28minutes로 가게 되고                        |
+                                                                          V
+-----------------------------------------------------------------------------------------------------
+
+http://localhost:8087 페이지화면==>
+
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+             
+
+              Welcome in28minutes
+              Manage your todos
+
+-----------------------------------------------------------------------------------------------------
+localhos:8087이다
+그걸 입력하는 순간 너는 Welcome in28minutes를 볼 수 있게 된다
+가서 Todo를 관리할 수도 있고 
+이렇게 이 루트 URL이 이제 welcome 페이지로 리디렉션 되고 있다
+
+	@RequestMapping(value = "login", method = RequestMethod.GET)
+	public String gotLoginPage(ModelMap model) {
+    model.put("name", "in28minutes");
+
+		return "welcome";
+	}
+우린 여기서 in28minutes를 하드코딩했고
+이게 작동하기 때문에 이제 가서 login.jsp도 삭제 할 수 있다
+이제 더 이상 필요하지 않다, 그럼 login.jsp를 삭제할 것이다
+
