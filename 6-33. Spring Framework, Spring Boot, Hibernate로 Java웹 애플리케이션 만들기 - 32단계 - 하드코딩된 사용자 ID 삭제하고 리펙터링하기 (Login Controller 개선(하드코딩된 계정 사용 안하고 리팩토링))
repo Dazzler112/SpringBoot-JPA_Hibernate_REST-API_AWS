@@ -333,3 +333,255 @@ ________________________________________________________________________________
 --------------------------------------------------------------------------------------------------------------------
 아무것도 안 온다
 
+@Controller
+@SessionAttributes("name")
+public class WelcomeController {
+
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String gotoWelcomePage(ModelMap model) {
+		model.put("name", getLoogedinUsername());
+		return "welcome";
+	}
+
+	private String getLoogedinUsername() {
+		Authentication authentication = 
+				SecurityContextHolder.getContext().getAuthentication();
+		
+		return authentication.getName();
+	}
+우리는 Spring Security로부터 username을 받을 수 있다
+그걸 model에 설정하고, 거기에 대한 @SessionAttributes 어노테이션도 있다
+그래서 이 값은 세션에 저장된다, 그럼 WelcomeController는 이 값에 저장되어 세션에 저장되고
+TodoController가 그걸 사용하게 된다
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		String username = (String)model.get("name");
+		List<Todo> todos = todoService.findByUsername(username);
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				todo.getTargetDate(), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+..
+...
+}
+
+왜냐면 여기에도 name이라는 세션 속성이 있기 때문이다
+
+하지만 사용자가 직접 TodoController로 갈 가능성도 있다 
+가령 사용자가 list-todos 페이지를 직접 클릭했다고 해보자
+그 사용자는 로그인하고 직접 list-todos로 간다 WelcomeController로 가지 않는다
+그러면 세션에서 값을 사용할 수 없다, 
+
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String gotoWelcomePage(ModelMap model) {
+		model.put("name", getLoogedinUsername());
+		return "welcome";
+	}
+왜냐면 이 코드는 아예 실행되지 않을 테니까
+여기서 우리는 값을 세션에 넣고 있다 
+그래서 항상 Spring Security로부터 값을 직접 받는 게 좋다
+
+그럼 좋다 WelcomeController도 좋아 보이고
+welcome 페이지는 로그인된 username이 필요하고 그게 model로 들어갔다가 리턴된다
+하지만 TodoController에 대해서도 비슷한 메서드를 만들 것이다, 
+
+TodoController의 경우엔 항상 우리는 model로부터 값을 받고 있다
+그럼 우리는 이렇게 model로부터 값을 받고 있고 우린 그걸 리팩터링 하려고 한다
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+    //3: 오른쪽 클릭을 하고 Refactor에서 Extract Method를 클릭한다, 이 구문의 인스턴스가 3개 더 있는 걸 알 수 있다(설정 화면에 Replace 3 addutional occurrences of statements with method 항목이 있음) //3-1: 맨 아래 생성된 getLoggedInUsername() 메소드로
+		String username = getLoggedInUsername(model);
+		List<Todo> todos = todoService.findByUsername(username);
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+    //3의 Extract Method 하면서 바뀜..
+		String username = getLoggedInUsername(model);
+
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+    //3의 Extract Method 하면서 바뀜..
+		String username = getLoggedInUsername(model);
+
+		todoService.addTodo(username, todo.getDescription(), 
+				todo.getTargetDate(), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+	
+	
+	@RequestMapping(value="update-todo", method=RequestMethod.GET)
+	public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+		Todo todo = todoService.findById(id);
+		model.addAttribute("todo",todo);
+		return "todo";
+
+	}
+	
+	@RequestMapping(value="update-todo",method=RequestMethod.POST)
+	public String updateTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+    //3의 Extract Method 하면서 바뀜..
+		String username = getLoggedInUsername(model);
+
+		todo.setUsername(username);
+		todoService.updateTodo(todo);
+		
+		return "redirect:list-todos";
+	}
+
+  //3-1: 그럼 getLoggedInUsername이라고 쓰고 ok를 클릭한다, 그럼 여기 getLoggedInUsername() 메서드가 여기 생성되었고
+  //로그인된 사용자를 model로부터 받는 대신에 우리는 그걸 Spring Security로부터 받으려고 한다 그렇게 하고 authentication = SecurityContextHolder.getContext().getAuthentication()이고	return authentication.getName(); 이다 이건 문제 없고 그럼 저장해보자
+	//그럼 model을 검색해서 model.get이 다른 곳에서도 쓰였는지 확인해보자 그럼 model.get으로 검색해보겠다 매칭되는 게 없다, ㅇㅋ
+  private String getLoggedInUsername(ModelMap model) {
+		
+    Authentication authentication = 
+				SecurityContextHolder.getContext().getAuthentication();
+		
+		return authentication.getName();
+	}
+
+}
+
+--------------------------------------------------------------------------------------------------------------------
+ 그리고 todos가 있는지 확인                                                             | 
+                                                                                      V
+--------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                         _______________      _______________
+      Get AWS Certified                 2025-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________
+      Learn DevOps	                    2026-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________   
+      Learn Full Stack Development	    2025-05-05     false            | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+
+
+다음 단계에서 계속 해 보겠다
