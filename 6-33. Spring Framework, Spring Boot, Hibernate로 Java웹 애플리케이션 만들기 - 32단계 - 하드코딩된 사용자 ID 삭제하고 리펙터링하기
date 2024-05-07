@@ -1,0 +1,335 @@
+
+
+이번 단계에선 정리를 좀 해보자, 지금은 Spring Security에 in28minutes가 사용자 ID로 설정되어 있다
+하지만 우리는 in28minutes가 많은 곳에 하드코딩되어 있는 걸 알 수 있다
+
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String gotoWelcomePage(ModelMap model) {
+		model.put("name", "in28minutes");
+		return "welcome";
+	}
+
+
+여기 model안에 in28minutes가 있고
+TodoController에 가보면
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+
+역시 in28minutes가 여러 곳에 하드코딩되어 있는 걸 볼 수 있다
+
+이번 단계에선 하드코딩을 제거하는 방법을 알아보려고 한다
+
+그럼 WelcomeController부터 시작해보자
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+⏺ WelcomeController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.login;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@SessionAttributes("name")
+public class WelcomeController {
+
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String gotoWelcomePage(ModelMap model) {
+    //1-1: 그리고 gotoWelcomePage메소드에 하드코딩된 model.put("name", "in28minutes") 대신에 그걸 getLoggedinUsername()에 대한 호출로 대체할 것이다
+    //이걸 저장하고 잘 작동하는지 확인해보자
+		model.put("name", getLoogedinUsername());
+		return "welcome";
+	}
+
+    //1: 지금 우리는 여기서 name을 하드코딩하고 있는데 그렇게 하지 않고 여기에 private 메서드를 만들 것이다
+    //private String이라고 하고 getLoogedinUsername 이라고 해보자, 그걸 Spring Security로부터 받으려고 한다
+    	private String getLoogedinUsername() {
+
+    //Spring Security에는 SecurityContextHolder라는 클래스가 있다, SecurityContextHolder안에는 getContext() 메서드가 있고, 그 안에서 너는 getAuthentication을 쓸 수 있다
+    //그리고 이게 실제로 너에게 현재 인증된 주체를 제공하게 된다, 인증된 사용자가 있다면 너는 이걸 통해 그걸 받을 수 있다 ctrl+1을 누르고 그걸 지역 변수에 지정하겠다
+		Authentication authentication = 
+				SecurityContextHolder.getContext().getAuthentication();
+		
+    //이제 우리에겐 인증 세부정보가 있고, 그 인증 세부정보에서 너는 사용자 세부정보를 받을 수 있다, 그럼 authentication.getName()이라고 해주자, 이게 너의 사용자 이름이고 우린 이걸 리턴할 것이다//1-1:gotoWelcomePage()메소드로.. 
+		return authentication.getName();
+	}    
+
+    
+}
+
+--------------------------------------------------------------------------------------------------------------------
+                                                                                     |
+                                                                                     V
+--------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/login 페이지 화면 ==>
+
+
+                                              Please sign in
+                                               __________________________
+                                              |in28minutes               |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+                                               __________________________
+                                              |●●●●●                     |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                               __________________________
+                                              |         Sign in          |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------------------------------
+in28minutes라고 적고 dummy라고 입력한 다음 Sign in을 누른다                          |
+                                                                                  V
+--------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087 페이지화면==>
+
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+             
+
+              Welcome in28minutes
+              Manage your todos
+
+--------------------------------------------------------------------------------------------------------------------
+
+잘 되고 있고 
+
+다음으로 TodoController로 가서
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		List<Todo> todos = todoService.findByUsername("in28minutes");
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+
+보면 여기에 앞에서 우리가 한 대로 이게 하드코딩되어 있다
+이 하드코딩도 삭제해볼까?
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ TodoController 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+    //2: 우린 그걸 model로부터 받으려고 한다, 모델로부터 name을 받고 username을 전송할 것이다 
+    String username = (String)model.get("name");
+    //2-1: 여기도 변경해보자 이건 listAllTodos 페이지고, 이 findByUsername()에 우리는 username을 전송하고 있다, 이 findByUsername()메서드를 보면 
+    /*
+    	public List<Todo> findByUsername(String username) {
+		  return todos;
+	    } 
+      여기서 우리는 전체 Todo리스트를 나열하고 있다 그걸 username으로 필터링하지 않고 있다 그것도 빠르게 구현해볼까? //2-2:TodoService클래스의 findByUsername()메소드로...
+    */
+		List<Todo> todos = todoService.findByUsername(username);
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = (String)model.get("name");
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+		todoService.addTodo(username, todo.getDescription(), 
+				todo.getTargetDate(), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+	
+	
+	@RequestMapping(value="update-todo", method=RequestMethod.GET)
+	public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+		Todo todo = todoService.findById(id);
+		model.addAttribute("todo",todo);
+		return "todo";
+
+	}
+	
+	@RequestMapping(value="update-todo",method=RequestMethod.POST)
+	public String updateTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = (String)model.get("name");
+		todo.setUsername(username);
+		todoService.updateTodo(todo);
+		
+		return "redirect:list-todos";
+	}
+}
+
+--------------------------------------------------------
+
+
+
+⏺ TodoService 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+import java.util.function.*;
+
+import org.springframework.stereotype.*;
+
+import jakarta.validation.*;
+
+@Service
+public class TodoService {
+
+	private static List<Todo> todos =new ArrayList<>();
+	
+	private static int todosCount = 0;
+	
+	static {
+		todos.add(new Todo(++todosCount,"in28minutes","Get AWS Certified", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+
+	public List<Todo> findByUsername(String username) {
+  //2-2: deleteById()의 Predicate를 복사할 거고 여기서 우리는 username을 사용하려고 한다 우린 그게 username과 같은지 확인하려고 한다
+  //그럼 todo.getUsername() == username이 되겠지, 우린 username을 확인하려 하고, 만약 username이 매칭되면 todos를 리턴하려고 한다 하지만 이건 문자열이다 그래서 너는 == 을 사용할 수 없다
+  //.equalsIgnoreCase()를 써야 한다 이렇게 Predicate는 username이 매칭되는지 확인하고 만일 username이 매칭되면 우리는 그걸 필터링하고 그걸 리턴하려고 한다
+		Predicate<? super Todo> predicate = todo -> todo.getUsername().equalsIgnoreCase(username);
+
+  //2-3: 그럼 return todos.stream().filter(predicate)라고 하고 .toList()를 써서 그걸 리스트로 반환한다
+		return todos.stream.filter(predicate);
+ 
+  //코드가 약간 복잡해 보일 수 있지만 사실은 아주 간단한 코드다, 우리는 여기서 매칭 조건을 설정하고 있고, todo에 대해 만일 username이 일치하면 매칭되는 것이고 그리고 여기서 우린 그걸 스트림으로 변환하고 있다
+  //그럼 만일 todo가 10개 있다면 그것들이 각각 처리되고 확인된다 이 조건이 확인되는 것이다 만일 username이 매칭되면 그걸 리턴하게 된다
+  //만일 username이 매칭되지 않으면 리턴하지 않게 된다 결국에 필터링된 것을 우리는 리스트로 변환하고 그걸 리턴하게 된다, 이걸 저장할 수 있고, 웹사이트 Todos로 가보자..
+	} 
+	
+	public void addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount, username, description, targetDate, done);
+		todos.add(todo);
+	}
+	
+	public void deleteById(int id) {
+		//todo.getId() == id
+		//todo -> todo.getId() == id
+		
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+
+	public Todo findById(int id) {
+		
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		Todo todo = todos.stream().filter(predicate).findFirst().get();
+		
+		return todo;
+	}
+
+	public void updateTodo(@Valid Todo todo) {
+		deleteById(todo.getId());
+		todos.add(todo);
+		
+	}
+	
+}
+
+--------------------------------------------------------------------------------------------------------------------
+                                                                              |
+                                                                              V
+--------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------------------------------
+아무것도 안 온다
+
