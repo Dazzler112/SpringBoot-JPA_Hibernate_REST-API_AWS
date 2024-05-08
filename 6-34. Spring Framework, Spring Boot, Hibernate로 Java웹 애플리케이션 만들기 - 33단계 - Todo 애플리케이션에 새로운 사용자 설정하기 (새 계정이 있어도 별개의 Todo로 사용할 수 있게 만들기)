@@ -1,0 +1,478 @@
+
+
+이번 단계에선 새로운 사용자를 추가해보겠다, 지금까지는 in28minutes만 사용했지
+그럼 새로운 사용자를 추가하는 방법을 알아보고 모든 게 잘 작동하는지 확인해보겠다
+
+우린 어디서 사용자를 설정하지?
+우린 SpringSecurityConfiguration으로 가야한다 그럼 거기로 가보자
+
+----------------------------------------------------------------------------------------------------------------
+
+
+⏺ SpringSecurityConfiguration 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.security;
+
+import java.util.function.*;
+
+import org.springframework.context.annotation.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
+import org.springframework.security.provisioning.*;
+
+@Configuration
+public class SpringSecurityConfiguration {
+	//LDAP or Database
+	//In Memory
+	
+//	InMemoryUserDetailsManager
+//	InMemoryUserDetailsManager(UserDetails...details users)
+	
+	@Bean
+	public InMemoryUserDetailsManager createUserDetailsManager() {
+    //(1번 과정에서 생긴 지역변수)
+    String username = "in28minutes";
+		String password = "dummy";
+
+		Function<String, String> passwordEncoder
+				= input -> passwordEncoder().encode(input);
+
+    //1: 그리고 여기서 우리는 사용자 세부정보를 설정하고 있다, 그리고 이걸 메서드로 추출해볼 것이다, 그럼 UserDetails를 긁어 오른쪽 클릭하고 Refactor에서 Extract Method를 클릭
+    //parameters를 보면 passwordEncoder를 위한 파라미터만 추가하고 있다 그럼 메서드를 만들기 전에 약간 리팩터링을 해보자, 오른쪽 클릭을하고 Refactor > Extract Local Variable을 클릭하겠다 이름을 username이라 하고, password도 추출해보자 이것도 Refactor > Rxtract Local Variable선택 password라고 한다
+		//그리고 다시 Function<String, String> passwordEncoder ~ .build();까지 긁어서 Refactor > Extract Method를 클릭 이름을 createNewUser라고 하고 ok를 클릭 
+    UserDetails userDetails = User.builder()
+								.passwordEncoder(passwordEncoder)
+								.username(username)
+								.password(password)
+								.roles("USER", "ADMIN")
+								.build();
+		
+		return new InMemoryUserDetailsManager(userDetails);
+	}
+	
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		
+		return new BCryptPasswordEncoder();
+	}
+}
+
+-----------------------------------------------------------------------------
+                                                  |
+                                                  V
+
+package com.firstapplication.springboot.myfirstwebapp.security;
+
+import java.util.function.*;
+
+import org.springframework.context.annotation.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
+import org.springframework.security.provisioning.*;
+
+@Configuration
+public class SpringSecurityConfiguration {
+	//LDAP or Database
+	//In Memory
+	
+//	InMemoryUserDetailsManager
+//	InMemoryUserDetailsManager(UserDetails...details users)
+	
+	@Bean
+	public InMemoryUserDetailsManager createUserDetailsManager() {
+		
+    //2: 그걸 인라인을 할 수 있다, 오른쪽 클릭을하고 Refactor에서 inline을 선택, in28minutes가 인라인이 되었고 단축키는 ctrl+shift+l 이다, 그리고 ok를 클릭, 그럼 password 이것도 인라인이 되었고
+		String username = "in28minutes";
+		String password = "dummy";
+
+		UserDetails userDetails = createNewUser(username, password);
+		
+		return new InMemoryUserDetailsManager(userDetails);
+	}
+
+	private UserDetails createNewUser(String username, String password) {
+		Function<String, String> passwordEncoder
+		= input -> passwordEncoder().encode(input);
+		
+		UserDetails userDetails = User.builder()
+								.passwordEncoder(passwordEncoder)
+								.username(username)
+								.password(password)
+								.roles("USER", "ADMIN")
+								.build();
+		return userDetails;
+	}
+	
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		
+		return new BCryptPasswordEncoder();
+	}
+}
+
+-----------------------------------------------------------------------------
+                                                  |
+                                                  V
+
+package com.firstapplication.springboot.myfirstwebapp.security;
+
+import java.util.function.*;
+
+import org.springframework.context.annotation.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
+import org.springframework.security.provisioning.*;
+
+@Configuration
+public class SpringSecurityConfiguration {
+	//LDAP or Database
+	//In Memory
+	
+//	InMemoryUserDetailsManager
+//	InMemoryUserDetailsManager(UserDetails...details users)
+	
+	@Bean
+	public InMemoryUserDetailsManager createUserDetailsManager() {
+
+    //3: 이제 새로운 사용자를 간단히 생성할 수 있는 걸 볼 수 있다
+		UserDetails userDetails = createNewUser("in28minutes", "dummy");
+
+    return new InMemoryUserDetailsManager(userDetails);
+    ...
+    ..
+    .
+}
+
+-----------------------------------------------------------------------------
+                                                  |
+                                                  V
+
+package com.firstapplication.springboot.myfirstwebapp.security;
+
+import java.util.function.*;
+
+import org.springframework.context.annotation.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.*;
+import org.springframework.security.provisioning.*;
+
+@Configuration
+public class SpringSecurityConfiguration {
+	//LDAP or Database
+	//In Memory
+	
+//	InMemoryUserDetailsManager
+//	InMemoryUserDetailsManager(UserDetails...details users)
+	
+	@Bean
+	public InMemoryUserDetailsManager createUserDetailsManager() {
+
+    //4: 그럼 userDetails1, userDetails2라고 하고, 이름을 ranga, 패스워드를 dummydummy라고 해보자
+		UserDetails userDetails1 = createNewUser("in28minutes", "dummy");
+    UserDetails userDetails2 = createNewUser("ranga", "dummydummy");
+
+    //4-1: 그리고 여기서 InMemoryUserDetailsManager()를 만들 때 우리는 userDetails1과 userDetails2를 넣을 수 있다
+    /*
+      InMemoryUserDetailsManager안에 들어가서 보면
+    	public InMemoryUserDetailsManager(UserDetails... users) {
+		    for (UserDetails user : users) {
+			      createUser(user);
+		    }
+	    }
+    이 메서드는 가변 인자를 받고 그래서 너가 원하는 만큼 사용자를 넣을 수 있다
+    */
+    //좋다 그럼 어떻게 되는지 볼까? 로그아웃을 해보자
+		return new InMemoryUserDetailsManager(userDetails1, userDetails2);
+	}
+
+	private UserDetails createNewUser(String username, String password) {
+		Function<String, String> passwordEncoder
+		= input -> passwordEncoder().encode(input);
+		
+		UserDetails userDetails = User.builder()
+								.passwordEncoder(passwordEncoder)
+								.username(username)
+								.password(password)
+								.roles("USER", "ADMIN")
+								.build();
+		return userDetails;
+	}
+	
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		
+		return new BCryptPasswordEncoder();
+	}
+}
+----------------------------------------------------------------------------------------------------------------
+                                                                            |
+                                                                            V
+--------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/login 페이지 화면 ==>
+
+
+                                              Please sign in
+                                               __________________________
+                                              |ranga                     |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+                                               __________________________
+                                              |●●●●●●●●●●                |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                               __________________________
+                                              |         Sign in          |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------------------------------
+그리고 ranga, dummydummy를 입력하고 sign in을 누른다                                |
+                                                                                  V
+--------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087 페이지화면==>
+
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+             
+
+              Welcome ranga
+              Manage your todos
+
+--------------------------------------------------------------------------------------------------------------------
+좋다 Todos를 클릭하면 어떻게 될까?                                              |
+                                                                              V
+--------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------------------------------
+비어 있다 너는 Todo를 추가할 수 있고                                                      |
+그럼 Learn AWS Ranga 라고 해보자                                                         V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+      Enter Todo Details
+                    _______________________   
+      Description  |Learn AWS Ranga        |     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+                    _______________________   
+      Target Date  |2025-05-08             |     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+
+       ________     
+      | 제  출 |
+       ‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+Submit을 누르면                                                                        |
+                                                                                      V
+----------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                         _______________      _______________
+      Learn AWS Ranga                   2025-05-08	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+여기 들어온 걸 볼 수 있다                                                            |
+업데이트도 할 수 있고 Learn AWS Ranga 1 이라고 해보자                                 V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+      Enter Todo Details
+                    _______________________   
+      Description  |Learn AWS Ranga 1      |     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+                    _______________________   
+      Target Date  |2025-05-08             |     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+
+       ________     
+      | 제  출 |
+       ‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+                                                                                   |
+                                                                                   V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                         _______________      _______________
+      Learn AWS Ranga 1                 2025-05-08	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+다시 Todo를 추가해 보자                                                              |
+Get AWS Certified Now Ranga! 라고 해보자                                             V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/add-todo 페이지 화면 ==>
+
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+      Enter Todo Details
+                    _______________________   
+      Description  |Get AWS Certified Now R|     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+                    _______________________   
+      Target Date  |2025-05-08             |     
+                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+
+       ________     
+      | 제  출 |
+       ‾‾‾‾‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------
+그리고 Submit을 클릭하면                                                               |
+이렇게 간단히 사용자를 애플리케이션에 추가할 수 있는 걸 알 수 있다                         V
+----------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                         _______________      _______________
+      Learn AWS Ranga 1                 2025-05-08	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________
+      Get AWS Certified Now Ranga!      2025-05-08	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+
+그리고 너가 그 사용자로 로그인을 하면 그 특정 사용자에 관련된 세부정보만 볼 수 있다
+
+
+그럼 새 브라우저를 열고
+
+--------------------------------------------------------------------------------------------------------------------
+
+http://localhost:8087/login 페이지 화면 ==>
+
+
+                                              Please sign in
+                                               __________________________
+                                              |in28minutes               |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+                                               __________________________
+                                              |●●●●●                     |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                               __________________________
+                                              |         Sign in          |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------------------------------
+                                                                                            |
+여기에 in28minutes, dummy를 입력하고 Sign in을 눌러보자                                       V
+----------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                         _______________      _______________
+      Get AWS Certified                 2025-05-08	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________
+      Learn DevOps	                    2026-05-08	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________   
+      Learn Full Stack Development	    2025-05-08     false            | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+이렇게 잘 작동하고 있다 
+모든 게 완벽하다 
+
+
+
+
+
+이렇게 우리 애플리케이션을 다수의 사용자가 사용할 수 있는 걸 알았다
+지난 몇 단계에서 우리는 이 Todo 웹 애플리케이션을 많이 다뤄봤다
