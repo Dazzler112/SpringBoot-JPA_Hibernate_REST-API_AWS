@@ -1,0 +1,190 @@
+
+
+지금까지 우리는 정적 멤버 변수를 이용해 모든 Todo를 저장했고 
+
+	static {
+		todos.add(new Todo(++todosCount,"in28minutes","Get AWS Certified", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(3), false));
+	}
+
+여기에 Todo를 저장하고 여기에 받기도 했다
+
+이제 우리는 DB를 사용하려고 한다
+그에 이번 단계부터 우리가 시작할 여정이고 우린 H2라는 이름의 인메모리 DB를 사용할 거고, 
+JPA를 이용해서 인메모리 DB H2와 대화할 것이다 H2로 모든 게 준비되면 MySQL에도 연결할 것이다
+그럼 시작해볼까?
+
+첫 번째 단계는 의존성을 추가하는 단계고
+그럼 pom.xml로 가서 의존성을 추가해보자
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+⏺ pom.xml파일
+
+
+
+
+...
+	<dependencies>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+    <!--우리는 JPA를 사용해서 DB에 연결하려고 하고 Spring Boot가 제공하는 스타터 중엔 spring-boot-starter-data-jpa 가 있다-->
+    <!--이걸 사용하면 아주 쉽게 DB에 연결할 수 있다, 먼저 spring-boot-starter-data-jpa를 추가할 거고-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+    <!--다음으로 추가할 의존성은 H2 DB에 대한 의존성이다, 그럼 <groupId>가 필요하고, <artifactId>가 필요하다, 그리고 <scope>도 추가할 것이다-->
+    <!--그럼 <groupId>는 뭘까? <groupId>는 com.h2database이다 그럼 여기에 com.h2database를 넣고 <artifactId>는 h2이다-->
+    <!--H2 DB가 jar 파일의 일부로서 제공되길 원치 않는다, 그래서 <scope>에 runtime이라고 넣어주자 이제 이걸 저장하겠다-->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	
+	
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>	
+	
+		<dependency>
+			<groupId>jakarta.servlet.jsp.jstl</groupId>
+			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>glassfish-jstl</artifactId>
+			<version>11.0.20</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>5.1.3</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>3.6.0</version>
+		</dependency>		
+		
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap-datepicker</artifactId>
+			<version>1.9.0</version>
+		</dependency>	
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>			
+	
+	</dependencies>
+...
+
+-------------------------------------------------------------------------------------------------------------------
+
+  ---------------------------------------------------------------------------------------------------------
+  |  (❗ 혹시 다운로드 중 Maven에 문제가 생길 때 ❗)                                                           |
+  |  ● 프로젝트에 오른쪽 클릭 > Maven > Update Project를 > Force Update of Snapshots/Releases 클릭 > ok      |
+  |                                                                                                        |
+  |  이렇게 하면 모든 게 다시 다운로드됨, 그러면 문제가 해결되길 바란다                                         |
+  ---------------------------------------------------------------------------------------------------------
+
+이렇게 의존성을 다운로드했고 그럼 가서 MyfirstwebappApplication을 시작해보자
+콘솔로 가서 보면 콘솔이 시작된 걸 볼 수 있다
+콘솔에 이제 많은 로그가 추가된 게 보일거고
+2024-05-09T00:49:07.408+09:00[0;39m [32m INFO[0;39m [35m8336[0;39m [2m---[0;39m [2m[myfirstwebapp] [  restartedMain][0;39m [2m[0;39m[36mo.s.b.a.h2.H2ConsoleAutoConfiguration   
+[0;39m [2m:[0;39m H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:0c12a171-27ee-45a3-b434-1f0f34dc7eea'
+H2 콘솔이 /h2-console에 제공되어 있는 걸 볼 수 있다
+그리고 DB는 jdbc:h2:mem: 그리고 특정한 URL에 제공되어 있다
+
+너가 이 서버를 계속 재시작하면 이 URL이 계속 변하는 걸 보게 될 것이다
+그럼 이제 H2 콘솔로 갈 수 있는지 확인해보자, 
+localhost:8087/h2-console이 기본 URL이다
+
+-------------------------------------------------------------------------------------------------------------
+
+localhost:8087/h2-console -> http://localhost:8087/login 페이지 화면 ==>
+
+
+                                              Please sign in
+                                               __________________________
+                                              |in28minutes               |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+                                               __________________________
+                                              |●●●●●                     |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                               __________________________
+                                              |         Sign in          |
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------------------------
+그리고 in28minutes와 dummy를 입력할 건데, Spring Security로 보호되기 때문이다
+
+
+  ______________________
+ |English             v |  Preferences  Tools  Help
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _______________________________________________________________________
+ |  Login (파바탕)                                                        | 
+ |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+ |                    ______________________________________________     |
+ |  Saved Settings:  | Generic H2 (Embedded)                    v   |    |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |
+ |                    ______________________________   ____   ______     |
+ |  Setting Name :   | Generic H2 (Embedded)        | |Save| |Remove|    |
+ |                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾   ‾‾‾‾‾‾     |
+ |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+ |                    ____________________________________________       |
+ |  Driver Class:    |org.h2.Driver                               |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ____________________________________________       |
+ |  JDBC URL:        |jdbc:h2:mem:testdb                          |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ________________________________                   |
+ |  User Name:       |sa                              |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   | 
+ |                    ________________________________                   |
+ |  Password:        | Generic H2 (Embedded)          |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   |
+ |                    _________   _________________                      |                               
+ |                   | Connect | | Test Connection |                     |                                       
+ |                    ‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+그리고 이게 H2이다
+그리고 여기에서 우리는 특정한 H2 DB에 연결할 수 있다
+
