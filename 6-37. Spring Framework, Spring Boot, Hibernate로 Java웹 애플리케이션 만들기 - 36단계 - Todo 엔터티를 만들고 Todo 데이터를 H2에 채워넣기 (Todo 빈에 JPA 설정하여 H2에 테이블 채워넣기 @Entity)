@@ -1,0 +1,325 @@
+
+
+우린 Todo Bean이 있는데 
+그럼 DB에 Todo테이블이 있다고 해보자
+
+//JPA
+// Bean -> Database
+
+JAP를 사용하면 Bean을 데이터베이스에 매핑할 수 있다
+@Entitiy라는 간단한 어노테이션을 추가하면 그렇게 할 수 있다
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ Todo 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+//Database (MySQL)
+//Staitc List of todos => Database (H2, MySQL)
+
+//JPA
+// Bean -> Database Table
+
+//1: Todo가 엔터티라고 해주면 이 Bean이 DB테이블에 매핑된다, 그럼 @Entitiy라고 입력하고 Ctrl+1을 눌러서 jakarta.persistence를 임포트해보자, 그러면 jakarta.persistence.Entity가 임포트된 걸 볼 수 있다
+//엔터티가 있으면 Id도 있어야 한다 그럼 너는 기본 키를 정의해야 한다 //1-1: 아래로 작성..
+@Entity
+public class Todo {
+
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+//1-1: 그럼 @Id라고 입력하고 ctrl+1을 눌러보자, Import 'Id'(jakarta.persitence)를 선택한다 그렇게하고 
+  @Id
+//1-2: 우리는 시퀀스를 이용해서 이걸 생성하려고 한다, 그럼 @GeneratedValue라고 해주자, 
+  @GeneratedValue
+	private int id;
+	private String username;
+	
+	@Size(min=10, message="Enter atleast 10 characters")
+	private String description;
+	private LocalDate targetDate;
+	private boolean done;
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public LocalDate getTargetDate() {
+		return targetDate;
+	}
+	public void setTargetDate(LocalDate targetDate) {
+		this.targetDate = targetDate;
+	}
+	public boolean isDone() {
+		return done;
+	}
+	public void setDone(boolean done) {
+		this.done = done;
+	}
+	
+	@Override
+	public String toString() {
+		return "Todo [id=" + id + ", username=" + username + ", description=" + description + ", targetDate="
+				+ targetDate + ", done=" + done + "]";
+	}
+
+}
+
+----------------------------------------------------------------------------------------------------------------------
+🔵 작동 방식 설명
+여기서 우리가 뭘 하는지 생각해보자 우리는 이 Todo Bean을 DB의 테이블에 매핑하고 있다
+그러려면 @Entity를 사용해야 한다 Entity는 Bean을 DB테이블에 매핑할 수 있게 해준다
+Spring Boot의 자동 설정 기능이 놀라운 것은 만일 Entity가 발견되면 자동으로 H2 테이블을 생성하기 시작한다는 점이다
+
+너가 pom.xml을 보면 거기 H2 DB가 있다
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+그리고 Spring Boot는 H2 DB를 발견하면 즉시 그걸 사전설정하기 시작한다
+그 사전설정 과정에서 Entity가 발견되면
+@Entity
+public class Todo {....
+그 즉시 테이블을 생성하기 시작한다
+
+실제로 어떻게 되는지 볼까?
+
+그럼 H2 콘솔로 가서
+새로고침을 해보자
+
+좌측에 보면 TODO 테이블이 있는걸 볼 수 있다
+
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ - 💷 TODO
+   + 🛢 DONE
+   + 🛢 ID
+   + 🛢 TARGET_DATE
+   + 🛢 DESCRIPTION
+   + 🛢 USERNAME
+   + 🔠 indexes
+...
+
+여기서 무슨 일이 일어났는지 보면, Spring Boot 자동 설정이 클래스 경로에서 
+H2 또는 인메모리 DB를 발견해서 모든 엔터티에 대해 곧바로 테이블을 생성한 것이다
+너는 원하는 대로 엔터티를 정의할 수 있다
+
+
+
+가령 너가 매핑하려는 테이블의 이름이 Todo가 아니고 예를 들어 다른 테이블로 매핑하려 한다고 해보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ Todo 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+//Database (MySQL)
+//Staitc List of todos => Database (H2, MySQL)
+
+//JPA
+// Bean -> Database Table
+
+//2: 그럼 너는 name="TodoABC"라고 하고 저장한다, 이걸 새로고침해 보자
+@Entity(name = "TodoABC")
+public class Todo {
+
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	@Id
+	@GeneratedValue
+	private int id;
+	private String username;
+..
+...
+}
+
+----------------------------------------------------------------------------------------------------------------------
+                                                              |
+                                                              V
+-------------------------------------------------------------------------
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ - 💷 TODOABC
+   + 🛢 DONE
+   + 🛢 ID
+   + 🛢 TARGET_DATE
+   + 🛢 DESCRIPTION
+   + 🛢 USERNAME
+   + 🔠 indexes
+...
+
+그럼 테이블 이름이 이제 TODOABC인 걸 알 수 있다
+즉 우리는 TODOABC라는 테이블에 매핑하고 있는 것이다
+기본값은 클래스 이름 자체이다 그러니 (name = "TodoABC")를 삭제할 것이고
+-------------------------------------------------------------------------
+                                              |
+                                              V
+----------------------------------------------------------------------------------------------------------------------
+⏺ Todo 클래스파일
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+//Database (MySQL)
+//Staitc List of todos => Database (H2, MySQL)
+
+//JPA
+// Bean -> Database Table
+
+//3: (name = "TodoABC") 삭제
+@Entity
+public class Todo {
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	@Id
+	@GeneratedValue
+	private int id;
+
+  //3-1: 너는 열 이름도 자유롭게 지정할 수 있다 이걸 username이라고 하지 않고, 
+  //가령 다른 이름을 쓰려 한다고 해보자, @Column()이라고 하고 이름을 적어줄 수 있다 name = "name"이라고 해보자
+  @Column(name = "name")
+	private String username;
+	
+	@Size(min=10, message="Enter atleast 10 characters")
+	private String description;
+	private LocalDate targetDate;
+	private boolean done;
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public LocalDate getTargetDate() {
+		return targetDate;
+	}
+	public void setTargetDate(LocalDate targetDate) {
+		this.targetDate = targetDate;
+	}
+	public boolean isDone() {
+		return done;
+	}
+	public void setDone(boolean done) {
+		this.done = done;
+	}
+	
+	@Override
+	public String toString() {
+		return "Todo [id=" + id + ", username=" + username + ", description=" + description + ", targetDate="
+				+ targetDate + ", done=" + done + "]";
+	}
+
+
+}
+
+----------------------------------------------------------------------------------------------------------------------
+                                                              |
+                                                              V
+-------------------------------------------------------------------------
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ - 💷 TODO
+   + 🛢 DONE
+   + 🛢 ID
+   + 🛢 TARGET_DATE
+   + 🛢 DESCRIPTION
+   + 🛢 USERNAME
+   + 🔠 indexes
+...
+
+이제 이걸 보면 USERNAME으로 되어있는데, 하지만 자바를 저장하고 H2 콘솔로 돌아가서 새로고침 후 다시 연결하면
+      |
+      V
+
+🔋 jdbc:h2:mem:testdb
+ - 💷 TODO
+   + 🛢 DONE
+   + 🛢 ID
+   + 🛢 TARGET_DATE
+   + 🛢 DESCRIPTION
+   + 🛢 NAME
+   + 🔠 indexes
+...
+
+이름이 이제 NAME인 걸 볼 수 있다
+
+즉  @Column(name = "name")
+	  private String username;
+이 필드가 이제 H2콘솔 여기로 매핑되고 있다
+-------------------------------------------------------------------------
+
