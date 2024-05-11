@@ -323,3 +323,278 @@ H2 Database 안 ==>
 이 필드가 이제 H2콘솔 여기로 매핑되고 있다
 -------------------------------------------------------------------------
 
+JPA는 복잡한 관계도 매핑할 수 있다, 일대일, 일대다, 다대다 등도 지원된다
+
+
+----------------------------------------------------------------------------------------------------------------------
+⏺ Todo 클래스파일
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+//Database (MySQL)
+//Staitc List of todos => Database (H2, MySQL)
+
+//JPA
+// Bean -> Database Table
+
+//3: (name = "TodoABC") 삭제
+@Entity
+public class Todo {
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	@Id
+	@GeneratedValue
+	private int id;
+
+  //4: 지금은 이 Column을 삭제해보자, 그럼 넌 @Column(name= "name")을 삭제하겠다, 생성된 기본값들을 계속 사용하려고 한다
+  //엔터티 이름도 Todo인 걸 확인하고, 그걸 저장한다
+ // @Column(name = "name")
+	private String username;
+...
+----------------------------------------------------------------------------------------------------------------------
+그리고 h2-console을 새로고침하고 돌아가서 Connet를 클릭하면       |
+                                                              V
+-------------------------------------------------------------------------
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ - 💷 TODOABC
+   + 🛢 DONE
+   + 🛢 ID
+   + 🛢 TARGET_DATE
+   + 🛢 DESCRIPTION
+   + 🛢 USERNAME
+   + 🔠 indexes
+...
+
+여기 TODO 테이블이 보일거고, 열 이름도 ID, DESCRIPTION, DONE, TARGET_DATE, USERNAME이 원래대로 있다
+-------------------------------------------------------------------------
+좋다 
+한 가지 주목할 게 있다면 targetDate가 TARGET_DATE인 것이다 
+
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+그 이유는 targetDate D 여기에 대문자가 있기 때문이다
+DB에선 일반적으로 밑줄을 써서 단어들을 구분한다  
+this.targetDate = targetDate; 여기에도 대문자 D가 있지?
+그래서 열 이름도 + 🛢 TARGET_DATE -> TARGET_DATE로 생성된 것이다
+
+
+이제 먼저 약간의 시작 데이터를 채워 넣으려고 한다
+그럼 어떻게 시작 데이터를 채워 넣을 수 있을까?
+넌 data.sql이라는 파일을 만들 수 있다
+
+그럼 src/main/resources에서 New를 선택하고 SQL File을 선택한다(SQL File이 안보이면 그냥 File 선택후 확장자만.sql로..)
+그리고 data.sql이라고 해주자 (해당 파일을 열면 나 같은경우는 workbench를 깔았기 때문에 workbench가 열림..)
+data.sql에선 넌 쿼리를 만들 수 있고, 시작할 때 그 쿼리가 실행될 것이다
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ data.sql 파일 
+
+
+
+--4 그럼 insert into todo라고 적고 그리고 values()라고 하고 여기에 값을 지정할 수 있다 
+--생성된 기본값은 1부터 시작하고 그러면 ID 10001을 써주겠다 두 번째는 DESCRIPTION이고 그럼 "Get AWS Certified"라고 해주자, 그리고 다음은 DONE이고 그건 false지
+--순서가 그다지 보기 좋지 않으니 여기에 나만의 열을 정의하려고 한다, 그럼 넌 원하는 순서대로 삽입하려고 하고 그럼 그걸 여기에 정의해보자
+-- 먼저 ID를 넣고, USERNAME, DESCRIPTION 순서고 다음은 TARGET_DATE 그리고 마지막은 DONE이다 그럼 그 순서로 값을 삽입해보자
+--10001 다음에 USERNAME은 in28minutes 또는 range인데, 그 중 아무 이름이나 삽입 가능하고, "Get AWS Certified", 그리고 TARGET_DATE는 CURRENT_DATE()라는 H2함수를 사용해보자, 그리고 DONE은 false라고 해준다 그리고 저장한다
+
+INSERT INTO todo (ID, USERNAME, DESCRIPTION, TARGET_DATE, DONE)
+VALUES(10001,"in28minutes", "Get AWS Certified", CURRENT_DATE(), false); 
+
+----------------------------------------------------------------------------------------------------------------------
+
+이제 콘솔로 가보면 오류가 나올 것이다
+
+2024-05-10T17:27:05.277+09:00[0;39m [31mERROR[0;39m [35m1752[0;39m [2m---[0;39m [2m[myfirstwebapp] [  restartedMain][0;39m [2m[0;39m[36mo.s.boot.SpringApplication              [0;39m [2m:[0;39m Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSourceScriptDatabaseInitializer' defined in class path resource [org/springframework/boot/autoconfigure/sql/init/DataSourceInitializationConfiguration.class]: Failed to execute database script from resource [file [C:\Users\LG\Downloads\myfirstwebapp\myfirstwebapp\target\classes\data.sql]]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1786) ~[spring-beans-6.1.5.jar:6.1.5]
+....
+
+"TODO"테이블을 찾을 수 없다고 나온다 기본적으로 data.sql은 엔터티 처리되기 전에 실행된다
+테이블은 엔터티가 처리될 때 생성된다, 그럼 data.sql은 테이블이 생성되기 전에 실행되고  그리고 우린 그걸 변경하려고 한다
+그걸 어떻게 변경할까?
+
+우린 그걸 application.properties에서 변경할 수 있다
+그럼 application.properties를 열어보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ application.properties 파일
+
+
+spring.application.name=myfirstwebapp
+server.port=8087
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+logging.level.org.springframework=info
+logging.level.com.firstapplication.springboot.myfirstwebapp=info
+
+spring.mvc.format.date=yyyy-MM-dd
+
+spring.datasource.url=jdbc:h2:mem:testdb
+
+#5 그리고 spring.jpa.defer-datasource- initialization이라고 입력한다(철자를 정확히 입력해야 한다!) 그리고 =true라고 입력하고 저장한다
+spring.jpa.defer-datasource-initialization=true
+
+----------------------------------------------------------------------------------------------------------------------
+애플리케이션을 중지하고 다시 시작하면 구문 예외가 있는 걸 볼 수 있다
+
+Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Column "in28minutes" not found; SQL statement:
+INSERT INTO todo (ID, USERNAME, DESCRIPTION, TARGET_DATE, DONE) VALUES(10001,"in28minutes", "Get AWS Certified", CURRENT_DATE(), false) [42122-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514) ~[h2-2.2.224.jar:2.2.224]
+
+"in28minutes" 열을 찾을 수 없다고 나온다
+이렇게 오류가 나는 이유는 data.sql에서 작은 따옴표를 써야 되기 때문이다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ data.sql 파일 
+
+
+--6 그럼 이걸 모두 작은 따옴표로 교체하겠다 "in28minutes" 에서 'in28minutes', "Get AWS Certified" 에서 'Get AWS Certified'로 고치고 저장
+INSERT INTO todo (ID, USERNAME, DESCRIPTION, TARGET_DATE, DONE)
+VALUES(10001,'in28minutes', 'Get AWS Certified', CURRENT_DATE(), false); 
+
+----------------------------------------------------------------------------------------------------------------------
+
+이제 어떻게 되는지 보자 다시 시작하자
+이제 콘솔창에 오류가 없다 애플리케이션이 잘 실행 되었고
+그럼 H2 콘솔로 가서 새로고침을 하고 다시 연결해 보자
+
+-------------------------------------------------------------------------
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ - 💷 TODO
+   + 🛢 DONE
+   + 🛢 ID
+   + 🛢 TARGET_DATE
+   + 🛢 DESCRIPTION
+   + 🛢 USERNAME
+   + 🔠 indexes
+...
+
+TODO 테이블이 있고 데이터가 있을까?
+
+----------------------------------------------------------------------
+
+⏺ H2 Console 
+ _____   ______________   _______________   _______
+| Run | | Run Selected | | Auto complete | | Clear | SQL statement:
+ ‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾ 
+ ___________________________________________________________________________________
+| SELECT * FROM TODO                                                                |
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                    
+|                                                                                   |                     
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+SELECT * FROM TODO;
+ ________________________________________________________
+|DONE |ID   |TARGET_DATE |DESCRIPTION      |USERNAME     |
+ ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|FALSE|10001|2024-05-11	 |Get AWS Certified|in28minutes  |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+(1 row, 3 ms)
+ ____
+|Edit|
+ ‾‾‾‾
+-------------------------------------------------------------------------
+여기 데이터가 있다
+그럼 data.sql에 Todo를 몇 개 더 추가해 볼까?
+
+ID를 몇 개 더 추가해 보자, ID는 증가해야 할 거고 중복되지 말아야 한다
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ data.sql 파일
+
+
+--7 그럼 10002 10003 10004라고 한다 모든 Todo를 in28minutes 안에 두고, 그럼 in28minutes를 그대로 두겠다 너는 원한다면 ranga를 쓸 수도 있다
+--그럼 'Get Azure Certified' , 'Get GCP Certified' 그리고 풀 스택이나 데브옵스 춤 배우기 등 원하는 대로 넣으면 되는데 ID가 고유한지 확인하기 바란다, 그럼 이것들을 저장한다
+
+INSERT INTO todo (ID, USERNAME, DESCRIPTION, TARGET_DATE, DONE)
+VALUES(10001,'in28minutes', 'Get AWS Certified', CURRENT_DATE(), false); 
+
+INSERT INTO todo (ID, USERNAME, DESCRIPTION, TARGET_DATE, DONE)
+VALUES(10001,'in28minutes', 'Get AWS Certified', CURRENT_DATE(), false); 
+
+INSERT INTO todo (ID, USERNAME, DESCRIPTION, TARGET_DATE, DONE)
+VALUES(10001,'in28minutes', 'Get AWS Certified', CURRENT_DATE(), false); 
+
+INSERT INTO todo (ID, USERNAME, DESCRIPTION, TARGET_DATE, DONE)
+VALUES(10001,'in28minutes', 'Get FullStack Certified', CURRENT_DATE(), false); 
+
+----------------------------------------------------------------------------------------------------------------------
+
+그리고 돌아가서 새로고침을 하고 Conncet를 클릭하자
+
+----------------------------------------------------------------------
+
+⏺ H2 Console 
+ _____   ______________   _______________   _______
+| Run | | Run Selected | | Auto complete | | Clear | SQL statement:
+ ‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾ 
+ ___________________________________________________________________________________
+| SELECT * FROM TODO                                                                |
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                    
+|                                                                                   |                     
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+SELECT * FROM TODO;
+ ______________________________________________________________
+|DONE |ID   |TARGET_DATE |DESCRIPTION            |USERNAME     |
+ ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|FALSE|10001|2024-05-11	 |Get AWS Certified      |in28minutes  |
+ ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|FALSE|10002|2024-05-11	 |Get Azure Certified    |in28minutes  |
+ ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|FALSE|10003|2024-05-11	 |Get GCP Certified      |in28minutes  |
+ ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+|FALSE|10004|2024-05-11	 |Get FullStack Certified|in28minutes  |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+(1 row, 3 ms)
+ ____
+|Edit|
+ ‾‾‾‾
+-------------------------------------------------------------------------
+그리고 TODO로 가서 RUN을 누른다, 여기서 H2도 인메모리 DB라는 점을 기억해야 하고
+애플리케이션을 재시작하면 H2의 모든 데이터는 사라진다
+
+
+
+
+
+
+이번 단계에선 우리는 H2 DB를 준비했고 
+우린 테이블과 데이터를 준비했고, 이제 우리는 H2 DB에 연결해서 이 Todo를 표시하려고 한다
+JPA를 사용해서 DB에 연결하고 Todo를 여기 표시하려 한다, 그리고 우린 JPA를 사용해서 삭제, 업데이트, 추가 등등 모든 작업을 수행하려고 한다
+그걸 다음 단계부터 시작해보겠다
