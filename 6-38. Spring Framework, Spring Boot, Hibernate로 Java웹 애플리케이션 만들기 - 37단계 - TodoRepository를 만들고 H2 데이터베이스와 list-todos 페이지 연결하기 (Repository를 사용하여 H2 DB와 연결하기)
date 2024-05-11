@@ -215,17 +215,17 @@ ________________________________________________________________________________
 
       Description	                      Taget Date	   Is Done?
       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-                                                                         _______________      _______________
-      Get AWS Certified                 2025-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
-                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                     _______________      _______________
+      Get AWS Certified                       2025-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
-                                                                         _______________      _______________
-      Learn DevOps	                    2026-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
-                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                     _______________      _______________
+      Learn DevOps	                      2026-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
-                                                                         _______________      _______________   
-      Learn Full Stack Development	    2025-05-05     false            | DELETE(노바탕) |   | Update (녹바탕) |
-                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                     _______________      _______________   
+      Learn Full Stack Development	      2025-05-05           false            | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
       _________________
      | Add Todo(녹바탕) |
@@ -323,17 +323,17 @@ ________________________________________________________________________________
 
       Description	                      Taget Date	   Is Done?
       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-                                                                         _______________      _______________
-      Get AWS Certified 1                2025-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
-                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                     _______________      _______________
+      Get AWS Certified 1                     2025-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
-                                                                         _______________      _______________
-      Learn DevOps 1	                   2026-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
-                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                     _______________      _______________
+      Learn DevOps 1	                      2026-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
-                                                                         _______________      _______________   
-      Learn Full Stack Development 1	   2025-05-05     false           | DELETE(노바탕) |   | Update (녹바탕) |
-                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                    _______________      _______________   
+      Learn Full Stack Development 1	      2025-05-05           false           | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
       ---------------------------------------------------------------------------------------------------------
       _________________
      | Add Todo(녹바탕) |
@@ -343,3 +343,295 @@ ________________________________________________________________________________
 이제 새로고침을 해보면 모두 1이 붙은 걸 볼 수 있지?
 이렇게 이것들은 모두 정적 리스트에서 오고 있다
 
+우린 이걸 사용하지 않고 DB에서 받으려고 한다
+우린 그걸 TodoRepository에서 받으려고 한다
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoControllerJpa 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.security.core.*;
+import org.springframework.security.core.context.*;
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+@SessionAttributes("name")
+public class TodoControllerJpa {
+
+	public TodoControllerJpa(TodoService todoService, TodoRepository todoRepository) {
+		super();
+		this.todoService = todoService;
+		this.todoRepository = todoRepository;
+	}
+	
+	private TodoService todoService;
+	
+
+	private TodoRepository todoRepository;
+	
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		String username = getLoggedInUsername(model);
+
+//4:우리가 먼저 해야 할 일은 todoService.findByUsername()인데, username은 Todo 엔터티에 있는 필드다 즉 Todo 엔터티에서 username은 필드고 id가 아니다
+//그걸 ID로 검색하려면 너는 JPA 리포지토리를 사용해서 직접 검색할 수 있다, 하지만 너는 필드로 검색하려고 하면 직접 제공되지 않는다, 너는 TodoRepository에서 메서드를 정의해야 한다//5: TodoRepository 인터페이스로..
+	
+//6: 그럼 여기로 와서 todoService.findByUsername(username); 를 -> todoRepository.findByUsername(username); 로 변경하고
+//보는 것처럼 우리는 Service의 메서드 이름이 리포지토리와 거의 일치하도록 했다 모든 이름이 같을 수는 없지만 우리는 최소한 대부분의 이름이 가능한 한 같도록 노력한다 그러면 쉽게 대체할 수 있겠지 이제 이걸 저장 애플리케이션도 잘 시작되고 있고 웹사이트 Todos를 클릭해보자..
+    List<Todo> todos = todoService.findByUsername(username);
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = getLoggedInUsername(model);
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = getLoggedInUsername(model);
+		todoService.addTodo(username, todo.getDescription(), 
+				todo.getTargetDate(), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+	
+	
+	@RequestMapping(value="update-todo", method=RequestMethod.GET)
+	public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+		Todo todo = todoService.findById(id);
+		model.addAttribute("todo",todo);
+		return "todo";
+
+	}
+	
+	@RequestMapping(value="update-todo",method=RequestMethod.POST)
+	public String updateTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = getLoggedInUsername(model);
+		todo.setUsername(username);
+		todoService.updateTodo(todo);
+		
+		return "redirect:list-todos";
+	}
+	
+	private String getLoggedInUsername(ModelMap model) {
+		Authentication authentication = 
+				SecurityContextHolder.getContext().getAuthentication();
+		
+		return authentication.getName();
+	}
+	
+}
+
+-----------------------------------------------------------------------
+
+
+
+⏺ TodoRepository 인터페이스 파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import org.springframework.data.jpa.repository.*;
+
+public interface TodoRepository extends JpaRepository<Todo, Integer> {
+  //5: 그럼 너는 여기로 와서 메서드를 정의할 것이다, public List<Todo>라고 하고 findByUsername()이라고 한다 그리고 ;를 넣어주자
+  //우리는 TodoRepository에 있고 임포트를 정리하기 위해 java.util.List를 선택해준다, 이렇게 우리는 findByUsername()이라고 하고 있다
+  //우린 이렇게 findByUsername()이라고 쓰고 그 값을 넣어주기만 하면 된다 그럼 String username 이라고 해주자
+  //username은 Todo Bean에 있는 속성이기 때문에 Spring Data JPA는 username으로 검색하기 위한 메서드를 자동으로 제공한다 , 이걸 저장하고 한 번 감상해 보자 //6: 다시 위의 TodoControllerJpa클래스 파일로...
+  public List<Todo> findByUsername();
+}
+
+--------------------------------------------------------------------------------------------------------------------
+
+오류가 나고 있다
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Sat May 11 21:39:37 KST 2024
+There was an unexpected error (type=Internal Server Error, status=500).
+No default constructor for entity 'com.firstapplication.springboot.myfirstwebapp.todo.Todo'
+org.springframework.orm.jpa.JpaSystemException: No default constructor for entity 'com.firstapplication.springboot.myfirstwebapp.todo.Todo'
+	at 
+
+엔터티에 대한 기본 생성자가 없다고 나온다 
+
+그럼 가서 엔터티에 대한 기본 생성자를 추가해보자,
+ctrl + shift+t를 눌러서 Todo라고 하고
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ Todo 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+//Database (MySQL)
+//Staitc List of todos => Database (H2, MySQL)
+
+//JPA
+// Bean -> Database Table
+
+@Entity
+public class Todo {
+
+  //7: 여기에 기본 생성자를 추가할 것이다 public Todo(){ }라고 하고 저장한다 어떻게 되는지 볼까? 새로고침하면..
+  //
+
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	@Id
+	@GeneratedValue
+	private int id;
+	
+	private String username;
+	
+	@Size(min=10, message="Enter atleast 10 characters")
+	private String description;
+	private LocalDate targetDate;
+	private boolean done;
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public LocalDate getTargetDate() {
+		return targetDate;
+	}
+	public void setTargetDate(LocalDate targetDate) {
+		this.targetDate = targetDate;
+	}
+	public boolean isDone() {
+		return done;
+	}
+	public void setDone(boolean done) {
+		this.done = done;
+	}
+	
+	@Override
+	public String toString() {
+		return "Todo [id=" + id + ", username=" + username + ", description=" + description + ", targetDate="
+				+ targetDate + ", done=" + done + "]";
+	}
+}
+
+--------------------------------------------------------------------------------------------------------------------
+                                                                      |
+                                                                      V
+--------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                     _______________      _______________
+      Get AWS Certified                       2025-05-11	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                                     _______________      _______________
+      Get Azure Certified	              2026-05-11	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                                     _______________      _______________   
+      Get GCP Certified	                      2025-05-11           false            | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                                     _______________      _______________
+      Get Fullstack Certified                 2025-05-11	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------------------------------
+
+됐다 이렇게 Todo 4개를 받고 있다 
+이 Todo들은 DB에서 온 것이다
+이것들은 data.sql을 통해 채워진 것들이다
+
+
+
+
+
+이번 단계에서 우리는 DB에서 오는 Todo의 리스트를 표시할 수 있었고 
+다음 단계에서도 Todo DB에 연결, 삭제, 업데이트, 추가하는 작업을 해보겠다
