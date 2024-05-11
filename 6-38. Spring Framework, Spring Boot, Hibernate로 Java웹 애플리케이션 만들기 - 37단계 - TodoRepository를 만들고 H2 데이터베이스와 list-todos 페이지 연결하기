@@ -1,0 +1,345 @@
+
+
+우린 이미 Todo를 준비했고, Entity를 이용해서 그걸 이미 DB의 TODO 테이블에 매핑했다
+이제 우리는 Todo를 추가, 삭제, 검색하는 등 Todo에 대한 모든 종류의 작업을 하려고 한다
+그걸 어떻게 할까? Spring JPA에서 너는 리포지토리라는 걸 사용해서 그걸 할 수 있다 
+
+리포지토리를 사용하면 엔터티에 액션을 수행할 수 있다
+그럼 먼저 리포지토리를 만드는 작업부터 시작해 볼까?
+
+그럼 ctrl+n을 눌러서 리포지토리를 만들고, 새로운 인터페이스를 만드려고 한다
+❗ 그럼 먼저 이걸 기억해야 할 것이다 리포지토리는 인터페이스이다 ❗
+클래스를 만드는게 아니라 인터페이스를 만드는 것이다
+명명 규약은 일반적으로 엔터티를 넣고 그 뒤에 Repository라고 적어준다 
+그럼 이름을 TodoRepository라고 해줄 거고, Finish를 누른다
+
+그럼 여기 TodoRepository 인터페이스가 있고 그럼 이게 Todo 엔터티를 관리할 것이라고 어떻게 알릴수 있을까?
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ TodoRepository 인터페이스파일
+
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+//1: 그러기 위해선 JpaRepository라는 걸 확장해야 한다, 그럼 넌 extends라고 쓰고 JPARE라고 한다, ctrl+space를 눌러보면 JpaRepository가 보이고
+//JpaRepository<T, ID> 여기 첫 번째 값은 그게 관리하는 Bean이다 우린 Todo Bean을 관리하길 원하지, 그리고 ID 필드는 뭘까? ID 필드의 타입을 말하는 것이다, ID 필드의 타입은 Int고, Int의 적절한 래퍼클래스는 Integer이다, 그럼 이 안에 <Todo,Integer>라고 설정해보자
+//너가 JpaRepository를 열어보면 아주 다양한 작업을 지원하는 걸 볼 수 있고 너가 엔터티, Todo Bean, Todo 값에 할 수 있는 작업이 아주 많다, 너가 수행할 수 있는 작업의 다양한 유형을 알기 위해 실제로 TodoRepository의 인스턴스를 생성해 보도록 하자
+//TodoController를 복사 붙여넣기 하고 이름을 TodoControllerJpa라고 하겠다
+public interface TodoRepository extends JpaRepository<Todo, Integer> {
+
+}
+
+//1-1: 오류가 나는 걸 볼 수있는데, 그 이유는 TodoControllerJpa가 모든 URL과 모든 요청 매핑을 갖게 되기 때문이다 이것들은 중복된 요청 매핑이다
+//이렇게 우리는 list-todos, add-todo등 모든 것에 대해 중복된 매핑을 하고 있다 그럼 TodoController를 보조용으로 사용하려 하고 TodoController의 @Contoller를 주석처리 하겠다 //1-2:TodoController 클래스파일로..
+
+-----------------------------------------------------------------------
+
+
+⏺ TodoController 클래스파일
+
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.security.core.*;
+import org.springframework.security.core.context.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+//1-2: @Controller 주석처리, 이제 여기로 오면 Spring Framework는 이 TodoController클래스를 완전히 무시하고 그래서 이건 전혀 잡히지 않을 것이다
+//이건 그냥 보조용으로 두고, 우린 이제 TodoControllerJpa를 사용할 수 있다 //2: TodoControllerJpa 클래스파일로..
+//@Controller
+@SessionAttributes("name")
+public class TodoController {
+
+	
+	private TodoService todoService;
+	
+	public TodoController(TodoService todoService) {
+		super();
+		this.todoService = todoService;
+	}
+...
+..
+.
+-----------------------------------------------------------------------
+
+
+
+⏺ TodoControllerJpa 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.security.core.*;
+import org.springframework.security.core.context.*;
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+public class TodoController {
+
+  //2-1:그럼 여기서 그걸 생성자에 대한 인수로서 추가할 거고
+	public TodoController(TodoService todoService, TodoRepository todoRepository) {
+		super();
+		this.todoService = todoService;
+    //2-1 계속: 그리고 this.todoRepository = todoRepository 라고 해줄 것이다 이렇게 해주면 todoRepository가 자동으로 결합된다 그럼 이걸 저장하고 그러면 아무런 문제도 없을 것이다 어플리케이션이 문제없이 실행됐다 //2-2:아래의 listAllTodos() 메소드로..
+    this.todoRepository = todoRepository;
+	}
+	
+	private TodoService todoService;
+
+  //2: 여기서 이제 우린 TodoRepository를 사용하려고 한다, 그럼 TodoService나 정적 리스트와 대화하지 않고 우리는 JPA를 사용해서 DB에 있는 테이블과 대화하려고 한다 
+  //그러기 위해서는 TodoRepository를 사용해야 한다, 그럼 여기서 인스턴스를 생성하겠다 
+  //TodoRepository라고 하고 이거 todoRepository라고 부르자
+  //이걸 자동으로 추가하기 위해 우리는 이걸 생성자에 추가해야 한다 //2-1: 위의 생성자로..
+	private TodoRepository todoRepository;
+
+
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		String username = getLoggedInUsername(model);
+
+    //2-2:이제 TodoRepository의 일부로 제공된 다양한 작업들에 대해 알아보자
+    //그걸 보려면 너는 이 메서드들 중에 하나로 가서 todoRepository.이라고 적어주기만 하면 된다 여기 어마어마한 양의 작업이 제공되어 있는 걸 볼 수 있고 그 중에 몇 가지를 살펴보기로 하자
+    //첫째는 ID로 Todo를 받는 getById()이다, 그럼 getById()라고 하고 Todo의 ID를 넣어줄 수 있고, 그러면 DB로부터 Todo를 받게 된다 //예 getById(1);
+    //🔵 업데이트: 그것 말고도 많은 작업을 할 수 있는데, 만일 Todo를 업데이트하려면 todoRepository.save()라 할 수 있다
+    //🔵 삭제 : Todo를 삭제하려면 .delete()를 쓰고 Todo를 넣어주거나 ID를 이용해서 삭제할 수 있다, 그럼 deleteById()라고 하고 ID를 넣어주면된다//예 deleteById(1);
+    //이렇게 테이블에 대한 이런 모든 작업을 todoRepository가 지원한다
+    todoRepository.
+
+		List<Todo> todos = todoService.findByUsername(username);
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = getLoggedInUsername(model);
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = getLoggedInUsername(model);
+		todoService.addTodo(username, todo.getDescription(), 
+				todo.getTargetDate(), false);
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+	
+	
+	@RequestMapping(value="update-todo", method=RequestMethod.GET)
+	public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+		Todo todo = todoService.findById(id);
+		model.addAttribute("todo",todo);
+		return "todo";
+
+	}
+	
+	@RequestMapping(value="update-todo",method=RequestMethod.POST)
+	public String updateTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = getLoggedInUsername(model);
+		todo.setUsername(username);
+		todoService.updateTodo(todo);
+		
+		return "redirect:list-todos";
+	}
+	
+	private String getLoggedInUsername(ModelMap model) {
+		Authentication authentication = 
+				SecurityContextHolder.getContext().getAuthentication();
+		
+		return authentication.getName();
+	}
+	
+}
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                         _______________      _______________
+      Get AWS Certified                 2025-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________
+      Learn DevOps	                    2026-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________   
+      Learn Full Stack Development	    2025-05-05     false            | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------------------------------
+
+너는 지금 이 list-todos 페이지를 연결하려 하고 
+지금은 이 리스트가 정적 리스트에서 오고있다
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ TodoService 클래스파일
+
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+import java.util.function.*;
+
+import org.springframework.stereotype.*;
+
+import jakarta.validation.*;
+
+@Service
+public class TodoService {
+
+	private static List<Todo> todos =new ArrayList<>();
+	
+	private static int todosCount = 0;
+
+  //3: 그럼 TodoService로 가서 간단히 뒤에 1을 모두 추가해 보자, 그럼 이게 정적 리스트에서 오는 걸 알 수 있을 것이다
+	static {
+		todos.add(new Todo(++todosCount,"in28minutes","Get AWS Certified 1", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps 1", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development 1", 
+				LocalDate.now().plusYears(3), false));
+	}
+	
+	public List<Todo> findByUsername(String username) {
+		Predicate<? super Todo> predicate = todo -> todo.getUsername().equalsIgnoreCase(username);
+		
+		return todos.stream().filter(predicate).toList();
+	} 
+	
+	public void addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount, username, description, targetDate, done);
+		todos.add(todo);
+	}
+	
+	public void deleteById(int id) {
+		//todo.getId() == id
+		//todo -> todo.getId() == id
+		
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+
+	public Todo findById(int id) {
+		
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		Todo todo = todos.stream().filter(predicate).findFirst().get();
+		
+		return todo;
+	}
+
+	public void updateTodo(@Valid Todo todo) {
+		deleteById(todo.getId());
+		todos.add(todo);
+		
+	}
+	
+}
+
+--------------------------------------------------------------------------------------------------------------------
+                                                                      |
+                                                                      V
+--------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                         _______________      _______________
+      Get AWS Certified 1                2025-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________
+      Learn DevOps 1	                   2026-05-05	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                         _______________      _______________   
+      Learn Full Stack Development 1	   2025-05-05     false           | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------------------------------
+이제 새로고침을 해보면 모두 1이 붙은 걸 볼 수 있지?
+이렇게 이것들은 모두 정적 리스트에서 오고 있다
+
