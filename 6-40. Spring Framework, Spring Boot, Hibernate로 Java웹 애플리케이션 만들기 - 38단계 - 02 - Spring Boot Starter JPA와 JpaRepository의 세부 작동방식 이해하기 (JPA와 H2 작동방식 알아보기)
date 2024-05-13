@@ -1,0 +1,271 @@
+
+
+Spring Boot Auto Configuration Magic - Data JPA
+                                                                                         ______________________                                                                                                                            
+● We added Data JPA and H2 dependencies:                                                |     Application      |                                                                                                                       
+ ■ Spring Boot Auto Configuration does some magic:                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+    ○ Initialize JPA and Spring Data JPA frameworks                                                 |
+    ○ Launch an in memory database (H2)                                                  ______________________                                                                                                                            
+    ○ Setup connection from App to in-memory database                                   |   Spring Data JPA    |                                                                                                                   
+    ○ Launch a few scripts at startup (example: data.sql)                                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   
+                                                                                                    |
+                                                                                         ______________________                                                                                                                             
+                                                                                        |         JPA          |                                                                                                                      
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+                                                                                                    |
+                                                                                         ______________________                                                                                                                            
+                                                                                        |       Database       |                                                                                                             
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     
+
+
+지난 몇 번의 단계에서 우린 Spring Starter Data JPA가 많은 마법을 부리는 걸 보았다
+우리는 Spring Boot 웹 애플리케이션에서 인메모리 DB H2와 대화하고 있고, Spring Data JPA를 통해 그 대화를 하고 있다
+그리고 Spring Data JPA는 배후에서 JPA를 사용하고, 우리는 DB와 대화한다
+● We added Data JPA and H2 dependencies:
+우리가 pom.xml에 spring-data-starter-data-jpa와 H2의존성을 추가하면 
+ ■ Spring Boot Auto Configuration does some magic:
+Spring Boot의 자동 설정이 많은 마법을 부린다
+    ○ Initialize JPA and Spring Data JPA frameworks
+즉 JPA와 Spring Data JPA 프레임워크를 초기화하고 
+우리 대신에 그 둘이 초기화된다, 
+    ○ Launch an in memory database (H2)
+그리고 또한 인메모리 데이터베이스 H2도 시작된다, 
+    ○ Setup connection from App to in-memory database 
+그리고 애플리케이션 대 데이터베이스 연결이 설정된다
+
+우리는 애플리케이션에서 DB와 대화해야 하고 그러려면 연결이 필요하다 
+그 연결 풀도 설정된다
+
+    ○ Launch a few scripts at startup (example: data.sql)
+그리고 또 우리는 data.sql같은 스크립트를 실행하려 한다면 그걸 설정할 수 있고 
+시작할 때 실행할 수 있는 것도 보았다
+
+이것들이 모두 Spring Boot 자동 설정이 부리는 마법이다
+
+그것 말고도 많은 마법이 일어나는데, 우리가 리포지토리 메서드를 호출할 때도 그렇게 된다 
+그래서 우리는 todoRepository 같은 리포지터리 메서드를 만들었다 
+
+-------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoRepository 인터페이스 파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.util.*;
+
+import org.springframework.data.jpa.repository.*;
+
+public interface TodoRepository extends JpaRepository<Todo, Integer> {
+	public List<Todo> findByUsername(String username);
+}
+
+-------------------------------------------------------------------------------------------------------
+그래서 findByUsername()을 썼고
+
+-------------------------------------------------------------------------------------------------------
+
+
+⏺ TodoControllerJpa 클래스파일
+
+
+package com.firstapplication.springboot.myfirstwebapp.todo;
+
+import java.time.*;
+import java.util.*;
+
+import org.springframework.security.core.*;
+import org.springframework.security.core.context.*;
+import org.springframework.stereotype.*;
+import org.springframework.ui.*;
+import org.springframework.validation.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.*;
+
+@Controller
+@SessionAttributes("name")
+public class TodoControllerJpa {
+
+	public TodoControllerJpa(TodoRepository todoRepository) {
+		super();
+//		this.todoService = todoService;
+		this.todoRepository = todoRepository;
+	}
+	
+//	private TodoService todoService;
+	
+
+	private TodoRepository todoRepository;
+	
+	@RequestMapping("list-todos")
+	public String listAllTodos(ModelMap model) {
+		String username = getLoggedInUsername(model);
+		
+		List<Todo> todos = todoRepository.findByUsername(username);
+		model.addAttribute("todos", todos);
+		
+		return "listTodos";
+	}
+
+	
+	//GET, POST
+	@RequestMapping(value="add-todo",method=RequestMethod.GET)
+	public String showNewTodoPage(ModelMap model) {
+		String username = getLoggedInUsername(model);
+		Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+		model.put("todo", todo);
+		return "todo";
+	}
+	
+	@RequestMapping(value="add-todo",method=RequestMethod.POST)
+	public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = getLoggedInUsername(model);
+		todo.setUsername(username);
+		todoRepository.save(todo);
+		
+//		todoService.addTodo(username, todo.getDescription(), 
+//				todo.getTargetDate(), todo.isDone());
+		
+		return "redirect:list-todos";
+	}
+	
+	@RequestMapping("delete-todo")
+	public String deleteTodo(@RequestParam int id) {
+		//Delete todo
+		todoRepository.deleteById(id);
+		
+//		todoService.deleteById(id);
+		
+		return "redirect:list-todos";
+
+	}
+	
+	
+	@RequestMapping(value="update-todo", method=RequestMethod.GET)
+	public String showUpdateTodoPage(@RequestParam int id, ModelMap model) {
+		Todo todo = todoRepository.findById(id).get();
+		model.addAttribute("todo",todo);
+		return "todo";
+
+	}
+	
+	@RequestMapping(value="update-todo",method=RequestMethod.POST)
+	public String updateTodo(ModelMap model, @Valid Todo todo, BindingResult result) {
+		
+		if(result.hasErrors()) {
+			return "todo";
+		}
+		
+		String username = getLoggedInUsername(model);
+		todo.setUsername(username);
+		
+		todoRepository.save(todo);
+//		todoService.updateTodo(todo);
+		
+		return "redirect:list-todos";
+	}
+	
+	private String getLoggedInUsername(ModelMap model) {
+		Authentication authentication = 
+				SecurityContextHolder.getContext().getAuthentication();
+		
+		return authentication.getName();
+	}
+	
+}
+
+-------------------------------------------------------------------------------------------------------
+그리고 TodoControllerJpa에서 우리는 todoRepository에서 많은 메서드를 호출했다
+이 클래스에서 우리는 여러 호출을 한다, 즉 우리는 todoRepository를 써서 findByUsername()을 쓰고,
+save(todo)를 쓰고 Todo를 삭제하기 위해 deleteById()를 쓴다
+updateTodo()에선 다시 save(todo)를 쓰고, 이렇게 우리는 todoRepository로 많은 작업을 수행하고 있다
+
+이들 메서드의 백그라운드에서 무슨 일이 일어나는지 이해하려면, 즉 너가 리포지토리를 호출하면 어떤 쿼리가 생성되는지 
+그걸 어떻게 알 수 있을까? 그걸 위해 너는 application.properties에서 프로퍼티를 활성화할 수 있다
+
+-------------------------------------------------------------------------------------------------------
+
+
+⏺ application.properties 파일
+
+
+spring.application.name=myfirstwebapp
+server.port=8087
+spring.mvc.view.prefix=/WEB-INF/jsp/
+spring.mvc.view.suffix=.jsp
+logging.level.org.springframework=info
+logging.level.com.firstapplication.springboot.myfirstwebapp=info
+
+spring.mvc.format.date=yyyy-MM-dd
+
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.jpa.defer-datasource-initialization=true
+
+#너는 spring.jpa.show-sql=true 라고 할 수 있다, 이걸 저장하면
+spring.jpa.show-sql=true
+
+-------------------------------------------------------------------------------------------------------
+애플리케이션이 다시 시작됙, 이걸 최대화하면 생성되고 있는 모든 쿼리를 볼 수 있다
+
+Hibernate: drop table if exists todo cascade 
+Hibernate: drop sequence if exists todo_seq
+Hibernate: create sequence todo_seq start with 1 increment by 50
+Hibernate: create table todo (done boolean not null, id integer not null, target_date date, description varchar(255), username varchar(255), primary key (id))
+Todo 테이블의 ID 필드에 대해 우린 그걸 자동 생성으로 설정했고, 그리고 자동 생성은 시퀀스를 이용해서 이루어진다
+시퀀스를 생성하기 위해 사용한 구문은 여기 나와 있다
+그리고 Todo 테이블을 생성하는 데 사용한 구문도 여기 나와 있다
+
+이것뿐만이 아니라 
+----------------------------------------------------------------------------------------------------------------------
+
+
+http://localhost:8087/list-todos 페이지화면 ==>
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+_______________________________________________________________________________________________________________
+
+
+      Your Todos
+
+      Description	                      Taget Date	   Is Done?
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                     _______________      _______________
+      Get AWS Certified                       2025-05-12	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                                     _______________      _______________
+      Get Azure Certified	              2026-05-12	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                                     _______________      _______________   
+      Get GCP Certified	                      2025-05-12           false            | DELETE(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+                                                                                     _______________      _______________
+      Get Fullstack Certified                 2025-05-12	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ---------------------------------------------------------------------------------------------------------
+      _________________
+     | Add Todo(녹바탕) |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------
+실제로 우리 애플리케이션으로 가서 웹사이트에 가서 Todos로 가보고 IDE콘솔을 보면 
+Hibernate: select t1_0.id,t1_0.description,t1_0.done,t1_0.target_date,t1_0.username from todo t1_0 where t1_0.username=?
+
+여기서 우린 뭘 하고있지?
+우리는 Todo들을 나열하고 있다 
+로그인된 사용자, 즉 in28minutes를 위해 우리는 Todo를 쿼리하고 그것들을 표시하려고 한다
+Hibernate: select t1_0.id,t1_0.description,t1_0.done,t1_0.target_date,t1_0.username from todo t1_0 where t1_0.username=?
+즉 이게 제출되는 쿼리이다, 우리는 어떤 메서드를 호출하고 있지? findByUsername()이다
+그리고 너는 그 쿼리를 로그에서 볼 수 있다 모든 Todo 세부정보를 선택하고 어디서?? todo.username이 특정한 사용자 이름과 같은 곳이다
+이걸 정리해보자
+
