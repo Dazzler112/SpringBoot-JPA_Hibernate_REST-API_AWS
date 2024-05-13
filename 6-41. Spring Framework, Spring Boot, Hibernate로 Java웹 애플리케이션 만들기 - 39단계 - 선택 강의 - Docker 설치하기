@@ -1,0 +1,108 @@
+
+
+교육자가 친구들에게 Docker를 설치하자고 하면 대부분이 실제로 도망치곤 했다고 한다
+왜일까?
+그 이유는 몇 년 전에는 Docker를 설치하는 게 정말 어려웠기 때문이라고 한다
+하지만 지난 몇 년 동안에 Docker 설치가 많이 개선되었고, 지금은 설치가 아주 간단해졌다고 말하고 싶다고 한다
+
+대부분 O/S에서 Docker를 아주 쉽게 설치할 수 있을 것이다
+
+먼저 좋아하는 검색엔진에서 docker install을 검색하면 이런 결과가 맨 앞에 나올 거고
+그걸 클릭해서 들어가면 Docker Desktop을 설치하기 위한 안내문이 나올 것이다
+Linux나 Mac, Windows에 모두 설치할 수 있다 
+Docker Desktop을 이용하는 방법이 가장 좋다
+
+This section describes how to install Docker Engine on Linux, 
+also known as Docker CE. Docker Engine is also available for Windows, macOS, and Linux, through Docker Desktop. 
+For instructions on how to install Docker Desktop, see:
+
+● Docker Desktop for Linux
+● Docker Desktop for Mac (macOS)
+● Docker Desktop for Windows
+
+여기 보면 Docker Desktop을 이용하면 Mac, Windows, Linux에서 손쉽게 컨테이너 빌드, 공유, 실행할 수 있다고 나와있다
+
+Windows에서 너는 이 설치 파일을 다운로드하고 아래로 스크롤 해서 
+
+Install Docker Desktop on Windows
+                              Install interactively Install | from the command line
+1. Download the installer using the download button at the top of the page, or from the release notes.
+
+2. Double-click Docker Desktop Installer.exe to run the installer. By default, Docker Desktop is installed at C:\Program Files\Docker\Docker.
+
+3. When prompted, ensure the Use WSL 2 instead of Hyper-V option on the Configuration page is selected or not depending on your choice of backend.
+
+4. If your system only supports one of the two options, you will not be able to select which backend to use.
+
+5. Follow the instructions on the installation wizard to authorize the installer and proceed with the install.
+
+When the installation is successful, select Close to complete the installation process.
+
+If your admin account is different to your user account, you must add the user to the docker-users group:
+
+1. Run Computer Management as an administrator.
+2. Navigate to Local Users and Groups > Groups > docker-users.
+3. Right-click to add the user to the group.
+4. Sign out and sign back in for the changes to take effect.
+
+여기 있는 안내를 따르기만 하면 된다
+이게 너가 Windows에서 Docker Desktop을 설치하도록 도움을 주는 안내문이다
+그럼 너는 그걸 다운로드 해야 하고, 인스톨러를 두 번 클릭해서 인스톨러를 실행해야 한다
+
+꼭 올바르게 권한을 부여해야하고 
+거의 모두 기본값을 적용하고 그걸 설치하면 된다 
+너가 관리자 계정으로 설치해야 한다는 점이 가장 중요하다
+그럼 관리자 ID를 이용해서 Windows에 설치하고 있는지 꼭 확인하기 바란다 
+Windows인 경우엔 Docker Desktop이 자동으로 시작되지 않는다는 점을 기억해야 하고
+너는 Docker Desktop을 설치하고 컴퓨터를 재시작한 다음 시작 메뉴에서 Docker Desktop을 선택하길 바란다
+
+windows에 Docker Desktop을 설치할 때 문제가 생기면 아래로 스크롤을 해보면 문제 해결 가이드도 있다,
+여기까지가 Windows고 
+
+🔵 Mac
+Mac을 쓴다면 두 가지를 다운로드 할 수 있다
+
+This page contains download URLs, information about system requirements, 
+and instructions on how to install Docker Desktop for Mac.
+
+Docker Desktop for Mac with Apple silicon
+Docker Desktop for Mac with Intel chip
+
+하나는 intel칩이 달린 Mac이고 다른 하나는 Apple 칩이 달린 Mac이다 
+너의 Mac이 2021년 또는 2022년 산이라면 아마 Apple칩일 것이고 
+그럼 Docker Desktop for Mac with Apple silicon 이걸 설치해야 한다
+
+그전에 나온 Mac인 경우 Intel 칩이 적용되어 있을 수 있고,
+그 경우에는 Docker Desktop for Mac with Intel chip 이걸 사용해야 할 것이다
+어떻게 확인할 수 있을까?
+상단좌측으로 가서 About this Mac 을 선택하면 확인 할 수 있다
+
+Mac에서 설치하기는 상당히 쉬울 것이다
+그냥 Docker.dmg 파일을 클릭하면 
+Docker 앱이 열릴 것이고
+그걸 애플리케이션에 끌어다 놓고 Docker.app을 두번 클릭하면 된다
+
+Docker 구독 서비스 동의 창이 나올 수 있는데, 사용 약관에 동의해야 한다
+
+
+🔵 Linux
+마지막으로 Linux 운영체제이다
+Linux를 위한 모든 안내는 여기 나와 있다
+Docker는 .deb와 .rpm 패키지를 제공하는 걸 볼 수 있고, 
+Ubuntu	✅
+Debian	✅
+Red Hat Enterprise Linux (RHEL)	✅
+Fedora ✅
+를 지원한다
+
+설치를 위한 세부적인 안내는 여기 나와 있고 (General system requirements 여기 아래부터..)
+
+그럼 이제 너의 운영체계에 맞는 안내서를 따라서 Docker를 설치하기 바란다
+너가 Docker를 실행하고 
+
+명령 프롬프트나 터미널 또는 PowerShell에 가서 docker --version 이라고 입력하면 
+
+C:\Users\LG>docker --version
+Docker version 26.0.0, build 2ae903e
+
+Docker 최신 버전 중에 하나가 표시될 것이다
