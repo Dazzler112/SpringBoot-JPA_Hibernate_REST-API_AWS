@@ -1,0 +1,49 @@
+
+
+지난 단계에서 우린 Docker를 설치했고 
+cmd에 docker verion이라고 입력하면 여기 클라이언트와 서버를 볼 수 있다
+
+C:\Users\LG>docker version
+error during connect: this error may indicate that the docker daemon is not running: Get "http://%2F%2F.%2Fpipe%2Fdocker_engine/v1.45/version": open //./pipe/docker_engine: The system cannot find the file specified.
+Client:
+ Cloud integration: v1.0.35+desktop.13
+ Version:           26.0.0
+ API version:       1.45
+ Go version:        go1.21.8
+ Git commit:        2ae903e
+ Built:             Wed Mar 20 15:18:56 2024
+ OS/Arch:           windows/amd64
+ Context:           default
+
+여기에 Docker 최신 버전이 나와 있으면 더할 나위 없이 좋다 
+그리고 우린 Docker를 이용해서 MySQL을 실행하려고 한다 
+
+github에 올려놓은 코드가 있다
+
+  _______________________________
+ | Docker를 사용해 MySQL 실행하기 |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+ ____________________________________________________________________________________________________________________________________________________________________________________________________
+| docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 mysql:8-oracle |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Docker를 이용해서 MySQL을 실행하기 위한 명령이 있을 것이다
+이 명령은 앞선 강의에도 제공되어 있다 그럼 너는 그걸 복사할 수도 있다
+그럼 여기서 그걸 복사해 보자
+그걸 cmd에서 실행할 수 있다
+
+----------------------------------------------------------------------------------------------------------------------------------------
+cmd >
+
+C:\Users\LG>docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 mysql:8-oracle
+
+----------------------------------------------------------------------------------------------------------------------------------------
+보는 것 처럼 명령이 아주 길고 아주 복잡해 보일 수도 있지만 사실 아주 간단한 명령이다
+그럼 이걸 실행해보자
+----------------------------------------------------------------------------------------------------------------------------------------
+cmd >
+
+C:\Program Files\Docker\Docker>docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 mysql:8-oracle
+docker: error during connect: this error may indicate that the docker daemon is not running: Head "http://%2F%2F.%2Fpipe%2Fdocker_engine/_ping": open //./pipe/docker_engine: The system cannot find the file specified.
+See 'docker run --help'.
+----------------------------------------------------------------------------------------------------------------------------------------
+그러면 MySQL을 위한 Docker 이미지가 로컬에 없다고 나오는 게 보일거고, 다운로드가 시작된다
