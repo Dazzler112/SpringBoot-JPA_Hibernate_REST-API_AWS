@@ -1,0 +1,131 @@
+
+
+Build REST API with Spring Boot - Goals
+                                                                                                   ________________________________________       
+● WHY Spring Boot?                                                                                 localhost:8087/user  
+  ■ You can build REST API WITHOUT Spring Boot                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ■ What is the need for Spring Boot?                                                                   [                             
+● HOW to build a great REST API?                                                                              {
+  ■ Identifying Resources (/users,/users/{id}/posts)                                                            "id" : 1,
+  ■ Identifying Actions (GET,POST,PUT,DELETE,...)                                                               "name": "Adam",
+  ■ Defining Request and Response structures                                                                    "birthDate": "2022-08-16"
+  ■ Using appropriate Response Status (200, 404, 500,..)                                                      },                            
+  ■ Understanding REST API Best Practices                                                                     {
+    ○ Thingking from the perspective of your consumer                                                           "id" : 2,
+    ○ Validation, Internationalization - i18n, Exception Handling, HATEOAS,                                     "name": "Eve",
+      Versioning, Documentation, Content Negotiation and a lot more!                                            "birthDate": "2022-08-16"
+                                                                                                              },                            
+                                                                                                              {
+                                                                                                                "id" : 3,
+                                                                                                                "name": "Jack",
+                                                                                                                "birthDate": "2022-08-16"
+                                                                                                              }                            
+                                                                                                          ]                        
+
+
+이번 섹션에선 Spring Boot로 REST API를 빌드해 보겠다
+이번 섹션의 목표부터 알아보겠다 
+● WHY Spring Boot?
+먼저 Spring Boot를 활용하는 이유를 알아보자, 
+  ■ You can build REST API WITHOUT Spring Boot 
+Spring Boot 없이도 REST API를 빌드할 수 있기 때문이다
+  ■ What is the need for Spring Boot?
+그렇다면 REST API를 빌드하는 데 왜 Spring Boot를 사용할까?
+
+왜 Spring Boot가 REST API를 빌드하는 최적의 프레임워크중 하나인 걸까?
+가장 먼저 이 부분부터 이해하고 넘어가자
+
+● HOW to build a great REST API?
+그 다음에 훌륭한 REST API를 빌드하는 법을 알아보자
+  ■ Identifying Resources (/users,/users/{id}/posts)
+REST API에 포함돼야 하는 리소스를 어떻게 알 수 있을까?
+  ■ Identifying Actions (GET,POST,PUT,DELETE,...)
+이 리소스에서 수행할 수 있는 작업은 어떻게 식별하며, 
+  ■ Defining Request and Response structures 
+요청과 응답구조는 어떻게 정의할까?
+
+REST API에선 대부분 JSON 요청과 JSON 응답을 말하는데 
+그러면 JSON 요청과 응답 구조를 어떻게 정의하며, 
+  ■ Using appropriate Response Status (200, 404, 500,..)    
+어떻게 REST API에서 알맞은 응답 상태를 반환할까?  
+  ■ Understanding REST API Best Practices
+그리고 REST API의 우수사례도 살펴보자
+    ○ Thingking from the perspective of your consumer
+REST API의 우수사례에서 가장 중요한 건 늘 소비자 관점에서 생각해야 한다는 것이다    
+나중에 심도 있게 이야기해보자, 
+    ○ Validation, Internationalization - i18n, Exception Handling, HATEOAS, Versioning, Documentation, Content Negotiation and a lot more!
+또한 검증, 국제화, 예외 처리, HATEOAS, 버전 관리, 문서화, 콘텐츠 협상 등 다양한 기타 우수사례도 살펴보겠다
+
+
+접근법은 다음과 같다 
+
+
+
+
+Build REST API with Spring Boot - Goals
+                                                                                                   ________________________________________       
+● 1: Build 3 Simple Hello World REST API                                                           localhost:8087/user  
+  ■ Understand the magic of Spring Boot                                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ■ Understand fundamentals of building REST API with Spring Boot                                        [                             
+    ○ @RestController, @RequestMapping, @PathVariables, JSON conversion                                       {
+● 2:Build a REST API for a Social Media Application                                                             "id" : 1,
+  ■ Design and Build a Great REST API                                                                           "name": "Adam",
+    ○ Choosing the right URI for resources (/users,/users/{id},/users/{id}/posts)                               "birthDate": "2022-08-16"
+    ○ Choosing the right request method for actions (GET,POST,PUT,DELETE,..)                                  },                            
+    ○ Designing Request and Response structures                                                               {
+    ○ Implementing Security, Validation and Exception Handling                                                  "id" : 2,
+  ■ Build Advanced REST API Features                                                                            "name": "Eve",
+    ○ Internationalization, HATEOAS, Versioning, Documentation, Content Negotiation, ...                        "birthDate": "2022-08-16"
+● 3: Connect your REST API to a Database                                                                      },                            
+  ■ Fundamentals of JPA and Hibernate                                                                         {
+  ■ Use H2 and MySQL as databases                                                                               "id" : 3,
+                                                                                                                "name": "Jack",
+                                                                                                                "birthDate": "2022-08-16"
+                                                                                                              }                            
+                                                                                                          ]           
+                                                                                                          
+
+● 1: Build 3 Simple Hello World REST API
+먼저 아주 단순한 3개의 'Hello World' REST API를 빌드하면서 시작할 것이다 
+  ■ Understand the magic of Spring Boot
+이 'Hello World' REST API를 통해서 Spring Boot가 부리는 마술과 
+  ■ Understand fundamentals of building REST API with Spring Boot
+Spring Boot를 통한 REST API 빌드의 기본을 알아보고
+    ○ @RestController, @RequestMapping, @PathVariables, JSON conversion 
+다른 여러 어노테이션을 살펴볼것이다 @RestController, @RequestMapping, @GetMapping, @PutMapping, @PathVariable과 
+JSON 변환에 관해 이야기할 것이다, REST API에서 응답을 반환할 때 보통은 JSON을 사용한다
+어떻게 Java Bean을 JSON으로 변환할까? Spring Boot 로 REST API를 빌드하는 기초를 이해하고 나면 
+● 2:Build a REST API for a Social Media Application
+SNS 애플리케이션용 REST API를 빌드해 볼 것이다
+  ■ Design and Build a Great REST API 
+훌륭한 REST API를 설계하고 빌드해 볼 것인데 
+    ○ Choosing the right URI for resources (/users,/users/{id},/users/{id}/posts)
+훌륭한 REST API라고 하면 /users,/users/{id},/users/{id}/posts 등 리소스에 알맞은 URI를 선택하고   
+    ○ Choosing the right request method for actions (GET,POST,PUT,DELETE,..)
+GET, POST, PUT, DELETE등 작업에 알맞은 요청 메서드를 선택한다는 얘기다
+    ○ Designing Request and Response structures
+요청 및 응답 구조를 올바르게 정의해야 하고 
+    ○ Implementing Security, Validation and Exception Handling
+REST API에 보안을 구현하는 법을 배우고, 검증과 예외 처리를 구현하는 법도 배워 보겠다
+
+REST API 기초를 이해하고 나면  
+
+  ■ Build Advanced REST API Features
+여러 고급 REST API 기능을 추가해 본다 
+    ○ Internationalization, HATEOAS, Versioning, Documentation, Content Negotiation, ...
+REST API에 국제화, HATEOAS, 버전 관리, 문서화, 콘텐츠 협상 등을 추가한다
+이 부분에서의 목표는 훌륭한 REST API를 설계하고 빌드하는 법을 이해하는 것이다
+● 3: Connect your REST API to a Database
+그러고 나서 REST API를 DB에 연결하는 법을 살펴본다, 
+  ■ Fundamentals of JPA and Hibernate 
+Java 세계에서 DB를 얘기할 때 가장 널리 쓰이는 방식은 JPA와 Hibernate이다
+  ■ Use H2 and MySQL as databases
+둘의 기초를 이해한 다음 REST API를 여러 DB에 연결해 보겠다
+
+인메모리 DB로는 H2를 사용할 것이다
+JPA와 Hibernate의 원리를 이해하고 나면 H2에서 MySQL로 바꿀 것이다
+
+JPA와 Hibernate를 사용하는 경우 DB를 전환하는 건 무척 쉽다 
+이번 영상에는 아직 이해되지 않는 어려운 용어가 많이 있을 수도 있다
+이번 섹션의 목표는 너가 Spring Boot로 훌륭한 REST API를 빌드하고 지금 화면에 보이는 중요한 용어들을 이해하도록 돕는 것이다
+다음 강의에서 새 Spring Boot 프로젝트를 시작해보자
