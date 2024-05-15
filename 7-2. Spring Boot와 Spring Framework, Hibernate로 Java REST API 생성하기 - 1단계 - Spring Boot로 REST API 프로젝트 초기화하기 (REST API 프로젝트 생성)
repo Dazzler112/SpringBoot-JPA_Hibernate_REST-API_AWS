@@ -1,0 +1,170 @@
+
+
+                                                                                                          Building REST API
+                                                                                                          with Spring Boot
+                                                                                                                                  
+                                                                                                                                  
+                                                                                                                                  
+                                                                                                                                  
+                                                                                                                                  
+
+
+Spring Boot로 REST API를 만들 준비가 되었니?
+시작해 보자
+
+Spring 프로젝트를 손쉽게 시작하고 싶다면 
+https://start.spring.io/ 여기에서 하면 된다 웹사이트이고
+1.빌드 툴은 Maven을 언어(Language)는 Java를 사용하겠다
+
+2.다음으로 Spring Boot 버전을 선택한다 보통은 가장 최근에 릴리스 된 버전을 선택한다 sts3를 사용하기 때문에
+  이번에는 3.2.5 버전으로 하겠다 혹은 3.2.0 이나 3.5.0등등 릴리스 된 버전으로 사용하면 되겠다
+  누누히 말하지만 스냅샷은 선택하지 말길 바란다 현재 스냅샷 버전이 세 개가 있다 아직 개발 중인 버전들이다
+  Spring과 Spring Boot 팀에서 현재 개발 중인 버전이다, 이 버전들을 사용하는 건 권하지 않는다,
+  알맞은 Spring Boot 버전을 선택하고 나면 
+
+3. Project Metadate가 있는데 그룹ID와 아티팩트 ID를 구성하는 부분이다,
+   클래스에 패키지 명과 클래스 명이 있는 것과 비슷하다
+   Spring Boot로 만드는 모든 프로젝트에는 그룹 ID와 아티팩트 ID를 부여해야 한다,
+   그룹ID로는 com.in28minutes.rest.webservices를 사용할 거고
+   아티팩트 ID로는 restful-web-services 를 사용할 것이다
+   나머지 값은 기본값 그대로 두겠다, 
+
+   Java 버전에서 꼭 기억해야 하는 건 Spring Boot 3는 Java 17 이상에서만 작동한다는 것이다
+   Spring Boot3를 사용한다면 최소 Java 17버전을 선택해라
+
+4. 다음으로 의존성을 사용한다
+   우측의 Add Dependencies를 클릭한다 
+   우리가 빌드하려는 건 REST API니까 Spring Web을 선택하겠다, Spring MVC를 활용해 RESTful과 애플리케이션을 포함한 웹을 빌드할 수 있고
+   기본 임베드된 컨테이너로 Apache Tomcat을 사용한다 Spring Web을 추가한다
+
+   다음으로 JPA를 추가할 것이다, 데이터 유지를 위해 우리는 JPA와 Hibernate를 사용할 거다
+   그러므로 Spring Data JPA를 선택한다 
+   'Spring Data 와 Hibernate를 사용하여 Java Persistence API로 SQL 저장소에서 데이터를 유지한다' 하고 돼 있다
+   선택한다 
+
+   H2도 추가하자, H2는 '적은 풋프린트로 빠른 인메모리 데이터베이스를 제공한다'
+   시작은 DB로 H2를 사용할 거고, 나중에 MySQL로 바꿀 것이다 선택한다
+
+   마지막으로 추가할 건 DevTools이다
+   코드 변경을 할 때마다 서버를 재시작하고 싶지 않기 때문이다 
+   그래서 Spring Boot DevTools를 추가하는 것이다, DevTools는 
+   '빠른 애플리케이션 재시작과 LiveReload를 제공하며, 향상된 개발 경험을 제공한다' 역시 선택한다
+
+5. REST API 프로젝트를 생성할 준비를 마쳤다 
+   하단의 Generate를 클릭하면 너의 로컬 컴퓨터에 압축 파일이 다운로드 될 것이다 
+   이 파일은 로컬 디스크처럼 너의 컴퓨터 폴더에 직접 압축 해제하는 걸 권한다
+
+6. 이제 Eclips IDE로 가져온다 
+   File > Import > Maven의 Existing Maven Project 선택후 Next클릭 (maven을 입력하면 검색 결과에 보일 것임..) > Browse클릭후 압축 해제한 폴더 찾기 > Finish 클릭
+   처음 가져올때 아래에서 프로젝트를 가져오는 시간이 꽤 걸린다, 대개 5~10분이 소요됨 Maven이 모든 의존성을 다운로드할 때까지 기다리는 게 좋다
+
+
+프로젝트 익스플로러를 보면 restful-web-services 프로젝트의 모든 폴더가 보인다 
+src/main/java, src/main/resources, src/test/java 와 수많은 Maven 의존성이 보일 것이다, pom.xml 파일도 있고 
+지금 보이는게 전형적인 Maven 프로젝트 구조이다 
+src/main/java에는 소스 코드가 있고 src/main/resources에는 애플리케이션 속성과 같은 모든 구성이 있다
+src/test/java는 유닛 테스트를 쓰는, pom.xml은 의존성을 정의하는 부분이다
+
+pom.xml 파일을열면 의존성 몇 가지가 보일 것이다
+
+---------------------------------------------------------------------------------------------
+
+⏺ pom.xml 파일
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+---------------------------------------------------------------------------------------------
+
+지금 보이는 건 Spring Boot Starter Data JPA와 Spring Boot Starter Web, Spring Boot DevTools, H2가 보일 것이다
+Spring Initializr에서 선택했던 의존성에 해당하는 것들이다 
+Spring Web이 Spring Boot Starter Web이고 Spring Data JPA는 Spring Boot Starter JPA에 해당하고
+H2는 H2Database, DevTools도 Spring Boot DevTools에 해당한다
+
+Spring Boot Starter Test 라는 의존성도 추가로 보일 텐데
+이건 모든 Spring Boot 프로젝트에 기본적으로 들어가는 것이다,
+Spring Boot로 유닛 테스트를 쓸 수 있게 해주는 것이다
+
+
+이제 프로젝트는 준비가 다 되었고, 어떻게 시작하는지 살펴보겠다 
+src/main/java로 가서 
+com.in28minutes.rest.webservices.restfulwebservices 패키지를 펼치면 RestfulWebServicesApplication.java라는 파일이 보일 것이다
+
+---------------------------------------------------------------------------------------------
+
+
+⏺ RestfulWebServicesApplication 자바파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class RestfulWebServicesApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(RestfulWebServicesApplication.class, args);
+	}
+
+}
+
+---------------------------------------------------------------------------------------------
+파일을 열면, 이건 Java 파일이고 Spring Boot 애플리케이션을 시작하는 데 사용할 수 있다 
+우클릭해서 Run As 에서 Java Application을 선택하면 된다 
+그러면 애플리케이션이 나타날 것이다 
+
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+[32m :: Spring Boot :: [39m              [2m (v3.2.5)[0;39m
+
+[2m2024-05-15T20:15:08.849+09:00[0;39m [32m INFO[0;39m [35m2200[0;39m [2m---[0;39m [2m[  restartedMain][0;39m [2m[0;39m[36mc.i.r.w.r.RestfulWebServicesApplication [0;39m [2m:[0;39m Starting RestfulWebServicesApplication using Java 17.0.5 with PID 2200 (C:\Users\LG\Downloads\restful-web-services\restful-web-services\target\classes started by LG in C:\Users\LG\Downloads\restful-web-services\restful-web-services)
+[2m2024-05-15T20:15:08.853+09:00[0;39m [32m INFO[0;39m [35m2200[0;39m [2m---[0;39m [2m[  restartedMain][0;39m [2m[0;39m[36mc.i.r.w.r.RestfulWebServicesApplication [0;39m [2m:[0;39m No active profile set, falling back to 1 default profile: "default"
+...
+....
+.....
+짧은시간 안에 애플리케이션 전체가 실행됐다
+
+
+
+
+
+
+
+이번 시간에는 Spring initializr로 Spring Boot 프로젝트를 생성했는데 
+프로젝트를 IDE로 가져와서 성공적으로 실행했다 
+가져오기에 문제가 있다면 Java 개발자용 Eclipse IDE 최신버전이 맞는지 확인해 보길 바란다
