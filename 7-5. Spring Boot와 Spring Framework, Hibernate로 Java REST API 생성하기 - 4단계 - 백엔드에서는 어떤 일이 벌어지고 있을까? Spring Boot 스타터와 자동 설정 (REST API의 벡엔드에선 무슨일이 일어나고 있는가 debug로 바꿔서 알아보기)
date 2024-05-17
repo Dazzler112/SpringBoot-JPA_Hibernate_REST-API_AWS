@@ -1,0 +1,299 @@
+
+
+What's Happening in the Background?
+                                                                                                                                                    
+● Let's explore some Spring Boot Magic: Enable Debug Logging                                                                                                                                                    
+                                                                                                                                                    
+
+지난 강의에서 첫 Hello World REST API를 만들어 봤었다
+이번 시간에는 뒷단에서 어떤 일이 벌어지는지 알아보자,
+● Let's explore some Spring Boot Magic: Enable Debug Logging  
+Spring Boot가 부리는 마술을 이해하기 위해 디버그 로깅을 활성화할 것이다
+
+application.properties로 가서 
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+
+# logging.level.org.springframework를 설정하겠다 디폴트 레벨은 info지만 우린 이걸 debug 레벨로 바꾸고 저장한다
+logging.level.org.springframework=debug
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+로그에 출력된 많은 정보가 보인다
+이제 이 로그를 활용해서 뒷단에서 벌어지는 일을 알아보겠다
+
+
+What's Happening in the Background?
+                                                                                                                                                    
+● Let's explore some Spring Boot Magic: Enable Debug Logging  
+  ■ WARNING: Log change frequently!                                                                                                                                                
+● 1: How are our requests handled?                                                                                                                                                
+  ■ DispatcherServlet - Front Controller Pattern                                                                                                                                                
+    ○ Mapping servlets: dispatcherServlet urls=[/]                                                                                                                                                
+    ○ Auto Configuration (DispathcerServletAutoConfiguration)                                                                                                                                                
+● 2: How does HelloWorldBean object get converted to JSON?                                                                                                                                                
+  ■ @ResponseBody + JacksonHttpMessageConverters                                                                                                                                                
+    ○ Auto Configuration (JacksonHttpMessageConvertersConfiguration)                                                                                                                                                
+● 3: Who is configuring error mapping?                                                                                                                                                
+  ■ Auto Configuration (ErrorMvcAutoConfiguration)                                                                                                                                                
+● 4: How are all jars avaliable(Spring, Spring MVC, Jackson, Tomcat)?                                                                                                                                               
+  ■ Starter Projects - Spring Boot Starter Web (spring-webmvc, spring-web, spring-boot-starter-tomcat, spring-boot-starter-json)                                                                                                                                                
+                                                                                                                                                
+                                                                                                                                        
+  ■ WARNING: Log change frequently!  
+하나 기억해야 할 건, 로그는 주기적으로 계속 바뀐다는 것이다, 
+Spring 의 부 버전에서도 로그는 바뀐다 그러니 정확한 로그를 볼 수 없다고 해서 걱정하지 말아라
+● 1: How are our requests handled?  
+첫 번째 질문부터 시작하자 요청은 어떻게 처리될까?
+  ■ DispatcherServlet - Front Controller Pattern    
+Spring MVC는 결국 프론트 컨트롤러 패턴에 관한 이야기인데, 요청은 가장 먼저 디스패처 서블릿이라는 곳으로 간다
+
+앞서 우리는 localhost:8080 요청을 실행했다 또한 Hello World 요청도 실행했다
+사용하는 URL과 상관없이 Spring MVC에서 모든 요청은 디스패처 서블릿이 처리한다
+이걸 프론트 컨트롤러 패턴이라고 한다, 
+
+    ○ Mapping servlets: dispatcherServlet urls=[/] 
+디스패처 서블릿 요청이 가장 먼저 도달하는 곳이다
+사용하는 URL과 관계없이 말이다 왜냐고? 디스패처 서블릿이 루트 URL에 매핑되기 때문이다
+로그나 매핑 서블릿 혹은 디스패처 서블릿을 찾아보면 
+로그를 보면 매핑 서블릿이라는 게 보일 것이다 Mapping servlets: dispatcherServlet urls=[/] 
+디스패처 서블릿이 URL 경로에 매핑되어 있다 (로그가 안 보인다면 우클릭해서 Preferences로 들어가 콘솔 출력에 제한이 없는지 확인해 봐라(Limit console output)
+콘솔 출력 제한을 해제하고 애플리케이션을 다시 시작하면 이런 화면이 보일 것이다 디스 패처 서블릿을 찾아보면 해당 경로의 URL이 매핑되어 있는 게 보일 것이다
+
+모든 요청은 가장 먼저 디스패처 서블릿으로 향하고 디스패처 서블릿이 요청을 받으면 알맞은 컨트롤러와 매핑한다
+지금 우리한테는 컨트롤러가 하나 있다
+
+	@GetMapping(path = "/hello-world")
+	public String helloWorld() {
+		return "Hello World";
+	}
+
+디스패처 서블릿이 URL을 확인하고 알맞은 컨트롤러 메서드에 매핑한다
+/hello-world로 요청을 보내면 디스패처 서블릿은 helloWorld메서드가 알맞다는 걸 파악한다
+
+	@GetMapping(path = "/hello-world-bean")
+	public HelloWorldBean helloWorldBean() {
+		return new HelloWorldBean("Hello World");
+	}
+/hello-world-bean URL로 보내면 디스패처 서블릿은 
+helloWorldBean 메서드가 처리할 수 있다는 걸 알고 helloWorldBean에서 응답을 받아 반환해준다
+ 
+    ○ Auto Configuration (DispathcerServletAutoConfiguration) 
+그러면 어디에서 디스패처 서블릿을 설정하는지 궁금할 것이다
+디스패처 서블릿은 자동 설정이라는 것에 의해 설정된다
+자동 설정은 Spring Boot의 중요한 기능 중 하나이다, 클래스 경로에 있는 클래스를 기반으로 
+Spring Boot는 자동으로 우리가 웹 애플리케이션 혹은 REST API를 빌드한다는 사실을 탐지하고 
+알아서 디스패처 서블릿을 설정한다 
+
+로그에서 디스패처 서블릿 자동 설정을 찾아보면 생성된 Bean을 확인할 수 있을 것이다
+   DispatcherServletAutoConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.web.servlet.DispatcherServlet' (OnClassCondition)
+      - found 'session' scope (OnWebApplicationCondition)
+이것이 일치하면 디스패처 서블릿을 설정하는 것이다
+
+● 2: How does HelloWorldBean object get converted to JSON? 
+두 번째 질문은 어떻게 HelloWorldBean 객체가 JSON으로 변환되냐는 것이다
+앞서 우리는 localhost:8080/hello-world-bean과 Hello World라는 메시지를 표시 했었다
+{
+"message": "Hello World"
+}
+
+요청이 디스패처 서블릿으로 갔다
+디스패처 서블릿은 어떤 URL이 활성화되어 있는지 확인하고 매핑한다
+
+	@GetMapping(path = "/hello-world-bean")
+	public HelloWorldBean helloWorldBean() {
+		return new HelloWorldBean("Hello World");
+	}
+/hello-world-bean이 이 메서드에 매핑되어 있다는 걸 탐지하고 이 메서드를 실행한다
+그리고 반환되는 건 Java Bean이다 
+어떻게 JSON으로 변환된 걸까?
+
+여기에는 아주 중요한 부분이 두 가지 있는데
+  ■ @ResponseBody + JacksonHttpMessageConverters
+하나는 @ResponseBody이고 다른 하나는 JacksonHttpMessageConverters 설정이다
+
+@ResponseBody부터 시작해 보자
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ HelloWorldController 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.helloworld;
+
+import org.springframework.web.bind.annotation.*;
+
+//REST API
+
+//1: 여기에서 @RestController로 어노테이션 설정을 했는데 클릭해 들어가 보면, 
+/*
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Controller
+@ResponseBody
+public @interface RestController {
+
+@ResponseBody라는 어노테이션을 확인할 수 있다
+*/
+@RestController
+public class HelloWorldController {
+
+
+	@GetMapping(path = "/hello-world")
+	public String helloWorld() {
+		return "Hello World";
+	}
+	
+//1-1: 이 Bean을 있는 그대로 반환하라고 말하는 것이다, Bean이 있는 그대로 반환되면 메시지 변환이 일어난다 
+	@GetMapping(path = "/hello-world-bean")
+	public HelloWorldBean helloWorldBean() {
+		return new HelloWorldBean("Hello World");
+	}
+}
+
+-------------------------------------------------------------------------------------------------------------------------------
+    ○ Auto Configuration (JacksonHttpMessageConvertersConfiguration)
+Spring Boot 자동 설정이 설정한 기본 변환은 JacksonHttpMessageConverters를 사용한다 이 역시 자동 설정의 결과고
+JacksonHttpMessageConvertersConfiguration을 찾아보면, 콘솔로그 창에서 자동 설정 결과를 찾아보면
+
+JacksonHttpMessageConvertersConfiguration.MappingJackson2HttpMessageConverterConfiguration matched:
+      - @ConditionalOnClass found required class 'com.fasterxml.jackson.databind.ObjectMapper' (OnClassCondition)
+      - @ConditionalOnProperty (spring.mvc.converters.preferred-json-mapper=jackson) matched (OnPropertyCondition)
+      - @ConditionalOnBean (types: com.fasterxml.jackson.databind.ObjectMapper; SearchStrategy: all) found bean 'jacksonObjectMapper' (OnBeanCondition)
+
+JacksonHttpMessageConvertersConfiguration이 나온다 REST API를 위해 Spring Boot가 자동으로 설정한 것이다
+HelloWorldBean 객체가 JSON으로 변환된 건 @ResponseBody 어노테이션과 JacksonHttpMessageConverters가 Spring Boot에 의해 자동 설정되었기 때문이다
+
+● 3: Who is configuring error mapping?
+세 번째 질문, 오류 매핑은 어디에서 설정할까? 무슨말일까?
+브라우저에 URL을 잘못 넣어 보자, /hello-world-bean 대신 뒤에 -1을 붙여서 올바르지 않은 주소를 넣어 보겠다
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/hello-world-bean-1 사이트화면 ==>
+
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Fri May 17 19:01:15 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+No static resource hello-world-bean-1.
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource hello-world-bean-1.
+	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)
+..
+...
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+그러면 화이트라벨 오류 페이지가 뜬다 이 애플리케이션에는 /error에 대한 명확한 매핑이 없다고 하면서 상태가 404라고 나온다
+이 오류 페이지를 어디에서 설정하냐는 것이다 
+  ■ Auto Configuration (ErrorMvcAutoConfiguration)  
+오류페이지 역시 자동 설정의 결과이다
+ErrorMvcAutoConfiguration라는 걸 찾을 수 있을 것이다 로그를 찾아보면 나올 것이다
+ctrl + shift + t 로 ErrorMvcAutoConfiguration 클래스를 열어서 스크롤을 내리면 텍스트가 나온다
+			builder.append("<html><body><h1>Whitelabel Error Page</h1>")
+				.append("<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
+				.append("<div id='created'>")
+				.append(timestamp)
+				.append("</div>")
+				.append("<div>There was an unexpected error (type=")
+				.append(htmlEscape(model.get("error")))
+				.append(", status=")
+				.append(htmlEscape(model.get("status")))
+				.append(").</div>");
+여기에서 화이트라벨 오류 페이지가 나오는 것이다
+화이트라벨 오류 페이지라는 텍스트가 나오는 거고 매핑된 게 없다고 나온다, 
+즉 이 ErrorMvcAutoConfiguration 클래스가 알 수 없는 URL이 브라우저에 입력될 때 자동으로 오류 페이지를 구성하는 데 사용된다
+
+● 4: How are all jars avaliable(Spring, Spring MVC, Jackson, Tomcat)?       
+마지막 질문은, 어떻게 이 모든 jar를 사용할 수 있냐는 것이다
+Spring, Spring MVC, Jackson, Tomcat 
+애플리케이션이 Tomcat 에서도 직접 실행되는 걸 봤다 Tomcat 설정은 하나도 하지 않았는데 말이다
+그런데도 어떻게 전부 사용할 수 있는 걸까?
+  
+  ■ Starter Projects - Spring Boot Starter Web (spring-webmvc, spring-web, spring-boot-starter-tomcat, spring-boot-starter-json) 
+바로 스타터 프로젝트 덕분이다 
+이 프로젝트를 만들면서 우리는 Spring Web을 의존성에 포함했다 
+그리고 Spring Web은 Spring Boot Starter Web이라는 것이다
+
+pom.xml로 가면 
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ pom.xml파일
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+spring-boot-starter-web을 볼 수 있다
+여기에서 다시 pom.xml을 보면 정듸된 수많은 의존성을 확인할 수 있다 
+spring-boot-starter부터 spring-boot-starter-json 이게 Jackson으로 JSON변환을 하게 만드는 거고 
+spring-boot-starter-tomcat이게 Tomcat을 가능케 하는 것, 
+spring-boot-starter-web 이게 Spring MVC를 가능하게 만드는 것이다
+보이는 것처럼 우리가 사용하는 모든 의존성이 Spring Boot Starter Web이라는 하나의 스타터 덕분에 가능한 것이다
+
+
+
+❗ 따라서 꼭 이해해야 하는 건 스타터 프로젝트가 모든 의존성을 가져온다는 것이다 ❗
+Spring, Spring MVC, Jackson Framework, Tomcat 모두 스타터 프로젝트 덕분에 우리 프로젝트에 포함될 수 있는 것이다,
+그리고 Spring Boot 자동 설정이 나머지 마법을 부리는 것이고, Spring Boot 자동 설정은 모든 클래스 경로를 확인하고,
+클래스 경로에 있는 모든 작업과 클래스를 확인한다 그리고 클래스 경로에 무엇이 있는지 확인한 걸 기반으로 많은 걸 자동으로 설정한다
+기본적으로 설정에 Spring Boot Starter Web이 있으면 Tomcat 웹 서버는 자동으로 설정된다
+디스패처 서블릿도 자동 설정되고 Bean에서 JSON으로의 변환도 Jackson을 활용해 자동 설정되고, 오류 페이지도 자동 설정 된다
+
+
+
+
+정리하면, 지금 애플리케이션에서 벌어지는 모든 마술은 Spring Boot와 Spring Boot의 가장 중요한 기능 두 가지 덕분이다, 
+스타터 프로젝트와 자동 설정이다
+모든 로그를 계속 해서 보지는 않을 거고 다시 info레벨로 바꾼다음 저장하고 나가겠다
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+
+# info로 바꾸고 저장
+logging.level.org.springframework=info
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+그럼 다음 학습에서 보겠다
