@@ -1,0 +1,242 @@
+
+
+Social Media Application REST API
+                                                                                                                                                
+● Build a REST API for a Social Media Application                                                  [
+● Key Resources:                                                                                      -  {
+  ■ Users                                                                                                   id: 1,
+  ■ Posts                                                                                                   name: "Adam",
+● Key Details:                                                                                              birthDate: "2024-05-18T17:16:30.057+0000"
+  ■ User: id, name, birthDate                                                                            },                                                                                                                                                                           
+  ■ Post: id, description                                                                             -  {
+                                                                                                            id: 2,
+                                                                                                            name: "Eve",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         },                                    
+                                                                                                      -  {
+                                                                                                            id: 3,
+                                                                                                            name: "Jack",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         }                                       
+                                                                                                    ]                                            
+                                                                                                                                                
+                                                                                                                                                
+                                                                                                                                                
+                                                                                                                                                
+                                                                                                                                                                                                                                                                                                
+기본 프로젝트도 만들었고 REST API를 빌드하는 기초 지식도 쌓았으니
+● Build a REST API for a Social Media Application
+이번에는 SNS 애플리케이션용 REST API를 빌드해보겠다,
+● Key Resources:
+SNS 애플리케이션에는 두 가지 주요 리소그가 있다
+  ■ Users 
+  ■ Posts 
+하나는 사용자, 다른 하나는 사용자가 생성하는 게시물이다
+SNS 애플리케이션은 결국 사용자와 게시물에 관한 것이다
+● Key Details:
+사용자와 게시물에 관한 상세 정보도 저장해야겠지
+  ■ User: id, name, birthDate
+사용자와 관련해서는 ID와 이름, 생일이 있을 테고,
+  ■ Post: id, description 
+게시물과 관련해선 ID와 상세설명을 저장해야 할 것이다
+
+그래서 사용자와 게시물을 중심으로 하는 REST API를 만들 것이다, REST API의 일부로 리소스에 대한 작업을 수행해야 할 텐데
+사용자를 지우고, 업데이트하고, 생성할 수 있어야 하고, 사용자가 올린 게시물을 삭제하고, 특정 사용자의 게시물을 업데이트 하거나 삭제할 수도 있어야한다
+
+REST API를 사용해 어떻게 리소스에 대한 작업을 수행할 수 있을까?
+
+
+
+
+
+요청 메서드를 사용하면 된다
+앞서서 우리는 브라우저에 URL을 입력하고 이때 사용한 요청 메서드가 GET 요청 메서드였다
+---------------------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/hello-world/path-variable/Ravi 사이트 화면 ==>
+
+
+{
+"message": "Hello World, Ravi"
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------
+지난 시간에 이 REST API를 빌드했었다
+/hello-world/path-variable/Ravi를 말이다
+여기에서 우클릭하여 Inspect로 들어가 Network탭으로 들어가 새로고침을 하면 
+
+---------------------------------------------------------------------------
+x Headers      Preview     Response
+  ‾‾‾‾‾‾‾
+---------------------------------------------------------------------------
+▼ General
+---------------------------------------------------------------------------
+Request URL:          http://localhost:8080/hello-world/path-variable/Ravi
+Request Method:       GET
+Status Code:          🟢200 OK
+Remote Address:       [::1]:8080
+Referrer Policy:      strict-origin-when-cross-origin
+
+전송된 GET요청이 있는 걸 볼 수 있다 Ravi가 있다
+보이는 것 처럼 사용된 요청 메서드는 GET이다
+
+사용한 건 HelloWorldController에서 보면,
+
+	@GetMapping(path = "hello-world/path-variable/{name}")
+	public HelloWorldBean helloWorldPathVariable(@PathVariable String name) {
+		return new HelloWorldBean(String.format("Hello World, %s", name));
+	}
+
+GetMapping을 사용했다
+브라우저에서 직접 요청을 하면, 브라우저에 URL을 입력하면 결국 GET 요청을 보내는 것이다
+
+
+Request Methods for REST API
+
+● GET - Retrieve details of a resource                                                             [
+● POST - Create a new resource                                                                        -  {
+● PUT - Update an existing resource                                                                         id: 1,
+● PATCH - Update part of a resource                                                                         name: "Adam",
+● DELETE - Delete a resource                                                                                birthDate: "2024-05-18T17:16:30.057+0000"
+  ■ User: id, name, birthDate                                                                            },                                                                                                                                                                           
+  ■ Post: id, description                                                                             -  {
+                                                                                                            id: 2,
+                                                                                                            name: "Eve",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         },                                    
+                                                                                                      -  {
+                                                                                                            id: 3,
+                                                                                                            name: "Jack",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         }                                       
+                                                                                                    ]  
+● GET - Retrieve details of a resource
+GET 요청 메서드는 보통 특정 리소스에서 상세 정보를 검색할 때 사용한다
+사용자가 게시물의 상세 정보를 얻고 싶을 때 GET 요청 메서드를 사용하는 것이다
+● POST - Create a new resource
+새 리소스를 만들고자 할 때는 POST 메서드를 사용한다, 
+새 사용자, 새 Todo, 새 게시물을 만들고자 할 때 POST 메서드를 사용한다 
+● PUT - Update an existing resource 
+기존 리소스를 업데이트할 때, 기존 사용자의 상세 정보를 업데이트하려 할 때는 PUT 요청 메서드를 사용한다
+● PATCH - Update part of a resource
+기존 리소스의 일부만 업데이트할 때는 PATCH를 사용하고
+가령 특정 사용자의 생일만 업데이트하고 싶을 때, PATCH 요청 메소드를 쓰면 된다
+● DELETE - Delete a resource 
+특정 사용자, 게시물 Todo를 삭제하고 싶을 때는 DELETE 요청 메서드를 사용한다 
+
+REST API를 연결하는 건 결국 리소스와 리소스에 행할 수 있는 작업에 관해 이야기하는 셈이다,
+🔵 요청 메소드 정리!
+그리고 리소스에 대한 작업을 수행할 때는 여러 가지 요청 메서드를 사용하고 
+상세 정보를 검색할 때는 GET, 새 리소스를 생성할 때는 POST
+기존 리소스를 업데이트할 때는 PUT, 기존 리소스의 일부만 업데이트 할 때는 PATCH
+리소스를 삭제할 때는 DELETE를 사용한다
+
+
+
+활용할 수 있는 여러 요청 메서드를 알아봤으니 SNS 애플리케이션용 REST API를 설계해 보자
+
+
+
+Social Media Application - Resources & Methods
+
+● Users REST API                                                                                   [
+  ■ Retrieve all Users                                                                                -  {
+    ○ GET/users                                                                                             id: 1,
+  ■ Create a User                                                                                           name: "Adam",
+    ○ POST/users                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+  ■ Retrieve one User                                                                                    },                                                                                                                                                                           
+    ○ GET/users/{id}-> /users/1                                                                       -  {
+  ■ Delete a User                                                                                           id: 2,
+    ○ DELETE/users/{id}-> /users/1                                                                          name: "Eve",
+  ■ Posts REST API                                                                                          birthDate: "2024-05-18T17:16:30.057+0000"
+    ○ Retrieve all posts for a User                                                                      },                                    
+      ◦ GET /users/{id}/posts                                                                         -  {
+    ○ Create a post for a User                                                                              id: 3,
+      ◦ POST /users/{id}/posts                                                                              name: "Jack",
+    ○ Retrieve details of a post                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+      ◦ GET /users/{id}/posts/{post_id}                                                                  }                                       
+                                                                                                    ]  
+
+
+● Users REST API 
+먼저 설계할 부분은 사용자이다
+  ■ Retrieve all Users
+모든 사용자를 검색할 건데 어떻게 하냐면
+    ○ GET/users
+/users로 GET 요청을 보내면 된다 
+● Create a User
+새 사용자를 생성하고 싶으면 어떤 요청 메서드를 사용해야 할까?
+    ○ POST/users
+POST다, /users로 요청을 보내면 된다
+새 사용자를 생성하고 싶으면 사용자의 상세 정보와 함께 /users URL로 POST 요청을 보낸다
+  ■ Retrieve one User
+특정 사용자를 검색하고 싶으면  GET/users 이건 모든 사용자의 모든 정보를 검색하는 거고 
+이번에는 사용자 한 명의 정보만 검색하고 싶다
+    ○ GET/users/{id}-> /users/1 
+이때 Path(패스 변수) 혹은 Path Parameters(패스 매개변수)를 사용한다 /users 다음에 사용자 ID를 붙이는 거다
+1이라는 ID를 가진 사용자의 정보를 얻고 싶으면 /user/1을 사용하는 것이다
+
+특정 사용자를 지울 땐 어떻게 할까?
+  ■ Delete a User
+일단 사용자를 특정해야겠지 마찬가지로 ID가 필요하다
+    ○ DELETE/users/{id}-> /users/1
+그래서 역시 /users/{id}가 되겠다, 메서드는 무엇을 사용할까? DELETE다
+DELETE/users/{id}이다, 사용자는 물론 이들이 올린 게시물도 확인하고 싶다
+
+  ■ Posts REST API 
+그래서 게시물 REST API도 생성하고자 한다
+    ○ Retrieve all posts for a User
+여기에서 기억해야 할 건 게시물은 사용자와 연결돼 있다는 것이다
+게시물을 만드는 건 사용자기 때문이다 
+그래서 특정 사용자가 올린 모든 게시물을 검색하는데
+      ◦ GET /users/{id}/posts
+/users/{사용자_id}/posts URL을 활용하면 된다 그러면 특정 사용자의 모든 게시물을 검색할 수 있다
+    ○ Create a post for a User
+      ◦ POST /users/{id}/posts
+특정 사용자를 위해 게시물을 생성하고 싶다고 할 때도 같은 URL을 활용하지만 요청 메서드는 POST를 사용해야 겠지
+    ○ Retrieve details of a post
+특정 게시물의 상세정보를 검색하고 싶다면 게시물의 ID와 연결된 사용자 ID를 사용해야 한다
+      ◦ GET /users/{id}/posts/{post_id}
+그래서 /users/{id}/posts/{게시물_id}로 GET 요청을 보낸다
+
+
+
+
+
+이번 시간에는 REST API생성에 사용되는 여러 리로스와 요청 메서드를 알아봤다
+이미 봤겠지만, 여기에서 잘한 점은 리소스 URL에 복수형을 사용했다는 것이다
+
+PLURALS (복수형)
+~~~~~~~
+/users
+/users/1
+/users/1/posts
+/users/1/posts/2
+
+WITHOUT PLURALS (단수형)
+~~~~~~~~~~~~~~~
+/users
+/users/1
+/users/1/posts
+/users/1/posts/2
+
+모든 사용자의 상세 정보를 한번 검색하려면 /users로 요청을 보내면 되겠지, 특정 사용자의 정보를 검색하려면 
+/users/1로 요청을 보내면 되고,
+특정 사용자의 게시물을 얻고 싶으면 /users/1/posts 이 URL을 사용하면 되고,
+특정 게시물의 정보를 얻고 싶으면 마지막 URL인 /users/1/posts/2 을 사용하면 된다
+
+모두 복수형을 사용한 URL이다
+
+단수형을 사용해서 동일하게 설계하면 이런 모습이 될 것이다
+WITHOUT PLURALS
+~~~~~~~~~~~~~~~
+/users
+/users/1
+/users/1/posts
+/users/1/posts/2
+
+/users, /users/1, /users/1/posts, /users/1/posts/2 이런 모습이겠다
+교육자가 복수형을 선호하는 이유는 이쪽이 훨씬 더 읽고 이해하기 쉽기 때문이라고 한다.
+복수형을 사용해서 모든 사용자 정보를 얻는다는 표현이 사용자 한 명을 나타내는 단수형에서 '모든' 정보를 얻는다는 표현보다 더 직관적이기 때문이라 한다
+필드에선 복수형과 단수형 모두를 사용해 REST API를 빌드하지만 
+교육자 개인적으론 리소스 URL에서 복수형을 사용하는게 더 낫다고 생각한다고 한다,고로 우리 강의에서도 쭉 그렇게 사용할 거라고 한다
