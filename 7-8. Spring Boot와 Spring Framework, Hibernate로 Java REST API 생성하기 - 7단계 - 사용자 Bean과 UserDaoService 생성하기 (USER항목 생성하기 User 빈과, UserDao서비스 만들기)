@@ -1,0 +1,168 @@
+
+
+Social Media Application REST API
+                                                                                                                                                
+● Build a REST API for a Social Media Application                                                  [
+● Key Resources:                                                                                      -  {
+  ■ Users                                                                                                   id: 1,
+  ■ Posts                                                                                                   name: "Adam",
+● Key Details:                                                                                              birthDate: "2024-05-18T17:16:30.057+0000"
+  ■ User: id, name, birthDate                                                                            },                                                                                                                                                                           
+  ■ Post: id, description                                                                             -  {
+                                                                                                            id: 2,
+                                                                                                            name: "Eve",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         },                                    
+                                                                                                      -  {
+                                                                                                            id: 3,
+                                                                                                            name: "Jack",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         }                                       
+                                                                                                    ]   
+
+
+준비를 마쳤으니 SNS 애플리케이션용 REST API를 빌드해 보자, 앞서 말한 것처럼
+주요 리소스는 사용자와 게시물이다
+
+이번 시간에는 사용자를 위한 기초를 다지는 데 집중하겠다
+사용자와 관련해서는 ID와 이름, 생일을 저장해야한다, 그러므로 ID 이름, 생일이 있는 사용자 Bean을 만들자
+
+IDE로 들어가 새 클래스를 생성한다
+이름은 User, 패키지는 제안된 패키지 뒤에 .user를 추가한다 Finish를 클릭한다
+이렇게 User 클래스를 생성했다, 이 안에 ID와 이름, 생일이 있어야 겠지
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ User 클래스 파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.LocalDate;
+
+public class User {
+
+    //1: private 다음에 Integer id, 아래에 private 이름은 문자열이겠지 , 마지막으로 저장할 건 생일이다 private LocalDate birthDate 까지 입력한다
+    //ID, 이름, 생일 모두 들어갔다 다 된거 같다, 이렇게 사용자에게 원하는 모든 멤버 변수를 정의했다 이제 임포트를 정리한다 java.time.LocalDate가 임포트된 게 보인다
+    	private Integer id;
+    	private String name;
+    	private LocalDate birthDate; 
+
+    //1-1: 이번에는 게터와 세터, 생성자 그리고 toString 메서드를 만들자. 
+    //우클릭해서 Source > Generate Constructor using Field를 선택 보이는 모든 필드를 사용할 것이다 Inserton Point:를 Last member로 삽입하고 Generate를 클릭한다
+    public User(Integer id, String name, LocalDate birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+  	}
+    //이제 생성자가 만들어졌다
+
+    //1-2: 다시 우클릭 Source > Generate Getters and Setters를 선택한다 Select All을 누르고 삽입점은 역시 Last member로 선택하고 생성한다,
+  	public Integer getId() {
+  		return id;
+  	}
+  
+  	public void setId(Integer id) {
+  		this.id = id;
+  	}
+  
+  	public String getName() {
+  		return name;
+  	}
+  
+  	public void setName(String name) {
+  		this.name = name;
+  	}
+  
+  	public LocalDate getBirthDate() {
+  		return birthDate;
+  	}
+  
+  	public void setBirthDate(LocalDate birthDate) {
+  		this.birthDate = birthDate;
+  	}    
+    //게터와 세터가 만들어졌다
+
+    //1-3: 마지막으로 toString 메서드를 생성한다 Source > Generate toString을 선택 이대로 toString 메서드를 생성한다
+    @Override
+	  public String toString() {
+		  return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	  }
+    //toString 메서드가 생성됐다 그리고 저장
+}
+
+------------------------------------------------------------------------------------------------------------------------
+
+필요한 모든 상세 정보를 지닌 사용자가 준비되었다 이제 사용자 Bean을 중심으로 하는 REST API를 만들자
+사용자의 상세 정보를 저장하고, 검색하고, 특정 사용자를 삭제하는 등 특정 사용자에 대해 다양한 작업을 하고자 한다
+DB를 관리하고, DB에 저장된 데이터를 가지고 작업을 하려면 DAO(data access object)객체를 만들어야 한다, DAO 서비스부터 만들어 보자
+
+새 클래스에서 UserDaoService 라고 이름을 설정하고 Finish를 클릭한다
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserDaoService 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+//2: Spring이 이걸 관리하도록 @Component로 만들겠다, 임포트를 정리하면 새로 생긴 임포트가 보일 것이다
+@Component
+public class UserDaoService {
+    
+    //2-1: 이 특정 UserDaoService에서 무엇을 하고 싶냐면 모든 사용자를 검색하고, 특정 사용자의 상세 정보를 저장하고 검색할 수 있도록 메서드를 실행하는 것이다
+    //2-2: 이게 특정 UserDaoService에서 실행하고자 하는 메서드들이다, 보통은 모든 사용자 상세 정보를 DB에 저장하고 JPA와 Hibernate를 활용해 DB와 통신한다
+    // JPA/Hibernate > Database
+    //2-3: 지금 하려는 건 간단히 만드려는 것이다 그래서 여기에 정적 List를 만들어서 UserDaoService가 정적 ArrayList와 통신할 수 있도록 할 것이다
+    //강의가 더 진행되면 JPA와 Hibernate를 더 자세히 배우면서 우리가 만든 모든 REST API를 전환해 DB와 소통하게 만들 것이다, 일단 정적 ArrayList를 만들고 UserDaoService를 활용해 이 ArrayList와 소통하도록 만들겠다
+    // UserDaoService > Static List
+
+    //2-4: 그래서 여기에 private static List<User>를 만들고 users 값은 new ArrayList<>(); 임포트를 정리한다 java.util.List를 임포트 할 것이다, 두 개가 임포트됐다 
+	  private static List<User> users = new ArrayList<>();
+    
+    //2-5: 현재는 정적 리스트가 비어 있다 이걸 여러 사용자로 초기화하겠다, static 여기에 static 블록을 만드는 것이다
+    static {
+
+    //2-6: users.add 그리고 새 사용자를 생성한다, 사용자 ID와 이름을 넣는데 Adam이라고 한다 그리고 마지막으로 생일이 있다 LocalDate.now를 넣으면 오늘 날짜가 들어간다, 태어난 지 좀 됐다고 해보자.minusYears를 해서 아담을 서른으로 만들어 보자 minusYears에 30을 넣는다 세미콜론을 넣어 마친다
+		//이렇게 서른 살 Adam이라는 사용자를 생성했다 LocalDate를 활용해 현재 날짜를 불러오고, 여기에서 30년을 뺐다, 몇 명 더 만들겠다
+    //ID 2는 이름은 Eve, 나이는 스물다섯이라고 하겠다, 마지막 사용자 ID 3은 이름은 Jim, 나이는 스무 살로 하자, 저장한다
+      users.add(new User(1, "Adam", LocalDate.now().minusYears(30)));
+  		users.add(new User(2, "Eve", LocalDate.now().minusYears(25)));
+  		users.add(new User(1, "Jim", LocalDate.now().minusYears(20)));
+	  }
+
+    //2-7: findAll을 사용해 쉽게 실행할 수 있다 return users만 하면 된다
+  	public List<User> findAll() {
+  		return users;
+  	}
+
+  	//public User save(User user) {
+
+  	//public User findOne(int id) {
+
+}
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+이번 시간에는 사용자 Bean과 UserDaoService를 생성해 봤다
+지금은 UserDaoService가 정적 사용자 List에서 모든 정보를 검색하지만
+나중에는 JPA와 Hibernate를 활용해 DB와 소통해볼 것이다
+
+다음 시간에는 모든 사용자의 정보를 검색하는 REST API를 빌드해 보겠다
+
+다음 강의에서 보겠다
