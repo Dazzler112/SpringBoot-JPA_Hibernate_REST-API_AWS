@@ -1,0 +1,258 @@
+
+
+
+전 시간엔 모든 사용자와 특정 사용자의 정보를 조회하는 REST API를 구현했다
+이번엔 사용자를 추가하는 REST API를 만들어 볼 것이다 어떻게 하면 될까?
+
+
+Social Media Application - Resources & Methods
+
+● Users REST API                                                                                   [
+  ■ Retrieve all Users                                                                                -  {
+    ○ GET/users                                                                                             id: 1,
+  ■ Create a User                                                                                           name: "Adam",
+    ○ POST/users                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         },                                                                                                                                                                           
+                                                                                                      -  {
+                                                                                                            id: 2,
+                                                                                                            name: "Eve",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         },                                    
+                                                                                                     -  {
+                                                                                                            id: 3,
+                                                                                                            name: "Jack",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                        }                                       
+                                                                                                    ] 
+
+사용자를 추가하려면 POST /users로 요청을 보낼 때 사용자의 정보를 함께 보내야 한다
+결국 POST /users를 해야 하니까
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ UserResource 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.util.*;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+	
+	//GET /users
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	//GET /users
+	@GetMapping("/users/{id}")
+	public User retrieveUser(@PathVariable int id) {
+		
+		return service.findOne(id);
+
+	}
+
+  //POST /users
+  //1: @PostMapping을 추가해준다 ()는 /users이다, 이 메소드는 아무것도 반환하지 않는 걸로 가겠다
+  //public void 그리고 메소드 이름은 createUser로 간다, 이제 이 메소드를 구현해 보겠다, 이 메소드에선 뭘 해야 하는가...
+	@PostMapping("/users")
+	public void createUser() {
+		
+	}
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+{
+  "id": 2,
+  "name": "Eve",
+  "birthDate": "1999-05-19"
+}
+
+이건 특정 사용자의 정보를 조회했을 때 받은 값인데
+사용자를 추가할 때는 이거랑 비슷한 정보를 보내고 싶다
+ID 값은 안 보내도 된다, 애플리케이션이 자체적으로 생성하는 값이기 때문이다
+그래서 사용자를 생성하려면 이름과 생일 정보를 함께 보내야 한다
+
+우리가 원하는 구조는 결국 같다
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ UserResource 클래스파일
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.util.*;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+	
+	//GET /users
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	//GET /users
+	@GetMapping("/users/{id}")
+	public User retrieveUser(@PathVariable int id) {
+		
+		return service.findOne(id);
+
+	}
+	
+	//POST /users
+	@PostMapping("/users")
+  //2: User와 말이다, 보통 이렇게 정보를 보낼 때는 요청 본문에 담아 보낸다, 그렇게 보내려면 @RequestBody 어노테이션을 추가한다, 임포트문을 업데이트하면 org.springframework.web.bind.annotation.RequestBody가 들어와 있다 이 어노테이션은 메소드 인자를 웹 요청의 본문과 매핑하라는 지시이다 ( Annotation indicating a method parameter should be bound to the body of the web request. )
+  //웹 요청을 보낼 때 요청 본문을 함께 보내는데, 요청 본문에는 사용자의 정보를 담는다, 이건 User 빈과 매핑될 거고 무슨 얘기인지 자세히 보겠다
+  //인자로 User를 받으면 User를 일단 생성해야겠지? UserDaoService에 메소드를 하나 생성한다//2-1: UserDaoService 클래스 파일로... 
+	public void createUser(@RequestBody User user) {
+		
+	}
+}
+
+--------------------------------------------------------------------
+
+
+⏺ UserDaoService 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+import java.util.*;
+import java.util.function.*;
+
+import org.springframework.stereotype.*;
+
+@Component
+public class UserDaoService {
+    // JPA/Hibernate > Database
+    // UserDaoService > Static List
+	
+	private static List<User> users = new ArrayList<>();
+
+  //2-3: 먼저 변수를 한나 생성하겠다 private static int 그리고 이름은 usersCount로 간다 시작 값은 3으로 가겠다, 이 프로그램이 시작이 되면 userCount의 값은 3이 된다 
+//	private static int usersCount = 3;
+  //2-3 번외: 또다른 방법으로는 0에서부터 시작하고 아래 static{..}의 아이디 값을 ++usersCount로 할당한다
+  private static int usersCount = 0;
+
+/*	static {
+		users.add(new User(1, "Adam", LocalDate.now().minusYears(30)));
+		users.add(new User(2, "Eve", LocalDate.now().minusYears(25)));
+		users.add(new User(1, "Jim", LocalDate.now().minusYears(20)));
+	} */
+
+  //2-3 번외 계속: 첫번째 사용자 아이디는 1이 되고, 다음은 2, 다음은 3이된다//2-4: save()메소드로.. 
+	static {
+		users.add(new User(++usersCount, "Adam", LocalDate.now().minusYears(30)));
+		users.add(new User(++usersCount, "Eve", LocalDate.now().minusYears(25)));
+		users.add(new User(++usersCount, "Jim", LocalDate.now().minusYears(20)));
+	}
+	
+  public List<User> findAll() {
+		return users;
+	}
+
+  //2-1: public User save()로, 인자는 User로말이다, 사용자 정보를 취득한 다음엔 뭘 해야 하지?
+	public User save(User user) {
+    //2-4: 이거랑 비슷하게 사용자를 추가할 때도 말이다, user.setId()그리고 인자로 ++userCount를 넣어준다, 다음으로 생성되는 사용자 아이디는 4가 되고 그렇게 하나씩 증가된다, 지금 이 작업은 임시 작업일 뿐이다 나중에는 DB에 생성되는 시퀀스를 이용할 것이다 JPA/Hibernate를 이용해서이다 일단 save()메소드를 구현했다 다시 돌아가서//3으로...
+		user.setId(++usersCount);
+		//2-2: users.add()를 호출해서 특정 사용자를 생성한다 (user) , 사용자를 새성할 때 동적으로 아이디를 할당해줘야 하는데 여기선 카운터를 쓸 것이다, 먼저 변수를 하나 생성하겠다//2-3: List<User> users 아래에 작성...
+	  users.add(user);
+		return user;
+  }
+	
+	public User findOne(int id) {
+		Predicate<? super User> predicate = user -> user.getId().equals(id);
+		return users.stream().filter(predicate).findFirst().get();
+	}
+	
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserResource 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.util.*;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+	
+	//GET /users
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	//GET /users
+	@GetMapping("/users/{id}")
+	public User retrieveUser(@PathVariable int id) {
+		
+		return service.findOne(id);
+
+	}
+	
+	//POST /users
+	@PostMapping("/users")
+	public void createUser(@RequestBody User user) {
+		//3:service.save()를 호출한다 인자로 user를 넣어준다 그리고 파일 저장, 메소드 두 개를 완료했다, 이제 POST 메소드로 요청을 보내고 싶은데 어떻게 하면 될까?
+		service.save(user);    
+	}
+}
+--------------------------------------------------------------------------------------------------------------------------------
+
+{
+  "id": 2,
+  "name": "Eve",
+  "birthDate": "1999-05-19"
+}
+
+아쉽게도 브라우저에선 POST 요청을 바로 보낼 순 없다 
+POST로 요청을 보내려면 REST API 클라이언트가 필요하다
+간단한 REST API 클라이언트로 Talend API Tester 이다 ( 웹사이트에 talend api tester 검색 검색해보면 구글 확장프로그램으로 나옴..)
+Talend API Tester는 HTTP와 REST API를 쉽게 호출하고 파악하고 테스트해볼 수 있다고 한다
+이 강의에선 Talend API Tester를 REST API 클라이언트로 이용하겠다 
+확장프로그램 다운로드해서 설치 ㄱ
