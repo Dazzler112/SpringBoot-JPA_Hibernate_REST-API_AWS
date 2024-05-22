@@ -138,3 +138,311 @@ public class UserDaoService {
 네트워크를 선택하고 새로고침을 하면 응답 상태는 200이다
 성공은 했다고 하는데 돌아온 데이터는 없다, 이건 고쳐야겠지
 
+그래서 UserResource로 돌아가서 뭘 해야 하느냐, 
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ UserDaoService 클래스파일
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	@GetMapping("/users/{id}")
+	public User retrieveUser(@PathVariable int id) {
+
+//2: 이 값을 변수로 저장하겠다 ctrl + 1을 해서 지역변수로 저장하기를 선택한다 변수 이름은 user로 하겠다
+		User user = service.findOne(id);
+
+//2-1: if문을 추가하고 user가 null이라면 예외를 발생시킬 것이다 UserNotFoundException을 말이다, 메시지로는 사용자의 아이디 값을 보내겠다
+//하지만 UserNotFoundException을에 컴파일 에러가 났는데 이건 UserNotFoundException이 없어서 그런것이다, ctrl + 1로 UserNotFoundException클래스를 생성해 준다, 생성할 때 super class(부모 클래스) 기본 값으로 Excepion이 들어가 있는 걸 볼 수 있다 ( java.lang.Exception ) 이걸 RuntimeException으로 바꾸겠다 Exception클래스를 상속하면 체크 예외가 되어버리기 때문이다 가급적이면 체크 예외를 피하고 싶기 때문에 RuntimeException을 상속한다 그리고 Finsh를 클릭 //2-2: UserNotFoundException클래스파일로....
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+	
+    return user;
+	}
+
+	@PostMapping("/users")
+	public ResponseEntity<User> createUser(@RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+------------------------------------------------------------------
+
+
+⏺ UserNotFoundException 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+
+public class UserNotFoundException extends RuntimeException {
+//2-2: UserNotFoundException 클래스가 생성됐다, 여기서 전달된 메시지로 생성자를 만들겠다
+//인자로 String message를 넣어주고 super(message)를 넣어 생성자를 만들었다, 메시지를 받아서 부모 클래스에게 전달한다 RuntimeException으로 말이다, 좋다 이어서 진행 하겠다 저장하고 사이트 새로고침....
+	public UserNotFoundException(String message) {
+		  super(message);
+	}
+}
+
+----------------------------------------------------------------------------------------------------------------------
+                                                                                      |
+                                                                                      V
+----------------------------------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:8080/users/101 사이트화면 ==>
+
+
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Wed May 22 19:19:30 KST 2024
+There was an unexpected error (type=Internal Server Error, status=500).
+id:101
+com.in28minutes.rest.webservices.restfulwebservices.user.UserNotFoundException: id:101
+	at com.in28minutes.rest.webservices.restfulwebservices.user.UserResource.retrieveUser(UserResource.java:30)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255)
+	at .....
+
+----------------------------------------------------------------------------------------------------------------------
+
+다시 화이트라벨 에러 페이지가 나왔다 
+반환된 응답 상태는 500이고 UserNotFoundException이 발생했고 대상 아이디는 
+UserNotFoundException: id:101
+101이라고 나온다
+
+찾는 뭔가를 못 찾았을 때 적합한 상태값은 404이다
+UserNotFoundException을 발생시킬 때 404를 반환하려면 어떻게 해야 할까?
+
+ResponseStatus라는 어노테이션을 활용하면 된다
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserNotFoundException 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+//3: @ResponseStatus를 입력후 ctrl+ 스패이스바 누르면 import org.springframework.web.bind.annotation.ResponseStatus; 임포트문이 추가된 걸 볼 수 있다
+//잘 들어왔고, 반환할 응답 상태는 우리는 어떤 상태를 반환하려고 했었지? 보는것 처럼 다양한 응답 상태들이다 ACCEPTED, BAD_REQUEST, CREATED등이 있다 지금 상황에선 NOT_FOUND를 반환해야 한다, 응답 상태 코드는 code = HttpStatus.NOT_FOUND로 지정한다, 파일을 저장하고 다시 요청을 보내면...
+@ResponseStauts(code = HttpStatus.NOT_FOUND)
+public class UserNotFoundException extends RuntimeException {
+
+	public UserNotFoundException(String message) {
+		super(message);
+	}
+}
+
+----------------------------------------------------------------------------------------------------------------------
+                                                                                      |
+                                                                                      V
+----------------------------------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:8080/users/101 사이트화면 ==>
+
+
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Wed May 22 19:29:11 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+id:101
+com.in28minutes.rest.webservices.restfulwebservices.user.UserNotFoundException: id:101
+	at com.in28minutes.rest.webservices.restfulwebservices.user.UserResource.retrieveUser(UserResource.java:30)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255)
+	at .....
+
+----------------------------------------------------------------------------------------------------------------------
+
+좋다 http://localhost:8080/users/101를 요청했더니 돌아온 상태 코드는 404, Not found이다
+아이디 값인 101도 반환했고 여기 꽤 많은 내용이 출력돼 있는데 예외가 추적된 기록이 전부 출력된 것이다
+보통은 이 정보 다 필요하진 않을 것이다
+
+그래서 일단 pom.xml을 열고 
+
+----------------------------------------------------------------------------------------------------------------------
+
+
+⏺pom.xml파일
+
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+    <!--4: devtools 부분을 주석 처리해보겠다 devtools 의존성을 제거한다, 서버를 멈추고 다시 시작-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+----------------------------------------------------------------------------------------------------------------------
+그리고 사이트를 새로고침 하면?                                                 |
+                                                                             V
+----------------------------------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:8080/users/101 사이트화면 ==>
+
+
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Wed May 22 19:35:14 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+
+----------------------------------------------------------------------------------------------------------------------
+예외 추적 기록이 더 이상 표시되지 않는 걸 볼 수 있다 
+
+한 가지 알아 두면 좋은 건 이 애플리케이션을 운영용으로 실행할 때는 JAR 파일 형태로 실행할 거란 것이다
+이 애플리케이션을 JAR 파일로 만들고 아마 java -jar 그리고 JAR 파일 이름을 입력해 실행하겠지 
+그렇게 애플리케이션을 패키지 형태로 실행하면 Devtools는 자동으로 비활성화된다
+운영 버전에서 pom.xml의 이 부분이 활성화돼 있다면 
+그리고 애플리케이션을 JAR 파일로 빌드하고 실행했다면, 방금 우리 시나리오에선 추적 로그는 축력 안 된다는 말이다
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
+주석 제거하고 이 상태로 서버를 멈췄다가 다시 실행하면 
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Wed May 22 19:40:14 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+id:101
+com.in28minutes.rest.webservices.restfulwebservices.user.UserNotFoundException: id:101
+	at com.in28minutes.rest.webservices.restfulwebservices.user.UserResource.retrieveUser(UserResource.java:30)....
+
+다시 추적 로그가 출력된 걸 볼 수 있다
+
+Talend API Tester에서 /412로 요청을 보내겠다 412는 없는 값이지
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/users/412                         |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    
+☑ | Content-Type | : | application/json | x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                              |                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  404                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Content-Type: application/json                |    {
+Transfer-Encoding:  chunked                   |       "timestamp": "2024-05-22T10:42:06.141+00:00",                                  
+Date:	Wed, 22 May 2024 10:42:06 GMT         |       "status": 404, 
+                                              |       "error": "Not Found",   
+                                              |       "trace": "com.in28minutes.rest.webservices.restfulwebservices.user.UserNotFound                    
+Keep-Alive: timeout=60                        |       "message": "id:412",                           
+Connection: keep-alive                        |       "path": "/users/412"                            
+ ▶ COMPLETE REQUEST HEADERS                   |    }
+                                              |     
+                                                lines nums  📄 copy              length: 47 bytes
+--------------------------------------------------------------------------------------------------------------------------------
+
+보다시피 404가 반환됐고 뭔가 구조화된 값이 반환됐다
+보다시피 반환값 타입이 application/json이다 
+
+브라우저에서 요청을 보냈을 때는 HTTP 응답이 돌아왔는데 
+Talend API Tester에서 요청을 보내면 구조화된 응답이 돌아왔다
+타임스탬프 값도 있고, 상태값도 찍히고, 추적 기록도 있다
+
+
+
+
+
+이번 시간엔 REST API에서 발생하는 에러를 처리하는 방법을 살펴봤다 
+아직 추가로 해야 하는 작업들이 많이 남아 있다 
+다음 시간에 이어서 계속 보겠다 
