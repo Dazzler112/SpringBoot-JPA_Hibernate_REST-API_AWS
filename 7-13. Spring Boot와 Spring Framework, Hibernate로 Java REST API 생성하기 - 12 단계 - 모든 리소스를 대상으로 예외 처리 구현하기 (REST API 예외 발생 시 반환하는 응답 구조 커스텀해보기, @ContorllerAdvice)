@@ -211,3 +211,405 @@ Connection: keep-alive                        |       "path": "/users/412"
 그리고 반환된 정보의 구조는 그대로이다
 왜일까?
 
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ CustomizedResponseEntityExceptionHandler 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.exception;
+
+import java.time.*;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+
+//3: 이 클래스를 Spring Framework가 아직 인지하지 못했기 때문이다 ControllerAdvice를 추가해 주겠다, 이 클래스를 모든 컨트롤러에게 적용한다
+//이 프로젝트에 정의된 모든 컨트롤러, 테스트 컨트롤러에 말이다 임포트문을 업데이트한다, org.springframework.web.bind.annotation의 ControllerAdvice가 잘 들어왔다
+//ControllerAdvice의 상세 설명을 보면 ( Specialization of @Component for classes that declare @ExceptionHandler, @InitBinder, or @ModelAttribute methods to be shared acrossmultiple @Controller classes. ) 특별한 컴포넌트라고 돼있다 ExceptionHandler를 선언하는 클래스를 위한 거고 @InitBinder도 쓸 수 있고 @ModelAttribute를 이용해서 여러 컨트롤러 클래스에서 공유되게 할 수 있다고 돼있다,
+//ControllerAdvice를 쓰면 이어서 해볼까 파일을 저장하고
+@ControllerAdvice
+public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler{
+
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<Object> handleAllException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+아까 그 요청을 다시 보낸다                                                            |
+                                                                                    V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/users/412                         |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    
+☑ | Content-Type | : | application/json | x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                              |                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  500                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Content-Type: application/json                |    {
+Transfer-Encoding:  chunked                   |       "timestamp": "2024-05-23",                                  
+Date:		Thu, 23 May 2024 10:05:13 GMT         |       "message": "id:412",
+Connection: close                             |       "details": "uri=/users/412"   
+                                              |    }  
+                                              |                             
+                                              |                              
+ ▶ COMPLETE REQUEST HEADERS                   |    
+                                              |     
+                                                lines nums  📄 copy              length: 47 bytes
+--------------------------------------------------------------------------------------------------------------------------------
+
+이번엔 우리가 만든 구조대로 에러 반환값이 온 걸 볼 수 있다
+타임스탬프 값을 보면 지금ㅇ느 날짜만 담겨 있는데 시간도 포함하고 싶다면 LocalDate 대신 LocalDateTime을 쓰면 된다 
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ ErrorDetails 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.exception;
+
+import java.time.LocalDateTime;
+
+public class ErrorDetails {
+
+//4: LocalDate 대신 LocalDateTime으로 바꿔주고 다른 부분도 LocalDateTime으로 바꿔주겠다(변수, 생성자, getter 모두 LocalDateTime 로 바꿔주기) 임포트문을 업데이트하고 파일을 저장하고 //4-1:CustomizedResponseEntityExceptionHandler 클래스 파일로..
+	private LocalDate timestamp;
+	private String message;
+	private String details;
+
+//4 계속 : LocalDateTime으로 수정..
+	public ErrorDetails(LocalDateTime timestamp, String message, String details) {
+		super();
+		this.timestamp = timestamp;
+		this.message = message;
+		this.details = details;
+	}
+
+//4 계속 : LocalDateTime으로 수정..
+	public LocalDateTime getTimestamp() {
+		return timestamp;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public String getDetails() {
+		return details;
+	}
+
+}
+
+--------------------------------------------------------------------
+
+
+
+⏺ CustomizedResponseEntityExceptionHandler 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.exception;
+
+import java.time.LocalDateTime;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+
+@ControllerAdvice
+public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler{
+
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<Object> handleAllException(Exception ex, WebRequest request) throws Exception {
+
+    //4-1:LocalDateTime.now()가 되도록 바꾸고 임포트문을 업데이트한다 자, 이제 필요한 모든 곳에 LocalDate를 LocalDateTime으로 바꿔줬다 결과를 확인해 보자
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+요청을보낸다                                                                             |
+                                                                                        V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/users/412                         |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    
+☑ | Content-Type | : | application/json | x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                              |                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  500                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Content-Type: application/json                |    {
+Transfer-Encoding:  chunked                   |       "timestamp": "2024-05-23T19:15:53.9963361",                                  
+Date:		Thu, 23 May 2024 10:15:53 GMT-1s      |       "message": "id:412",
+Connection: close                             |       "details": "uri=/users/412"   
+                                              |    }  
+                                              |                             
+                                              |                              
+ ▶ COMPLETE REQUEST HEADERS                   |    
+                                              |     
+                                                lines nums  📄 copy              length: 89 bytes
+--------------------------------------------------------------------------------------------------------------------------------
+
+봐라, 이제 타임스탬프 값에 시간도 들어가 있다
+날짜도 있고 시간도 찍혀 있다
+필요한 정보를 커스텀 구조에 담았다
+
+또 하나 봐야 할 건 우리가 만든 구조가 적용되어서 없는 사용자를 조회했을 때
+상태값이 500이 반환됐는데, 사용자가 없는 상황에선 Bad Request를 반환하고 싶다
+이건 어떻게 하면 될까?
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ CustomizedResponseEntityExceptionHandler 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.exception;
+
+import java.time.LocalDateTime;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+
+@ControllerAdvice
+public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler{
+
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<Object> handleAllException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+//5: 이 부분을 고치면 된다 다른 예외는 이렇게 처리하면 되지만, 사용자가 없을 때만큼은 UserNotFoundException을 발생시키고 싶다
+//메소드 이름도 handleUserNotFoundException으로 바꿔준다
+	@ExceptionHandler(UserNotFoundException.class)
+	public final ResponseEntity<Object> handleUserNotFoundException(Exception ex, WebRequest request) throws Exception {
+
+  //5-1: 이 예외가 발생했을 땐 다른 메시지를 반환하게 하고 싶다 임포드문을 업데이트 한다 위에 보면 UserNotFoundException이 들어왔다,
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+  //5-2: 그리고 INTERNAL_SERVER_ERROR대신 HttpStatus.NOT_FOUND를 반환한다, 바로 이것이다, 이것을 반환하게 한다 파일을 저장하고
+		return new ResponseEntity(errorDetails, HttpStatus.NOT_FOUND);
+	}
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+새로고침을 해주면                                                                           |
+                                                                                           V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/users/412                         |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    
+☑ | Content-Type | : | application/json | x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                              |                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  404                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Content-Type: application/json                |    {
+Transfer-Encoding:  chunked                   |       "timestamp": "2024-05-23T19:29:45.2847928",                                  
+Date:		Thu, 23 May 2024 10:29:45 GMT         |       "message": "id:412",
+Keep-Alive:	timeout=60                        |       "details": "uri=/users/412"   
+Connection: close                             |    }  
+                                              |                             
+                                              |                              
+ ▶ COMPLETE REQUEST HEADERS                   |    
+                                              |     
+                                                lines nums  📄 copy              length: 89 bytes
+--------------------------------------------------------------------------------------------------------------------------------
+
+이젠 404가 반환된 걸 볼 수 있다, 응답 본문도 우리가 정의한 구조이다
+
+근대 ResponseEntity가 raw 타입이라는 경고가 떴다 ( 	- ResponseEntity is a raw type. References to generic type ResponseEntity<T> should be parameterized )
+return new ResponseEntity(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+이건 커스터마이즈하면 된다
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.exception;
+
+import java.time.LocalDateTime;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.in28minutes.rest.webservices.restfulwebservices.user.*;
+
+
+@ControllerAdvice
+public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler{
+
+	@ExceptionHandler(Exception.class)
+  //6-1: 여기에도 바꿔주고
+	public final ResponseEntity<ErrorDetails> handleAllException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+
+    //6: ErrorDetails를 붙여 준다
+		return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@ExceptionHandler(UserNotFoundException.class)
+  //6-2: 여기도 똑같이 바꿔준다 이 구조로 ResponseEntity를 반환한다 다 바꿔주고 요청을 다시 보내서 확인한다
+	public final ResponseEntity<ErrorDetails> handleUserNotFoundException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.NOT_FOUND);
+	}
+	
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+                                                                                            |
+                                                                                            V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/users/412                         |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    
+☑ | Content-Type | : | application/json | x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                              |                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  404                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Content-Type: application/json                |    {
+Transfer-Encoding:  chunked                   |       "timestamp": "2024-05-23T19:36:23.4859211",                                  
+Date:		Thu, 23 May 2024 10:36:23 GMT         |       "message": "id:412",
+Keep-Alive:	timeout=60                        |       "details": "uri=/users/412"   
+Connection: close                             |    }  
+                                              |                             
+                                              |                              
+ ▶ COMPLETE REQUEST HEADERS                   |    
+                                              |     
+                                                lines nums  📄 copy              length: 89 bytes
+--------------------------------------------------------------------------------------------------------------------------------
+아까와 같은에러 응답이 온 걸 볼 수 있다
+
+
+
+소비자에게 올바른 메시지를 반환하는 건 무척 중요하다 
+REST API에서 소비자에게 정보를 전달할 수 있는 방법은 Response와 ResponseStatus를 이용하는 것이다
+뭔가 잘못 됐을 때 에러의 구조를 정확하게 정의하고 적합한 응답 상태를 반환하는 건 REST API를 구현할 때 무척 중요하다
+두 단계에 거쳐서 Spring MVC가 제공하는 기능을 이용해 에러를 제대로 처리하고 올바른 응답값과 응답 상태를 반환하는 걸 살펴 보았다
