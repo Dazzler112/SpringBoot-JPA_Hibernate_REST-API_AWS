@@ -1,0 +1,228 @@
+
+
+Social Media Application - Resources & Methods
+
+● Users REST API                                                                                   [
+  ■ Retrieve all Users                                                                                -  {
+    ○ GET/users                                                                                             id: 1,
+  ■ Create a User                                                                                           name: "Adam",
+    ○ POST/users                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+  ■ Retrieve one User                                                                                    },                                                                                                                                                                           
+    ○ Get/users/{id}->/users/1                                                                        -  {
+  ■ Delete a User                                                                                           id: 2,
+    ○ DELETE/users/{id}->/users/1                                                                           name: "Eve",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         },                                    
+                                                                                                     -  {
+                                                                                                            id: 3,
+                                                                                                            name: "Jack",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                        }                                       
+                                                                                                    ] 
+
+  ■ Delete a User 
+이번 시간엔 사용자를 삭제하는 REST API를 구현해 보겠다
+    ○ DELETE/users/{id}->/users/1
+명시된 사용자를 삭제하는 기능을 구현할 것이다
+이 REST API를 어떻게 구현하면 되는지 이번 시간에 함꼐 살펴보겠다
+
+먼저 UserResource 파일로 가서
+retrieveUser() 이 메소드는 사용자 조회를 하는 메소드인데 일단 이걸 복사하겠다
+사용자를 삭제하는 일을 하는데 구조는 매우 비슷할 것이다
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ UserResource 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	@GetMapping("/users/{id}")
+	public User retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		return user;
+
+	}
+
+//1:@GetMapping 대신에 이번엔 @DeleteMapping으로 바꿔준다 메소드 이름도 deleteUser로 바꿔주고 임포트문을 업데이트한다 DeleteMapping이 들어온 걸 확인한다 org.springframework.web.bind.annotation.DeleteMapping이 들어왔다, 좋다 다음으론 UserDaoService로 와서 사용자를 삭제할 메소드를 구현해 준다//1-1:UserDaoService 클래스파일로..
+	@DeleteMapping("/users/{id}")
+	public User deleteUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		return user;
+
+	}
+
+	@PostMapping("/users")
+	public ResponseEntity<User> createUser(@RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+------------------------------------------------------------------------------
+
+
+⏺ UserDaoService 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+import java.util.*;
+import java.util.function.*;
+
+import org.springframework.stereotype.*;
+
+@Component
+public class UserDaoService {
+    // JPA/Hibernate > Database
+    // UserDaoService > Static List
+	
+	private static List<User> users = new ArrayList<>();
+	
+//	private static int usersCount = 3;
+	private static int usersCount = 0;
+	
+	static {
+		users.add(new User(++usersCount, "Adam", LocalDate.now().minusYears(30)));
+		users.add(new User(++usersCount, "Eve", LocalDate.now().minusYears(25)));
+		users.add(new User(++usersCount, "Jim", LocalDate.now().minusYears(20)));
+	}
+	
+	public List<User> findAll() {
+		return users;
+	}
+	
+	public User save(User user) {
+		user.setId(++usersCount);
+		users.add(user);
+		return user;
+	}
+	
+	public User findOne(int id) {
+		Predicate<? super User> predicate = user -> user.getId().equals(id);
+		return users.stream().filter(predicate).findFirst().orElse(null);
+	}
+
+  //1-1: findOne(int id)메소드랑 비슷한 걸 구현하면 된다, 대신 삭제를 해주는 것이다, 메소드 명은 deleteById라고 하겠다, 사용자의 아이디 값을 받아서 삭제할 것이다
+  //이 메소드는 아무것도 반환하지 않을 거니까 void deleteById로 하고
+	public void deleteById(int id) {
+  
+  //1-2: predicate는 그대로 쓴다, 아이디로 조회할 것이기 때문이다, 함수형 프로그래밍에는 조건에 맞는 객체를 삭제하는 아주 좋은 기능이 있다 users.removeIf()를 호출하고 인자로 predicate를 넣어준다 
+  //주어진 아이디 값이 같다면 해당 사용자를 삭제한다, 참 쉽지? return부분은 삭제한다, 그리고 파일을 저장
+		Predicate<? super User> predicate = user -> user.getId().equals(id);
+
+//		return users.stream().filter(predicate).findFirst().orElse(null);
+	}
+}
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+이제 삭제 메소드는 준비가 됐다
+UserResource 클래스파일 로 돌아가서..
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+⏺UserResource 클래스 파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	@GetMapping("/users/{id}")
+	public User retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		return user;
+
+	}
+
+	@DeleteMapping("/users/{id}")
+
+  //2-2: 그리고 public User deleteUser(@PathVariable int id) 반환 타입은 void로 바꾸고, 이 메소드가 반환하는 응답 상태는 성공이다 즉, 삭제가 삭제 작업이 성공적으로 완료되면 200이 반환되는 것이다 파일을 저장
+	public void deleteUser(@PathVariable int id) {
+		//2: 여기서 findOne() 대신 deleteById()를 호출해 준다 그리고 이 메소드는 User를 반환하지 않으니까 User user = 이부분은 지우겠다
+    service.findOne(id);
+
+    //2-1: 이 메소드에선 아무 것도 반환하지 않으니 아래 코드도 다 지우겠다//2-2: 위의 메소드명 위로 가서 작성..
+		/*if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		return user;
+    */
+	}
+	
+	@PostMapping("/users")
+	public ResponseEntity<User> createUser(@RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+--------------------------------------------------------------------------------------------------------------------------------
+
