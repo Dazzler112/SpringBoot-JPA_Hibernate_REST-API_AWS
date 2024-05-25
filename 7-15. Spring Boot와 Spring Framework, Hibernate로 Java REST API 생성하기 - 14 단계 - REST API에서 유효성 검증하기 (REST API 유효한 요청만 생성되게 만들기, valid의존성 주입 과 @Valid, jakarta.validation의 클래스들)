@@ -45,7 +45,7 @@ ________________________________________________________________________________
   HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 Content-Length:	0 byte                        |    
-Date:	 Sat, 25 May 2024 08:33:33 GMT          |                                          
+Date:  Sat, 25 May 2024 08:33:33 GMT          |                                          
 Keep-Alive: timeout=60	                      |                                       
 Connection: keep-alive                        |                    NO CONTENT                       
                                               |   
@@ -126,9 +126,9 @@ ________________________________________________________________________________
 
   HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-Location:	http://localhost:8080/users5        |
+Location: http://localhost:8080/users5        |
 Content-Length:	0 byte                        |    
-Date:	 Sat, 25 May 2024 08:37:56 GMT          |                                          
+Date:  Sat, 25 May 2024 08:37:56 GMT          |                                          
 Keep-Alive: timeout=60	                      |                   NO CONTENT                    
 Connection: keep-alive                        |                                           
                                               |   
@@ -404,8 +404,8 @@ ________________________________________________________________________________
   HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      
 Content-Length:	application/problem+json      |    {
-Transfer-Encoding:	chunked                   |      "type": "about:blank",
-Date:	 Sat, 25 May 2024 10:19:09 GMT          |      "title": "Bad Request",                                   	                                    
+Transfer-Encoding:  chunked                   |      "type": "about:blank",
+Date:  Sat, 25 May 2024 10:19:09 GMT          |      "title": "Bad Request",                                   	                                    
 Connection: close                             |      "status": 400,                                                
                                               |      "detail": "Invalid request content.", 
                                               |      "instance": "/users"
@@ -423,3 +423,585 @@ REST API를 만들 때는 항상 REST API의 소비자를 고려해야 한다
 니가 이 REST API의 소비자라면 이 요청을 보내고 니가 뭘 잘못했는지 도통 알 수가 없다
 그냥 400이 반환됐을 뿐이다, 이건 어떻게 개선하면 좋을까?
 
+일단 ResponseEntityExceptionHandler로 가보겠다
+그 안에서 메소드를 찾는다 handleMethodArgumentNotValid란 메소드를 찾는다
+
+	@Nullable
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+		return handleExceptionInternal(ex, null, headers, status, request);
+	}
+이게 바로 MethodArgumentNotValidException을 처리하는 메소드이다 이걸 오버라이드해서 우리 상황에 맞게 고쳐줘야 한다 복사한다
+우리가 만들었다 CustomizedResponseEntityExceptionHandler로 붙여 넣겠다
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ CustomizedResponseEntityExceptionHandler 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.exception;
+
+import java.time.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.*;
+import org.springframework.web.servlet.mvc.method.annotation.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.user.*;
+
+
+@ControllerAdvice
+public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler{
+
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<ErrorDetails> handleAllException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@ExceptionHandler(UserNotFoundException.class)
+	public final ResponseEntity<ErrorDetails> handleUserNotFoundException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.NOT_FOUND);
+	}
+
+  //3: 여기 붙여 넣었는데, handelMethodArgumentNotValid 보면 MethodArgumentNotValidException이랑 헤더, 상태 코드 그리고 웹 요청까지 인자로 받는다, 이제 우리가 정의한 응답을 반환하도록 구현해야한다 ( ErrorDetails errorDetails = ~ return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.NOT_FOUND); ) 이부분을 복사해 가져온다
+  //3-2: 우리가 오버라이드하는 메소드는 ResponseEntityExceptionHandler 이 메소드이다 ResponseEntityExceptionHandler안에 있는 것이다 //3-3: 다시 메소드 안으로...
+	@Override
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+  //3-1: 응답 상태는 HttpStatus.BAD_REQUEST로 바꿔준다 좋다 여기 있는 ResponseEntity<ErrorDetails>의 <ErrorDetails>은 쓸 수 없어서 지우고 이 부분의 시그니처와 같은 걸 써야 한다, 오버라이드할 것이기 때문이다 //3-2: 위에 @Override 추가해주기
+		return new ResponseEntity(errorDetails, HttpStatus.BAD_REQUEST);
+
+  //3-3: 이걸 지우겠다 마지막 줄을 지웠고 파일을 저장하고 응답을 확인해 보겠다
+//		return handleExceptionInternal(ex, null, headers, status, request);
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------------------
+                                                                                      |
+                                                                                      V
+------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/users                             |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    {
+☑ | Content-Type | : | application/json | x   |       name: "",                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |       birthDate": "2099-05-20"                                
+  ______________                              |    }                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+
+------------------------------------------------------------------------------------------------------------------------------
+보내기 버튼을 클릭한다                                                                 |
+                                                                                     V
+------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  400                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      
+Content-Length:	application/json              |    {
+Transfer-Encoding:  chunked                   |      "timestamp": "2024-05-25T19:49:36.8754098",
+Date:  Sat, 25 May 2024 10:49:36 GMT          |      "message": "Validation failed for argument [0]...                                  	                                    
+Connection: close                             |      "details": "uri=/users"                                                
+                                              |    } 
+                                              |     
+▶ COMPLETE REQUEST HEADERS                    |                                   
+                                              |                                    
+                                              |
+
+
+------------------------------------------------------------------------------------------------------------------------------
+타임스탬프가 있고 메시지도 있고 상세 정보 항목도 들어가 있다
+메시지를 확인해 보면 상당히 길다 복사해서 메모장이나 IDE에 붙여넣고 확인해 본다,
+상당히 많은 양의 에러 메시지가 반환됐다
+message": "Validation failed for argument [0] in public 
+org.springframework.http.ResponseEntity<com.in28minutes.rest.webservices.restfulwebservices.user.User> 
+com.in28minutes.rest.webservices.restfulwebservices.user.UserResource.createUser(com.in28minutes.rest.webservices.restfulwebservices.user.User)
+with 2 errors: [Field error in object 'user' on field 'birthDate': rejected value [2099-05-20]; 
+codes [Past.user.birthDate,Past.birthDate,Past.java.time.LocalDate,Past]; 
+arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [user.birthDate,birthDate]; 
+arguments []; default message [birthDate]]; 
+default message [과거 날짜여야 합니다]] [Field error in object 'user' on field 'name': rejected value []; 
+codes [Size.user.name,Size.name,Size.java.lang.String,Size]; 
+arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [user.name,name]; 
+arguments []; default message [name],2147483647,2]; default message [크기가 2에서 2147483647 사이여야 합니다]] ",
+
+에러가 2개 있다고 한다, 크기가 최소 2에 2147483647 값 사이어야 하고 생일 날짜가 과거여야 한다고 한다
+소비자는 이 에러 메시지를 보고 요청에 어떤 문제가 있었는지 파악할 수 있게 되는 거다
+근데 이건 또 너무 많은 양의 정보를 소비자한태 전달하는 것 같다
+
+그래서 말이다
+User.java로 가서 관련해서 전달할 메시지를 정의할 수 있다
+
+------------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ User 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+
+import jakarta.validation.constraints.*;
+
+public class User {
+
+	private Integer id;
+
+//4: ()안에 message 속성 값으로 이름의 길이는 최소 두 자여야 한다고 넣어 준다 ("Name should have atleast 2 characters")
+	@Size(min=2, message = "Name should have atleast 2 characters")
+	private String name;
+
+//4-1: @Past에도 추가해 주겠다 message 속성 값으로 생일 날짜는 과거의 날짜여야 한다고 하겠다 ("Birth Date should be in the past"), 자 다시 요청을 보내 보도록 하자
+	@Past(message = "Birth Date should be in the past")
+	private LocalDate birthDate;
+	
+	public User(Integer id, String name, LocalDate birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+
+------------------------------------------------------------------------------------------------------------------------------
+                                                                                                |
+                                                                                                V
+------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/users                             |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    {
+☑ | Content-Type | : | application/json | x   |       name: "",                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |       birthDate": "2099-05-20"                                
+  ______________                              |    }                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  400                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      
+Content-Length:	application/json              |    {
+Transfer-Encoding:  chunked                   |      "timestamp": "2024-05-25T20:03:01.044935",
+Date:  Sat, 25 May 2024 11:03:01 GMT          |      "message": "Validation failed for argument [0]...                                  	                                    
+Connection: close                             |      "details": "uri=/users"                                                
+                                              |    } 
+                                              |     
+▶ COMPLETE REQUEST HEADERS                    |                                   
+                                              |                                    
+                                              |
+------------------------------------------------------------------------------------------------------------------------------
+다시 메시지 항목을 복사해서 확인해 보자, 뭐라고 돼있지?
+message": "Validation failed for argument [0] in public 
+org.springframework.http.ResponseEntity<com.in28minutes.rest.webservices.restfulwebservices.user.User> 
+com.in28minutes.rest.webservices.restfulwebservices.user.UserResource.createUser(com.in28minutes.rest.webservices.restfulwebservices.user.User) 
+with 2 errors: [Field error in object 'user' on field 'birthDate': rejected value [2099-05-20]; 
+codes [Past.user.birthDate,Past.birthDate,Past.java.time.LocalDate,Past]; 
+arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [user.birthDate,birthDate];
+arguments []; default message [birthDate]]; 
+default message [Birth Date should be in the past]] [Field error in object 'user' on field 'name': rejected value []; 
+codes [Size.user.name,Size.name,Size.java.lang.String,Size]; 
+arguments [org.springframework.context.support.DefaultMessageSourceResolvable: 
+codes [user.name,name]; arguments []; default message [name],2147483647,2]; 
+default message [Name should have atleast 2 characters]] ",
+
+우리가 아까 넣었던 메시지가 여기 찍혔을 것이다 
+Birth Date should be in the past 생일 날짜는 과거여야 한다와 Name should have atleast 2 characters 이름은 최소 두 글자여야 한다는 것 
+너의 상황에 따라 이런 에러 메시지를 맞춤형으로 바꾸면 되는데 
+
+전달 된 에러를 살펴 보면 여러 정보가 조회 가능한데
+
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ CustomizedResponseEntityExceptionHandler 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.exception;
+
+import java.time.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.*;
+import org.springframework.web.servlet.mvc.method.annotation.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.user.*;
+
+
+@ControllerAdvice
+public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler{
+
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<ErrorDetails> handleAllException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@ExceptionHandler(UserNotFoundException.class)
+	public final ResponseEntity<ErrorDetails> handleUserNotFoundException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+    //5: 에러가 발생한 필드를 조회할 수 있다 getFieldError()를 호출해 준다, 예를 들어 필드와 관련된 첫 번째 에러를 조회하려면 getFieldError()를 호출한 다음 getDefaultMessage()를 호출해 준다, 이걸 그대로 반환하면 되겠다
+    //( ()안에 있는 ex.getMessage() 를 ex.getFieldError().getDefaultMessage() 이걸로 수정 ) 첫 번째 에러만 반환할 수 있는 것이다
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getFieldError().getDefaultMessage(), request.getDescription(false));
+
+		return new ResponseEntity(errorDetails, HttpStatus.BAD_REQUEST);
+		
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------------------
+다시 요청을 보내서 확인해 보면 
+------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/users                             |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    {
+☑ | Content-Type | : | application/json | x   |       name: "",                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |       birthDate": "2099-05-20"                                
+  ______________                              |    }                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  400                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      
+Content-Length:	application/json              |    {
+Transfer-Encoding:  chunked                   |      "timestamp": "2024-05-25T20:19:07.2330594",
+Date:  Sat, 25 May 2024 11:19:07 GMT          |      "message": "Birth Date should be in the past",                                 	                                    
+Connection: close                             |      "details": "uri=/users"                                                
+                                              |    } 
+                                              |     
+▶ COMPLETE REQUEST HEADERS                    |                                   
+                                              |                                    
+                                              |
+------------------------------------------------------------------------------------------------------------------------------
+메시지 값이 짧아졌다, 생일은 과거만 가능이라는 메시지만 있다 "Birth Date should be in the past",
+생일만 바꿔 보겠다, 1985-06-27로 넣고 요청을 보내면
+
+------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/users                             |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    {
+☑ | Content-Type | : | application/json | x   |       "name": "",                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |       "birthDate": "1985-06-27"                                
+  ______________                              |    }                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  400                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      
+Content-Length:	application/json              |    {
+Transfer-Encoding:  chunked                   |      "timestamp": "2024-05-25T20:21:56.7429068",
+Date:  Sat, 25 May 2024 11:21:56 GMT          |      "message": "Name should have atleast 2 characters",                                 	                                    
+Connection: close                             |      "details": "uri=/users"                                                
+                                              |    } 
+                                              |     
+▶ COMPLETE REQUEST HEADERS                    |                                   
+                                              |                                    
+                                              |
+------------------------------------------------------------------------------------------------------------------------------
+"Name should have atleast 2 characters" 이름은 반드시 2글자 이상이라고 나온다
+
+
+또 다른 방법은 반복문을 실행해서 두 에러 메시지 다 출력되게 하는 것이다
+
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ CustomizedResponseEntityExceptionHandler 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.exception;
+
+import java.time.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.*;
+import org.springframework.web.servlet.mvc.method.annotation.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.user.*;
+
+
+@ControllerAdvice
+public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler{
+
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<ErrorDetails> handleAllException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+	
+	@ExceptionHandler(UserNotFoundException.class)
+	public final ResponseEntity<ErrorDetails> handleUserNotFoundException(Exception ex, WebRequest request) throws Exception {
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				ex.getMessage(), request.getDescription(false));
+		
+		return new ResponseEntity<ErrorDetails>(errorDetails, HttpStatus.NOT_FOUND);
+	}
+	
+	
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+    //6: 모든 필드 에러를 순회할 수 있는데 이건 어떻게 구현하느냐, 에러를 찾는데, 에러 하나가 아닌 전부를 대상으로 getFieldErrors()를 호출하고
+    //조회된 필드 에러를 반복문으로 돌면서 메시지 문자열에 메시지를 추가하면 된다, 
+    // 에러 개수를 추가하는 방법도 있을 텐데 ex.getErrorCount()를 호출한다 이어서 더하기를 넣어 준다, 앞에 문자열을 넣어 주고 뒤에도 넣어 준다 
+    //앞 문자 열에 총 에러 개수가 얼마라는 라벨로 (Total Errors:) 이어서, 첫 번째 에러는 이거라는 라벨도 붙인다 빈 이름으로 고치고 다시 요청을 보내면 어떻게 될까?
+		ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), 
+				 "Total Errors:"+ ex.getErrorCount() + " First Error:" + ex.getFieldError().getDefaultMessage(), request.getDescription(false));
+  
+		
+		return new ResponseEntity(errorDetails, HttpStatus.BAD_REQUEST);
+		
+	}
+}
+------------------------------------------------------------------------------------------------------------------------------
+                                                                                              |
+                                                                                              V
+------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/users                             |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    {
+☑ | Content-Type | : | application/json | x   |       name: "",                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |       birthDate": "2099-05-20"                                
+  ______________                              |    }                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+
+------------------------------------------------------------------------------------------------------------------------------
+보내기를 클릭                                                                                  |
+                                                                                              V
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  400                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      
+Content-Length:	application/json              |    {
+Transfer-Encoding:  chunked                   |      "timestamp": "2024-05-25T20:34:19.6248677",
+Date:  Sat, 25 May 2024 11:34:19 GMT          |      "message": "Total Errors:2 First Error:Name should have atleast 2 characters",                                 	                                    
+Connection: close                             |      "details": "uri=/users"                                                
+                                              |    } 
+                                              |     
+▶ COMPLETE REQUEST HEADERS                    |                                   
+                                              |                                    
+                                              |
+
+------------------------------------------------------------------------------------------------------------------------------
+보면 총 에러 개수가 얼마고 첫 번째 에러는 이거라는 게 반환됐다                                          |
+다시 이름을 Ranga로 명시하고 보내기를 클릭해 요청을 보내면                                             V
+------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/users                             |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |  ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________     __________________      |    {
+☑ | Content-Type | : | application/json | x   |       name: "Ranga",                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |       birthDate": "2099-05-20"                                
+  ______________                              |    }                                
+ ( + Add header )                             |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                              |                                    
+  🗝 Add authorization         🗑              |                                    
+                                              |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+------------------------------------------------------------------------------------------------------------------------------
+                                                                                                  |
+                                                                                                  V
+------------------------------------------------------------------------------------------------------------------------------
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  400                (빨간색 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      
+Content-Length:	application/json              |    {
+Transfer-Encoding:  chunked                   |      "timestamp": "2024-05-25T20:38:18.3173821",
+Date:  Sat, 25 May 2024 11:38:18 GMT          |      "message": "Total Errors:1 First Error:Birth Date should be in the past",                                 	                                    
+Connection: close                             |      "details": "uri=/users"                                                
+                                              |    } 
+                                              |     
+▶ COMPLETE REQUEST HEADERS                    |                                   
+                                              |                                    
+                                              |
+
+------------------------------------------------------------------------------------------------------------------------------
+총 에러 개수는 1이고 첫 번째 에러 메시지는 생일 날짜가 과거여야 한다고 한다
+
+
+
+
+
+너는 너의 소비자에게 알맞는 방식으로 에러 정보를 전달하면 된다
+알아 두면 좋은 건 이 에러의 정보를 다 조회할 수 있다는 것이다 
+이 에러 객체를 더 자세히 살펴 보고 어떤 정보를 반환하는 게 제일 좋을지 고민해 봐라
+REST API를 만들 때는 항상 소비자의 입장에서 생각해야 한다 
+지난 몇 강의에서 그렇게 해왔듯이 말이다
+응답 메시지도 응답 상태도 다 적합하게 개선해 왔다
