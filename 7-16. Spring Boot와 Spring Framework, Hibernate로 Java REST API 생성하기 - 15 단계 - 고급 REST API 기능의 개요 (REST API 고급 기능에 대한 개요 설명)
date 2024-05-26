@@ -1,0 +1,52 @@
+
+
+Advanced REST API Features
+
+● Doucumentation                                                                                   [
+● Content Negotiation                                                                                 -  {
+● Internationalization - i18n                                                                               id: 1,
+● Versioning                                                                                                name: "Adam",
+● HATEOAS                                                                                                   birthDate: "2024-05-18T17:16:30.057+0000"
+● Static Filtering                                                                                       },                                                                                                                                                                           
+● Dynamic Filtering                                                                                   -  {
+● Monitoring                                                                                                id: 2,
+● ....                                                                                                      name: "Eve",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                         },                                    
+                                                                                                     -  {
+                                                                                                            id: 3,
+                                                                                                            name: "Jack",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                        }                                       
+                                                                                                    ] 
+
+지난 몇 개 수업에선 REST API의 기초에 집중했었는데
+리소스를 생성하는 법과 리소스에서 작업을 수행하는 법, REST API에 대한 유효성 검사를 실행하는 법을 살펴봤었다
+이번 수업부터는 REST API의 고급 기능에 대해 살펴보겠다
+● Doucumentation  
+REST API에 대한 문서를 어떻게 생성할 수 있을까?
+오픈 API와 Swagger에 대해 살펴보도록 하자
+● Content Negotiation
+콘텐츠 협상도 알아보겠다
+
+수업에선 지금까지 JSON 형식을 다뤘는데 가령, 컨슈머가 XML 응답을 기대한다고 치자 이를 어떻게 처리할 수 있을까?
+
+● Internationalization - i18n
+i18n이라고 하는 국제화에 대해서도 알아보려고 한다,
+사용자가 전 세계에 있을 수도 있기 때문이다
+
+사용자의 언어에 따라 REST API 응답을 사용자 정의하는 방법은 무엇일까?
+
+● Versioning
+여러 버전의 REST API를 생성하는 법도 살펴볼 것이다, 
+● HATEOAS
+● Static Filtering
+● Dynamic Filtering
+● Monitoring
+● .... 
+기타 수많은 고급 기능도 짚어보려고 하는데
+HATEOAS와 정적 필터링과 동적 필터링이라는 두 가지 필터링, 그리고 REST API를 모니터링 하는 방법을 살펴보겠다
+
+
+많은 REST API의 고급 기능을 즐겁게 학습할 준비가 됏냐?
+다음 강의에 보겠다
