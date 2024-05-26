@@ -1,0 +1,186 @@
+
+
+REST API Documentation
+                                                                                                                                                  
+● Your REST API consumers need to understand your REST API:                                                                                            
+  ■ Resources                                                                                ______________________________________________________________   
+  ■ Actions                                                                                    _______
+  ■ Request/Response Structure (Constraints/Validations)                                      |  GET  |  /jpa/users/{id}/posts
+● Challenges:                                                                                  ‾‾‾‾‾‾‾                       
+  ■ Accuracy: How do you ensure that your documentation is upto date and correct?            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+  ■ Consistency: You might have 100s of REST API in an enterprise. 
+    How do you ensure consistency?                                                               Prameters                      
+● Options:                                                                                  |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    
+  ■ 1: Manually Maintain Documentation                                                      |        
+    ○ Additional effort to keep it in sync with code                                        |    Name                Description          
+  ■ 2: Generate from code                                                                   |   |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                 
+                                                                                            |   | id *required       ________________________                                                        
+                                                                                            |   | integer($int32)   | id                                                      
+                                                                                            |   | (pass)             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                 
+                                                                                            |   |
+                                                                                            |   |                                               
+                                                                                            |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                  Response
+                                                                                            |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                            |   Code      Description
+                                                                                            |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                 
+                                                                                            |   200       OK                                                                                                                                                                    
+                                                                                            |                                                                                                                                                                                            
+                                                                                            |             Media type                                                                                                                                                                               
+                                                                                            |             ______________________________                                                                                                                                                                               
+                                                                                            |            | application/hal+json      v  |                                                                                                                                                                            
+                                                                                            |             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                                                                               
+                                                                                            |            controls Accept header.                                                                                                                                                                               
+                                                                                            |                                                                                                                                                                                            
+                                                                                            |            Example Value | Schema                                                                                                                                                                                
+                                                                                            |           |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                                                                                
+                                                                                            |           |  [                                                                                                                                                                                 
+                                                                                            |           |    {                                                                                                                                                                                
+                                                                                            |           |       "id": 0,                                                                                                                                                                           
+                                                                                            |           |       "description": "string"                                                                                                                                                                         
+                                                                                                                                                                                                                                                                                        
+
+이번 수업부터 REST API 문서를 집중적으로 다뤄보겠다
+ ● Your REST API consumers need to understand your REST API:
+너의 REST API 컨슈머는 REST API를 이해해야 하는데 
+  ■ Resources  
+노출되고 있는 여러 리소스가 무엇인지 알아야 하지
+  ■ Actions
+수행되는 여러 작업에 대해서도 파악해야 한다  
+  ■ Request/Response Structure (Constraints/Validations) 
+또한 요청 및 응답 구조는 물론 요청 형식도 알아야 하는데 컨슈머가 기대하는 응답은 무엇인지
+제약이나 검증은 있는지 따져봐야 한다 
+REST API 컨슈머는 REST API를 잘 이해하고 있어야 제대로 사용할 수 있다
+
+● Challenges:     
+REST API 문서를 다루는 경우, 여러 문제에 맞딱뜨리게 되는데 
+  ■ Accuracy: How do you ensure that your documentation is upto date and correct? 
+문서가 최신 버전이고 정확한지 어떻게 확인할 수 있을까?   
+정확도는 항상 까다로운 문제다 문서는 코드와 동기화되지 않을 수 있다
+  ■ Consistency: You might have 100s of REST API in an enterprise. How do you ensure consistency?
+또 다른 중요한 사항은 문서의 일관성인데 기업에는 수백 개의 REST API가 있을 수 있다 
+이 모든 API의 문서가 일관된 형식으로 이루어져 있는지 어떻게 보장할 수 있을까?
+● Options: 
+REST API를 다룰 때 두 가지 옵션이 있는데
+  ■ 1: Manually Maintain Documentation
+하나는 문서를 수동으로 관리하는 것이다  
+기본적으로 REST API의 관련 문서를 관리하는 문서나 HTML 파일을 갖고있다
+    ○ Additional effort to keep it in sync with code 
+문서를 수동으로 관리하는 경우, 코드와 동기화하는지 확인하기 위해 항상 노력을 기울여야 한다
+  ■ 2: Generate from code
+이 대안으로는 코드에서 문서를 생성하는 방법이 있는데   
+
+앞서 UserResource에 대한 코드를 작성했었지?
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+ ....
+이 코드를 사용해서 UserResourece에 대한 문서를 생성할 수 있을까?
+
+
+코드를 기반으로 문서를 생성하는 것이 이 두 번째 옵션인데
+이번 수업에선 코드에서 REST API에 대한 문서를 생성하는 두 번째 옵션을 살펴보려고 한다 
+
+
+
+
+
+
+REST API Documentation - Swagger and Open API
+                                                                                                                                                  
+● Quick overview:                                                                                     ●왼쪽은 Open API 예)                                          
+  ■ 2011: Swagger Specification and Swagger Tools were introduced                                      ______________________________________  ______________________________________________________________   
+  ■ 2016: Open API Specification created based on Swagger Spec.                                          localhost:8080/v3/api-docs          |    _______
+    ○ Swagger Tools (ex:Swagger UI) continue to exist                                                 |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|  |  GET  |  /jpa/users/{id}/posts
+  ■ OpenAPI Specification: Standard, language-agnostic interface                                      |  {                                   |   ‾‾‾‾‾‾‾                       
+    ○ Discover and understand RES API                                                                 |     "openapi": "3.0.1",              | ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+    ○ Earlier callse Swagger Specification                                                            |     "info": {⇿},                     |
+● Swagger UI: Visualize and interact with your REST API                                               |     "servers": [⇿],                  |     Prameters                      
+                                                                                                      |     "paths": {                       | |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    
+                                                                                                      |        "/posts: {                    | |        
+                                                                                                      |          "get": {⇿},                 | |    Name                Description          
+                                                                                                      |          "post": {⇿}                 | |   |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                 
+                                                                                                      |      },                              | |   | id *required       ________________________                                                        
+                                                                                                      |      "/posts/{id}": {                | |   | integer($int32)   | id                                                      
+                                                                                                      |        "get": {⇿},                   | |   | (pass)             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                 
+                                                                                                      |        "put": {⇿},                   | |   |
+                                                                                                      |        "delete": {⇿},                | |   |                                               
+                                                                                                      |        "patch": {⇿}                  | |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                      |       }...                           |      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                      |                                      |      Response
+                                                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                                                              |   Code      Description
+                                                                                                                                              |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                 
+                                                                                                                                              |   200       OK                                                                                                                                                                    
+                                                                                                                                              |                                                                                                                                                                                            
+                                                                                                                                              |             Media type                                                                                                                                                                               
+                                                                                                                                              |             ______________________________                                                                                                                                                                               
+                                                                                                                                              |            | application/hal+json      v  |                                                                                                                                                                            
+                                                                                                                                              |             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                                                                               
+                                                                                                                                              |            controls Accept header.                                                                                                                                                                               
+                                                                                                                                              |                                                                                                                                                                                            
+                                                                                                                                              |            Example Value | Schema                                                                                                                                                                                
+                                                                                                                                              |           |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                                                                                
+                                                                                                                                              |           |  [                                                                                                                                                                                 
+                                                                                                                                              |           |    {                                                                                                                                                                                
+                                                                                                                                              |           |       "id": 0,                                                                                                                                                                           
+                                                                                                                                              |           |       "description": "string"  
+                                                                                                                                              
+REST API 문서를 다룰 때 마다 이해하고 있어야 할 중요한 2가지 용거가 있다 
+이는 REST API를 개발하기 위해 활용하는 언어와는 관계가 없는데 
+너가 REST API를 구축하든, 자바 ,파이썬, Node.js등을 비롯한 그 어떤 언어를 사용하든 이 2개 용어는 무척 흔히 쓰인다
+첫 번째 용어는 Swagger이며 두 번째는 Open API이다
+Swagger와 Open API를 이해하기 위해 역사를 간단히 살펴보자
+● Quick overview:
+  ■ 2011: Swagger Specification and Swagger Tools were introduced
+2011년도에 Swagger Specification과 Swagger Tools가 도입되었다  
+이 시기에 많은 REST API를 구축하기 시작했고, 이에 따라 REST API를 문서화할 수 있는 형식이 필요했는데 
+바로 여기서 Swagger가 등장했으며, Swagger는 Swagger Specification이라는 사양을 제공했다,
+또한 이러한 사양을 시각화하고 이용할 수 있도록 여러 도구를 제공했다 
+Swagger는 상당히 유명해졌으며 REST API를 문서화할 수 있는 실질적인 표준으로 거의 자리매김하게 됐다
+  ■ 2016: Open API Specification created based on Swagger Spec.  
+2016년에는 이 Swagger Specification을 기반으로 오픈 API 사양이 만들어졌는데   
+많은 대기업이 참여한 결과 오픈 API 사양이라는 개방형 표준이 REST API를 문서화하기 위한 표준으로 만들어졌다
+그 기반은 Swagger Specification에 있었고, 
+그런데 반드시 기억해야 할 한 가지는 이 Swagger Tools가 여전히 존재한다는 점이다 
+Swagger Specification은 오픈 API 사양이 되었는데 
+    ○ Swagger Tools (ex:Swagger UI) continue to exist 
+Swagger Tools는 REST API를 시각화하고 소비하는 도구이다 지금도 계속 존재하고 있다, 그 예로 Swagger UI가 있다   
+  ■ OpenAPI Specification: Standard, language-agnostic interface
+오픈 API 사양은 원래 Swagger Specification이었는데 REST API를 정의하기 위한 특정 언어에 국한되지 않는 표준 인터페이스밖에 없었다  
+
+localhost:8080/v3/api-docs 라고 쓰여있는 이미지 왼쪽에서 오픈 API 사양의 예시를 확인할 수 있다
+이 예시에선 오픈 API 3.0.1버전을 사용하고 있는데
+개방형 사양의 일부로 특정 REST API가 노출되는 위치를 정의할 수 있다 
+노출되고 있는 여러 리소스는 무엇일까? REST API에서 수행할 수 있는 작업은 무엇일까?
+    ○ Discover and understand RES API
+오픈 API 사양을 사용하여 REST API를 발견하고 파악할 수 있다    
+    ○ Earlier callse Swagger Specification
+이것은 Swagger Specification이었으며     
+● Swagger UI: Visualize and interact with your REST API
+Swagger를 통해 REST API를 사용하여 시각화하고 상호 작용할 수 있다
+이 문서를 보유하고 있으면 좋다
+하지만 REST API와 상호 작용할 수 있게 돕는 도구를 갖고 있어야 하는데  
+더 시각적으로 즐겁게 보기를 원한다면 Swagger UI를 사용하면 된다
+오픈 API 사양에 관한 훌륭한 UI를 제공할 뿐만 아니라, REST API를 쉽게 다룰 수 있게 해준다
+
+
+
+
+
+
+지금까지 REST API문서에 관해 너가 알아야 할 중요한 점에 대해 간단히 소개했는데 
+Open API와 Swagger UI에 대해 말했다
+다음 시간에는 REST API에 대한 문서를 생성해보자
