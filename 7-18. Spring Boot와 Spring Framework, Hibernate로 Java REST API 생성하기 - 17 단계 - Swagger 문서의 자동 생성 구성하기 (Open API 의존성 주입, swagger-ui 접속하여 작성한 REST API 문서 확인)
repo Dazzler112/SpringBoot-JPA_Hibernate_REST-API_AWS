@@ -1,0 +1,432 @@
+
+
+지난 영상을 통해 Swagger와 오픈 API를 살펴봤다, 오늘 수업에서는 REST API 문서를 생성하는 방법을 집중적으로 다루려고 하는데, 
+API 문서 생성을 자동화하기 위해 사용하는 라이브러리는 springdoc-openapi라고 한다
+구글에서 springdoc-openapi를 검색하면 이 같은 페이지를 확인하게 될 것이다
+바로 springdoc.org인데 (https://springdoc.org/) 이 페이지를 연 다음,
+이에 관한 GitHub페이지도 열어보겠다 https://github.com/springdoc/springdoc-openapi 로 이동해보자
+웹, 깃허브 둘다 들어가 보자
+
+
+1. Introduction
+springdoc-openapi java library helps to automate the generation of API documentation using spring boot projects. 
+springdoc-openapi works by examining an application at runtime to infer API semantics based on spring configurations, 
+class structure and various annotations.
+Automatically generates documentation in JSON/YAML and HTML format APIs. 
+This documentation can be completed by comments using swagger-api annotations.
+
+This library supports:
+● OpenAPI 3
+● Spring-boot v3 (Java 17 & Jakarta EE 9)
+● JSR-303, specifically for @NotNull, @Min, @Max, and @Size.
+● Swagger-ui
+● OAuth 2
+● GraalVM native images
+
+The following video introduces the Library:
+This is a community-based project, not maintained by the Spring Framework Contributors (Pivotal).
+
+웹 사이트를 통해 springdoc-openapi라는 자바 라이브러리를 사용하여 
+스프링 부트 프로젝트의 API 문서 생성을 자동화 할 수 있다는 사실을 확인 할 수 있다
+springdoc-openapi는 API 의미를 추론하기 위해 런타임에 애플리케이션을 검사하여 작동하며
+이는 스프링 설정, 클래스 구조를 비롯하여 REST API에서 사용하는 다양한 어노테이션을 기반으로 하는데 
+여기서 매우 중요한 사항은 이것이 오픈 API 3를 지원한다는 거다,
+현재 springdoc-openapi의 라이브 버전이 Spring-boot v1과 v2만 지원한다는 사실도 중요하다
+
+pom.xml에서 스프링 부트 3를 사용하고 있다는 걸 확인할 수 있는데
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.5</version>
+		<relativePath/>
+
+그렇다면 스프링 부트 3에 대한 지원과 함께 springdoc-openapi를 얻을 수 있는 방법은 무엇일까?
+
+이는 GitHub 페이지를 통해 알아보겠다
+📁 .github                                   Align code formatting with spring-javaformat                                2 years ago
+📁 springdoc-openapi-starter-common          code review                                                                 last month
+📁 springdoc-openapi-starter-webflux-api     [maven-release-plugin] prepare for next development iteration               last month
+📁 springdoc-openapi-starter-webflux-ui      [maven-release-plugin] prepare for next development iteration               last month
+📁 springdoc-openapi-starter-webmvc-api      Testing pattern with specifying Schema in response headers.                 last month
+📁 springdoc-openapi-starter-webmvc-ui       [maven-release-plugin] prepare for next development iteration               last month
+📁 springdoc-openapi-tests                   [maven-release-plugin] prepare for next development iteration               last month
+📄 .gitignore                                 Changes report: #1706                                                       2 years ago
+📄 CHANGELOG.md                               Improve support for externalizing strings in generated openapi. Fixes #…    last month
+....
+
+springdoc-openapi에 대한 GitHub 페이지에서 springdoc-openapi-starter-webmvc-ui 도 사용해야 한다 
+이 처럼 여러 폴더를 확인할 수 있는데
+이 중 하나가 springdoc-openapi-starter-webmvc-ui에 해당할 것이다
+
+
+springdoc-openapi-starter-webmvc-ui로 들어가서 pom.xml을 클릭한다
+
+📁 ..
+📁 src                  code review                                                            3 months ago
+📄 .gitignore           Add support for Jakarta EE #1284                                       2 years ago
+📄 pom.xml              [maven-release-plugin] prepare for next development iteration          last month
+
+
+<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId> 이것이 바로 우리가 추가해야 하는 아티팩트다
+아직은 릴리스된 2.0.0 버전을 확인할 수 없기 때문에 
+여기 있는
+	<parent>
+		<groupId>org.springdoc</groupId>
+		<artifactId>springdoc-openapi</artifactId>
+		<version>2.5.1-SNAPSHOT</version>
+	</parent>
+최근 버전을 릴리스 를 사용하겠다
+
+먼저 <groupId>org.springdoc</groupId> 를 pom.xml에 추가해야 한다
+pom.xml로 이동해보겠다 그럼 starter-validation 아래에 작성하겠다
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ pom.xml파일
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+
+    <!--1: dependency를 입력한 다음 groupId를 붙여 넣는다 org.springdoc  artifactId는 springdoc.openapi-starter-webmvc-ui를 사용하고 있는데, 
+      우리가 사용하게 될 버전은 <version>2.5.1-SNAPSHOT</version> 이것이다 스냅샷 대신 2.0.2를 사용하겠다, 이 사항은 매우 자주 변경될 거라 예상하는데
+      따라서 본 강의에 앞서 텍스트 강의를 통해 이 의존성에 관한 텍스트를 전부 사용할 수 있게 하려고 한다 그렇게 하면 너는 강의에서 전체 의존성 텍스트를 복사해서 붙여넣기만 하면 되기 때문이다
+      이제 특정 버전이 스프링 부트 3와 잘 작동하는지도 확인할 수 있고 이제 이것을 저장해보자, 지금 의존성이 다운로드 되고 있다-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+-------------------------------------------------------------------------------------------------------------------------------
+다운로드가 잘 마무리되었다
+의존성이 다운로드되고 있는 건 pom.xml에서 변경했기 때문이다
+이 서버를 중단한 다음 모든 것이 다운로드되었는지 잠시 확인해보겠다
+애플리케이션에 이상없이 잘 작동하고 있고, 이제 다음을 입력한다
+
+http://localhost:8080/swagger-ui.html
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:8080/swagger-ui.html 사이트 화면 ==>
+
+
+________________________________________________________________________________________________________________
+                                                                           ________________________________                                       
+      Swagger               (검바탕)                                       |  /v3/api-docs      |  Exploer  |
+                                                                           ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  OpenAPI denfinition (v0) (OAS3)
+  /v3/api-docs
+________________________________________________________________________________________________________________
+
+  Servers
+   ___________________________________________________
+  |  http://localhost:8080 - Generated server url   v |
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    user-resource                                                                                        ▲
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+     _____________________________________________________________________________________________________
+    | | GET | /users                                                                                    V |
+     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+     _____________________________________________________________________________________________________
+    | | POST | /users                                                                                   V |
+     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+     _____________________________________________________________________________________________________
+    | | GET | /users/{id}                                                                               V |
+     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+     _____________________________________________________________________________________________________
+    | | DELETE | /users/{id}                                                                            V |
+     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+    hello-world-controller
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+     _____________________________________________________________________________________________________
+    | | GET | /hello-world                                                                              V |
+     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+     _____________________________________________________________________________________________________
+    | | GET | /hello-world/path-variable/{name}                                                         V |
+     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+     _____________________________________________________________________________________________________
+    | | GET | /hello-world-bean                                                                         V |
+     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+(직접 들어가서 확인...)
+-------------------------------------------------------------------------------------------------------------------------------
+
+이처럼 Swaggwer UI로 이동하게 되는데, 보다시피 REST API문서를 확인할 수 있다
+지금까지 user-resouce와 hello-world-resource 또는 hello-worldcontroller라는 2개의 리소스를 생성했다
+user-resource의 일부로 다음과같은 작업이 정의되었는데
+사용자를 얻고, 새 사용자를 생성하고, 특정 사용자의 세부 사항을 얻고, 특정 사용자를 삭제할 수도 있다
+
+hello-world-controller에는 3개의 간단한 REST API가 노출되어 있다
+hello-world REST API, 경로 변수가 있는 hello-world REST API, 빈을 다시 반환하는 hello-world REST API도 있다 
+
+문제는 없어 보인다
+화면 상단에 /v3/api-docs라는 링크가 있는데 우클릭 한 다음 Open Link in New Tab을 누르면 API에 대한 오픈 API 사양을 확인할 수 있다
+-------------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/v3/api-docs 사이트 화면 ==>
+
+
+
+{
+  "openapi": "3.0.1",
+  "info": {
+  "title": "OpenAPI definition",
+  "version": "v0"
+  },
+    "servers": [
+      {
+        "url": "http://localhost:8080",
+        "description": "Generated server url"
+      }
+    ],
+        "paths": {
+        "/users": {
+        "get": {
+        "tags": [
+        "user-resource"
+      ],
+        "operationId": "retrieveAllUsers",
+        "responses": {
+        "200": {
+        "description": "OK",
+        "content": {
+        "*/*": {
+        "schema": {
+        "type": "array",
+        "items": {
+        "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+      "tags": [
+      "user-resource"
+      ],
+      "operationId": "createUser",
+      "requestBody": {
+      "content": {
+      "application/json": {
+      "schema": {
+      "$ref": "#/components/schemas/User"
+            }
+          }
+        },
+      "required": true
+      },
+      "responses": {
+      "200": {
+      "description": "OK",
+      "content": {
+      "*/*": {
+      "schema": {
+      "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{id}": {
+      "get": {
+      "tags": [
+      "user-resource"
+      ],
+      "operationId": "retrieveUser",
+      "parameters": [
+      {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+      "type": "integer",
+      "format": "int32"
+      }
+      }
+      ],
+      "responses": {
+      "200": {
+      "description": "OK",
+      "content": {
+      "*/*": {
+      "schema": {
+      "$ref": "#/components/schemas/User"
+      }
+      }
+      }
+      }
+      }
+      },
+      "delete": {
+      "tags": [
+      "user-resource"
+      ],
+      "operationId": "deleteUser",
+      "parameters": [
+      {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+      "type": "integer",
+      "format": "int32"
+      }
+      }
+      ],
+      "responses": {
+      "200": {
+      "description": "OK"
+      }
+      }
+      }
+      },
+      "/hello-world": {
+      "get": {
+      "tags": [
+      "hello-world-controller"
+      ],
+      "operationId": "helloWorld",
+      "responses": {
+      "200": {
+      "description": "OK",
+      "content": {
+      "*/*": {
+      "schema": {
+      "type": "string"
+      }
+      }
+      }
+      }
+      }
+      }
+      },
+      "/hello-world/path-variable/{name}": {
+      "get": {
+      "tags": [
+      "hello-world-controller"
+      ],
+      "operationId": "helloWorldPathVariable",
+      "parameters": [
+      {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+      "type": "string"
+      }
+      }
+      ],
+      "responses": {
+      "200": {
+      "description": "OK",
+      "content": {
+      "*/*": {
+      "schema": {
+      "$ref": "#/components/schemas/HelloWorldBean"
+      }
+      }
+      }
+      }
+      }
+      }
+      },
+      "/hello-world-bean": {
+      "get": {
+      "tags": [
+      "hello-world-controller"
+      ],
+      "operationId": "helloWorldBean",
+      "responses": {
+      "200": {
+      "description": "OK",
+      "content": {
+      "*/*": {
+      "schema": {
+      "$ref": "#/components/schemas/HelloWorldBean"
+      }
+      }
+      }
+      }
+      }
+      }
+      }
+      },
+      "components": {
+      "schemas": {
+      "User": {
+      "type": "object",
+      "properties": {
+      "id": {
+      "type": "integer",
+      "format": "int32"
+      },
+      "name": {
+      "maxLength": 2147483647,
+      "minLength": 2,
+      "type": "string"
+      },
+      "birthDate": {
+      "type": "string",
+      "format": "date"
+      }
+      }
+      },
+      "HelloWorldBean": {
+      "type": "object",
+      "properties": {
+      "message": {
+      "type": "string"
+      }
+      }
+      }
+    }
+  }
+}
+-------------------------------------------------------------------------------------------------------------------------------
