@@ -1,0 +1,164 @@
+
+
+Content Negotiation  
+                                                                                                          localhost:8080/users                                                                                         
+● Same Resource - Same URI                                                                                [
+  ■ HOWEVER Different Representations are possible                                                          {
+    ○ Example: Different Content Type - XML or JSON or..                                                      "id": 1,
+    ○ Example: Different Language - English or Dutch or..                                                     "name": "Adam",
+● How can a consumer tell the REST API provider what they want?                                               "birthDate": "1994-05-28"
+  ■ Content Negotiation                                                                                     },
+● Example: Accept header (MIME types - application/xml, application/json, ..)                               {
+● Example: Accept-Language header(en, nl, fr,..)                                                              "id": 2,
+                                                                                                              "name": "Eve",
+                                                                                                              "birthDate": "1999-05-28"
+                                                                                                            },
+                                                                                                            {
+                                                                                                              "id": 3,
+                                                                                                              "name": "Jack",
+                                                                                                              "birthDate": "2004-05-28"
+                                                                                                            }
+                                                                                                          ]                                                 
+                                                                                                                                                          
+                                                                                                                                                          
+                                                                                                      ▼ <List>                                                    
+                                                                                                        ▼ <item>                                                    
+                                                                                                            <id>2</id>                                                  
+                                                                                                            <name>Eve</name>                                              
+                                                                                                            <birthDate>1987-07-19</birthDate>                                              
+                                                                                                          </itme>                                                
+                                                                                                        ▼ <item>                                                    
+                                                                                                            <id>3</id>                                                  
+                                                                                                            <name>Jack</name>                                              
+                                                                                                            <birthDate>1997-07-19</birthDate>                                              
+                                                                                                          </itme>                                                                                       
+                                                                                                        ▼ <item>                                                    
+                                                                                                            <id>4</id>                                                  
+                                                                                                            <name>Ranga</name>                                              
+                                                                                                            <birthDate>2007-07-19</birthDate>                                              
+                                                                                                          </itme>                                                                                            
+                                                                                                        </List>                                                  
+                                                                                                                                                          
+                                                                                                                                  
+이번 시간부터 Content Negotiation(콘텐츠 협상)에 대해 알아보겠다
+콘텐츠 협상이란 무엇이며, 이것이 REST API에 필요한 이유는 무엇일까?
+● Same Resource - Same URI
+일반적으로 REST 리소스를 다룰 때 동일한 리소스에는 동일한 URI가 있다
+사용자의 경우, localhost:8080/users를 말한다
+특정 리소스에 특정 URI가 있는 건데, 
+  ■ HOWEVER Different Representations are possible
+하지만 여러 표현이 가능하다
+너가 JSON 형식으로 사용자 세부 사항을 얻고자 할 수 있다
+{
+  "id": 1,
+  "name": "Adam",
+  "birthDate": "1994-05-28"
+}
+(이런 방식)
+
+일부 소비자는 XML 형식으로 응답을 기대할 수도 있는데
+▼ <item>                                                    
+  <id>2</id>                                                  
+  <name>Eve</name>                                              
+  <birthDate>1987-07-19</birthDate>                                              
+ </itme>
+(이런 방식)
+따라서 동일한 리소스에 대해 여러 표현을 보유하는 것이 가능하다
+    ○ Example: Different Content Type - XML or JSON or..
+XML이나 JSON 등 다른 콘텐츠 유형이 있을 거라고 기대할 수 있다
+    ○ Example: Different Language - English or Dutch or.. 
+또는 다른 언어로 된 응답을 기대할 수도 있는데 
+{
+  "id": 1,
+  "name": "Adam",
+  "birthDate": "1994-05-28"
+}
+...
+이 응답에 일부 텍스트가 있다고 가정해보자, 동일한 리소스를 다양한 언어로 노출하고 싶은 경우
+영어, 네덜란드어, 독일어, 프랑스어 등 지원하고자 하는 어떤 언어도 가능하다
+따라서 이 동일한 리소스와 동일한 URI에 대해 여러 표현을 가질 수 있다
+다른 형식이나 다른 언어로 응답을 전송해야 할 수 있으며, 이 경우 소비자는 자신이 원하는 표현을 알려줘야 한다
+● How can a consumer tell the REST API provider what they want? 
+소비자는 REST API 제공자에게 원하는 표현을 어떻게 알릴 수 있을까?
+  ■ Content Negotiation 
+이때 바로 콘텐츠 협상이라는 용어가 등장하는데 
+● Example: Accept header (MIME types - application/xml, application/json, ..)
+소비자는 Accept헤더와 같은 것을 사용할 수 있다, 요청을 전송할 때 MIME 유형의 application/xml로 요청을 전송할 수 있다,
+따라서 Accept 헤더를 application/xml 값으로 생성하고 XML 응답을 원한다고 입력할 수 있는데
+또는 application/json을 사용할 수 있고 이것을 통해 JSON 응답을 받을 수 있다
+● Example: Accept-Language header(en, nl, fr,..)
+또 다른 예시로는 Accept-Language헤더가 있다, 
+요청의 일부로 헤더에는 Accept-Laguage라는 헤더를 추가한 다음 영어나 네덜란드어,프랑스어를 원한다고 입력할 수 있다
+
+이를 다시 정리하자면, 동일한 리소스에 대해 다른 표현이 주어질 수도 있다는 것이다
+콘텐츠 협상에선 소비자와 서비스 제공자가 서로 협상하게 되는데 
+소비자는 콘텐츠 제공자에게 원하는 표현을 알려준다
+XML 또는 JSON응답을 원한다거나, 네덜란드어로 텍스트를 원한다고 요청할 수 있다
+이 작업은 Request 헤더를 사용하여 이루어지는데
+
+이번 학습에선 Accept 헤더를 다뤄보자
+
+리소스에 대해 XML 표현을 추가해보겠다
+
+스프링 부트에서 기대할 수 있는 것처럼 방법은 무척 간단하다
+pom.xml로 이동해서 간단한 의존성만 추가하면 되는데
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ pom.xml파일
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>		
+
+    <!--1: groupId는 com.fasterxml.jackson.dataformat이며, artifactID는 jackson-dataformat-xml이다 이제 저장하고 그리고 서버를 중단한 다음 다시시작-->
+		<!--pom.xml에서 의존성을 변경하는 경우, 서버를 다시 시작해야 변경 사항이 반영되기 때문이다-->
+    <dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+--------------------------------------------------------------------------------------------------------------------------
+
