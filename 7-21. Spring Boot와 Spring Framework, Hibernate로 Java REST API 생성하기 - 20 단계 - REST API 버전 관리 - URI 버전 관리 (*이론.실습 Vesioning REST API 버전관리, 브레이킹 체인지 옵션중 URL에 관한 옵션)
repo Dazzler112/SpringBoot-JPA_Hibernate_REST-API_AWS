@@ -155,3 +155,150 @@ public class PersonV1 {
 -------------------------------------------------------------------------------------------------------------------
 
 이렇게 Bob Charlie를 확인할 수 있고 대단한 것은 없다 무척 간단한 작업이다
+이제 person의 새 구조를 통해 이 특정 API의 다른 버전을 구현하고 싶다면 getFirstsVersionOfPerson의 사본을 생성하면 된다
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+⏺ VersioningPersonController 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.versioning;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class VersioningPersonController {
+	
+	@GetMapping("v1/person")
+	public PersonV1 getFirstsVersionOfPerson() {
+		return new PersonV1("Bob Charlie");
+	}
+
+//2:URL이 달라지므로 v1대신 v2를 호출해야 하는데 메소드명도 getSecondVersionOfPerson로 변경해야 하고 SecondV2라고 해도 되겠지, 여기서 두 번째 버전의 person을 사용하게 된다 
+//이제 PersonV2 클래스를 생성할 차례인데 Create class 'PersonV2'를 클릭한다 기본세팅으로 하고 패키지는 restfulwebservices.versioning으로 한다 Finish 클릭//2-1: PersonV2 클래스파일로..
+	@GetMapping("v2/person")
+	public PersonV2 getSecondVersionOfPerson() {
+
+    //2-9: Versioning 컨트롤러에서 PersonV2를 생성해야 하는데, 그렇게 하려면 new Name을 생성해야 한다
+    //이름으로 Bob을, 성으로 Charlie를 사용해보자, 잘 된 것 같다 이제 URL로 이동..
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+}
+
+--------------------------------------------------------------
+
+
+
+⏺ PersonV2 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.versioning;
+
+public class PersonV2 {
+  //2-1: 여기에서는 name 객체가 필요하기 때문에 private Name name;을 작성한다 그리고 Create class 'Name'을 선택하면 Name 클래스를 생성할 수 있는데 //2-2: Name 클래스파일로..
+  private Name name;
+
+  //2-6: PersonV2의 경우 Name을 생성하고 설정할 수 있을 것이다 그럼 생성자를 만들어 보자 우선 생성자를 생성하려고 하는데 Generate Constructor using Fields를 클릭한다 
+  public PersonV2(Name name) {
+		super();
+		this.name = name;
+	}	
+
+  //2-7: Name을 사용하여 Getters를 생성한다
+  public Name getName() {
+		return name;
+	}
+
+  //2-8: toString도 생성해보자 
+	@Override
+	public String toString() {
+		return "PersonV2 [name=" + name + "]";
+	}	
+  //잘 됐다 문제는 없어보인다 저장해 보겠다//2-9: VersioningPersonController클래스파일로...
+}
+
+
+--------------------------------------------------------------
+
+
+⏺ Name 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.versioning;
+
+public class Name {
+  //2-2: 다음으로 private String firstName;과 private String lastName;을 입력한다, 여기에 다른 모든 사항도 추가할 수 있다 Generate Constructor using Fields를 클릭한다
+  private String firstName;
+  private String lastName;
+
+  //2-3: 이렇게 생성자를 생성하고 다음으로 Getters and Setters도 생성해야 겠다 그렇게 하려면 getters만 생성해보자
+	public Name(String firstName, String lastName) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+	}
+
+  //2-4: Getters를 생성한 다음 toString 메소드도 생성해야 한다 
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+  //2-5: 모든 것이 준비되었다 코드를 정리하고 저장하겠다, 이렇게 Name 클래스가 준비되었는데//2-6: PersonV2 클래스파일로..
+	@Override
+	public String toString() {
+		return "Name [firstName=" + firstName + ", lastName=" + lastName + "]";
+	}
+}
+
+-------------------------------------------------------------------------------------------------------------------
+이제 v2로 변경해서 이동해보자                                                                          |
+                                                                                                     V
+-------------------------------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:8080/v2/person 사이트 화면 ==>
+
+
+
+{
+  "name": {
+    "firstName": "Bob",
+    "lastName": "Charlie"
+  }
+}
+-------------------------------------------------------------------------------------------------------------------
+보다시피 지금 응답이 새 구조로 들어오고 있다 
+name이 firstName과 lastName으로 분류되었다
+
+
+
+
+
+이번 시간에는 브레이킹 체인지가 일어날 경우, 
+API 버전 관리가 고려할 수 있는 솔루션 중 하나라는 사실을 다뤄봤다 
+REST API의 버전 관리를 구현하는 데 여러 가지 옵션이 있다는 사실도 짚어봤는데 
+URI 버전 관리를 다루는 것으로 시작했었다
+
+Versioning REST API = Options
+
+● URI Versioning - Twitter                                                                  _____________________________________
+  ■ http://localhost:8080/v1/person                                                           localhost:8080/v2/person
+  ■ http://localhost:8080/v2/person                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                              {
+                                                                                                "name":{
+                                                                                                  "firstName": "BOb",
+                                                                                                  "lastName": "Charlie"
+                                                                                                }
+                                                                                              }
+
+URI 버전 관리의 경우, 다른 버전에 대해 다른 URL을 사용했는데 
+v1의 경우에 URL에 v1을 사용했으며, v2의 경우 URL에 v2를 사용했다
+따라서 소비자가 원하는 특정 버전에 따라 올바른 URL을 열어서 API의 특정 버전을 사용할 수 있다
+다음 수업에서는 다른 옵션을 살펴보겠다
