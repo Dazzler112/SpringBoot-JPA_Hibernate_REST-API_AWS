@@ -1,0 +1,395 @@
+
+
+Versioning REST API = Options
+
+● URI Versioning - Twitter                                                                  _____________________________________
+  ■ http://localhost:8080/v1/person                                                           localhost:8080/v2/person
+  ■ http://localhost:8080/v2/person                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● Request Parameter versioning - Amazon                                                       {
+  ■ http://localhost:8080/person?version=1                                                      "name":{
+  ■ http://localhost:8080/person?version=1                                                        "firstName": "BOb",
+                                                                                                  "lastName": "Charlie"
+                                                                                                }
+                                                                                              }
+
+
+지난 시간에는 URI 버전 관리를 다뤄봤다
+이번 시간을 통해 요청 매개변수 버전 관리를 살펴보도록 하자
+
+
+🔵 ● Request Parameter versioning - Amazon
+소비자는 요청 매개변수로 버전을 지정할 수 있는데 이것을 구현하는 방법을 알아보겠다
+
+우선 /v1/person을 복사
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+⏺ VersioningPersonController 클래스 파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.versioning;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class VersioningPersonController {
+	
+	@GetMapping("v1/person")
+	public PersonV1 getFirstsVersionOfPerson() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping("v2/person")
+	public PersonV2 getSecondVersionOfPerson() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+
+  //1: 여기에서는 /person URL을 만들어야 한다, 요청 매개변수를 기준으로 구별해야 하는데 그럼 이처럼 메소드 명을 getFirstsVersionOfPersonRequestParameter()로 바꿔준다
+  //요청 매개변수가 포함되는 경우에만 API를 호출해야 하는데 그럼 @GetMapping이곳에 (path="/person")을 입력한다, 매개변수도 지정할 수 있다 params = "version=1" 을 입력해보자
+  //즉,version=1과 함께 요청 매개변수가 있는 경우에만 이 특정 메소드를 호출할 수 있다는 뜻이다 그럼 바로 실행하여 확인해볼까?
+	@GetMapping(path="/person", params = "version=1")
+	public PersonV1 getFirstsVersionOfPersonRequestParameter()() {
+		return new PersonV1("Bob Charlie");
+	}
+}
+
+-------------------------------------------------------------------------------------------------------------------
+http://localhost:8080/person?version=1 이 URL을 열어보자                                       |
+                                                                                              V
+-------------------------------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:8080/person?version=1 사이트 화면 ==>
+
+
+
+{
+  "name": "Bob Charlie"
+}
+
+-------------------------------------------------------------------------------------------------------------------
+보다시피 localhost:8080/person?version=1이 Charlie를 표시하고 있는데 
+
+-------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/person?version=2 사이트 화면 ==>
+
+
+
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Invalid request parameters.",
+  "instance": "/person"
+}
+
+-------------------------------------------------------------------------------------------------------------------
+그런데 version=2로 전환하면 'Bad Request'라고 한다, 이에 대해 구현한 버전이 없기 때문이다 
+
+
+
+Version 2는 어떻게 구현할까?
+@GetMapping("v2/person") 이것을 복사하고 맨아래에 붙여넣기
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+⏺ VersioningPersonController 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.versioning;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class VersioningPersonController {
+	
+	@GetMapping("v1/person")
+	public PersonV1 getFirstsVersionOfPerson() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping("v2/person")
+	public PersonV2 getSecondVersionOfPerson() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+	
+	@GetMapping(path="/person", params = "version=1")
+	public PersonV1 getFirstsVersionOfPersonRequestParameter() {
+		return new PersonV1("Bob Charlie");
+	}
+
+  //2: 여기의 @GetMapping이 조금 달라질 것이다 /person에 이어 version=2를 입력하면 되지 메소드명은 getSecondVersionOfPersonRequestParameter()로 하고
+  //다 됐다 사이트 다시 새로고침..
+	@GetMapping(path="/person", params = "version=2")
+	public PersonV2 getSecondVersionOfPersonRequestParameter() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+}
+
+-------------------------------------------------------------------------------------------------------------------
+                                                                                            |
+                                                                                            V
+-------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/person?version=2 사이트 화면 ==>
+
+
+
+{
+  "name": {
+    "firstName": "Bob",
+    "lastName": "Charlie"
+  }
+}
+
+-------------------------------------------------------------------------------------------------------------------
+version=2가 person API의 새 버전을 반환하게 된다 
+
+
+지금까지 요청 매개변수 버전관리를 구현하는 방법을 다뤄봤는데
+스프링을 통해 매우 간편하게 처리할 수 있다 path외에도 params라는 것도 추가할 수 있는데 
+@GetMapping(path="/person", params = "version=1") 	
+이 params의 경우, version=1로 지정해 두었지 params = "version=1"의 요청이 있는 경우, 이 특정 메소드(getFirstsVersionOfPersonRequestParameter())가 호출될 것이다
+@GetMapping(path="/person", params = "version=2")
+params = "version=2"의 요청이 있는 경우, 이 특정 메소드(getSecondVersionOfPersonRequestParameter())가 호출되고
+
+
+
+
+
+
+Versioning REST API = Options
+
+● URI Versioning - Twitter                                                                  _____________________________________
+  ■ http://localhost:8080/v1/person                                                           localhost:8080/v2/person
+  ■ http://localhost:8080/v2/person                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● Request Parameter versioning - Amazon                                                       {
+  ■ http://localhost:8080/person?version=1                                                      "name":{
+  ■ http://localhost:8080/person?version=1                                                        "firstName": "BOb",
+● (Custom) headers versioning - Microsoft                                                         "lastName": "Charlie"
+  ■ SAME - URL headers=[X-API-VERSION=1]                                                               }
+  ■ SAME - URL headers=[X-API-VERSION=2]                                                      }
+
+
+
+다음으로 사용자 정의 헤더 버전 관리로 넘어가 보자
+
+● (Custom) headers versioning - Microsoft
+  ■ SAME - URL headers=[X-API-VERSION=1]
+  ■ SAME - URL headers=[X-API-VERSION=2]
+API 소비자가 API 버전 1을 원하는 경우, Request 헤더인 X-API-VERSION=1을 전송할 수 있는데 
+API 소비자가 API 버전 2을원하는 경우, X-API-VERSION=2를 전송할 수 있고 
+
+잘 알겠지만 Spring MVC를 통해 이것을 무척 간편하게 구현할 수 있다 
+getFirstsVersionOfPersonRequestParameter()메소드를 복사해서 아래에 붙여넣고
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+⏺ VersioningPersonController 클래스 파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.versioning;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class VersioningPersonController {
+	
+	@GetMapping("v1/person")
+	public PersonV1 getFirstsVersionOfPerson() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping("v2/person")
+	public PersonV2 getSecondVersionOfPerson() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+	
+	@GetMapping(path="/person", params = "version=1")
+	public PersonV1 getFirstsVersionOfPersonRequestParameter() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping(path="/person", params = "version=2")
+	public PersonV2 getSecondVersionOfPersonRequestParameter() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+
+  //3: 메소드명을 getFirstsVersionOfPersonRequestHeader()로 바꿔주고 여기에선 params 대신 다른 속성인 headers를 사용한다 headers=에 이어서 X-API-VERSION라는 특정 헤더를 적용해야 하는데 X-API-VERSION=1을 입력해 보자
+  //이것이 API의 첫 번째 버전이다 다른 URL을 할당해볼까 앞서 사용한 URL대신 person/header를 사용해 주겠다 저장한 다음 실행해야 하는데 
+	@GetMapping(path="/person/header", headers = "X-API-VERSION=1")
+	public PersonV1 getFirstsVersionOfPersonRequestHeader() {
+		return new PersonV1("Bob Charlie");
+	}
+}
+-------------------------------------------------------------------------------------------------------------------
+이건 Talend API Tester로 실행해 보겠다                                                            |
+                                                                                                V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/person/header                     |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | X-API-VERSION | : | 1                | x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                               |                                
+ ( + Add header )  🗝 Add authorization     🗑  |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+http://localhost:8080/person/header 실행해야 하지                                              |
+여기에는 다른 헤더를 입력해야 하는데 헤더 이름으로 X-API-VERSION과 1을 입력한다                    |
+이제 Send를 클릭한다                                                                           V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              |
+Content-Type:	application/json                |         ▼ {                                      
+Transfer-Encoding:	chunked                   |           name": "Bob Charlie"                  
+Date: Fri, 31 May 2024 09:10:58 GMT	          |       }                                                                       
+Keep-Alive:	timeout=60                        |                                         
+Connection:	keep-alive                        |                                       
+                                              |                   
+▶ COMPLETE REQUEST HEADERS                    |                                              
+                                              |
+
+                                                  lines nums  📄 copy              length: 22  bytes                                                    
+
+--------------------------------------------------------------------------------------------------------------------------------
+V1의 응답을 받았는데 서비스 V1으로부터 응답을 받은 거다
+
+
+다른 버전을 생성하려면 이것을 복사하고 붙여 넣어야 겠다
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+⏺ VersioningPersonController 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.versioning;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class VersioningPersonController {
+	
+	@GetMapping("v1/person")
+	public PersonV1 getFirstsVersionOfPerson() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping("v2/person")
+	public PersonV2 getSecondVersionOfPerson() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+	
+	@GetMapping(path="/person", params = "version=1")
+	public PersonV1 getFirstsVersionOfPersonRequestParameter() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping(path="/person", params = "version=2")
+	public PersonV2 getSecondVersionOfPersonRequestParameter() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+	
+	@GetMapping(path="/person/header", headers = "X-API-VERSION=1")
+	public PersonV1 getFirstsVersionOfPersonRequestHeader() {
+		return new PersonV1("Bob Charlie");
+	}
+
+  //4: 메소드명은  getSecondVersionOfPersonRequestHeader()로 바꿔준다 반환도 return new PersonV2(new Name("Bob", "Charlie"));이걸로 바꿔야 하고 헤더 값도 2가 되겠지
+  //또 값을 반환하려면 PersonV1에서 V2로 수정한다, 잘 된 거 같다
+	@GetMapping(path="/person/header", headers = "X-API-VERSION=2")
+	public PersonV2 getSecondVersionOfPersonRequestHeader() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+
+}
+
+-------------------------------------------------------------------------------------------------------------------
+                                                                                          |
+                                                                                          V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/person/header                     |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | X-API-VERSION | : | 2                | x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                               |                                
+ ( + Add header )  🗝 Add authorization     🗑  |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+Talend API Tester로 돌아가서 2를 입력하고 Send를 클릭하겠다                                           |
+                                                                                                   V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              |
+Content-Type:	application/json                |         ▼ {                                      
+Transfer-Encoding:	chunked                   |           name ▼ {              
+Date: Fri, 31 May 2024 09:37:19 GMT	          |              "firstName": "Bob",                                                                      
+Keep-Alive:	timeout=60                        |              "lastName": "Charlie"                          
+Connection:	keep-alive                        |            }                           
+                                              |        }          
+▶ COMPLETE REQUEST HEADERS                    |                                              
+                                              |
+
+                                                  lines nums  📄 copy              length: 49 bytes                                                    
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+보다시피 이 서비스의 두 번째 버전에서 응답을 받고 있다
+
