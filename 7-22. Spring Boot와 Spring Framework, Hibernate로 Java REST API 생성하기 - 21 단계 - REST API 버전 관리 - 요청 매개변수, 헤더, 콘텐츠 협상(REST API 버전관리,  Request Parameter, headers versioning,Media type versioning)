@@ -393,3 +393,343 @@ Connection:	keep-alive                        |            }
 
 보다시피 이 서비스의 두 번째 버전에서 응답을 받고 있다
 
+
+
+
+
+
+
+Versioning REST API = Options
+
+● URI Versioning - Twitter                                                                  _____________________________________
+  ■ http://localhost:8080/v1/person                                                           localhost:8080/v2/person
+  ■ http://localhost:8080/v2/person                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● Request Parameter versioning - Amazon                                                       {
+  ■ http://localhost:8080/person?version=1                                                      "name":{
+  ■ http://localhost:8080/person?version=1                                                        "firstName": "BOb",
+● (Custom) headers versioning - Microsoft                                                         "lastName": "Charlie"
+  ■ SAME - URL headers=[X-API-VERSION=1]                                                               }
+  ■ SAME - URL headers=[X-API-VERSION=2]                                                      }
+● Media type versioning (a.k.a "content negotiation" or "accept header") - GitHub 
+  ■ SAME-URL produces=application/vnd.company.app-v1+json
+  ■ SAME-URL produces=application/vnd.company.app-v2+json
+
+
+마지막으로 미디어 유형 버전 관리에 대해 알아보겠다
+● Media type versioning (a.k.a "content negotiation" or "accept header") - GitHub 
+앞서 콘텐츠 협상을 살펴봤었는데 콘텐츠 협상은 Accept 헤더 또는 Accept-Language 헤더를 기반으로 했었다
+동일한 헤더를 버전 관리를 구현하는 데 사용할 수 있다 
+  ■ SAME-URL produces=application/vnd.company.app-v1+json
+소비자가 API v1에 액세스하려는 경우, 이것을 Accept 헤더로 입력하고 
+  ■ SAME-URL produces=application/vnd.company.app-v2+json
+v2를 원한다면 이 특정 사항을 사용하면 된다,
+v1과 v2를 여기에서 확인 할 수 있는데 이것을 어떻게 구현할 수 있을까??
+
+방법은 무척 간단하다 getFirstsVersionOfPersonRequestHeader을 복사하여 아래에 붙여넣고
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ VersioningPersonController 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.versioning;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class VersioningPersonController {
+	
+	@GetMapping("v1/person")
+	public PersonV1 getFirstsVersionOfPerson() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping("v2/person")
+	public PersonV2 getSecondVersionOfPerson() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+	
+	@GetMapping(path="/person", params = "version=1")
+	public PersonV1 getFirstsVersionOfPersonRequestParameter() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping(path="/person", params = "version=2")
+	public PersonV2 getSecondVersionOfPersonRequestParameter() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+	
+	@GetMapping(path="/person/header", headers = "X-API-VERSION=1")
+	public PersonV1 getFirstsVersionOfPersonRequestHeader() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping(path="/person/header", headers = "X-API-VERSION=2")
+	public PersonV2 getSecondVersionOfPersonRequestHeader() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+
+  //5: /person/accept를 입력한다 path 옆에는 Accept헤더로 전송된 값을 얻으려면 produces라는 것을 사용해야 한다 produces=다음으로 값을 입력해야 하는데   ■ SAME-URL produces=application/vnd.company.app-v1+json의 값을 복사하겠다
+	//Accept header로 전송된 것이 무엇이든 스프링MVC가 수신하여, 이것과 비교하게 된다 메소드 명을 getFirstsVersionOfPersonAcceptHeader()로 변경 이 application/vnd.company.app-v1+json 값이 일치한다면 이 getFirstsVersionOfPersonAcceptHeader() 메소드가 실행되고 저장해 보자,
+	@GetMapping(path="/person/accept", produces = "application/vnd.company.app-v1+json")
+	public PersonV1 getFirstsVersionOfPersonAcceptHeader() {
+		return new PersonV1("Bob Charlie");
+	}
+
+}
+
+-------------------------------------------------------------------------------------------------------------------
+이것을 실행하는 방법은 무척 간단하다                                                                   |
+                                                                                                    V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/person/accept                     |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | Accept        | : |application/vnd.c.| x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                               |                                
+ ( + Add header )  🗝 Add authorization     🗑  |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+Accept Header를 사용해야 하며 Accept 유형으로는 이것을 사용한다
+여기에선 application/vnd.company.app-v1+json 즉,v1 서비스를 이용하고
+이는 Accept헤더를 사용하여 지정한다, URL은 /accept가 되겠지 이제 Send를 누르면      
+                                                              |
+                                                              V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                  |
+Content-Type:	application/vnd.company.app-v1+json |         ▼ {                                      
+Transfer-Encoding:	chunked                       |           name": "Bob Charlie"              
+Date: Fri, 31 May 2024 10:13:01 GMT	              |         }                                                                      
+Keep-Alive:	timeout=60                            |                                      
+Connection:	keep-alive                            |                                       
+                                                  |                  
+▶ COMPLETE REQUEST HEADERS                        |                                              
+                                                  |
+
+                                                  lines nums  📄 copy              length: 22 bytes                                                    
+
+--------------------------------------------------------------------------------------------------------------------------------
+서비스 v1에서 응답을 받게 된다 
+
+서비스 v2에 액세스 하는 경우는 어떨까?
+비슷한 방식으로 메소드를 생성할 수 있는데
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+⏺ VersioningPersonController 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.versioning;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class VersioningPersonController {
+	
+	@GetMapping("v1/person")
+	public PersonV1 getFirstsVersionOfPerson() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping("v2/person")
+	public PersonV2 getSecondVersionOfPerson() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+	
+	@GetMapping(path="/person", params = "version=1")
+	public PersonV1 getFirstsVersionOfPersonRequestParameter() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping(path="/person", params = "version=2")
+	public PersonV2 getSecondVersionOfPersonRequestParameter() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+	
+	@GetMapping(path="/person/header", headers = "X-API-VERSION=1")
+	public PersonV1 getFirstsVersionOfPersonRequestHeader() {
+		return new PersonV1("Bob Charlie");
+	}
+	
+	@GetMapping(path="/person/header", headers = "X-API-VERSION=2")
+	public PersonV2 getSecondVersionOfPersonRequestHeader() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+	
+	@GetMapping(path="/person/accept", produces = "application/vnd.company.app-v1+json")
+	public PersonV1 getFirstVersionOfPersonAcceptHeader() {
+		return new PersonV1("Bob Charlie");
+	}
+
+  //6:produces 여기는 v2로 메소드명은 getSecondVersionOfPersonAcceptHeader()로 바꿔준다, return new PersonV2(new Name("Bob", "Charlie"));줄로 복사하고 바꿔준다
+  //그리고 반환을 PersonV2로 바꿔준다 그럼 어떻게 실행해야 할까?
+	@GetMapping(path="/person/accept", produces = "application/vnd.company.app-v2+json")
+	public PersonV2 getSecondVersionOfPersonAcceptHeader() {
+		return new PersonV2(new Name("Bob", "Charlie"));
+	}
+
+}
+
+-------------------------------------------------------------------------------------------------------------------
+                                                                                              |
+                                                                                              V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/person/accept                     |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | Accept        | : |application/vnd.c.| x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                               |                                
+ ( + Add header )  🗝 Add authorization     🗑  |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+방법은 무척 간단하다 application/vnd.company.app-v1+json을 application/vnd.company.app-v2+json로 변경하고 send를 누르면 된다  |
+                                                                                                                          V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                  |
+Content-Type:	application/vnd.company.app-v2+json |         ▼ {                                      
+Transfer-Encoding:	chunked                       |           name ▼ {              
+Date: Fri, 31 May 2024 11:07:30 GMT	              |              "firstName": "Bob",                                                                      
+Keep-Alive:	timeout=60                            |              "lastName": "Charlie"                          
+Connection:	keep-alive                            |            }                           
+                                                  |        }          
+▶ COMPLETE REQUEST HEADERS                        |                                              
+                                                  |
+
+                                                  lines nums  📄 copy              length: 49 bytes                                                    
+
+--------------------------------------------------------------------------------------------------------------------------------
+보다시피 이 서비스의 두 번째 비전에서 응답을 받고 있는데
+
+REST API에 대해 버전 관리를 할 수 있는 여러 가지 방법에 대해 살펴보고 있다
+REST API의 버전 관리를 하는 데 여러 옵션이 있다 
+URI를 기반으로 버전 관리를 할 수 있고 요청 매개변수를 기반으로 버전 관리를 할 수 있는데 
+Request 헤더를 기반으로 버전 관리를 할 수 있으며, Accept 헤더를 사용하여 버전 관리를 할 수도 있다 
+
+
+이렇게 REST API의 버전 관리에 대한 다양한 방식을 살펴봤는데 
+그렇다면 추천되는 방식은 무엇일까?
+
+
+
+
+Versioning REST API - Factors
+
+● Factors to consider                                                                               ● URI Versioning - Twitter                                                                  
+  ■ URI Pollution                                                                                     ■ http://localhost:8080/v1/person                                                           
+  ■ Misuse of HTTP Headers                                                                            ■ http://localhost:8080/v2/person                                                         
+  ■ Caching                                                                                         ● Request Parameter versioning - Amazon                                                       
+  ■ Can we execute the request on the browser?                                                        ■ http://localhost:8080/person?version=1                                                      
+  ■ API Documentation                                                                                 ■ http://localhost:8080/person?version=1                                                         
+  ■ Summary: No Perfect Solution                                                                    ● (Custom) headers versioning - Microsoft                                                          
+● My Recommendations                                                                                  ■ SAME - URL headers=[X-API-VERSION=1]                                                               
+  ■ Think about versioning even before you need it!                                                   ■ SAME - URL headers=[X-API-VERSION=2]                                                      
+  ■ One Enterprise - One Versioning Approach                                                        ● Media type versioning (a.k.a "content negotiation" or "accept header") - GitHub 
+                                                                                                      ■ SAME-URL produces=application/vnd.company.app-v1+json
+                                                                                                      ■ SAME-URL produces=application/vnd.company.app-v2+json
+
+
+● Factors to consider
+REST API 버전 관리의 방법을 결정할 때 고려해야 할 여러 요인을 짚어보겠다
+  ■ URI Pollution
+첫 번째 요인은 URI Pollution이다 
+URI 버전 관리와 요청 매개변수 버전 관리를 할 때 새 버전을 나타내기 위해 URL을 생성하는데 
+따라서 URI 버전 관리와 요청 매개변수 버전 관리의 경우, URL Pollution이 상당히 많이 발생한다 
+하지만 헤더 버전 관리와 미디어 유형 버전 관리에서 동일한 URL을 사용하므로 URI Pollution의 양이 적다 
+  ■ Misuse of HTTP Headers 
+또 다른 요인으로는 HTTP 헤더의 오용이 있는데 
+HTTP 헤더는 버전 관리 용도로 사용해서는 안된다, 따라서 헤더 버전 관리와 미디어 유형 버전 관리는 HTTP 헤더를 오용하고 있는 거다
+  ■ Caching
+세 번째 요인은 캐싱인데 
+캐싱은 일반적으로 URL을 기반으로 수행되는데, 헤더 버전 관리와 미디어 유형 버전 관리의 경우 다른 버전을 사용한다
+하지만 
+■ SAME - URL headers=[X-API-VERSION=1]                                                               
+■ SAME - URL headers=[X-API-VERSION=2]  
+이 두 버전 모두 동일한 URL을 쓴다, 헤더 버전 관리와 미디어 유형 버전 관리에선 URL을 기반으로 캐싱을 할 수 없기 때문에 
+캐싱을 수행하기 전에 헤더를 살펴봐야 한다
+  ■ Can we execute the request on the browser?  
+그다음 중요한 요인으로는 브라우저에 요청을 실행할 수 있는지이다
+URI 버전 관리와 요청 매개변수 버전 관리의 경우, 브라우저에서 간편하게 실행할 수 있다 차이는 URL에 있기때문이다
+하지만 헤더 버전 관리와 미디어 유형 버전 관리에서 차이가 헤더에 있다
+일반적으로 명령줄 유틸리티를 갖고 있거나, REST API 클라이언트를 사용해서 헤드를 기준으로 구분할 수 있어야 한다
+  ■ API Documentation 
+고려해야 할 다음 요인은 API 문서인데
+URI 버전 관리와 요청 매개변수 버전 관리에 대한 API 문서를 생성하기는 쉽다
+두 버전의 URL이 다르기 때문이다 ( ● URI Versioning - Twitter , ● Request Parameter versioning - Amazon)
+API 문서 생성 툴은 보통 헤더를 기준으로 구분하는 문서의 생성을 지원하지 않을 수 있다,
+이에 따라 헤더 버전 관리와 미디어 유형 버전 관리에 대한 문서 생성이 다소 까다로워질 수 있는데 
+  ■ Summary: No Perfect Solution
+따라서 버전 관리에 대해서는 완벽한 솔루션은 없다
+보는 것 처럼 이러한 각 버전 관리 방식은 서로 다른 대기업에서 사용하고 있다 
+URI 버전 관리는 Twitter에서 URI Versioning - Twitter, 
+요청 매개변수 버전 관리는 Amazone에서 Request Parameter versioning - Amazon, 
+헤더 버전 관리는 Microsoft에서 (Custom) headers versioning - Microsoft, 
+미디어 유형 버전 관리는 GitHub에서 사용하는데  Media type versioning (a.k.a "content negotiation" or "accept header") - GitHub  
+
+이처럼 여러 기업에서 REST API의 버전 관리를 위해 다양한 방식을 사용한다
+
+● My Recommendations
+  ■ Think about versioning even before you need it! 
+교육자는 버전 관리가 필요하기 전에도 버전 관리에 대해 고려하는 것이 좋다고 생각한다고 한다
+REST API를 구축하기 시작할 때 버전 관리에 대해 생각해야 한다
+  ■ One Enterprise - One Versioning Approach 
+다음으로 기업에선 일관된 버전 관리 방식을 사용해야 한다 
+모범 사례에 따르면 항상 하나의 기업에서, 하나의 버전 관리 방식을 여러 프로젝트와 여러 애플리케이션에 사용해야 하는데
+REST API를 버전 관리하는 데 하나의 방법을 사용하는 거다
+어떤 방식을 선택하든 상관없지만, 기업에선 모든 프로젝트와 모든 애플리케이션에 대해 일관된 방식을 사용하는 것이 굉장히 중요하다
