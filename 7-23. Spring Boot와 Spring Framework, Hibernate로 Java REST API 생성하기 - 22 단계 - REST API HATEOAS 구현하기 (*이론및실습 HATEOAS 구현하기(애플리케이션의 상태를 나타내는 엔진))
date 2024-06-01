@@ -1,0 +1,419 @@
+
+
+HATEOAS
+
+● Hypermedia as the Engine of Application State (HATEOAS)                                   {
+● Websites allow you to:                                                                      "name": "Adam",
+  ■ See Data And Perform Actions (using links)                                                "birthDate": "2024-06-01",
+● How about enhancing your REST API to tell consumers how to perform subsequent actions?         "_links": {
+  ■ HATEOAS                                                                                       "all-users": {
+● Implementation Options:                                                                         "href": "http://localhost:8080/users" 
+  ■ 1: Custom Format and Implementation                                                          }
+    ○ Difficult to maintain                                                                    }
+  ■ 2: Use Standard Implementation                                                          }                                
+    ○ HAL (JSON Hypertext Application Language): Simple format that gives a consistent
+    and easy way to hyperlink between resources in your API
+    ○ Spring HATEOAS: Generate HAL response with hyperlinks to resources                                                                                                                          
+                                                                                                                          
+                                                                                                                          
+                                                                                                                                                                                                                                        
+                                                                                                                          
+                                                                                                                                                                                                                                                                                                                                                                           
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+이번 학습에선 HATEOAS를 살펴보겠다 
+HATEOAS, 즉 애플리케이션의 상태를 나타내는 엔진으로, 사용하는 하이퍼미디어란 무엇일까?
+어떤 사람이 REST API 구축의 전문가라고 자부한다면 그 사람을 괴롭힐 수 있는 좋은 방법은 
+HATEOAS가 무엇의 약자인지 물어보는 것이다,
+● Hypermedia as the Engine of Application State (HATEOAS)
+HATEOAS는 Hypermedia as the engine of Application State의 약자로 보는 것처럼 굉장히 복잡한데 자세히 살펴보도록 하자
+● Websites allow you to:   
+  ■ See Data And Perform Actions (using links)
+우리는 웹사이트에 접속할 때마다 데이터를 확인하고 작업을 수행할 수 있다 (Git Hub에서 아무 Repository를 클릭해 보면 볼 수 있음)
+GitHub 저장소를 가면 이와 같이 특정 저장소에 대한 데이터를 확인할 수 있다
+이 웹사이트에는 데이터가 많다 게다가 이 특정 저장소에서 작업을 수행할 수도 있는데 
+별을 다루고 싶다면 로그인을 한 다음 이 특정 사항을 처리하면 된다 
+이 저장소를 Fork 하려는 경우 로그인을 한 다음 저장소를 Fork하면 된다
+웹사이트에선 데이터를 표시할 뿐만 아니라, 작업도 수행할 수 있는데 
+
+● How about enhancing your REST API to tell consumers how to perform subsequent actions?
+  ■ HATEOAS
+REST API를 향상하여 소비자에게 후속 작업을 수행하는 방법을 알려주면 어떨까?
+HATEOAS가 던지는 질문은 'REST API'를 향상하여 데이터를 반환할 뿐만 아니라 리소스에 관한 작업을 수행하는 방법의 정보를 제공하면 어떨까? 이다
+● Implementation Options: 
+여기에서는 응답으로 name과 birthDate를 확인할 수 있는데 또한 이 링크는 후속 작업을 수행하는 방법을 소비자에게 알려준다
+사용자가 all-users로 다시 탐색하는 방법은 무엇일까?
+몇 가지 옵션을 통해 이러한 것을 구현할 수 있는데
+  ■ 1: Custom Format and Implementation
+첫 번째 옵션은 사용자 정의 형식을 설계하여 사용자 정의 구현을 생성하는 것이다
+    ○ Difficult to maintain     
+사용자 정의 형식과 구현을 정의하는 것은 유지 관리하기에 까다로운데
+------------------------------------------
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+
+import jakarta.validation.constraints.*;
+
+public class User {
+
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+	private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+	private LocalDate birthDate;
+...
+------------------------------------------
+여기에는 id, name, birthDate가 있다
+이 링크를 저장하려면 이처럼 구조를 생성해야 한다
+_links라는 것을 생성하고 아래에는 이름을 저장하며, 그 아래에는 링크 또는 href를 입력한다 
+빈에서 이 모든 구조를 생성한 다음, 사용자 정의 구현을 생성할 수 있지
+  ■ 2: Use Standard Implementation     
+다른 옵션으로는 표준 구현이 있는데 
+    ○ HAL (JSON Hypertext Application Language): Simple format that gives a consistent
+    and easy way to hyperlink between resources in your API
+여기서 보고 계신 것은 HAL 이 정의한 표준이다, HAL은 JSON 하이퍼텍스트 애플리케이션 언어로 
+API의 리소스 간에 하이퍼링크를 생성하는 일관적이고 쉬운 방법을 제공하는 간단한 형식이다
+따라서 이 표준에선 REST API의 다른 리소스에 연결하는 방법을 정의한다
+_links라는 요소를 생성하면 그 안에 여러 링크를 가질 수 있다 
+
+이것이 바로 HAL이 정의하는 표준인데 표준을 갖고 있으면 좋은 점은 모든 애플리케이션이 이 표준을 따른다는 것이다
+HAL 호환 REST API의 응답으 확인할 때 마다 이처럼 이 링크를 받을 수 있다
+    ○ Spring HATEOAS: Generate HAL response with hyperlinks to resources 
+이러한 응답을 생성하려면 리소스에 대한 하이퍼링크로 HAL응답을 생성하는 스프링 HATEOAS를 사용하면 되는데
+그럼 스프링 HATEOAS와 HAL을 구체적으로 살펴볼까??
+
+먼저 의존성을 임포트 해야 한다
+스프링 부트 프로젝트에서 HATEOAS의 사용은 무척 간편하다
+spring-boot-starter-web을 복사하고 붙여 넣은 다음..
+
+-----------------------------------------------------------------------------------------------------------------
+
+⏺ pom.xml 파일
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+    <!--1: web을 hateoas로 변경해 보자, 됐다, 이렇게 하면 HATEOAS 의존성이 다운로드될 것이다, pom.xml에서 변경할 때마다 애플리케이션을 중지한 다음 다시 시작해야 한다-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		
+		<!--
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>		
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+		-->
+	
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+-----------------------------------------------------------------------------------------------------------------
+
+이제 UserResource로 이동해보자
+UserResource에는 retrieveUser 메소드가 있는데 retrieveUser메소드의 역할은 무엇이지?
+http://localhost:8080/users/1를 실행하면 
+{
+  "id": 1,
+  "name": "Adam",
+  "birthDate": "1994-06-01"
+}
+특정 사용자의 세부사항이 반환된다
+이제 데이터를 반환하는 것 뿐만 아니라, 사용자에게 링크를 반환해야 하는데 
+http://localhost:8080/users의 링크를 추가하고, 데이터와 링크로 응답을 생성하려면 
+❗ 상당히 중요한 HATEOAS의 두 가지 개념을 사용해야 하는데, 바로 EntityModel과 WebMvcLinkBuilder이다 ❗
+
+User 빈의 일부로 응답에 몇 개 링크를 추가해야 한다
+모든 빈에 대한 이 구조를 변경해서는 안 된다
+우리가 EntityModel을 사용하는 것도 이 떄문인데 
+HATEOAS를 사용하여 링크를 추가하려면 가장 먼저 해야 할 일은 EntityModel에서 사용자를 래핑하는 것인데
+그럼 이제 시작해보자 EntityModel<User>를 입력해보자
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserResource 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+
+//2: EntityModel<User>를 입력해보자 이것이 바로 응답 유형이다 ctrl+1을 눌러서 import'EntityModel'을 선택해보자, 임포트를 살펴보면 org.springframework.hateoas.EntityModel을 확인할 수 있다
+//A simple EntityModel wrapping a domain object and adding links to it. => 도메인 객체를 래핑하여 링크를 추가하는 간단한 EntityModel이라고 한다 
+//retrieveUser 메소드에선 사용자의 EntityModel을 생성해야 하는데 
+	@GetMapping("/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+
+    //2-1: EntityModel<User> entityModel = EntityModel.of() EntityModel의 정적 메소드를 사용하여 콘텐츠를 기반으로 EntityModel객체를 생성할 수 있다
+    //사용자에 대한 EntityModel이 있어야 하지,
+		EntityModel<User> entityModel = EntityModel.of(user);
+    
+    // 이제 이 EntityModel을 반환할 수 있는데 User 클래스를 래핑하고 EntityModel을 생성하는 것이다
+		return entityModel;
+
+	}
+
+	@DeleteMapping("/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		service.deleteById(id);
+		
+	}
+	
+	@PostMapping("/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+-----------------------------------------------------------------------------------------------------------------
+지금 요청을 실행하면 아무런 변경사항도 확인할 수 없는데                                          |
+                                                                                            V
+-----------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/users/1 사이트 화면 ==>
+
+
+{
+  "id": 1,
+  "name": "Adam",
+  "birthDate": "1994-06-01"
+}
+
+-----------------------------------------------------------------------------------------------------------------
+이유가 뭘까? 
+	@GetMapping("/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user);
+		
+		return entityModel;
+	}
+이곳에 링크를 추가하지 않았기 때문이지 
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserResource 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+//3-1: import static을 입력하고 이럽게 붙여 넣어보자 WebMvcLinkBuilder.*로 마무리하는 게 좋겠다 이 방법이 더 간단하다, WebMvcLinkBuilder에 있는 모든 메소드에 대한 정적 임포트를 수행하는 것이다, 지금은 일반적인 사항만 갖추고 있는 것이 좋을 것 같다 //3-2: 다시 retrieveUsser 메소드로 ...
+//이 특정 메소드에서만 임포트 하기 위해서 임포트는 나중에 정리하도록 하고 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user);
+
+  //3: 링크를 반환하려면 EntityModel에 링크를 추가해야 한다 링크를 생성하려면 WebMvcLinkBuilder라는 유틸리티 클래스를 이곳에 입력하고 ctrl+space를 누른다
+  //org.springframework.hateoas.server.mvc를 확인할 수 있는데, ( Builder to ease building Link instances pointing to Spring MVC controllers. )=> 스프링MVC 컨트롤러를 가리키는 링크 인스턴스의 구축을 용이하게 하는 빌더라고 한다
+  //여기 있는 메소드 중 하나의 링크를 생성해야 한다 바로 이곳에서 WebMvcLinkBuilder를 사용해야 한다 이것을 임포트 하겠다, 
+  /*
+  WrbMvcLinkBuilder 클래스를 열면 여러 메소드를 확인할 수 있다, linkTi메소드와 methodOn 메소드를 확인할 수 있는데 특정 메소드의 링크를 가져오려면 이것을 링크로 추가해야 한다 
+    public static <T> T methodOn(Class<T> controller, Object... parameters) {
+		return DummyInvocationUtils.methodOn(controller, parameters);
+	  }
+  우클릭 methodOn에 대한 Copy Qualified Name을 선택한다 //3-1: 위로 가서 pakage아래에 작성...
+  */
+
+   //3-2: 여기에선 retrieveAllUsers() 메소드에 대한 링크를 추가해야 하는데(retrieveAllUsers()참고하면서 보기) 사실/users의 URL을 하드 코딩할 수 있지만, 추후 URL이 변경된다면 여기에서 링크를 변경해야 한다는 점을 기억해야 한다
+   //이러한 이유로 /users를 하드코딩 하는 대신 이 특정 메소드의 링크를 얻겠다고 입력하는 건데 해당 링크는 사용하고 다시 반환하게 된다 이 특정 메소드에 대한 링크를 얻으려면 linkTo(methodOn)을 입력한다
+   //linkTo(methodOn(null, null) => 어떤 클래스를 써야 할까? this.getClass지 메소드는 이 특정 클래스에서 정의되었으므로 두 번째 매개변수는 필요하지 않는다 null을 삭제한다음 .을 추가하고 retrieveAllUsers에 대한 링크를 생성해야 한다
+   //지금 여기서는 WebMvcLinkBuilder.linkTo 메소드를 사용하여 컨트롤러 메소드를 가리키는 링크를 생성하고 있는데 가리키고 있는 컨트롤러 메소드는 retrieveAllUsers이며, 링크가 주어지면 entityModel에 추가할 수 있다 
+    WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+
+    //3-3: entityModel.add에 이 특정 링크를 추가한다, link.withRel을 입력하고 
+    /*
+     "_links": {
+      "all-users": {
+      "href": "http://localhost:8080/users" 
+     }
+    */
+    //여기를 살펴보니 리소스와 링크 사이에 링크를 지정해야 하는데, 바로 여기 있는 all-users를 지정해야 하지 ("all-users"));로 마무리해보자
+    //이렇게 링크를 생성하고 entityModel에 추가한 다음 저장했다
+		entityModel.add(link.withRel("all-users"));
+
+    return entityModel;
+
+	}
+
+	@DeleteMapping("/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		service.deleteById(id);
+		
+	}
+	
+	@PostMapping("/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+-----------------------------------------------------------------------------------------------------------------
+이제 localhost:8080/users/1을 실행하면                                                    |
+                                                                                         V
+-----------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/users/1 사이트화면 ==>
+
+
+
+{
+  "id": 1,
+    "name": "Adam",
+    "birthDate": "1994-06-01",
+    "_links": {
+      "all-users": {
+      "href": "http://localhost:8080/users"
+    }
+  }
+}
+
+-----------------------------------------------------------------------------------------------------------------
+_links와 all-users를 확인할 수 있다 
+이제 소비자가 이 응답을 받으면 모든 사용자의 세부 사항을 얻는 방법 또한 알 수 있다 
+여기서는 단지 예시만 확인할 수 있는데 특정 리소스에 따라 원하는 만큼 많은 링크를 추가할 수 있다
+
+
+
+
+
+
+
+이번 시간에는 HATEOAS, 즉 애플리케이션의 상태를 나타내는 엔진으로 사용하는 하이퍼미디어에 대해 알아봤다
+일반적으로 REST API에 대해 이야기를 할 때마다 데이터를 다루게 된다 
+HATEOAS는 데이터를 한 단계 더 업그레이드 시켜 준다, 데이터 외에도 
+몇 개의 링크를 반환하여 소비자에게 후속 작업을 수행하는 방법을 알려줄 수 있을까?
+다음 강의에서 알아보겠다
