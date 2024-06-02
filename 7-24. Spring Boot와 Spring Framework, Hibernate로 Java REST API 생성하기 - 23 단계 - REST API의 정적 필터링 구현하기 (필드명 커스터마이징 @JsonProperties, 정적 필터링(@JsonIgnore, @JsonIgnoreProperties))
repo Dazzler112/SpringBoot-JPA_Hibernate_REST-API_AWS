@@ -384,3 +384,367 @@ REST API와 관계없이 항상 field2를 차단하거나 필터링해야 하는
 그럼 새 컨트롤러를 만들어 보자 패키지 이름은 .filtering으로 마무리하고 클래스명은 FilteringController 로 하고 Finish를 클릭
 
 
+🔵 Static Filtering(정적 필터링)
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ FilteringController 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+import org.springframework.web.bind.annotation.*;
+
+//3:@RestController를 입력한다 //3-1: 클래스 본문으로..
+@RestController 
+public class FilteringController {
+
+  //3-1: 여기에서 public 메소드를 생성하고 SomeBean을 반환한다 filtering()에 이어//3-2: filtering()메소드 안으로 작성..
+  //3-7: URL을 매핑하려면 @GetMapping("/filtering")을 입력해야 하지 임포트를 정리하면 org.springframework.web.bind.annotaion.GetMapping이 임포트된다
+  //저장 한 다음 이 URL로 이동해보자
+    @GetMapping("/filtering")
+  	public SomeBean filtering() {
+		  //3-2: return new SomeBean("value1","value2","value3")을 입력해보자 3개의 필드를 입력했는데 ctrl+1을 누르고 Create class 'SomeBean'을 선택 filtering 패키지에 생성//3-3: SomeBean 클래스 파일로...
+	  		return new SomeBean("value1","value2","value3");
+    }
+}
+
+----------------------------------------------------
+
+
+⏺ SomeBean 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+public class SomeBean {
+  //3-3: 여기에선 3개의 필드가 있는데 ({ "field1": "value1", "field2": "value2", "field3": "value3"}) field1, 2, 3이 있다 
+  //private String filed1을 입력하고 2와 3도 차례로 적용한다, 필드를 사용해서 생성자를 생성해 볼까?(alt+shift+s로 빠르게 생성자 선택 가능..)
+	private String filed1;
+	private String filed2;
+	private String filed3;
+
+  //3-4: 생성자완료 Getter와 Setter도 생성해보자
+	public SomeBean(String filed1, String filed2, String filed3) {
+		super();
+		this.filed1 = filed1;
+		this.filed2 = filed2;
+		this.filed3 = filed3;
+	}
+
+  //3-5: Generate Getters and Setters를 선택하고 Getters만 선택한다
+	public String getFiled1() {
+		return filed1;
+	}
+
+	public String getFiled2() {
+		return filed2;
+	}
+
+	public String getFiled3() {
+		return filed3;
+	}
+
+  //3-6: 원한다면 toString 메소드도 생성해도 좋다 , 메소드를 생성하고 임포트를 정리해보자 그리고 저장
+  //보다시피 FilteringController도 컴파일링 하고 있는데 이제 이것의 URL을 매핑해야 한다 //3-7: 다시 FilteringController클래스 파일로..
+	@Override
+	public String toString() {
+		return "SomeBean [filed1=" + filed1 + ", filed2=" + filed2 + ", filed3=" + filed3 + "]";
+	}
+}
+
+----------------------------------------------------------------------------------------------------------          
+                                                                                            |
+                                                                                            V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering 사이트화면 ==>
+
+
+{
+  "filed1": "value1",
+  "filed2": "value2",
+  "filed3": "value3"
+}
+
+----------------------------------------------------------------------------------------------------------
+localhost:8080/filtering이   "filed1": "value1", "filed2": "value2", "filed3": "value3" 을 반환했는데
+정적 필터링을 어떻게 할 수 있을까?
+정적 필터링은 굉장히 손쉽게 다룰 수 있다
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ SomeBean 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+public class SomeBean {
+
+	private String filed1;
+
+  //4: SomeBean에서 field2가 비밀번호이며 이를 반환하고 싶지 않다고 지정할 수 있다 @JsonIgnore를 입력한다 @JsonIgnore를 추가하고 저장해보자
+	@JsonIgnore
+	private String filed2;
+	private String filed3;
+	
+	public SomeBean(String filed1, String filed2, String filed3) {
+		super();
+		this.filed1 = filed1;
+		this.filed2 = filed2;
+		this.filed3 = filed3;
+	}
+
+	public String getFiled1() {
+		return filed1;
+	}
+
+	public String getFiled2() {
+		return filed2;
+	}
+
+	public String getFiled3() {
+		return filed3;
+	}
+
+	@Override
+	public String toString() {
+		return "SomeBean [filed1=" + filed1 + ", filed2=" + filed2 + ", filed3=" + filed3 + "]";
+	}
+	
+}
+----------------------------------------------------------------------------------------------------------
+다시 새로고침                                                                          |
+                                                                                      V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering 사이트화면 ==>
+
+
+{
+  "filed1": "value1",
+  "filed3": "value3"
+}
+
+----------------------------------------------------------------------------------------------------------
+이렇게 field2가 응답의 일부가 아님을 확인할 수 있다
+
+리스트가 주어진 경우에도 같은 결과를 확인할 수 있는데 
+그럼 리스트를 빨리 생성해 보자 
+filtering()메소드를 복사하고....
+
+----------------------------------------------------------------------------------------------------------
+
+
+
+⏺ FilteringController 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class FilteringController {
+	
+	@GetMapping("/filtering")
+	public SomeBean filtering() {
+		return new SomeBean("value1","value2","value3");
+	}
+
+  //5: GetMapping을 filtering-list로 변경한다, 메소드명도 filteringList로 입력한 다음 반환 타입에는 List<SomeBean>을 반환해야 하지 //5-1:메소드 본문으로..
+	@GetMapping("/filtering-list")
+	public List<SomeBean> filteringList() {
+
+    //5-1: Arrays.asList를 입력하고 new SomeBean을 추가한다 여기 붙여 넣기 한 다음 이어사 값을 변경해 볼까? "value4" "value5" "value6"로 지정한다
+    //임포트를 정리해보자 java.util.List를 임포트 해야 하는데 이렇게 모든 것이 컴파일링하고 있다, 이렇게 SomeBean의 리스트를 반환하는 filteringList 메소드를 생성했는데
+    //SomeBean의 리스트가 반환되더라도 field2는 전혀 표시되지 않을 것이다
+		return Arrays.asList(new SomeBean("value1","value2","value3"),
+				new SomeBean("value4","value5","value6"));
+	}
+}
+
+
+----------------------------------------------------------------------------------------------------------
+                                                                                              |
+                                                                                              V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering 사이트화면 ==>
+
+
+[
+    {
+        "filed1": "value1",
+        "filed3": "value3"
+    },
+    {
+        "filed1": "value4",
+        "filed3": "value6"
+    }
+]
+
+----------------------------------------------------------------------------------------------------------
+filtering-list를 적용하면 이처럼 리스트의 모든 요소에 대해 field2가 표시되지 않는다
+
+여기에 @JsonIgnore 외에도 빈에 @JsonIgnoreProperties를 정의할 수 있는데
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ SomeBean 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+import com.fasterxml.jackson.annotation.*;
+
+//6:이것은 또 다른 어노테이션이다 com.fasterxml.jackson.annotation.JsonIgnoreProperties를 확인할 수 있다
+//이것은 클래스에 지정해야 하는데 여기에선 프로퍼티 이름을 지정할 수 있다, 이번에는 field1을 응답에 포함하지 않겠다 
+//이처럼 @JsonIgnoreProperties("filed1")을 입력했는데, 클래스 수준에서도 정의할 수 있다
+@JsonIgnoreProperties("filed1")
+public class SomeBean {
+
+	private String filed1;
+
+  //6-1: 여기에 JsonIgnore를 추가하는 대신 @JsonIgnoreProperties("field1")을 사용하여 클래스 수준으로 정의한다,이제 페이지를 새로고침...
+	@JsonIgnore
+	private String filed2;
+	private String filed3;
+	
+	public SomeBean(String filed1, String filed2, String filed3) {
+		super();
+		this.filed1 = filed1;
+		this.filed2 = filed2;
+		this.filed3 = filed3;
+	}
+
+	public String getFiled1() {
+		return filed1;
+	}
+
+	public String getFiled2() {
+		return filed2;
+	}
+
+	public String getFiled3() {
+		return filed3;
+	}
+
+	@Override
+	public String toString() {
+		return "SomeBean [filed1=" + filed1 + ", filed2=" + filed2 + ", filed3=" + filed3 + "]";
+	}
+	
+}
+----------------------------------------------------------------------------------------------------------
+                                                                                              |
+                                                                                              V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering 사이트화면 ==>
+
+
+[
+  {
+    "filed3": "value3"  
+  },
+  {
+    "filed3": "value6"
+  }
+]
+
+----------------------------------------------------------------------------------------------------------
+새로고침 해보니 field1과 field2가 모두 표시되지 않고 있는데
+
+@JsonIgnore는 제거하고 @JsonIgnoreProperties에 field2를 추가할 수 있다 "field2"를 추가해보자
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ SomeBean 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+import com.fasterxml.jackson.annotation.*;
+
+//7: field2를 추가 ("filed1", "field2")이런식으로 field2를 추가하면 오류가 발생하기 때문에 ({"filed1", "field2"})이렇게 처리하도록 하겠다
+//임포트를 정리해서 @JsonIgnore를 삭제하고, 새로고침해보자
+@JsonIgnoreProperties({"filed1", "field2"})
+public class SomeBean {
+
+	private String filed1;
+	
+	private String filed2;
+
+	private String filed3;
+	
+	public SomeBean(String filed1, String filed2, String filed3) {
+		super();
+		this.filed1 = filed1;
+		this.filed2 = filed2;
+		this.filed3 = filed3;
+	}
+
+	public String getFiled1() {
+		return filed1;
+	}
+
+	public String getFiled2() {
+		return filed2;
+	}
+
+	public String getFiled3() {
+		return filed3;
+	}
+
+	@Override
+	public String toString() {
+		return "SomeBean [filed1=" + filed1 + ", filed2=" + filed2 + ", filed3=" + filed3 + "]";
+	}
+	
+}
+
+----------------------------------------------------------------------------------------------------------
+                                                                                              |
+                                                                                              V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering 사이트화면 ==>
+
+
+[
+  {
+    "filed3": "value3"  
+  },
+  {
+    "filed3": "value6"
+  }
+]
+
+----------------------------------------------------------------------------------------------------------
+
+보다시피 응답에 아무런 변화가 없는데 
+
+@JsonIgnore 또는 @JsnoIgnoreProperties를 사용해서 정적 필터링을 구현할 수 있다 
+
+교육자는 보통 @JsonIgnore를 선호하는 편이라고 한다
+@JsonIgnoreProperties를 사용하는 대신 이 특정 필드에 @JsonIgnore를 추가하는게 낫다고 한다
+
+추후 필드 이름을 변경하더라도 실제로 다른 곳에서 변경할 필요가 없어서라고 하기 때문이다
+
+@JsonIgnoreProperties를 사용하는 경우는 어떨까? field2 이름을 변경한다면 
+@JsnoIgnoreProperties("")여기에서 이것도 변경해야 한다는 사실을 기억해야 한다
+
+
+
+
+
+
+
+지금까지 정적 필터링에 대해 살펴봤는데, 다음 영상에선 동적 필터링에 대해 짚어보겠다
