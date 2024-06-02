@@ -1,0 +1,386 @@
+
+
+Custommizing REST API Responses - Filtering and more..
+
+● Serialization: Convert object to stream (example: JSON)                                     _____________________________________
+  ■ Most popular JSON Serialization in Java: Jackson                                            localhost:8080/filtering-list
+● How about customizing the REST API response returned by Jackson framework?                  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● 1: Customize filed names in response                                                        [
+  ■ @JSONProperty                                                                               {
+                                                                                                  "field2": "value2",
+                                                                                                  "field3": "value3"
+                                                                                                },
+                                                                                                {
+                                                                                                  "field2": "value22",
+                                                                                                  "field3": "value32"
+                                                                                                }
+                                                                                              ]
+                                                                                              _____________________________________
+                                                                                                localhost:8080/filtering
+                                                                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                {
+                                                                                                  "field1": "value1",
+                                                                                                  "field2": "value2",
+                                                                                                  "field3": "value3"
+                                                                                                }
+
+
+
+이번 시간에는 REST API 응답 커스터마이징에 대해 살펴보겠다
+● Serialization: Convert object to stream (example: JSON) 
+직렬화란 무엇일까? 
+직렬화는 객체를 스트림으로 전환하는 프로세스이다
+
+가령, 
+-------------------------------------------
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		return service.findAll();
+	}
+
+  @GetMapping("/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user);
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+-------------------------------------------
+EntityModel을 반환하거나 List<User>를 반환한다고 가정해보자
+이것을 JSON이나 XML로 전환하는 작업을 바로 직렬화라고 하는데 
+  ■ Most popular JSON Serialization in Java: Jackson   
+가장 인기가 많은 자바의 JSON 직렬화 프레임워크는 Jackson이다 
+
+지금까지 이 User의 구조가 무엇이든 정확히 응답에 있다는 것을 확인했었지
+-------------------------------------------
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+
+import jakarta.validation.constraints.*;
+
+public class User {
+
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+	private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+	private LocalDate birthDate;
+.....
+-------------------------------------------
+따라서 JSON 응답은 이 User 빈의 구조와 정확히 일치한다
+-----------------------------------------------------
+
+localhost:8080/users 사이트 화면 ==>
+
+[
+  {
+    "id": 1,
+    "name": "Adam",
+    "birthDate": "1994-06-02"
+  },
+  {
+    "id": 2,
+    "name": "Eve",
+    "birthDate": "1999-06-02"
+  },
+  {
+    "id": 3,
+    "name": "Jim",
+    "birthDate": "2004-06-02"
+  }
+]
+
+-----------------------------------------------------
+id, name, birthDate를 가지고 있는데, 이는 정확히 응답이 구조에 해당한다 
+여기서도 id, name, birthDate를 확인할 수 있다
+
+● How about customizing the REST API response returned by Jackson framework? 
+특정 상황에서는 이와 같이 정확한 구조를 반환하고 싶지 않을 때도 있는데 
+Jackson 프레임워크가 반환하는 REST API응답을 커스터마이징해야 하기도 한다
+
+이번 강의와 다음 강의를 통해 커스터마이징을 할 수 있는 몇 가지 옵션에 대해 알아보도록 하겠다
+
+🔵 응답 필드명 커스터마이징
+
+● 1: Customize filed names in response     
+먼저 응답의 필드 이름을 커스터마이징하는 방법을 알아볼까?
+  ■ @JSONProperty    
+응답의 필드 이름을 커스터마이징하는 방법은 무엇일까?
+@JSONProperty 어노테이션을 사용할 수 있다
+
+바로 실행하여 확인해볼까?
+(User 클래스파일..) name을 커스터마이징 하는 경우, name 대신에 다른 것을 반환한다고 가정해보자
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ User 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+
+import com.fasterxml.jackson.annotation.*;
+
+import jakarta.validation.constraints.*;
+
+public class User {
+
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+  //1: @JASONProperty를 추가하고, com.fasterxml.jackson.annotation을 임포트 한다 
+  //Marker annotation that can be used to define a non-staticmethod as a "setter" or "getter" for a logical propertyaccessor (depending on its signature),or a non-static Object field to be used (serialized, deserialized)as a logical property (to assign value or get value from) => 비어 있는 기본값은 필드 이름이 수정 없이 프로퍼티 이름으로 사용된다는 것을 가리키지만 다른 이름을 지정하기 위해 비어 있지 않은 값으로 지정할 수 있다고 돼있다
+	//바로 이것을 다워보도록 하자, @JASONProperty("user_name")으로 작성할 수 있는데, 임포트를 정리하고 저장해볼까
+  private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+	private LocalDate birthDate;
+	
+	public User(Integer id, String name, LocalDate birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+----------------------------------------------------------------------------------------------------------
+이제 user API로 이동해서 새로고침을 하면 user_name이 표시된 것을 확인할 수 있는데           |   
+                                                                                       V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/users 사이트화면 ==>
+
+
+[
+  {
+    "id": 1,
+    "birthDate": "1994-06-02",
+    "user_name": "Adam"
+  },
+  {
+    "id": 2,
+    "birthDate": "1999-06-02",
+    "user_name": "Eve"
+  },
+  {
+    "id": 3,
+    "birthDate": "2004-06-02",
+    "user_name": "Jim"
+  }
+]
+
+----------------------------------------------------------------------------------------------------------
+
+같은 방식으로 birthDate를 커스터마이징 한다고 가정해보자, 이번에도 마찬가지로
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ User 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+
+import com.fasterxml.jackson.annotation.*;
+
+import jakarta.validation.constraints.*;
+
+public class User {
+
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+	@JsonProperty("user_name")
+	private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+//2: birthDate 대신에 birth_date를 입력하겠다 저장하고 새로고침을 하면..
+	@JsonProperty("birth_date")
+	private LocalDate birthDate;
+	
+	public User(Integer id, String name, LocalDate birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+
+----------------------------------------------------------------------------------------------------------
+                                                                                        |
+                                                                                        V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/users 사이트화면 ==>
+
+
+[
+  {
+    "id": 1,
+    "user_name": "Adam",
+    "birth_date": "1994-06-02"
+  },
+  {
+    "id": 2,
+    "user_name": "Eve",
+    "birth_date": "1999-06-02"
+  },
+  {
+    "id": 3,
+    "user_name": "Jim",
+    "birth_date": "2004-06-02"
+  }
+]
+
+----------------------------------------------------------------------------------------------------------
+birth_date를 확인할 수 있다
+
+JSONProperty는 응답의 속성과 요소 이름을 커스터마이징하는 데 무척 유용하다
+
+
+
+
+Custommizing REST API Responses - Filtering and more..
+
+● Serialization: Convert object to stream (example: JSON)                                     _____________________________________
+  ■ Most popular JSON Serialization in Java: Jackson                                            localhost:8080/filtering-list
+● How about customizing the REST API response returned by Jackson framework?                  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● 1: Customize filed names in response                                                        [
+  ■ @JSONProperty                                                                               {
+● 2: Return only selected fields                                                                  "field2": "value2",
+  ■ Filtering                                                                                     "field3": "value3"
+  ■ Example: Filter out Password                                                                },
+  ■ Two types:                                                                                  {
+    ○ Static Filtering: Same filtering for a bean across differnt REST API                        "field2": "value22",
+      ◦ @JsonIgnoreProperties, @JsonIgnore                                                        "field3": "value32"
+    ○ Dynamic Filtering: Customize filtering for a bean for specific REST API                    }
+      ◦ @JsonFilter with FilterProvider                                                        ]
+                                                                                              _____________________________________
+                                                                                                localhost:8080/filtering
+                                                                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                {
+                                                                                                  "field1": "value1",
+                                                                                                  "field2": "value2",
+                                                                                                  "field3": "value3"
+                                                                                                }
+
+
+● 2: Return only selected fields   
+응답에서 할 수 있는 또 다른 작업은 선택된 필드만 반환하기이다
+  ■ Filtering  
+이것은 필터링이라고 하는데 
+  ■ Example: Filter out Password 
+예를 들어, 빈에 정의된 비밀번호가 있는데, 응답에는 비밀번호를 전송하고 싶지 않다면 어떻게 해야 할까?
+  ■ Two types: 
+   ○ Static Filtering: Same filtering for a bean across differnt REST API
+      ◦ @JsonIgnoreProperties, @JsonIgnore  
+   ○ Dynamic Filtering: Customize filtering for a bean for specific REST API  
+      ◦ @JsonFilter with FilterProvider    
+필터링에는 바로 정적 필터링과 동적 필터링의 두 가지 유형이 있다
+
+예시를 통해 알아보겠다 
+3개의 필드가 있는 빈이 있는데 
+{
+  "field1": "value1",
+  "field2": "value2",
+  "field3": "value3"
+}
+field1, field2, field3가 있다 
+항상 field2를 필터링한다고 가정해보자,
+field2는 비밀번호 필드인데, REST API 응답으로 이것을 전송하고 싶지 않은 상황이다
+REST API와 관계없이 항상 field2를 차단하거나 필터링해야 하는데 이것을 바로 정적 필터링이라 하지
+   ○ Static Filtering: Same filtering for a bean across differnt REST API
+      ◦ @JsonIgnoreProperties, @JsonIgnore  
+여러 REST API에서 빈에 적용된 동일한 필터링이다
+
+이에 대한 대안으로 동적 필터링이 있는데
+   ○ Dynamic Filtering: Customize filtering for a bean for specific REST API  
+      ◦ @JsonFilter with FilterProvider    
+예시를 살펴보는 것이 좋겠다
+특정 REST API의 일부로 field1을 전송하고자 한다 
+하지만 다른 REST API의 경우, 이것을 전송하고 싶지 않은데 
+따라서 응답의 일부로 필드를 전송할지 동적으로 결정해야 한다
+이것을 바로 동적 필터링이라고 한다 
+
+그럼 정적 필터링과 동적 필터링의 몇 가지 예시를 간단히 짚어볼까?
+
+그럼 새 컨트롤러를 만들어 보자 패키지 이름은 .filtering으로 마무리하고 클래스명은 FilteringController 로 하고 Finish를 클릭
+
+
