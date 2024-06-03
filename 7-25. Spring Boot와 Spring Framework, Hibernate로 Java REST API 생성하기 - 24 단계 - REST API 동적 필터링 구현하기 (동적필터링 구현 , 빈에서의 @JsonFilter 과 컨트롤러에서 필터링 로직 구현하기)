@@ -1,0 +1,361 @@
+
+
+Custommizing REST API Responses - Filtering and more..
+
+● Serialization: Convert object to stream (example: JSON)                                     _____________________________________
+  ■ Most popular JSON Serialization in Java: Jackson                                            localhost:8080/filtering-list
+● How about customizing the REST API response returned by Jackson framework?                  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● 1: Customize filed names in response                                                        [
+  ■ @JSONProperty                                                                               {
+● 2: Return only selected fields                                                                  "field2": "value2",
+  ■ Filtering                                                                                     "field3": "value3"
+  ■ Example: Filter out Password                                                                },
+  ■ Two types:                                                                                  {
+    ○ Static Filtering: Same filtering for a bean across differnt REST API                        "field2": "value22",
+      ◦ @JsonIgnoreProperties, @JsonIgnore                                                        "field3": "value32"
+    ○ Dynamic Filtering: Customize filtering for a bean for specific REST API                    }
+      ◦ @JsonFilter with FilterProvider                                                        ]
+                                                                                              _____________________________________
+                                                                                                localhost:8080/filtering
+                                                                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                {
+                                                                                                  "field1": "value1",
+                                                                                                  "field2": "value2",
+                                                                                                  "field3": "value3"
+                                                                                                }
+
+
+이번 시간에는 동적 필터링을 살펴보겠다
+지난 단계에선 정적 필터링을 살펴봤다, 다양한 REST API의 빈을 동일하게 필터링하는 것이였다
+------------------------------------------
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+import java.util.*;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class FilteringController {
+	
+	@GetMapping("/filtering")
+	public SomeBean filtering() {
+		return new SomeBean("value1","value2","value3");
+	}
+	
+	@GetMapping("/filtering-list")
+	public List<SomeBean> filteringList() {
+		return Arrays.asList(new SomeBean("value1","value2","value3"),
+				new SomeBean("value4","value5","value6"));
+	}
+}
+------------------------------------------
+간단히 filtering과 filtering-list라는 REST API를 생성했고,
+
+------------------------------------------
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+import com.fasterxml.jackson.annotation.*;
+
+//@JsonIgnoreProperties({"filed1", "field2"})
+public class SomeBean {
+
+	private String filed1;
+	
+	private String filed2;
+	
+	@JsonIgnore
+	private String filed3;
+	
+	public SomeBean(String filed1, String filed2, String filed3) {
+		super();
+		this.filed1 = filed1;
+		this.filed2 = filed2;
+		this.filed3 = filed3;
+	}
+....
+------------------------------------------
+SomeBean.java에서 어떤 필터를 설정하든 두 REST API 모두에 적용됐다
+지금은 field3에 @JasonIgnore가 적용되고 있어서 filtering과 filtering-list 모두 field3는 응답으로 변환하지 않는다
+
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering-list 사이트화면 ==>
+
+[
+  {
+    "filed1": "value1",
+    "filed2": "value2"
+  },
+  {
+    "filed1": "value4",
+    "filed2": "value5"
+  }
+]
+
+----------------------------------------------------------------------------------------------------------
+사이트를 새로고침 하면 filtering-list는 이렇게 field1과 field2만 반환한다 
+
+filtering도 마찬가지로
+
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering 사이트화면 ==>
+
+{
+  "filed1": "value1",
+  "filed2": "value2"
+}
+
+----------------------------------------------------------------------------------------------------------
+field1과 field2만 반환하고 
+
+
+같은 빈이라도 REST API에 따라 다른 속성을 반환하고 싶을 수도 있다
+
+그건 어떻게 구현할까?
+그게 바로 동적 필터링이다, 동적 필터링을 살펴보기 전에 SomeBean.java로 가서
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ SomeBean 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+import com.fasterxml.jackson.annotation.*;
+
+//@JsonIgnoreProperties({"filed1", "field2"})
+public class SomeBean {
+
+	private String filed1;
+	
+	private String filed2;
+
+  //1: @JasonIgnore를 주석 퍼리해 임포트를 정리하고 저장한다
+//	@JsonIgnore
+	private String filed3;
+	
+	public SomeBean(String filed1, String filed2, String filed3) {
+		super();
+		this.filed1 = filed1;
+		this.filed2 = filed2;
+		this.filed3 = filed3;
+	}
+
+	public String getFiled1() {
+		return filed1;
+	}
+
+	public String getFiled2() {
+		return filed2;
+	}
+
+	public String getFiled3() {
+		return filed3;
+	}
+
+	@Override
+	public String toString() {
+		return "SomeBean [filed1=" + filed1 + ", filed2=" + filed2 + ", filed3=" + filed3 + "]";
+	}
+	
+}
+----------------------------------------------------------------------------------------------------------
+                                                                                |
+                                                                                V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering 사이트화면 ==>
+
+{
+  "filed1": "value1",
+  "filed2": "value2",
+  "filed3": "value3"
+}
+
+----------------------------------------------------------------------------------------------------------
+이제 filtering을 실행하면 모든 응답이 반환된다, filtering-list도                    |
+                                                                                 V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering-list 사이트화면 ==>
+
+[
+  {
+    "filed1": "value1",
+    "filed2": "value2",
+    "filed3": "value3"
+  },
+  {
+    "filed1": "value4",
+    "filed2": "value5",
+    "filed3": "value6"
+  }
+]
+
+----------------------------------------------------------------------------------------------------------
+마찬가지고 두 REST API 모두 세 필드 전부 응답이 반환된다, 이제 특정 REST API의 빈에 대한 
+필터링을 커스텀해볼 것이다
+가령, filtering과 filtering-list라는 두 REST API가 있을때 
+-------------------------
+
+localhost:8080/filtering==>
+
+{
+  "filed1": "value1",
+  "filed3": "value3"
+}
+-------------------------
+filtering으로는 field1과 field3을 응답으로 받을 것이다
+
+-------------------------
+
+localhost:8080/filtering-list==>
+
+[
+  {
+    "field2": "value2",
+    "field3": "value3"
+  },
+  {
+    "field2": "value22",
+    "field3": "value32"
+  }
+]
+-------------------------
+하지만 filtering-list로는 field2와 field3을 응답으로 받을 것이다
+같은 빈이라도 REST API에 따라 필터링 로직이 달라지는 것이다
+
+구현 방법을 알아보겠다, REST API마다 다른 작업을 하도록 해야 하니 빈에 필터링을 정의할 순 없다 (SomeBean클래스파일..)
+필터링 논리는 REST API에 정의해야 한다 
+그래서 이 REST API메서드에는 (FilteringController 클래스파일..)데이터뿐 아니라 필터링 방식도 정의할 것이다
+이때 MappingJacksonValue 라는 클래스가 도움이 된다
+너가 컨버터, 즉 Jackson 컨버터에 특정한 직렬화 명령을 넘기고 싶은 경우에 MappingJacksonValue를 사용할 수 있다
+
+그러니 여기에
+
+----------------------------------------------------------------------------------------------------------
+
+
+⏺ FilteringController 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+import java.util.*;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class FilteringController {
+	
+	@GetMapping("/filtering") //field2
+
+  //2-4: public SomeBean filtering() => public MappingJacksonVaule filtering() 로 바뀜
+	public MappingJacksonVaule filtering() {  //
+    //2-1계속: Extract Local Variable로 생성된 someBean 변수
+		SomeBean someBean = new SomeBean("value1","value2","value3");
+
+    //2: MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(); 이처럼 적고, 반환하고픈 값을 아무거나 넘기면 된다
+    //2-2: someBean을 이용해 필터링하려고 MappingJacksonValue를 사용한 것이다, 임포트를 정리하면 import org.springframework.http.converter.json.MappingJacksonValue;가 입력된다
+    //이제 mappingJacksonValue를 반환하겠다 //2-3: 아래 return에 mappingJacksonValue로 바꿔주기..
+		MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(someBean);
+		
+    //2-1: 여기서 마우스 우클릭을 할 것이다 new SomeBean("value1","value2","value3")를 선택했다 우클릭으로 Refactor > Extract Local Variable을 클릭 이름은 그대로 someBean으로 하겠다
+		//return new SomeBean("value1","value2","value3");
+                                  |
+                                  V
+    //2-1 계속: 그런 다음 괄호 안에 someBean을 넘기면 된다 //2-2: new MappingJacksonValue();에 someBean을 넣어주기
+    //2-3: mappingJacksonValue로 반환, ctrl+1로 메서드 반환 타입을 MappingJacksonVaule로 바꾸고 저장 //2-4: 반환타입이 SomeBean => MappingJacksonVaule로 바껴 있을거임..
+		return mappingJacksonValue;
+	}
+	
+	@GetMapping("/filtering-list")	//field1
+	public List<SomeBean> filteringList() {
+		return Arrays.asList(new SomeBean("value1","value2","value3"),
+				new SomeBean("value4","value5","value6"));
+	}
+}
+
+----------------------------------------------------------------------------------------------------------
+이제 다시 우리의 요청페이지로 돌아가서                                                      |
+localhost:8080/filtering으로 가보자                                                       V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering 사이트화면 ==>
+
+{
+  "filed1": "value1",
+  "filed2": "value2",
+  "filed3": "value3"
+}
+
+----------------------------------------------------------------------------------------------------------
+변한 건 없다
+
+하지만 이제는 필터를 추가할 수 있게 됐다
+MappingJacksonValue 클래스 덕에 필터 설정이 가능해졌거든
+
+----------------------------------------------------------------------------------------------------------
+
+
+
+⏺ FilteringController 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.filtering;
+
+import java.util.*;
+
+import org.springframework.http.converter.json.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class FilteringController {
+	
+	@GetMapping("/filtering") //field2
+	public MappingJacksonValue filtering() {
+		SomeBean someBean = new SomeBean("value1","value2","value3");
+		
+		MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(someBean);
+
+    //3-2:보다시피 타입은 SimpleBeanPropertyFilter지, SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept(null); 처럼 필터링 방식을 정의하겠다 field1과 field3만 표시하고 싶으니 ("field1", "field3")처럼 적어준다 저장하겠다
+		SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("field1", "field3");
+  
+    //3-1: 이제 적용할 filters를 정의할 FilterProvider를 생성해야 한다 필터는 FilterProvider filters; 여기에 정의해주면 되는데
+    // FilterProvider는 여러 필터를 정의할 수 있게 해준다 지금은 필터 1개만 추가하자, FilterProvider filters = new SimpleFilterProvider();를 입력하겠다 보다 시피 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider; 도 함께 입력됐다
+    //이제 SimpleFilterProvider()에 새 필터를 생성해 추가하면 된다.addFilter()를 써서 이름을 추가하겠다 "SomeBeanFilter", filter 처럼
+    //SimpleFilterProvider 인스턴스를 생성해 필터를 추가하고 있는 것이다, 이제 filter를 정의해주면 된다 ctrl+1로 Create local variable 'filter'를 선택하겠다//3-2:생성된 변수로..
+		FilterProvider filters = new SimpleFilterProvider().addFilter("SomeBeanFilter", filter);
+  
+    //3: mappingJacksonValue.setFilters(filters);를 입력하겠다, filters의 값이 정의되지 않았으니 지금 정의한다, ctrl+1을 눌러 create local variable 'filters'를 선택
+    mappingJacksonValue.setFilters(filters);
+
+		return mappingJacksonValue;
+	}
+	
+	@GetMapping("/filtering-list")	//field1
+	public List<SomeBean> filteringList() {
+		return Arrays.asList(new SomeBean("value1","value2","value3"),
+				new SomeBean("value4","value5","value6"));
+	}
+}
+
+----------------------------------------------------------------------------------------------------------
+다시 요청 페이지에서 요청을 보내면...                                                      |
+                                                                                        V
+----------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/filtering 사이트화면 ==>
+
+{
+  "filed1": "value1",
+  "filed2": "value2",
+  "filed3": "value3"
+}
+
+----------------------------------------------------------------------------------------------------------
+이런.. 아직 필터링이 적용되지 않는다 
+보다시피 아직 작동하지 않는다 
+왜일까?
