@@ -288,3 +288,354 @@ management.endpoints.web.exposure.include=*
 beans, cashes, health, info, conditions, configprops, env, loggers, heapdump, threaddump, metrics등
 아주 다양하다
 이 중 몇 개만 빠르게 훑어보겠다
+http://localhost:8080/actuator/beans 를 열어보겠다
+
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/actuator/beans 사이트화면 ==>
+
+
+{
+  "contexts": {
+  "restful-web-services": {
+  "beans": {
+  "spring.jpa-org.springframework.boot.autoconfigure.orm.jpa.JpaProperties": {
+  "aliases": [],
+  "scope": "singleton",
+  "type": "org.springframework.boot.autoconfigure.orm.jpa.JpaProperties",
+  "dependencies": []
+},
+.....
+...
+------------------------------------
+애플리케이션 컨텍스트에 로드된 모든 Spring 빈의 정보를 제공할 것이다
+예를 들어 Controller를 선택해 Bean에서 검색하면 ..
+
+"helloWorldController": {
+  "aliases": [],
+  "scope": "singleton",
+  "type": "com.in28minutes.rest.webservices.restfulwebservices.helloworld.HelloWorldController",
+  "resource": "file [C:\\Users\\LG\\Downloads\\restful-web-services\\restful-web-services\\target\\classes\\com\\in28minutes\\rest\\webservices\\restfulwebservices\\helloworld\\HelloWorldController.class]",
+  "dependencies": [
+  "messageSource"
+  ]
+},
+helloWorldController가 나온다
+생성된 빈 가운데 하나다
+보다시피 스코프는 싱글톤이고 타입은 '패키지 이름, 클래스 이름'으로 구성된다 (helloworld.HelloWorldController)
+리소스 위치도 볼 수 있다, 나아가 의존성 까지 볼 수 있다 이건 보다시피 messageSource에 의존하고 있다 
+
+HelloWorldController로 가보면..
+-------------------------------------------
+package com.in28minutes.rest.webservices.restfulwebservices.helloworld;
+
+import java.util.*;
+
+import org.springframework.context.*;
+import org.springframework.context.i18n.*;
+import org.springframework.web.bind.annotation.*;
+
+//REST API
+@RestController
+public class HelloWorldController {
+
+	private MessageSource messageSource;
+	
+	public HelloWorldController(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+.....
+-------------------------------------------
+MessageSource가 의존성이라고 나온다
+
+
+
+이제 다른 컨트롤러를 살펴보겠다
+filteringController도 있다 
+-------------------------------------------
+"filteringController": {
+  "aliases": [],
+  "scope": "singleton",
+  "type": "com.in28minutes.rest.webservices.restfulwebservices.filtering.FilteringController",
+  "resource": "file [C:\\Users\\LG\\Downloads\\restful-web-services\\restful-web-services\\target\\classes\\com\\in28minutes\\rest\\webservices\\restfulwebservices\\filtering\\FilteringController.class]",
+  "dependencies": []
+},
+-------------------------------------------
+
+
+이건 의존성이 없다 userResource를 검색해보자
+-------------------------------------------
+"userResource": {
+  "aliases": [],
+  "scope": "singleton",
+  "type": "com.in28minutes.rest.webservices.restfulwebservices.user.UserResource",
+  "resource": "file [C:\\Users\\LG\\Downloads\\restful-web-services\\restful-web-services\\target\\classes\\com\\in28minutes\\rest\\webservices\\restfulwebservices\\user\\UserResource.class]",
+  "dependencies": [
+  "userDaoService"
+  ]
+},
+-------------------------------------------
+userResource도 여기 있다, userResource를 위해 생성된 싱글톤 빈이 있고 
+보다시피 의존성은 userDaoService이다
+
+
+userDaoService를 검색하면 여기서 세부 정보를 볼 수 있다 
+-------------------------------------------
+"userDaoService": {
+  "aliases": [],
+  "scope": "singleton",
+  "type": "com.in28minutes.rest.webservices.restfulwebservices.user.UserDaoService",
+  "resource": "file [C:\\Users\\LG\\Downloads\\restful-web-services\\restful-web-services\\target\\classes\\com\\in28minutes\\rest\\webservices\\restfulwebservices\\user\\UserDaoService.class]",
+  "dependencies": []
+},
+-------------------------------------------
+userDaoService 역시 싱글톤이고 의존성은 없다
+
+------------------------------------------------------------------------------------------------------------------------
+
+이렇게 Spring 컨텍스트에 로드된 모든 빈의 세부정보를 보고 싶으면  
+actuator/beans 엔드포인트를 이용하면 된다
+
+
+다음으로 http://localhost:8080/actuator/env를 살펴보겠다
+이걸 열면 
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/actuator/env 사이트 화면 ==>
+
+
+{
+  "activeProfiles": [],
+    "propertySources": [
+      {
+        "name": "server.ports",
+        "properties": {
+        "local.server.port": {
+        "value": "******"
+      }
+  }
+},
+....
+------------------------------------------------------------------------------------------------------------------------
+애플리케이션 실행 환경에 대한 세부 정보를 볼 수 있다
+우리는 포트 8080에 Java 17 버전을 사용 중이다 
+클래스 경로도 볼 수 있고, 다른 세부 정보들도 볼 수 있다
+
+따라서 너가 애플리케이션 실행 환경에 대한 세부 정보를 알고 싶다면 
+actuator/env로 가면 된다
+
+
+
+나아가 로거를 확인할 수 있는 loggers 엔드포인트나 Heapdump, threaddump, metrics 엔드포인트도 있다
+이번엔 actuator/metrics로 가보자
+
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/actuator/metrics 사이트화면 ==>
+
+
+{
+  "names": [
+    "application.ready.time",
+    "application.started.time",
+    "disk.free",
+    "disk.total",
+    "executor.active",
+    "executor.completed",
+    "executor.pool.core",
+    "executor.pool.max",
+    "executor.pool.size",
+    "executor.queue.remaining",
+    "executor.queued",
+    "hikaricp.connections",
+    "hikaricp.connections.acquire",
+    "hikaricp.connections.active",
+    "hikaricp.connections.creation",
+    "hikaricp.connections.idle",
+    "hikaricp.connections.max",
+    "hikaricp.connections.min",
+    "hikaricp.connections.pending",
+    "hikaricp.connections.timeout",
+    "hikaricp.connections.usage",
+    "http.server.requests",
+    "http.server.requests.active",
+    "jdbc.connections.active",
+    "jdbc.connections.idle",
+    "jdbc.connections.max",
+    "jdbc.connections.min",
+    "jvm.buffer.count",
+    "jvm.buffer.memory.used",
+    "jvm.buffer.total.capacity",
+    "jvm.classes.loaded",
+    "jvm.classes.unloaded",
+    "jvm.compilation.time",
+    "jvm.gc.live.data.size",
+    "jvm.gc.max.data.size",
+    "jvm.gc.memory.allocated",
+    "jvm.gc.memory.promoted",
+    "jvm.gc.overhead",
+    "jvm.gc.pause",
+    "jvm.info",
+    "jvm.memory.committed",
+    "jvm.memory.max",
+    "jvm.memory.usage.after.gc",
+    "jvm.memory.used",
+    "jvm.threads.daemon",
+    "jvm.threads.live",
+    "jvm.threads.peak",
+    "jvm.threads.started",
+    "jvm.threads.states",
+    "logback.events",
+    "process.cpu.usage",
+    "process.start.time",
+    "process.uptime",
+    "system.cpu.count",
+    "system.cpu.usage",
+    "tomcat.sessions.active.current",
+    "tomcat.sessions.active.max",
+    "tomcat.sessions.alive.max",
+    "tomcat.sessions.created",
+    "tomcat.sessions.expired",
+    "tomcat.sessions.rejected"
+  ]
+}
+
+보다시피 Actuator가 추적하는 다양한 메트릭들이 있다
+메트릭의 세부 정보가 궁금하다면 이 중 하나를 골라 한번 살펴보자
+http.server.request를 보겠다 
+http.server.requests 복사해 metrics 뒤에 붙여 넣겠다 metrics/http.server.requests처럼 말이다
+입력하면 
+
+----------------------------------------------
+{
+  "name": "http.server.requests",
+  "baseUnit": "seconds",
+  "measurements": [
+    {
+      "statistic": "COUNT",
+      "value": 7
+    },
+    {
+      "statistic": "TOTAL_TIME",
+      "value": 0.16296519999999998
+    },
+    {
+      "statistic": "MAX",
+      "value": 0
+    }
+    ],
+    "availableTags": [
+      {
+      "tag": "exception",
+      "values": [
+        "none"
+      ]
+      },
+      {
+        "tag": "method",
+      "values": [
+        "GET"
+          ]
+        },
+        {
+        "tag": "error",
+        "values": [
+        "none"
+        ]
+        },
+        {
+        "tag": "uri",
+        "values": [
+          "/actuator",
+          "/actuator/beans",
+          "/actuator/metrics",
+          "/actuator/env"
+        ]
+        },
+        {
+          "tag": "outcome",
+          "values": [
+          "SUCCESS"
+        ]
+      },
+      {
+        "tag": "status",
+        "values": [
+        "200"
+      ]
+    }
+  ]
+}
+
+이 애플리케이션으로 전송된 HTTP 요청 수에 관한 세부 정보를 볼 수 있다
+      "statistic": "COUNT",
+      "value": 7
+7개의 요청이 전송됐고
+      "statistic": "TOTAL_TIME",
+      "value": 0.16296519999999998
+총 실행 시간은 0.16초, 
+      "statistic": "MAX",
+      "value": 0
+요청에 걸린 최대 시간은 0초이다
+요청을 받은 다양한 URI도 볼 수 있고 밑에는 응답 상태도 나온다
+----------------------------------------------
+
+이렇게 metrics 엔드포인트는 애플리케이션 실행 환경은 물론 애플리케이션 메트릭까지 추적할 수 있게 해준다
+스레드 풀이나 커넥션 풀의 세부 정보를 볼 수 있고 JVM 관련 메트릭이나 애플리케이션이 실행 중인 Tomcat 서버의 메트릭도 볼 수 있다
+------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+마지막으로 actuator/mappings를 보겠다
+
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/actuator/mappings 사이트화면 ==>
+
+
+{
+"contexts": {
+  "restful-web-services": {
+    "mappings": {
+      "dispatcherServlets": {
+        "dispatcherServlet": [
+        {
+          "handler": "Actuator web endpoint 'caches-cache'",
+          "predicate": "{DELETE [/actuator/caches/{cache}], produces [application/vnd.spring-boot.actuator.v3+json || application/vnd.spring-boot.actuator.v2+json || application/json]}",
+            "details": {
+              "handlerMethod": {
+                "className": "org.springframework.boot.actuate.endpoint.web.servlet.AbstractWebMvcEndpointHandlerMapping.OperationHandler",
+                "name": "handle",
+                "descriptor": "(Ljakarta/servlet/http/HttpServletRequest;Ljava/util/Map;)Ljava/lang/Object;"
+              },
+          ...
+
+앞서 여러 컨트롤러를 정의했는데 mappings에 다 나온다 
+가령, HelloWorldController를 보자
+-------------------------------------
+{
+  "handler": "com.in28minutes.rest.webservices.restfulwebservices.helloworld.HelloWorldController#helloWorld()",
+  "predicate": "{GET [/hello-world]}",
+    "details": {
+      "handlerMethod": {
+        "className": "com.in28minutes.rest.webservices.restfulwebservices.helloworld.HelloWorldController",
+        "name": "helloWorld",
+        "descriptor": "()Ljava/lang/String;"
+},
+-------------------------------------
+HelloWorldController를 검색하면 가장 먼저 보이는 메서드가 helloWorld()이다 
+요청 메서드 GET에 매핑돼 있고, [/hello-world] 이건 URI다
+밑으로는 세부 정보가 있고
+마찬가지로 모든 요청 메서드의 세부 정보를 여기서 볼 수 있다
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+이번 단계에선 Actuator를 살펴봤다, Actuator는 운영 가능 수준의 다양한 기능을 제공하여 
+운영 환경에서 애플리케이션을 모니터링하고 관리하게 해준다
