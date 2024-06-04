@@ -1,0 +1,290 @@
+
+
+Get Production-ready with Spring Boot Actuator
+
+● Spring Boot Actuator: Providers Spring Boot's production-ready features                                     5ZZEEEEEEEEEEEZ9       
+  ■ Monitor and manage your application in your production                                                    D8D5555D88B55555BE      
+● Spring Boot Starter Actuator: Starter to add Spring Boot Actuator to your application                      D855B98B8  Dz89zD5B9     
+  ■ Spring-boot-starter-actuator                                                                            D85D8D  5Z  D8  w9B5B9    
+● Provides a number of endpoints:                                                                          D8558w  DzZ  B8z   9D5B9   
+  ■ beans - Complete list of Spring beans in your app                                                     B855Dz  Zz5Z  BBDEw ,z55B9  
+  ■ health - Application health information                                                              B9555BW j9559  5D5z9  9555BZ 
+  ■ metrics - Application metrics                                                                        DE555B5  ZD5zDyz558B  8555BZ 
+  ■ mappings - Details around Request Mappings                                                            D8D559  WZ8BBBBzEz  zB55B9  
+  ■ and a lot more.......                                                                                  58D5B9   WzEE8y   Bz55B9   
+                                                                                                            58D5D9z        5EB55B9    
+                                                                                                             58D55D8EZZZZE8B555B9     
+                                                                                                              59D5555555555555z9      
+                                                                                                               yZZZZZZZZZZZZZZ8                    
+                                                                                                                          
+                                                                                                                          
+                                                                                                                          
+                                                                                                                          
+                                                                                                                          
+                                                                                                                          
+                                                                                                                          
+                                                                                                                          
+                                                                                                                          
+                                                                                                                          
+
+이번 단계에는 Spring Boot Actuator를 살펴보겠다 
+● Spring Boot Actuator: Providers Spring Boot's production-ready features
+Spring Boot Actuator는 Spring Boot에 운영 가능한 수준의 기능을 제공한다
+  ■ Monitor and manage your application in your production
+운영 환경에서 애플리케이션을 모니터링 하고 관리하게 해준다 
+● Spring Boot Starter Actuator: Starter to add Spring Boot Actuator to your application
+  ■ Spring-boot-starter-actuator  
+Spring Boot 프로젝트에서 Spring Boot Actuator를 사용하는 법은 아주 간단하다 
+Spring Boot Starter Actuator만 추가하면 된다 
+● Provides a number of endpoints:
+애플리케이션에서 Spring Boot Actuator를 추가하는 스타터로, 다양한 엔드포인트를 제공한다
+  ■ beans - Complete list of Spring beans in your app   
+beans라는 엔드포인트는 애플리케이션에 Spring 빈 전체 목록을 제공한다
+  ■ health - Application health information
+애플리케이션 상태 정보는 health 엔드포인트가 공개하고
+  ■ metrics - Application metrics
+애플리케이션 관련 메트릭은 metrics 엔드포인트로 볼 수 있고, 
+  ■ mappings - Details around Request Mappings
+요청 매핑에 관한 세부 정보는 mappings 엔드포인트로 확인할 수 있다 
+  ■ and a lot more.......  
+Spring Boot Actuator가 공개하는 엔드포인트는 그 밖에도 많다 
+
+
+
+
+이제 Spring Boot Actuator 데모를 살펴보자
+
+pom.xml로 가서 <artifactId>spring-boot-starter-web</artifactId> 이 부분을 복사해 아래에 붙여넣고..
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ pom.xml 파일
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+    <!--1: web을 actuator로 고치겠다 그리고 저장, 다운로드가 진행되는 동안 서버를 중지하고 로그를 전부 삭제하겠다-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+			<version>3.3.0</version>
+		</dependency>	
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
+			<version>3.3.0</version>
+		</dependency>		
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		
+		<!--
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>		
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+		-->
+	
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+------------------------------------------------------------------------------------------------------------------------
+Actuator가 임포트됐으니 애플리케이션을 시작하겠다
+
+그리고 localhost:8080/actuator로 가보면..
+
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/actuator 사이트화면 ==>
+
+
+
+{
+  "_links": {
+    "self": {
+      "href": "http://localhost:8080/actuator",
+      "templated": false
+    },
+    "health": {
+      "href": "http://localhost:8080/actuator/health",
+      "templated": false
+    },
+    "health-path": {
+      "href": "http://localhost:8080/actuator/health/{*path}",
+      "templated": true
+    }
+  }
+}
+
+------------------------------------------------------------------------------------------------------------------------
+다음 링크들이 표시된다 actuator가 있고 actuator/health가 있지            
+http://localhost:8080/actuator/health 링크를 클릭하면 
+                                              |
+                                              V
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/actuator/health 사이트화면 ==>
+
+
+
+{
+  "status": "UP"
+}
+
+------------------------------------------------------------------------------------------------------------------------
+보여준다
+✔ 기본적으로 Actuator는 애플리케이션 상태 정보밖에 공개하지 않는다
+
+
+Actuator가 더 많은 정보를 공개하게 하려면
+src/main/resources의 application.properties에 ..
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ application.properties 파일 ==>
+
+
+spring.application.name=restful-web-services
+
+logging.level.org.springframework=info
+
+# 2: management.endpoints.web.exposure.include=*를 넣으면 된다 이러면 모든 API가 공개된다 이대로 저장하고 Actuator URL을 새로고침 해보자..
+management.endpoints.web.exposure.include=*
+------------------------------------------------------------------------------------------------------------------------
+                                                                                        |
+                                                                                        V
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/actuator 사이트화면 ==>
+
+
+
+{
+  "_links": {
+    "self": {
+      "href": "http://localhost:8080/actuator",
+      "templated": false
+    },
+    "beans": {
+      "href": "http://localhost:8080/actuator/beans",
+      "templated": false
+    },
+    "caches-cache": {
+      "href": "http://localhost:8080/actuator/caches/{cache}",
+      "templated": true
+    },
+    "caches": {
+      "href": "http://localhost:8080/actuator/caches",
+      "templated": false
+    },
+    "health": {
+      "href": "http://localhost:8080/actuator/health",
+      "templated": false
+    },
+    "health-path": {
+      "href": "http://localhost:8080/actuator/health/{*path}",
+      "templated": true
+    },
+    "info": {
+      "href": "http://localhost:8080/actuator/info",
+      "templated": false
+    },
+    "conditions": {
+      "href": "http://localhost:8080/actuator/conditions",
+      "templated": false
+    },
+    "configprops": {
+      "href": "http://localhost:8080/actuator/configprops",
+      "templated": false
+    },
+    "configprops-prefix": {
+      "href": "http://localhost:8080/actuator/configprops/{prefix}",
+      "templated": true
+    },
+    "env": {
+      "href": "http://localhost:8080/actuator/env",
+      "templated": false
+    },
+    "env-toMatch": {
+      "href": "http://localhost:8080/actuator/env/{toMatch}",
+      "templated": true
+    },
+    "loggers": {
+      "href": "http://localhost:8080/actuator/loggers",
+      "templated": false
+    },
+    "loggers-name": {
+      "href": "http://localhost:8080/actuator/loggers/{name}",
+      "templated": true
+    },
+    "heapdump": {
+      "href": "http://localhost:8080/actuator/heapdump",
+      "templated": false
+    },
+    "threaddump": {
+      "href": "http://localhost:8080/actuator/threaddump",
+      "templated": false
+    },
+    "metrics-requiredMetricName": {
+      "href": "http://localhost:8080/actuator/metrics/{requiredMetricName}",
+      "templated": true
+    },
+    "metrics": {
+      "href": "http://localhost:8080/actuator/metrics",
+      "templated": false
+    },
+    "scheduledtasks": {
+      "href": "http://localhost:8080/actuator/scheduledtasks",
+      "templated": false
+    },
+    "mappings": {
+      "href": "http://localhost:8080/actuator/mappings",
+      "templated": false
+    }
+  }
+}
+
+------------------------------------------------------------------------------------------------------------------------
+그러자 여러 URL이 들어온다 
+beans, cashes, health, info, conditions, configprops, env, loggers, heapdump, threaddump, metrics등
+아주 다양하다
+이 중 몇 개만 빠르게 훑어보겠다
