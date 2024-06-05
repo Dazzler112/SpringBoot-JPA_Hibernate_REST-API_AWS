@@ -1,0 +1,187 @@
+
+
+Explore Rest API using HAL Explorer
+
+● 1: HAL (JSON Hypertext Application Language)                                                                    jjjyyyjjw    
+  ■ Simple format that gives a consistent and easy way to hyperlink between in your API                          5Z99E5wE99E9   
+● 2: HAL Explorer                                                                                               D99  z  E  999  
+  ■ An API explorer for RESTful Hypermedia APIs using HAL                                                      B8zj EZ  ZZ  8zE 
+  ■ Enable your non-technical teams to play with APIs                                                          ZBB  Z8W 8Z  8DZW
+● 3: Spring Boot HAL Explorer                                                                                  WEzz  8ZZE, 5z8B 
+  ■ Auto-configures HAL Explorer for Spring Boot Projects                                                       ,E88,     z89D  
+  ■ spring-data-rest-hal-explorer                                                                                ,Z9EZZZZE9EB   
+                                                                                                                   ,,,,,,,,     
+
+
+
+HAL Explorer를 이용해 REST API를 탐색하는 법을 알아보자
+● 1: HAL (JSON Hypertext Application Language)
+HAL은 이미 살펴봤다 HAL은 JSON 하이퍼텍스트 애플리케이션 언어의 약자로 
+  ■ Simple format that gives a consistent and easy way to hyperlink between in your API
+일관되고 쉽게 API 리소스 간 하이퍼링크를 제공하는 간단한 포맷이다
+
+앞서 특정 사용자를 가져오는 API를 모든 사용자의 링크를 반환하도록 개선했다
+{
+  "name": "Adam",
+  "birthDate": "2024-06-01",
+    "_links": {
+      "all-users": {
+        "href": "http://localhost:8080/users" 
+     }
+  }
+}     
+여기서 사용한 포맷이 바로 HAL이다 
+_links 안에 모든 링크가 정의된 것이다
+
+● 2: HAL Explorer
+  ■ An API explorer for RESTful Hypermedia APIs using HAL 
+HAL Explorer는 HAL을 이용하는 RESTful 하이퍼미디어 API를 탐색하는 API 탐색기이다
+너의 API가 HAL을 사용한다면 HAL Explorer를 써서 탐색할 수 있다 
+  ■ Enable your non-technical teams to play with APIs
+HAL Explorer를 이용할 때의 가장 큰 강점은 비전문가 팀도 API를 활용할 수 있다는 것이다
+● 3: Spring Boot HAL Explorer
+  ■ Auto-configures HAL Explorer for Spring Boot Projects
+Spring Boot HAL Explorer는 Spring Boot 프로젝트를 위해 HAL Explorer를 자동 설정한다
+  ■ spring-data-rest-hal-explorer
+Spring Boot 프로젝트에서 HAL Explorer를 이용하는 가장 쉬운 방법은 Spring Boot Hal Explorer를 사용하는 거다
+
+
+지금 바로 살펴보겠다
+
+우리의 pom.xml로 가보자
+spring-boot-starter-actuator를 복사하고 바로 아래에 붙여넣겠다
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
+⏺ pom.xml 파일
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+			<version>3.3.0</version>
+		</dependency>		
+
+    <!--1: HAL Explorer는 org.springframework.data에 있다 그리고 spring-data-rest-hal-explorer로 고치겠다 그리고 저장 의존성 다운진행 다 되면 서버를 중지하고 다시 시작한다-->
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-rest-hal-explorer</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
+			<version>3.3.0</version>
+		</dependency>		
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		
+		<!--
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>		
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+		-->
+	
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+-----------------------------------------------------------------------------------------------------------------------
+
+애플리케이션이 실행됐으면 
+localhost:8080/ 을 입력한다
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:8080/explorer/index.html#uri=/ 사이트화면 ==>
+
+
+______________________________________________________________________________________
+HAL Explorer                                                                        ▤
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+       ________________________________________________________________________ 
+      | Edit Headers| /                                                |  Go!  | 
+       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      Links
+      Relation  Name  Title  HTTP Request                            DOC
+      ________________________________________________________________________
+                             _____   _____   _____   _____   _____ 
+       Profile              |  <  | |  +  | |  >  | |  >  | |  X  |
+                             ‾‾‾‾‾   ‾‾‾‾‾   ‾‾‾‾‾   ‾‾‾‾‾   ‾‾‾‾‾
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+      Response Status
+      ________________________________________________________________________
+      200(OK)
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    
+      Response Headers  
+      ________________________________________________________________________
+      connection          keep-alive
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      content-type        application/hal+json
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      date                Wed, 05 Jun 2024 09:35:20 GMT
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      keep-alive          timeout=60
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      transfer-encoding   chunked
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      vary                Origin, Access-Control-Request-Method, Access-
+                          Control-Request-Headers
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+      Response Body
+     |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+     |   {                                                                    |
+     |     "_links": {                                                        |
+     |       "profile": {                                                     |
+     |         "href": "http://localhost:8080/profile"                        |
+     |       }                                                                |
+     |     }                                                                  |
+     |   }                                                                    |
+      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-----------------------------------------------------------------------------------------------------------------------
+
