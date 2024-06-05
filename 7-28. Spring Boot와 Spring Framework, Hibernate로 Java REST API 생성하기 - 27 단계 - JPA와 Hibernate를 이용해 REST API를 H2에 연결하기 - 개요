@@ -1,0 +1,237 @@
+
+
+지난 섹션에선 JPA와 Hibernate의 기본을 살펴봤다 
+이번 섹션에선 JPA와 Hibernate를 이용해 REST API를 DB에 연결하는 법을 중점적으로 보겠다
+
+인메모리 DB는 우선 H2로 작업하다가 실제 DB인 MySQL로 바꿀 것이다
+이번 섹션에선 UserResource를 업그레이드할 것이다 
+
+-------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserResource 클래스파일 
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user);
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+
+	@DeleteMapping("/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		service.deleteById(id);
+		
+	}
+	
+	@PostMapping("/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+-------------------------------------------------------------------------------------------------------------------------
+
+앞서 User Resource를 생성했는데 UserResource는 UserDaoService와 소통한다
+
+
+-------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserDaoService 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+import java.util.*;
+import java.util.function.*;
+
+import org.springframework.stereotype.*;
+
+@Component
+public class UserDaoService {
+    // JPA/Hibernate > Database
+    // UserDaoService > Static List
+	
+	private static List<User> users = new ArrayList<>();
+	
+//	private static int usersCount = 3;
+	private static int usersCount = 0;
+	
+	static {
+		users.add(new User(++usersCount, "Adam", LocalDate.now().minusYears(30)));
+		users.add(new User(++usersCount, "Eve", LocalDate.now().minusYears(25)));
+		users.add(new User(++usersCount, "Jim", LocalDate.now().minusYears(20)));
+	}
+	
+	public List<User> findAll() {
+		return users;
+	}
+	
+	public User save(User user) {
+		user.setId(++usersCount);
+		users.add(user);
+		return user;
+	}
+	
+	public User findOne(int id) {
+		Predicate<? super User> predicate = user -> user.getId().equals(id);
+		return users.stream().filter(predicate).findFirst().orElse(null);
+	}
+	
+	public void deleteById(int id) {
+		Predicate<? super User> predicate = user -> user.getId().equals(id);
+		users.removeIf(predicate);
+	}
+}
+
+-------------------------------------------------------------------------------------------------------------------------
+UserDaoService는 정적 리스트고, 이제 UserDaoService대신
+UserRepository를 생성하고 
+UserRepository와 소통하도록 UserResource를 업그레이드 할 것이다, JPA와 Hibernate를 이용해 DB와 소통할 거고 
+
+다행히도 pom.xml은 이미 준비돼 있다 
+
+-------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ pom.xml 파일
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-rest-hal-explorer</artifactId>
+		</dependency>				
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
+			<version>3.3.0</version>
+		</dependency>		
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		
+		<!--
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>		
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+		-->
+	
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+-------------------------------------------------------------------------------------------------------------------------
+이 프로젝트를 생성할 때 이미 spring-boot-starter-data-jpa를 선택했고,
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+인메모리 DB도 H2로 했다 
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+JPA와 Hibernate를 시작할 때 필요한 두 의존성을 우리 프로젝트는 벌써 갖춘 것이다
+REST API를 DB에 연결할 준비가 됐니?
+그럼 다음 단계에서 보겠다
