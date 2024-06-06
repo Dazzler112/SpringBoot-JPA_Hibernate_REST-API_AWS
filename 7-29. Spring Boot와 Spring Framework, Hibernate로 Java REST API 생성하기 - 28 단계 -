@@ -1,0 +1,291 @@
+
+
+이번 단계에선 User 클래스를 위한 엔터티부터 생성하겠다 
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ User 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+
+import com.fasterxml.jackson.annotation.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+//1: JPA가 이걸 관리하게 하려면 @Entity 어노테이션을 추가해야 한다, ctrl+1을 해서 import 'Entity' (jakarta.persistence)를 선택하겠다
+//보다시피 import jakarta.persistence.Entity;도 추가된다, 좋다, 그리고//1-1: 아래로..
+@Entity
+public class User {
+
+  //1-1: @Id를 추가하겠다 이 id필드는 식별자여야 하므로 @Id를 추가하고 Ctrl+1에서 import 'Id' (jakarta.persistence)를 선택한다, 좋다
+  //import jakarta.persistence.Id;도 추가됐다, 이제 id 값이 생성돼야 하므로 여기에 @GeneratedValue를 넣겠다, private Integer id 필드가 생성돼야 하기 때문이다
+	@Id
+	@GeneratedValue
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+	@JsonProperty("user_name")
+	private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+	@JsonProperty("birth_date")
+	private LocalDate birthDate;
+	
+	public User(Integer id, String name, LocalDate birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+근대 로그를 보니 오류가 있다
+exception accepting command : Error executing DDL "drop table if exists user cascade " via JDBC [Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier";]
+
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "drop table if exists user cascade " via JDBC [Syntax error in SQL statement "drop table if exists [*]user cascade "; expected "identifier";]
+	at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:94) ~[hibernate-core-6.4.4.Final.jar:6.4.4.Final]
+....
+SQL문에 신택스 오류가 있다고 나온다, "identifier"가 와야 한단다
+왜 이런 문제가 생기냐면, H2에선 user가 키워드이기 때문이다 
+따라서 테이블 이름을 수정해야 한다
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ User 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+
+import com.fasterxml.jackson.annotation.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+//2: 여기서 엔터티 이름을 수정하겠다 @Entity(name = "user_details")처럼, 그리고 저장한다
+@Entity(name = "user_details")
+public class User {
+
+	@Id
+	@GeneratedValue
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+	@JsonProperty("user_name")
+	private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+	@JsonProperty("birth_date")
+	private LocalDate birthDate;
+	
+	public User(Integer id, String name, LocalDate birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+----------------------------------------------------------------------------------------------------------------------------------
+
+이제 실행하면 애플리케이션이 오류 없이 실행될 것이다
+로그를 보면 H2 데이터베이스 연결 URL이 표시돼 있다
+connection conn0: url=jdbc:h2:mem:36d82570-3900-43a6-b8ad-41db912f18ea user=SA
+동적 URL은 쓰지 않을 것이다
+정적 URL을 설정해서 쓰는 편이 낫다
+
+application.properties를 열어 정정 URL을 설정하겠다
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+⏺ application.properties
+
+
+
+spring.application.name=restful-web-services
+
+logging.level.org.springframework=info
+
+management.endpoints.web.exposure.include=*
+
+#3: spring.datasource.url=을 입력하고 나머지는 jdbc:h2:mem:을 복사해 가져오자 jdbc:h2:mem:testdb처럼, 그리고 저장한다
+spring.datasource.url=jdbc:h2:mem:testdb
+----------------------------------------------------------------------------------------------------------------------------------
+이 URL로 H2 DB에 접근하는 거다, 이제 H2 콘솔을 실행할 수 있다 
+
+localhost:8080/h2-console 로
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+🌎 localhost:8080/h2-console 사이트화면 ==>
+
+  ______________________
+ |English             v |  Preferences  Tools  Help
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _______________________________________________________________________
+ |  Login (파바탕)                                                        | 
+ |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+ |                    ______________________________________________     |
+ |  Saved Settings:  | Generic H2 (Embedded)                    v   |    |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |
+ |                    ______________________________   ____   ______     |
+ |  Setting Name :   | Generic H2 (Embedded)        | |Save| |Remove|    |
+ |                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾   ‾‾‾‾‾‾     |
+ |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+ |                    ____________________________________________       |
+ |  Driver Class:    |org.h2.Driver                               |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ____________________________________________       |
+ |  JDBC URL:        |jdbc:h2:mem:testdb                          |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ________________________________                   |
+ |  User Name:       |sa                              |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   | 
+ |                    ________________________________                   |
+ |  Password:        | Generic H2 (Embedded)          |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   |
+ |                    _________   _________________                      |                               
+ |                   | Connect | | Test Connection |                     |                                       
+ |                    ‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+----------------------------------------------------------------------------------------------------------------------------------
+JDBC URL이 앞의 URL과 일치하는지 확인해라, 그대로 복사한 뒤 Connect를 클릭
+
+그러면 USER_DETAILS 테이블이 생긴다 
+----------------------------------------------------------------------------------------------------------------------------------
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ - 💷 USER_DETAILS
+   + 🛢 BIRTH_DATE
+   + 🛢 ID
+   + 🛢 NAME
+   + 🔠 indexes
+ + 📁 INFORMATION_SCHEMA
+ + 🎫 Sequences
+ + 👪 Users
+ i H2 2.2.224 (2023-09-17)
+
+
+바로 SELECT * FROM USER_DETAILS를 하면 아무 세부 정보도 나오지 않는다
+----------------------------------------------------------------------
+
+⏺ H2 Console 
+ _____   ______________   _______________   _______
+| Run | | Run Selected | | Auto complete | | Clear | SQL statement:
+ ‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾ 
+ ___________________________________________________________________________________
+| SELECT * FROM USER_DETAILS                                                        |
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                    
+|                                                                                   |                     
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+SELECT * FROM TODO;
+ _____________________________________
+|BIRTH_DATE     |ID       | NAME      |   
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+(no row, 2 ms)
+ ____
+|Edit|
+ ‾‾‾‾
+----------------------------------------------------------------------------------------------------------------------------------
+
+얼른 데이터를 넣어보자
+
+src/main/resources에 새 파일을 생성하겠다, File을 선택해 이름을 data.sql로 하고 finish를 클릭
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ data.sql 파일
+
+
+
+--4: 이제 여기에 쿼리를 입력한다 INSERT INTO user_details() 처럼 이제 열 이름을 순서대로 적는다, (id, birth_date, name) 
+-- 값도 넣겠다 VALUSE id는 10001호 하드코딩하고, birth_date는 current_date()로 하겠다 H2에 있는 함수지, name은 'Ranga'로 해서 VALUES(10001,current_date(),'Ranga');처럼 적고 저장한다
+INSERT INTO user_details(id,birth_date,name)
+VALUES (10001, current_date(), 'Ranga');
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+저장하고 나니 또 오류가 뜬다
+Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USER_DETAILS" not found (this database is empty); SQL statement:
+INSERT INTO user_details(id,birth_date,name) VALUES (10001, current_date(), 'Ranga') [42104-224]
+....
+
+"USER_DETAILS"테이블을 찾을 수 없다고 나온다 
+테이블이 H2 DB에 생성되기 전에 data.sql이 먼저 실행돼서 그렇다 
+
