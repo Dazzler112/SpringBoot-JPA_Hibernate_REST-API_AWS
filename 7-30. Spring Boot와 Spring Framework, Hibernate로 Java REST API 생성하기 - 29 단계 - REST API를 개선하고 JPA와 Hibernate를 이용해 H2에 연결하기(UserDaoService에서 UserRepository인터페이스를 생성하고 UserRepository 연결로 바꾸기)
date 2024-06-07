@@ -1,0 +1,1157 @@
+
+
+이전 단계에선 User 엔터티를 설정하고 H2 콘솔에서 세부 정보를 살펴봤다
+
+이번 단계에선 UserRepository생성을 중점적으로 보겠다
+UserResource가 DB와 소통하게 하려면 UserRepository를 거치게끔 해야한다
+바로 UserRepository를 생성해보자
+
+여기서 새로운 인터페이스를 생성하겠다 이름은 UserRepository로 하겠다
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserRepository 인터페이스 파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.jpa;
+
+import org.springframework.data.jpa.repository.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.user.*;
+
+//1: 여기 extends JpaRepository를 입력하곘다, JpaRepository 인터페이스를 상속받는 것이다 이 인터페이스는 어떤 엔터티를 관리할까? 바로 User 엔터티이다, ID 필드 타입은 뭐지? 정수인 Integer이다,
+//임포트를 정리하겠다 우리가 임포트할 건 com.in28minutes.rest.webservices.restfulwebservices.user.User이다 이걸 임포트 해야 한다, 보다시피 임포트됐고, 이제 저장하겠다
+public interface UserRepository extends JpaRepository<T, ID> {
+
+}
+
+------------------------------------------------------------------------------------------------------------------------
+
+이제 UserRepository 클래스가 준비됐다, 이제 UserRepository는 jpa 패키지에 있다, 
+이제 UserResource에서 UserRepository를 이용해 DB와 소통할 것이다
+
+UserResource의 복사본을 만들겠다
+UserResource를 직접 수정하는 대신 복사본으로 작업할 것이다
+여기에 이름을 붙여 넣고 UserJpaResource라고 하겠다
+UserResource의 복사본을 생성해 JPA를 이용하려는 것이다 생성하겠다 
+
+그러면 오류가 몇 개 뜰 것이다
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+[2m2024-06-07T18:18:45.235+09:00[0;39m [31mERROR[0;39m [35m4680[0;39m [2m---[0;39m [2m[restful-web-services] [  restartedMain][0;39m [2m[0;39m[36mo.s.boot.SpringApplication              [0;39m [2m:[0;39m Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'requestMappingHandlerMapping' defined in class path resource [org/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration$EnableWebMvcConfiguration.class]: Ambiguous mapping. Cannot map 'userResource' method 
+com.in28minutes.rest.webservices.restfulwebservices.user.UserResource#retrieveAllUsers()
+to {GET [/users]}: There is already 'userJpaResource' bean method
+com.in28minutes.rest.webservices.restfulwebservices.user.UserJpaResource#retrieveAllUsers() mapped.
+	at 
+....
+모호한 매핑이 있다면 Console에 많은 오류가 발생할 것이다
+모호한 매핑이란 무엇일까?
+UserResource와 UserJpaResource를 보면 
+--------------------------------------------------------------------
+
+⏺ UserResource 클래스파일
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+@RestController
+public class UserResource {
+
+	private UserDaoService service;
+	
+	public UserResource(UserDaoService service) {
+		this.service = service;
+	}
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+...
+
+--------------------------------
+
+⏺ UserJpaResource 클래스파일
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+@RestController
+public class UserJpaResource {
+
+	private UserDaoService service;
+	
+	public UserJpaResource(UserDaoService service) {
+		this.service = service;
+	}
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+...
+
+--------------------------------------------------------------------
+
+메서드들이 "/user"라는 동일한 URL로 매핑돼 있어 바람직하지 않다
+그러니 UserJpaResource로 가서
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserJpaResource 클래스파일 
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+
+	private UserDaoService service;
+	
+	public UserJpaResource(UserDaoService service) {
+		this.service = service;
+	}
+
+  //2: "/users"를 "/jpa/users"로 바꿔주겠다
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+		return service.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+
+  //2-1: 이것도 /jpa/users/{id}로 바꾸고
+	@GetMapping("/jpa/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user);
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+
+  //2-2: 여기도 /jpa/users/{id}로 바꿔주겠다
+	@DeleteMapping("/jpa/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		service.deleteById(id);
+		
+	}
+
+  //2-3: createUser메소드도 마찬가지다 "/jpa/users"로 , 이렇게 다른 URL, 즉 /jpa/users로 매핑했으니 애플리케이션이 정상적으로 실행될 것이다
+	@PostMapping("/jpa/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------------
+
+좋다 이렇게 UserJpaResource도 준비됐다
+
+이제 UserJpaResource에서 UserRepository를 사용할 것이다
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserJpaResource 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+
+	private UserDaoService service;
+//3: UserDaoService 대신 UserRepository를 사용하는 거다, private UserRepository repository;로 수정하겠다, 임포트를 정리하고 무엇이 임포트 됐는지 잠깐 보자
+//보다시피 import com.in28minutes.rest.webservices.restfulwebservices.jpa.UserRepository;가 추가됐다 좋다, 이제 UserRepository를 사용해보자
+	private UserRepository repository;
+	
+//3-1:UserRepository repository를 여기 있는 생성자에 추가하겠다, 지금 여기 있는 수 많은 메서드가 전부 UserDaoService를 사용하고 있어서 
+//중간 단계에선 일부 메서드만 UserRepository와 소통하게 바꾸고 나머지는 그대로 두겠다, 하지만 UserDaoService와 소통하는 메서드들도 UserRepository와 소통하게끔 차차 수정할 것이다 이제 UserRepository repository와
+	public UserJpaResource(UserDaoService service, UserRepository repository) {
+		this.service = service;
+
+    //3-2: this.repository = repository;를 추가하겠다, UserRepository가 연결됐다 , 이제 첫 번째 서비스가 DB를 사용하게끔 업그레이드하자 retrieveAllUser()서비스가 가장 쉽다//3-3: retrieveAllUser()메서드로..
+		this.repository = repository;
+	}
+
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+  //3-3: service.findAll()을 repository.findAll()로 수정하면 된다, 어떻게 되나 확인해 보자
+		return repository.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/jpa/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		
+		if(user == null)
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user);
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+
+	@DeleteMapping("/jpa/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		service.deleteById(id);
+		
+	}
+	
+	@PostMapping("/jpa/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------------
+
+localhost:8080/users로 이동하면 하드코딩된 사용자를 반환할 것이다
+                                                                            
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 localhost:8080/users 사이트화면 ==> 
+
+
+[
+  {
+    "id": 1,
+    "user_name": "Adam",
+    "birth_date": "1994-06-07"
+  },
+  {
+    "id": 2,
+    "user_name": "Eve",
+    "birth_date": "1999-06-07"
+  },
+  {
+    "id": 3,
+    "user_name": "Jim",
+    "birth_date": "2004-06-07"
+  }
+]
+
+------------------------------------------------------------------------------------------------------------------------
+
+DB와 소통하려면 localhost:8080/jpa/users로 이동해야 한다
+                                          |
+                                          V
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 localhost:8080/jpa/users 사이트화면 ==> 
+
+
+{
+  "timestamp": "2024-06-07T19:18:07.5507246",
+  "message": "No default constructor for entity 'com.in28minutes.rest.webservices.restfulwebservices.user.User'",
+  "details": "uri=/jpa/users"
+}
+
+------------------------------------------------------------------------------------------------------------------------
+
+에러가 나왔다 엔터티 사용자에 대한 기본 생성자가 없다고한다
+
+User 클래스를 살펴보자
+여기서 JPA를 사용하기 때문에 기본 생성자가 필요하다 
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ User 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+
+import com.fasterxml.jackson.annotation.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+@Entity(name = "user_details")
+public class User {
+
+  //4: protected User() {} 처럼 빈 생성자로도 충분하다
+	protected User() {
+		
+	}
+
+	@Id
+	@GeneratedValue
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+	@JsonProperty("user_name")
+	private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+	@JsonProperty("birth_date")
+	private LocalDate birthDate;
+	
+	public User(Integer id, String name, LocalDate birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+
+------------------------------------------------------------------------------------------------------------------------
+  
+다시 새로고침을 하면 
+          |
+          V
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 localhost:8080/jpa/users 사이트화면 ==> 
+
+
+[
+  {
+    "id": 10001,
+    "user_name": "Ranga",
+    "birth_date": "2024-06-07"
+  },
+  {
+    "id": 10002,
+    "user_name": "Ravi",
+    "birth_date": "2024-06-07"
+  },
+  {
+    "id": 10003,
+    "user_name": "Sathish",
+    "birth_date": "2024-06-07"
+  }
+]
+
+------------------------------------------------------------------------------------------------------------------------
+이렇게 세부 사항이 제대로 표시된다
+
+이렇게 첫 번째 임무는 완료했다
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+		return repository.findAll();
+	}
+retrieveAllUsers()는 DB와 소통하고 있다 
+
+다음으로 넘어가서 retrieveUser()를 보자 
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserJpaResource 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+
+	private UserDaoService service;
+	
+	private UserRepository repository;
+	
+	public UserJpaResource(UserDaoService service, UserRepository repository) {
+		this.service = service;
+		this.repository = repository;
+	}
+
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+		return repository.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/jpa/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+
+    //5: service.findOne(id)에서 service를 repository롤 바꾸겠다, 그런데 repository에는 findOne()이라는 메서드가 없다 findById()만 있다 
+    //repository.findById(id)로 바꾸면 보다시피 Optional<User>를 반환한다고 뜬다 ( Type mismatch: cannot convert from Optional<User> to User ) 
+    //User의 타입을 Optional<User>로 바꿔준다 ( User user = service.findById(id); => Optional<User> user = repository.findById(id);)
+    //이렇게 Optional<User>가 됐다
+		Optional<User> user = repository.findById(id);
+
+    //5-1: 이제 반환되는 게 없는지 확인할 때는 if(user==null)대신 if(user.isEmpty())를 하면 되겠지, user가 빈 값이면 UserNotFoundException을 발생시킬 것이다
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+
+    //5-2: Optional에서 User 객체를 가져오려면 user.get()을 하면 된다, 
+		EntityModel<User> entityModel = EntityModel.of(user.get());
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+    //로직 설명: 간단히 수정만 하고 있다 findById 메서드를 썼고 user.isEmpty()를 써서 특정 id에 해당하는 사용자가 없는지 확인한다
+    //참이면 UserNotFoundExcption을 발생시키고 거짓이면 user.get()을 실행해 늘 하던 대로 entityModel을 생성한다
+
+	@DeleteMapping("/jpa/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		service.deleteById(id);
+		
+	}
+	
+	@PostMapping("/jpa/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------------
+
+이제 localhost:8080/jpa/users/1 을 실행해보자
+
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 localhost:8080/jpa/users/1 사이트화면 ==> 
+
+{
+  "timestamp": "2024-06-07T20:15:02.4589636",
+  "message": "id:1",
+  "details": "uri=/jpa/users/1"
+}
+------------------------------------------------------------------------------------------------------------------------
+앗! 오류가 났다 왜일까?
+id 가 1인 사용자는 없기때문이다
+
+사용자 id는 10001이었지
+
+localhost:8080/jpa/users/10001을 입력하겠다
+
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 localhost:8080/jpa/users/10001 사이트화면 ==> 
+
+{
+  "user_name": "Ranga",
+    "birth_date": "2024-06-07",
+    "_links": {
+      "all-users": {
+      "href": "http://localhost:8080/jpa/users"
+    }
+  }
+}
+------------------------------------------------------------------------------------------------------------------------
+이제 응답이 제대로 반환한다 
+
+
+지금 까지는 UserRepository를 생성하고 몇몇 REST API에서 사용해봤다
+
+이제 deleteUser 메서드를 살펴보다 아주 쉬울것이다
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ UserJpaResource 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+
+	private UserDaoService service;
+	
+	private UserRepository repository;
+	
+	public UserJpaResource(UserDaoService service, UserRepository repository) {
+		this.service = service;
+		this.repository = repository;
+	}
+
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+		return repository.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/jpa/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		Optional<User> user = repository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user.get());
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+
+  //6: service.deleteById(id)를 repository.deleteById(id)로 수정하기만 하면 된다 이거만 바꾸면 될꺼 같다 그리고 이제 실행해보자
+	@DeleteMapping("/jpa/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		repository.deleteById(id);
+		
+	}
+	
+	@PostMapping("/jpa/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = service.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+------------------------------------------------------------------------------------------------------------------------
+
+Talend API Tester에서 실행해보겠다
+
+------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | DELETE  | ▼  |    |    http://localhost:8080/jpa/users/10001                   |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+
+  HEADERS   ⬇                   | Form ▼ |      ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________   ___________________________   |   
+☑ | Accept       |:| application/xml      | 🧪 |  |       XHR does not allow payload for GET request.
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+  ______________                                  |                              
+ ( + Add header )   🗝 Add authorization     🗑    |                                                          
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                  | 
+                                                  |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                
+
+------------------------------------------------------------------------------------------------------------------------
+
+10001을 DELETE 할 것이다                                          | 
+그게 우리가 할 작업이다 Send를 클릭                                |
+                                                                 V
+------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              |
+Content-Type:	application/xml;charset=UTF-8   |                                                                
+Date: Fri, 07 Jun 2024 11:23:50 GMT 	        |                                                                                
+Keep-Alive:	timeout=60                        |                       No Content                           
+Connection:	keep-alive                        |                                       
+                                              |                  
+▶ COMPLETE REQUEST HEADERS                    |                                                                                                                    
+                                              |                                                                                                                  
+                                              |                                           
+                                                                                                    
+                                                 📄 copy                                                          
+
+------------------------------------------------------------------------------------------------------------------------
+아무 콘텐츠도 반환되지 않는다
+
+돌아가서 localhost:8080/jpa/users로 들어가면
+
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 localhost:8080/jpa/users 사이트화면 ==> 
+
+
+[
+  {
+    "id": 10002,
+    "user_name": "Ravi",
+    "birth_date": "2024-06-07"
+  },
+  {
+    "id": 10003,
+    "user_name": "Sathish",
+    "birth_date": "2024-06-07"
+  }
+]
+
+------------------------------------------------------------------------------------------------------------------------
+
+10002와 10003밖에 없다, 10001은 삭제됐다
+
+아주 좋다
+
+마지막으로 업데이트할 건 service.save(user)이다
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserJpaResource 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+
+	private UserDaoService service;
+	
+	private UserRepository repository;
+	
+	public UserJpaResource(UserDaoService service, UserRepository repository) {
+		this.service = service;
+		this.repository = repository;
+	}
+
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+		return repository.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/jpa/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		Optional<User> user = repository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user.get());
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+
+	@DeleteMapping("/jpa/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		repository.deleteById(id);
+		
+	}
+	
+	@PostMapping("/jpa/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+
+    //7: service.save(user);에서 repository.save(user);로 수정하겠다, 이건 새 사용자를 생성한다 
+		User savedUser = repository.save(user);
+
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------------
+
+Talend API Tester에서 실제로 POST 요청을 해보자
+
+------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST    | ▼  |    |    http://localhost:8080/jpa/users                         |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+
+  HEADERS   ⬇                   | Form ▼ |      ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________   ___________________________   |   
+☑ | Content-Type |:| application/json     | 🧪 |  |     {
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |        "name": "Ravi v2",
+  ______________                                  |        "birthDate": "1997-08-11"                         
+ ( + Add header )   🗝 Add authorization     🗑    |      }                                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                  | 
+                                                  |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                
+
+------------------------------------------------------------------------------------------------------------------------
+/jpa/users에 할 것이다 localhost:8080/jpa/users지
+이름과 생년월일을 지정하겠다 "name": "Ravi v2", "birthdate": "1997-08-11"처럼
+Content-Type은 application/json 이고 이름은 "Ravi v2" 그리고 생년월일도 지정했다 
+                                                              |
+                                                              V
+------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  404                (빨간 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                         | pretty ▼ |    ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                    |                                                     
+Vary:	             Origin                           |    {                                                         
+Vary:              Access-Control-Request-Method    |      type": "about:blank",                                                                
+Vary:	             Access-Control-Request-Headers   |      title": "Not Found",                                                   
+Content-Type:	     application/problem+json         |      "status": 404,                                                 
+Transfer-Encoding: chunked                          |      "detail": "No static resource jpa/users.",                                              
+Date:	             Fri, 07 Jun 2024 15:38:16 GMT    |      "instance": "/jpa/users/"                                                                           
+Keep-Alive:	       timeout=60                       |    }                                               
+Connection:	       keep-alive                       |                                       
+                                                    |                                                      
+▶ COMPLETE REQUEST HEADERS                          |                                                                                                                    
+                                                    |                                                                                                                  
+                                                    |                                           
+                                                                                                    
+                                                      📄 copy                                                          
+
+------------------------------------------------------------------------------------------------------------------------
+
+앞서 보낸 POST 요청을 보면, localhost:8080/jpa/users에 요청을 보낼 때 
+"name"과 "birthdate"라는 속성 이름에 각각 값을 지정했다 
+그리고 앞 단계에서 
+--------------------------------------------------------
+
+⏺ User 클래스파일
+
+@Entity(name = "user_details")
+public class User {
+
+	protected User() {
+		
+	}
+	
+	@Id
+	@GeneratedValue
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+	@JsonProperty("user_name")
+	private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+	@JsonProperty("birth_date")
+	private LocalDate birthDate;
+	....
+--------------------------------------------------------
+여기에 @JsonProperty를 추가하는 작업을 했다
+@JsonProperty("user_name")와 @JsonProperty("birth_date")를 추가했다 
+따라서 옵션은 두 가지이다
+
+POST 요청을 보낼 때 "user_name"과 "birth_date"를 사용하거나
+@JsonProperty를 주석 처리하는 것이다
+우린 여기서 주석 처리를 하겠다
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺ User 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+
+import com.fasterxml.jackson.annotation.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+@Entity(name = "user_details")
+public class User {
+
+	protected User() {
+		
+	}
+	
+	@Id
+	@GeneratedValue
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+  //8: @JsonProperty 부분을 주석처리 하겠다
+//	@JsonProperty("user_name")
+	private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+  //8 계속: 이 값들을 주석 처리한다, 애플리케이션이 재시작될 것이다
+//	@JsonProperty("birth_date")
+	private LocalDate birthDate;
+	
+	public User(Integer id, String name, LocalDate birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+------------------------------------------------------------------------------------------------------------------------
+
+새로 고침 하면 이전 값인 "name"과 "birthdate"가 그대로 있다, 좋다
+
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users 사이트화면 ==>
+
+
+[
+  {
+    "id": 10001,
+    "name": "Ranga",
+    "birthDate": "2024-06-08"
+  },
+  {
+    "id": 10002,
+    "name": "Ravi",
+    "birthDate": "2024-06-08"
+  },
+  {
+    "id": 10003,
+    "name": "Sathish",
+    "birthDate": "2024-06-08"
+  }
+]
+
+------------------------------------------------------------------------------------------------------------------------
+
+이제 Tallend API Tester로 가서 아까 입력한 본문을 사용하면 된다
+
+------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST    | ▼  |    |    http://localhost:8080/jpa/users                         |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+
+  HEADERS   ⬇                   | Form ▼ |      ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________   ___________________________   |   
+☑ | Content-Type |:| application/json     | 🧪 |  |     {
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |        "name": "Ravi v2",
+  ______________                                  |        "birthDate": "1997-08-11"                         
+ ( + Add header )   🗝 Add authorization     🗑    |      }                                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                  | 
+                                                  |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                
+
+------------------------------------------------------------------------------------------------------------------------
+localhost:8080/jpa/users에 POST 요청을 보낼 텐데 
+Content-Type은 aplication/json, 이름은 "Ravi v2" 생년월일은 1997-08-11 이다
+Send를 클릭하면 
+          |
+          V
+------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  201                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              |
+Location:	http://localhost:8080/jpa/users1    |                                                                
+Content-Length:	0 byte                        |
+Date: Fri, 07 Jun 2024 11:23:50 GMT 	        |                                                                                
+Keep-Alive:	timeout=60                        |                       No Content                           
+Connection:	keep-alive                        |                                       
+                                              |                  
+▶ COMPLETE REQUEST HEADERS                    |                                                                                                                    
+                                              |                                                                                                                  
+                                              |                                           
+                                                                                                    
+                                                 📄 copy                                                          
+
+------------------------------------------------------------------------------------------------------------------------
+201 응답이 반환된다, 새로고침 하자
+                            |
+                            V
+------------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users 사이트화면 ==>
+
+
+[
+  {
+    "id": 1,
+    "name": "Ravi v2",
+    "birthDate": "1997-08-11"
+  },
+  {
+    "id": 10001,
+    "name": "Ranga",
+    "birthDate": "2024-06-08"
+  },
+  {
+    "id": 10002,
+    "name": "Ravi",
+    "birthDate": "2024-06-08"
+  },
+  {
+    "id": 10003,
+    "name": "Sathish",
+    "birthDate": "2024-06-08"
+  }
+]
+
+------------------------------------------------------------------------------------------------------------------------
+좋다 
+생년월일이 "1997-08-11"인 새 사용자 "Ravi v2"가 생겼다
+
+
+
+
+
+
+이번 단계에선 UserJpaResource를 UserRpository로 완전히 바꿨다
+UserDaoService는 더는 사용하지 않는다 
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+⏺UserJpaResource 클래스파일
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+
+//9: 이줄을 삭제하고 UserDaoService service도 삭제하겠다 (여기선 주석처리 했지만 IDE에선 삭제함)
+//	private UserDaoService service;
+	
+	private UserRepository repository;
+	
+	public UserJpaResource(UserDaoService service, UserRepository repository) {
+//9-1: 이것도 삭제처리, 그리고 저장
+//		this.service = service;
+		this.repository = repository;
+	}
+...
+------------------------------------------------------------------------------------------------------------------------
+보다시피 애플리케이션이 정상적으로 동작하고 모든게 컴파일된다
