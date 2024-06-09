@@ -1,0 +1,244 @@
+
+
+Social Media Application - Resources & Methods
+                                                                                                  i localhost:8080/users
+● Users REST API                                                                                   [
+  ■ Retrieve all Users                                                                                -  {
+    ○ GET/users                                                                                             id: 1,
+  ■ Create a User                                                                                           name: "Adam",
+    ○ POST/users                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+  ■ Retrieve one User                                                                                    },                                                                                                                                                                           
+    ○ Get/users/{id}->/users/1                                                                        -  {
+  ■ Delete a User                                                                                           id: 2,
+    ○ DELETE/users/{id}->/users/1                                                                           name: "Eve",
+  ■ Posts REST API                                                                                          birthDate: "2024-05-18T17:16:30.057+0000"
+    ○ Retrieve all posts for a User                                                                      },                                    
+      ◦ GET/users/{id}/posts                                                                        -  {
+    ○ Create a post for a User                                                                              id: 3,
+      ◦ POST/users/{id}/posts                                                                               name: "Jack",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                        }                                       
+                                                                                                    ]
+
+
+이번 단계에선 특정 사용자에 대한 게시물 생성 방법을 알아보겠다,
+지금 사용자를 활용할 사용자 저장소가 있는데 
+마찬가지로 게시물을 활용하려면 게시물 저장소가 있어야겠지
+
+그럼 UserRepository 를 복사해서 붙여넣기하고 PostRepository라고 한 다음 PostRepository를 선택한다
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+⏺ PostRepository 인터페이스
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.jpa;
+
+import org.springframework.data.jpa.repository.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.user.*;
+
+//1: 이게 Post를 관리하게 한다, import문을 정리하면 com.28minutes.rest.webservices.restfulwebservices.user.Post를 가져온다 저장하면, 이제 게시물 저장소가 생겼다
+public interface PostRepository extends JpaRepository<Post, Integer>{
+
+}
+
+-----------------------------------------------------------------------------------------------------------------
+
+게시물을 생성하고 싶다면 이 게시물 저장소를 사용하면 된다
+이제 UserJpaResource로 돌아가보면 여기에 UserRepository가 있다
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+
+⏺ UserJpaResource 클래스파일
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+	
+	private UserRepository repository;
+
+  //2: 게시물 저장소를 활용해서 사용자 생성도 가능하게 하려고 하는데 PostRepository를 입력하고 이걸 postRepository라고 하겠다
+  //import문을 정리하고 좋다 여기에 생성자 주입도 사용하려 한다
+  private PostRepository postRepository;
+
+  //2-1: (UserRepository repository)에 쉽표를 찍고 PostRepository postRepository를 넣는다
+	public UserJpaResource(UserRepository repository, PostRepository postRepository) {
+		this.repository = repository;
+
+    //2-1 계속: 이제 this.postRepository = postRepository 라고 입력한다, 저장한다, 이제 게시물을 생성할 메서드를 생성해야겠지 retrievePostsFouUser()메소드를 시작점으로 사용하겠다 복사하고 맨아래에 붙여넣겠다 //2-2: 맨아래로..
+    this.postRepository = postRepository;
+	}
+
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+		return repository.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/jpa/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		Optional<User> user = repository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user.get());
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+
+	@DeleteMapping("/jpa/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		repository.deleteById(id);
+		
+	}
+	
+	@GetMapping("/jpa/users/{id}/posts")
+	public List<Post> retrievePostsForUser(@PathVariable int id) {
+		Optional<User> user = repository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		return user.get().getPosts();
+	}
+	
+	@PostMapping("/jpa/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = repository.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("/{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+
+  //2-2: 이제 createPostForUser라고 입력하고 @PathVariable에 추가로 입력할 내용은 createUser()메소드에 있는 @Valid로 시작하는 부분인데 요청 본문을 검증하려는 거니까 @Valid와 @RequestBody를 넣는다
+  //사용자를 게시물에 매핑하려고 하니까 여긴 @Valid @RequestBody Post post가 되어야겠지, 그럼 이 특정 사용자 ID에 대해 게시물을 생성하게 된다
+  //원한다면 게시물에 할 검증도 정의할 수 있다 //2-3:Post 클래스 파일로..
+	@PostMapping("/jpa/users/{id}/posts")
+  //2-12: List<Post> 에서 반환타입이 ResponseEntity<Object>로 바뀜, 끝으로 해야 할 일이 하나 더 있다 ,올바른 URL을 매핑하는 것이다 @PostMapping으로 바꿔줘야겠지? 그리고 import문을 정리하고 저장..
+	public ResponseEntity<Object> createPostForUser(@PathVariable int id, @Valid @RequestBody Post post) {
+
+    //2-4: 그러면 사용자를 검색해서 사용자가 비어 있으면 예외를 던지게 된다 
+		Optional<User> user = repository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+
+    //2-5: 이제 여기에 게시물에 대한 사용자를 설정해야겠지? 지금 이 Post클래스로 가보면 사용자에 대한 Getters와 Setters가 없다, 바로 생성해보자//2-6:Post클래스파일로..
+    //2-7: 이제 여기로 와서 입력한다 post.setUser(user)라고 하면 게시물에 사용자를 설정하게 된다, 이건 선택사항인데, 여기에 .get을 입력해야겠다 user.get이 된다, 잘됐다 
+    post.setUser(user.get());
+
+    //2-8: postRepository를 활용해보겠다, 게시물 저장소가 있으니까 곧바로 postRepository.save라고 입력하고(post)를 넣어준다, 
+    //그리고 게시물을 저장했으면 그에 대한 URI도 만들어야겠지? 
+    //2-10: 이렇게 입력하겠다 Post savedPost = postRepository 그럼 savedPost.getId를 사용하고 URL을 생성한 다음 이걸 반환받는다 //2-11: 다시 아래로직으로..
+    Post savedPost = postRepository.save(post);
+
+    //2-9: createUser()메소드와 같은 걸로 사용해보겠다 createUser()에서 코드를 복사한다, 이제 fromCurrentRequest 위치에 ID를 붙여서 경로로 사용하려고 하는데,
+    //우리가 필요한 건 여기에 입력된 savedUser.getID()가 아니라 저장된 게시물의 세부 정보, 즉 생성된 게시물의 ID다 //2-10: 다시 위 로직 postRepository.save(post);으로
+		//2-11: savedUser.getId()를 위에 생성한 savedPost.getId()로 잘 된것같다
+    URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("/{id}")
+						.buildAndExpand(savedPost.getId())
+						.toUri();  
+
+    //2-12: 이부분에 컴파일에러가 나오는데 ctrl+1로 메서드 반환 타입을 ResponseEntity<Object>로 바꿔준다 //2-12: 메소드명으로..
+		return ResponseEntity.created(location).build();
+	}
+}
+--------------------------------------------------------------
+
+
+⏺ Post 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import com.fasterxml.jackson.annotation.*;
+
+import jakarta.persistence.*;
+
+@Entity
+public class Post {
+
+	@Id
+	@GeneratedValue
+	private Integer id;
+	
+  //2-3: 크기를 정의해보자, @Size를 입력하고 import문을 정리하고, min=10글자로 넣어준다 게시물의 설명란은 최소 10글자여야 한다고 입력해보자//2-4: UserJpaResource클래스 파일로..
+	@Size(min = 10)
+	private String description;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JsonIgnore
+	private User user;
+
+  
+	
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+  //2-6: User에 대해 게터와 세터를 생성한다 setDescription뒤에 삽입을 선택하고 생성을 누른다, 이제 여기 getUser와 setUser 메서드가 생겼다 저장하고//2-7: UserJpaResource클래스파일로..
+  public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+
+	@Override
+	public String toString() {
+		return "Post [id=" + id + ", description=" + description + "]";
+	}
+	
+}
+-----------------------------------------------------------------------------------------------------------------
