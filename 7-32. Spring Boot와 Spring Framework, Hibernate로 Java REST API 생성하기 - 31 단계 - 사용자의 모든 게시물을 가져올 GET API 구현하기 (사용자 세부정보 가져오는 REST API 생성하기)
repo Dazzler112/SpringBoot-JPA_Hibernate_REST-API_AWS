@@ -1,0 +1,242 @@
+
+
+Social Media Application - Resources & Methods
+                                                                                                  i localhost:8080/users
+● Users REST API                                                                                   [
+  ■ Retrieve all Users                                                                                -  {
+    ○ GET/users                                                                                             id: 1,
+  ■ Create a User                                                                                           name: "Adam",
+    ○ POST/users                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+  ■ Retrieve one User                                                                                    },                                                                                                                                                                           
+    ○ Get/users/{id}->/users/1                                                                        -  {
+  ■ Delete a User                                                                                           id: 2,
+    ○ DELETE/users/{id}->/users/1                                                                           name: "Eve",
+  ■ Posts REST API                                                                                          birthDate: "2024-05-18T17:16:30.057+0000"
+    ○ Retrieve all posts for a User                                                                      },                                    
+      ◦ GET/users/{id}/posts                                                                        -  {
+    ○ Create a post for a User                                                                              id: 3,
+      ◦ POST/users/{id}/posts                                                                               name: "Jack",
+                                                                                                            birthDate: "2024-05-18T17:16:30.057+0000"
+                                                                                                        }                                       
+                                                                                                    ]
+
+
+이번 학습은 게시물에 필요한 REST API를 만들어보겠다
+한 사용자의 모든 게시물을 가져오는 API 부터 만들어보자
+
+전에 살펴봤듯이 URL은 이런 식일 것이다, /users/ 다음에 사용자의 ID가 나오고 /[posts가 뒤에 온다 
+
+UserJpaResource로 가보자, 전에 @DeleteMapping에 사용했던 메서드를 복사해서 아래에 붙여넣기 하고
+
+---------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserJpaResource 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+
+//	private UserDaoService service;
+	
+	private UserRepository repository;
+	
+	public UserJpaResource(UserDaoService service, UserRepository repository) {
+//		this.service = service;
+		this.repository = repository;
+	}
+
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+		return repository.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/jpa/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		Optional<User> user = repository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user.get());
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+
+	@DeleteMapping("/jpa/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		repository.deleteById(id);
+		
+	}
+
+  //1:사용자의 게시물을 가져와야겠지? 게시물 목록 List<Post>가 반환 타입이 된다, 메소드명은 retrievePostsForUser라고하고 
+  // /jpa/users/{id}/posts를 넣으면 이게 URL이 되고, 여기는 GetMapping이 돼야한다 Delete를 Get으로 바꿔주겠다, 이렇게 GetMapping("/jpa/users/{id}/posts")와 retrievePostsForUser를 생성하고
+  //여기에 @PathVariable을 넣어줬다 좋다, 먼저 해야 할 일은 사용자를 찾는 것이다 retrieveUser()메소드에 그에 맞는 코드가 있다
+	@GetMapping("/jpa/users/{id}/posts")
+	public void retrievePostsForUser(@PathVariable int id) {
+		
+    //1-1: repository.findById를 호출하고 사용자를 돌려받는 것부터 해보자, user가 비어 있으면 '사용자를 찾을 수 없음' 예외를 던져야겠지? 
+      Optional<User> user = repository.findById(id);
+  	//1-2: 잘 된거 같다	
+  		if(user.isEmpty())
+  			throw new UserNotFoundException("id:"+id);
+  
+    //1-3: user가 존재하면 해당 사용자와 관련된 게시물을 가져오게 된다, 그럼 User 클래스로 넘어가볼까?//1-4: User클래스파일로..
+  	//1-5: 이제 user.get().getPosts를 입력한다, 이게 특정 사용자의 게시물 목록을 반환할 것이다, 그럼 return을 입력해서 이 값을 반환 받고 저장한다
+    return user.get().getPosts();
+	}
+	
+	@PostMapping("/jpa/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = repository.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+}
+
+-----------------------------------------------------
+
+
+⏺ User 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import java.time.*;
+import java.util.*;
+
+import com.fasterxml.jackson.annotation.*;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+@Entity(name = "user_details")
+public class User {
+
+	protected User() {
+		
+	}
+	
+	@Id
+	@GeneratedValue
+	private Integer id;
+	
+	@Size(min=2, message = "Name should have atleast 2 characters")
+//	@JsonProperty("user_name")
+	private String name;
+	
+	@Past(message = "Birth Date should be in the past")
+//	@JsonProperty("birth_date")
+	private LocalDate birthDate;
+	
+	@OneToMany(mappedBy = "user")
+	@JsonIgnore
+	private List<Post> posts;
+
+	public User(Integer id, String name, LocalDate birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
+	}
+
+//1-4: 게시물에 게터나 세터 메서드가 없지, 바로 생성해보겠다, 우클릭> Source > Generate Getters and Setters 클릭 모두선택을 누른다
+// 이제 게터와 세터가 생성되었다 저장하고 UserJpaResource로 돌아간다 //1-5: UserJpaResource 클래스파일로..
+	public List<Post> getPosts() {
+		return posts;
+	}
+	
+	public void setPosts(List<Post> posts) {
+		this.posts = posts;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+---------------------------------------------------------------------------------------------------------------
+
+이제 jpa/users/10001이 특정 사용자 세부 정보를 가져올 것이다
+
+---------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users/10001/posts 사이트화면 ==>
+
+[
+  {
+    "id": 20001,
+    "description": "I want to learn AWS"
+  },
+  {
+    "id": 20002,
+    "description": "I want to learn DevOps"
+  }
+]
+
+---------------------------------------------------------------------------------------------------------------
+
+그럼 이제 사용자와 관련된 게시물을 가져와야겠지
+이 http://localhost:8080/jpa/users/10001/posts가 특정 사용자의 게시물에 대한 세부 정보 전체를 제공한다
+
+
+
+
+이번 단계에선 특정 사용자의 게시물을 전부 가져오는 간단한 REST API를 생성했다
