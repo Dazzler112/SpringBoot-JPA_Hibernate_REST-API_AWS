@@ -1,0 +1,354 @@
+
+
+지난 몇 단계에 걸쳐 REST API를 DB에 연결했는데 
+localhost:8080/jpa/users로 가서 실행하면 
+
+-----------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users 사이트화면 ==>
+
+
+[
+  {
+    "id": 10001,
+    "name": "Ranga",
+    "birthDate": "2024-06-10"
+  },
+  {
+    "id": 10002,
+    "name": "Ravi",
+    "birthDate": "2024-06-10"
+  },
+  {
+    "id": 10003,
+    "name": "Sathish",
+    "birthDate": "2024-06-10"
+  }
+]
+
+-----------------------------------------------------------------------------------------------------------------
+
+이런 응답이 돌아오는 걸 확인할 수 있다
+응답으로 돌아오는 사용자 전체를 볼 수 있고
+localhost:8080/jpa/users/10001/posts를 보면
+
+-----------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users/10001/posts 사이트화면 ==>
+
+
+[
+  {
+    "id": 20001,
+    "description": "I want to learn AWS"
+  },
+  {
+    "id": 20002,
+    "description": "I want to learn DevOps"
+  }
+]
+
+-----------------------------------------------------------------------------------------------------------------
+해당 특정 사용자의 게시물을 확인할 수 있다,
+원한다면 가서 새 게시물도 생성할 수 있다 
+
+-----------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST    | ▼  |    |    http://localhost:8080/jpa/users/10001/posts             |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+
+  HEADERS   ⬇                   | Form ▼ |      ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________   ___________________________   |   
+☑ | Content-Type |:| application/json     | 🧪 |  |     {
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |        "description": "I want to learn Azure Fundamenttals"
+  ______________                                  |      }                            
+ ( + Add header )   🗝 Add authorization     🗑    |                                                        
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                  | 
+                                                  |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                
+
+-----------------------------------------------------------------------------------------------------------------
+
+예를 들어 10001 게시물에 새 게시물을 생성한다고 해보자
+콘텐츠 타입을 application/json으로 해서 POST 요청을 할 수 있고, 설명을
+"Azure 기본 사항을 배우고 싶다" 라고 넣은다음 전송을 누르면 된다
+                                                      |
+                                                      V
+-----------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  201                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              |
+Location:	http://localhost:8080/jpa/users/    |
+          10001/posts/1                       |                                                                
+Content-Length:	0 byte                        |                     No Content 
+Date: Mon, 10 Jun 2024 08:18:05 GMT	          |                                                                                
+Keep-Alive:	timeout=60                        |                                                 
+Connection:	keep-alive                        |                                       
+                                              |                  
+▶ COMPLETE REQUEST HEADERS                    |                                                                                                                    
+                                                                                        
+                                                                                                    
+                                                 📄 copy                                                          
+
+-----------------------------------------------------------------------------------------------------------------
+
+    이제 여기에 있는 게시물을 새로고침하면             |  
+                                                    V
+-----------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users/10001/posts 사이트화면 ==>
+
+
+[
+  {
+    "id": 1,
+    "description": "I want to learn React"
+  },
+  {
+    "id": 20001,
+    "description": "I want to learn AWS"
+  },
+  {
+    "id": 20002,
+    "description": "I want to learn DevOps"
+  }
+]
+
+-----------------------------------------------------------------------------------------------------------------
+
+게시물 3개가 돌아오는 걸 확인할 수 있다,
+이 세부 정보 각각은 DB에서 불러오는 것이다 
+
+localhost:8080/h2-console로 가면 DB에 있는 세부 정보 전체를 볼 수 있다 
+
+-----------------------------------------------------------------------------------------------------------------
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ + 💷 POST
+ + 💷 USER_DETAILS
+ + 📁 INFORMATION_SCHEMA
+ + 🎫 Sequences
+ + 👪 Users
+ i H2 2.2.224 (2023-09-17)
+
+
+----------------------------------------------------------------------
+
+⏺ H2 Console 
+ _____   ______________   _______________   _______
+| Run | | Run Selected | | Auto complete | | Clear | SQL statement:
+ ‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾ 
+ ___________________________________________________________________________________
+| SELECT * FROM POST                                                                |
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                    
+|                                                                                   |                     
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+SELECT * FROM POST;
+ _____________________________________________________
+| ID  	| DESCRIPTION                        | USER_ID|
+------------------------------------------------------
+| 1	    |I want to learn Azure Fundamenttals | 10001	|
+------------------------------------------------------
+| 20001	|I want to learn AWS                 |10001   |
+------------------------------------------------------
+| 20002	|I want to learn DevOps              |10001   |
+------------------------------------------------------
+| 20003	|I want to Get AWS Certified         |10002   |
+------------------------------------------------------
+| 20004	|I want to learn Multi Cloud         |10002   |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+(5 rows, 1 ms)
+ ____
+|Edit|
+ ‾‾‾‾
+-----------------------------------------------------------------------------------------------------------------
+
+POST 에서 SELECT * FROM POST 를 실행하면 10001에 대해 새 게시물이 추가된 게 보인다
+이번 단계에선 이 각각의 API 호출 시 보이지 않는 곳에서 벌어지는 과정을 깊이 파고들어 볼 것이다
+
+
+전에 appilcation.properties에 spring.jpa.show-sql=true를 추가했었지?
+
+-----------------------------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+spring.application.name=restful-web-services
+
+logging.level.org.springframework=info
+
+management.endpoints.web.exposure.include=*
+
+spring.datasource.url=jdbc:h2:mem:testdb
+
+spring.jpa.defer-datasource-initialization=true
+
+spring.jpa.show-sql=true
+
+-----------------------------------------------------------------------------------------------------------------
+
+spring.jpa.show-sql=true 이 설정의 역할은 실행되고 있는 모든 SQL 쿼리를 로그에 출력하는 것이다
+그럼 로그로 들어가서 콘솔을 지우고 이 각각의 API를 로그에서 살펴보겠다
+
+예를 들어 먼저 localhost:8080/jpa/users 시작해보겠다 백그라운드에서 무슨 일이 벌어질까? 새로 고침을 누르고
+콘솔을 봐보자
+-----------------------------------------------------------------------------------------------------------------
+
+⏺ sts 콘솔창 ==>
+
+Hibernate: select u1_0.id,u1_0.birth_date,u1_0.name from user_details u1_0
+
+-----------------------------------------------------------------------------------------------------------------
+
+지금 실행되고 있는 쿼리가 뭐지?
+지금 실행되는 쿼리를 알 수 있는데 
+사용자 세부 정보에서 ID와 생년월일, 이름을 SELECT 쿼리하고 있다 
+이게 지금 실행되고 있는 쿼리이다
+
+UserJpaResource로 넘어가 보면 
+실행하는 코드는 뭐지?
+repository.findAll()이다 
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+⏺ UserJpaResource 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+
+//	private UserDaoService service;
+
+  //1: 여기에는 사용자 저장소를 나타내는 repository가 있는데 ( private UserRepository repository; )
+  // 마음에 들지 않는다 이름을 바꾸겠다, 우클릭 해서 > Refactor > Rename userRepository라고 하겠다 (repository 에서 userRepository로 바꿈)
+  //이제 여기에 userRepository가 있다
+	private UserRepository userRepository;
+	
+	private PostRepository postRepository;	
+
+  //1-1: 생성자 파라미터 이름도 userRepository라고 해주고
+	public UserJpaResource(UserRepository userRepository, PostRepository postRepository) {
+//		this.service = service;
+  
+    //1-1 계속: 일관성을 유지한다 (repository -> userRepository)
+		this.userRepository = userRepository;
+		this.postRepository = postRepository;
+	}
+
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+		return userRepository.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/jpa/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		Optional<User> user = userRepository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user.get());
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+
+	@DeleteMapping("/jpa/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		userRepository.deleteById(id);
+		
+	}
+	
+	@GetMapping("/jpa/users/{id}/posts")
+	public List<Post> retrievePostsForUser(@PathVariable int id) {
+		Optional<User> user = userRepository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		return user.get().getPosts();
+	}
+	
+	@PostMapping("/jpa/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = userRepository.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("/{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+	
+	@PostMapping("/jpa/users/{id}/posts")
+	public ResponseEntity<Object> createPostForUser(@PathVariable int id, @Valid @RequestBody Post post) {
+		Optional<User> user = userRepository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		post.setUser(user.get());
+		
+		Post savedPost = postRepository.save(post);
+		
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+				.path("/{id}")
+				.buildAndExpand(savedPost.getId())
+				.toUri();  
+
+		return ResponseEntity.created(location).build();
+	}
+}
+
+
+-----------------------------------------------------------------------------------------------------------------
+
+그러면 userRepository에 findAll을 호출하고 있는거지, 로그에서 특정 쿼리가 실행되고 있는 게 보인다
