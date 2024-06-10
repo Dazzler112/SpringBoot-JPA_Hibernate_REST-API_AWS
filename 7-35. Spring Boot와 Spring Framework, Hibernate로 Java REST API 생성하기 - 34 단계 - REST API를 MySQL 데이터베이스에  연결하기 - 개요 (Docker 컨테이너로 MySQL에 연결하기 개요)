@@ -1,0 +1,134 @@
+
+
+지난 몇 단계에 걸쳐 어러 가지 REST API를 만들어봤는데 
+
+---------------------------------------------------------------------------------------------
+
+
+⏺ UserJpaResource 클래스파일
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.user;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import java.net.*;
+import java.util.*;
+
+import org.springframework.hateoas.*;
+import org.springframework.hateoas.server.mvc.*;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.jpa.*;
+
+import jakarta.validation.*;
+
+@RestController
+public class UserJpaResource {
+
+//	private UserDaoService service;
+	
+	private UserRepository userRepository;
+	
+	private PostRepository postRepository;	
+	
+	public UserJpaResource(UserRepository userRepository, PostRepository postRepository) {
+//		this.service = service;
+		this.userRepository = userRepository;
+		this.postRepository = postRepository;
+	}
+
+	@GetMapping("/jpa/users")
+	public List<User> retrieveAllUsers() {
+		
+		return userRepository.findAll();
+	}
+	
+	//	http://localhost:8080/users
+	
+	//EntityModel
+	//WebMvcLinkBuilder
+	
+	@GetMapping("/jpa/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		Optional<User> user = userRepository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		EntityModel<User> entityModel = EntityModel.of(user.get());
+		
+		WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		entityModel.add(link.withRel("all-users"));
+		
+		return entityModel;
+
+	}
+
+	@DeleteMapping("/jpa/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		userRepository.deleteById(id);
+		
+	}
+	
+	@GetMapping("/jpa/users/{id}/posts")
+	public List<Post> retrievePostsForUser(@PathVariable int id) {
+		Optional<User> user = userRepository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		return user.get().getPosts();
+	}
+	
+	@PostMapping("/jpa/users")
+	public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+		User savedUser = userRepository.save(user);
+		// /users/4 => /users /{id},  user.getID
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+						.path("/{id}")
+						.buildAndExpand(savedUser.getId())
+						.toUri();  
+		
+		return ResponseEntity.created(location).build();
+	}
+	
+	@PostMapping("/jpa/users/{id}/posts")
+	public ResponseEntity<Object> createPostForUser(@PathVariable int id, @Valid @RequestBody Post post) {
+		Optional<User> user = userRepository.findById(id);
+		
+		if(user.isEmpty())
+			throw new UserNotFoundException("id:"+id);
+		
+		post.setUser(user.get());
+		
+		Post savedPost = postRepository.save(post);
+		
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+				.path("/{id}")
+				.buildAndExpand(savedPost.getId())
+				.toUri();  
+
+		return ResponseEntity.created(location).build();
+	}
+}
+
+---------------------------------------------------------------------------------------------
+
+UserJpaResource에서 정의한 REST API가 거의 6개 정도 된다
+이 API는 전부 인메모리 DB인 H2에 데이터를 저장하고 있고,
+데이터를 저장하는 방식은 JPA와 Hibernate를 활용하는 것이다 
+
+이번 단계는 MySQL DB에 연결하는 방법부터 살펴보자 
+
+아주 간단하게 바꾸기만 해도 MySQL DB에 연결할 수 있다
+
+이제 해야 할 일은 MySQL DB를 Docker 컨테이너로 실행하는 건데 
+MySQL DB를 Docker 컨테이너로 실행하기만 하면 애플리케이션을 MySQL DB로 연결하게 된다 
+
+조심해야 할 게 한 가지 있는데, 이후 두 단계에서 직접 해보는 건 선택사항이다
+이 두 단계의 목표는 JPA와 Hibernate를 사용할 때마다 한 DB에서 다른 DB로 쉽게 전환이 가능하다는 점을 알려주는 것이다
+
+원한다면 이 두 강의를 보기만 하고 직접 하지는 않아도 된다 다음 강의 때 보겠다
