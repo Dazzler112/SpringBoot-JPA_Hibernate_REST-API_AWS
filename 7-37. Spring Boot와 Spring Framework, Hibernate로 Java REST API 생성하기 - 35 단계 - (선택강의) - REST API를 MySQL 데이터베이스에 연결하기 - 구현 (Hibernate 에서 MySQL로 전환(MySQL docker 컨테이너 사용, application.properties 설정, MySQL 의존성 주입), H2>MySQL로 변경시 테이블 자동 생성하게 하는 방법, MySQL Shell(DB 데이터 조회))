@@ -642,3 +642,377 @@ localhost:8080/jpa/users/1/posts 이걸 새로고침하면
 이제 Ravi의 게시물도 확인할 수 있다 
 그럼 실제로 MySQL DB에서 데이터를 받아온다는 걸 어떻게 알 수 있을까?
 
+🔵 mysqlsh 사용
+
+이제 mysqlsh라는 MySQL 클라이언트를 활용해볼 건데
+mysqlsh로 검색하면 제일 처음 나오는 검색 결과가 mysqlsh — The MySQL Shell일 것이다 
+너가 선호하는 MySQL 클라이언트 아무 거나 활용하면 된다 
+강사가 제일 좋아하는 건 mysqlsh라고 한다 
+mysqlsh는 MySQL에 맞춘 고급 명령줄 클라이언트이자 코드 편집기라고 되어 있다
+MySQL 설치 안내서는 여기에 다 있다고 한다 (왼쪽 항목에 Installing MySQL Shell 클릭하면 있음)
+여기 MySQL Shell 설치 페이지로 가면 윈도우용, Linux용, Mac용 MySQL Shell 설치 안내가 나와있다 
+여기 가서 mysqlsh를 설치하면 된다고 함
+
+명령프롬프트에 mysqlsh를 입력하면 MySQL Shell이 실행되는 게 보일 것이다
+(나의 경우는 cmd에 mysqlsh쳐도 실행이 안되고 압축 해제하고 bin 폴더에 exe 파일 실행해야 실행됨)
+
+이제 MySQL DB에 연결하려면 
+
+application.properties로 가서 명령어를 설정해보자
+
+-------------------------------------------------------------------------------------------
+
+🔵 application.properties 파일
+
+
+spring.application.name=restful-web-services
+
+logging.level.org.springframework=info
+
+management.endpoints.web.exposure.include=*
+
+#spring.datasource.url=jdbc:h2:mem:testdb
+
+spring.jpa.defer-datasource-initialization=true
+
+spring.jpa.show-sql=true
+
+spring.datasource.url=jdbc:mysql://localhost:3306/social-media-database
+spring.datasource.username=social-media-user
+spring.datasource.password=dummypassword
+
+spring.jpa.hibernate.ddl-auto=update
+
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+
+#7: 사용할 수 있는 명령어는 \connect라는 것이다, 제일 먼저 사용해야 할 건 사용자 이름이지 social-media-user를 넣고 그다음 @localhost:3306을 붙여준다
+# 이 특정 사용자를 이용해서 3306 포트에서 실행되는 DB로 연결한다는 뜻이지 \connect social-media-user@localhost:3306 이걸 복사해서 
+
+-------------------------------------------------------------------------------------------
+
+\connect social-media-user@localhost:3306
+이 명령을 실행해 보자
+
+-------------------------------------------------------------------------------------------
+
+🔵 cmd 창 > 
+
+ MySQL  SQL > \connect social-media-user@localhost:3306
+Creating a session to 'social-media-user@localhost:3306'
+Please provide the password for 'social-media-user@localhost:3306':
+//비밀 번호를 물어본다
+
+-------------------------------------------------------------------------------------------
+비밀 번호는 어디있지? spring.datasource.password=dummypassword 여기있다
+dummypassword가 패스워드다
+
+-------------------------------------------------------------------------------------------
+
+🔵 cmd 창 > 
+
+ MySQL  SQL > \connect social-media-user@localhost:3306
+Creating a session to 'social-media-user@localhost:3306'
+Please provide the password for 'social-media-user@localhost:3306': *************
+Save password for 'social-media-user@localhost:3306'? [Y]es/[N]o/Ne[v]er (default No):v
+
+-------------------------------------------------------------------------------------------
+붙여넣고 엔터를 누른다 비밀번호를 저장하지 않을 거니까 v를 입력하겠다
+
+
+-------------------------------------------------------------------------------------------
+
+🔵 cmd 창 > 
+
+Type '\help' or '\?' for help; '\quit' to exit.
+ MySQL  SQL > \connect social-media-user@localhost:3306
+Creating a session to 'social-media-user@localhost:3306'
+Please provide the password for 'social-media-user@localhost:3306': *************
+Save password for 'social-media-user@localhost:3306'? [Y]es/[N]o/Ne[v]er (default No): v
+Fetching global names for auto-completion... Press ^C to stop.
+Error during auto-completion cache update: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
+Your MySQL connection id is 47
+Server version: 8.4.0 MySQL Community Server - GPL
+No default schema selected; type \use <schema> to set one.
+ MySQL  localhost:3306 ssl  SQL >
+
+-------------------------------------------------------------------------------------------
+
+이제 DB로 연결되었다 
+선택된 기본 스키마가 없다고 나온다, 특정 스키마로 연결해야 하니까 \use를 입력한 다음 스키마를 특정해 줘야겠지?
+스키마가 뭐지? 스키마는 그냥 여기에서 DB로 설정한 것을 말한다 social-media-database지, social-media-database를 넣고 
+-------------------------------------------------------------------------------------------
+
+🔵 cmd 창 > 
+
+C:\Users\LG>mysqlsh
+MySQL Shell 8.4.0
+
+Copyright (c) 2016, 2024, Oracle and/or its affiliates.
+Oracle is a registered trademark of Oracle Corporation and/or its affiliates.
+Other names may be trademarks of their respective owners.
+
+Type '\help' or '\?' for help; '\quit' to exit.
+ MySQL  SQL > \connect social-media-user@localhost:3306
+Creating a session to 'social-media-user@localhost:3306'
+Please provide the password for 'social-media-user@localhost:3306': *************
+Save password for 'social-media-user@localhost:3306'? [Y]es/[N]o/Ne[v]er (default No): v
+Fetching global names for auto-completion... Press ^C to stop.
+Error during auto-completion cache update: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
+Your MySQL connection id is 47
+Server version: 8.4.0 MySQL Community Server - GPL
+No default schema selected; type \use <schema> to set one.
+ MySQL  localhost:3306 ssl  social-media-database
+ MySQL  localhost:3306 ssl  social-media-database  JS > \use social-media-database
+Default schema set to `social-media-database`.
+ MySQL  localhost:3306 ssl  social-media-database  JS >
+
+-------------------------------------------------------------------------------------------
+
+이제 기본 스키마가 social-media-database로 설정되었다
+여기서 몇 가지 SQL 구문을 실행할 텐데, \sql을 입력한다
+
+이제 SQL 모드로 전환된다, select * from user_details; 를 입력해서 실행한다
+
+-------------------------------------------------------------------------------------------
+
+🔵 cmd 창 > 
+
+
+C:\Users\LG>mysqlsh
+MySQL Shell 8.4.0
+
+Copyright (c) 2016, 2024, Oracle and/or its affiliates.
+Oracle is a registered trademark of Oracle Corporation and/or its affiliates.
+Other names may be trademarks of their respective owners.
+
+Type '\help' or '\?' for help; '\quit' to exit.
+ MySQL  SQL > \connect social-media-user@localhost:3306
+Creating a session to 'social-media-user@localhost:3306'
+Please provide the password for 'social-media-user@localhost:3306': *************
+Save password for 'social-media-user@localhost:3306'? [Y]es/[N]o/Ne[v]er (default No): v
+Fetching global names for auto-completion... Press ^C to stop.
+Error during auto-completion cache update: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
+Your MySQL connection id is 47
+Server version: 8.4.0 MySQL Community Server - GPL
+No default schema selected; type \use <schema> to set one.
+ MySQL  localhost:3306 ssl  SQL > \use social-media-database
+Default schema set to `social-media-database`.
+Fetching global names, object names from `social-media-database` for auto-completion... Press ^C to stop.
+Error during auto-completion cache update: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
+ MySQL  localhost:3306 ssl  social-media-database  SQL > \sql
+ MySQL  localhost:3306 ssl  social-media-database  SQL > \js
+Switching to JavaScript mode...
+ MySQL  localhost:3306 ssl  social-media-database  JS > \use social-media-database
+Default schema set to `social-media-database`.
+ MySQL  localhost:3306 ssl  social-media-database  JS > \sql
+Switching to SQL mode... Commands end with ;
+ MySQL  localhost:3306 ssl  social-media-database  SQL > select * from user_details;
++----+------------+------+
+| id | birth_date | name |
++----+------------+------+
+|  1 | 1997-08-11 | Ravi |
++----+------------+------+
+1 row in set (0.0017 sec)
+
+-------------------------------------------------------------------------------------------
+
+MySQL DB에서 세부 정보, 즉 ID와 생년월일, 이름이 돌아오는 게 보이지 
+
+
+게시물을 확인하려면 select * from post; 를 입력하고
+
+-------------------------------------------------------------------------------------------
+
+🔵 cmd 창 > 
+
+
+C:\Users\LG>mysqlsh
+MySQL Shell 8.4.0
+
+Copyright (c) 2016, 2024, Oracle and/or its affiliates.
+Oracle is a registered trademark of Oracle Corporation and/or its affiliates.
+Other names may be trademarks of their respective owners.
+
+Type '\help' or '\?' for help; '\quit' to exit.
+ MySQL  SQL > \connect social-media-user@localhost:3306
+Creating a session to 'social-media-user@localhost:3306'
+Please provide the password for 'social-media-user@localhost:3306': *************
+Save password for 'social-media-user@localhost:3306'? [Y]es/[N]o/Ne[v]er (default No): v
+Fetching global names for auto-completion... Press ^C to stop.
+Error during auto-completion cache update: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
+Your MySQL connection id is 47
+Server version: 8.4.0 MySQL Community Server - GPL
+No default schema selected; type \use <schema> to set one.
+ MySQL  localhost:3306 ssl  SQL > \use social-media-database
+Default schema set to `social-media-database`.
+Fetching global names, object names from `social-media-database` for auto-completion... Press ^C to stop.
+Error during auto-completion cache update: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
+ MySQL  localhost:3306 ssl  social-media-database  SQL > \sql
+ MySQL  localhost:3306 ssl  social-media-database  SQL > \js
+Switching to JavaScript mode...
+ MySQL  localhost:3306 ssl  social-media-database  JS > \use social-media-database
+Default schema set to `social-media-database`.
+ MySQL  localhost:3306 ssl  social-media-database  JS > \sql
+Switching to SQL mode... Commands end with ;
+ MySQL  localhost:3306 ssl  social-media-database  SQL > select * from user_details;
++----+------------+------+
+| id | birth_date | name |
++----+------------+------+
+|  1 | 1997-08-11 | Ravi |
++----+------------+------+
+1 row in set (0.0017 sec)
+MySQL  localhost:3306 ssl  social-media-database  SQL > select * from post;
++----+--------------------+---------+
+| id | description        | user_id |
++----+--------------------+---------+
+|  1 | I'm learning MySQL |       1 |
++----+--------------------+---------+
+1 row in set (0.0018 sec)
+
+-------------------------------------------------------------------------------------------
+
+select * from post가 ID와 설명, 사용자 ID를 반환한다 
+"I'm learning MySQL"와 1이라는 사용자 ID 이다 
+
+
+
+이제 Talend API Tester로 가서 게시물을 하나 더 생성하겠다 
+
+-----------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST    | ▼  |    |    http://localhost:8080/jpa/users/1/posts                 |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+
+  HEADERS   ⬇                   | Form ▼ |      ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________   ___________________________   |   
+☑ | Content-Type |:| application/json     | 🧪 |  |     {
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |        "description": "I want to get AWS Certified"
+  ______________                                  |      }                            
+ ( + Add header )   🗝 Add authorization     🗑    |                                                        
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                  | 
+                                                  |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                
+
+-----------------------------------------------------------------------------------------------------------------
+
+"AWS 자격증을 따고 싶다" ( "I want to get AWS Certified" )라고 넣겠다
+jpa/users/1/posts에 "AWS 자격증을 따고 싶다" 라는 POST 요청을 보낸다 
+                                                    |
+                                                    V
+-----------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  201                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              |
+Location: http://localhost:8080/jpa/users/    |
+          10001/posts/2                       |                                                                
+Content-Length:	0 byte                        |                     No Content 
+Date: Tue, 11 Jun 2024 16:43:08 GMT           |                                                                                
+Keep-Alive: timeout=60                        |                                                 
+Connection: keep-alive                        |                                       
+                                              |                  
+▶ COMPLETE REQUEST HEADERS                    |                                                                                                                    
+                                                                                        
+                                                                                                    
+                                                 📄 copy                                                          
+
+-----------------------------------------------------------------------------------------------------------------
+
+201 상태를 반환하고 있지 
+
+
+이제 select * from post 를 실행하면 
+
+-------------------------------------------------------------------------------------------
+
+🔵 cmd 창 > 
+
+
+C:\Users\LG>mysqlsh
+MySQL Shell 8.4.0
+
+Copyright (c) 2016, 2024, Oracle and/or its affiliates.
+Oracle is a registered trademark of Oracle Corporation and/or its affiliates.
+Other names may be trademarks of their respective owners.
+
+Type '\help' or '\?' for help; '\quit' to exit.
+ MySQL  SQL > \connect social-media-user@localhost:3306
+Creating a session to 'social-media-user@localhost:3306'
+Please provide the password for 'social-media-user@localhost:3306': *************
+Save password for 'social-media-user@localhost:3306'? [Y]es/[N]o/Ne[v]er (default No): v
+Fetching global names for auto-completion... Press ^C to stop.
+Error during auto-completion cache update: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
+Your MySQL connection id is 47
+Server version: 8.4.0 MySQL Community Server - GPL
+No default schema selected; type \use <schema> to set one.
+ MySQL  localhost:3306 ssl  SQL > \use social-media-database
+Default schema set to `social-media-database`.
+Fetching global names, object names from `social-media-database` for auto-completion... Press ^C to stop.
+Error during auto-completion cache update: Access denied; you need (at least one of) the PROCESS privilege(s) for this operation
+ MySQL  localhost:3306 ssl  social-media-database  SQL > \sql
+ MySQL  localhost:3306 ssl  social-media-database  SQL > \js
+Switching to JavaScript mode...
+ MySQL  localhost:3306 ssl  social-media-database  JS > \use social-media-database
+Default schema set to `social-media-database`.
+ MySQL  localhost:3306 ssl  social-media-database  JS > \sql
+Switching to SQL mode... Commands end with ;
+ MySQL  localhost:3306 ssl  social-media-database  SQL > select * from user_details;
++----+------------+------+
+| id | birth_date | name |
++----+------------+------+
+|  1 | 1997-08-11 | Ravi |
++----+------------+------+
+1 row in set (0.0017 sec)
+ MySQL  localhost:3306 ssl  social-media-database  SQL > select * from posts;
+ERROR: 1146 (42S02): Table 'social-media-database.posts' doesn't exist
+ MySQL  localhost:3306 ssl  social-media-database  SQL > select * from post;
++----+--------------------+---------+
+| id | description        | user_id |
++----+--------------------+---------+
+|  1 | I'm learning MySQL |       1 |
++----+--------------------+---------+
+1 row in set (0.0018 sec)
+ MySQL  localhost:3306 ssl  social-media-database  SQL > select * from post;
++----+-----------------------------+---------+
+| id | description                 | user_id |
++----+-----------------------------+---------+
+|  1 | I'm learning MySQL          |       1 |
+|  2 | I want to get AWS Certified |       1 |
++----+-----------------------------+---------+
+2 rows in set (0.0016 sec)
+
+-------------------------------------------------------------------------------------------
+여기에 게시물 2개가 보인다, 새 게시물은 ID가 2이다  
+"AWS 자격증을 따고 싶다" 게시물이 사용자 ID 1, 즉 Ravi에 연결되어 있다 
+이 DB에서 좋은 점이 여기 이 데이터가 영구적이라는 건데 
+
+실제로 애플리케이션으로 가서 멈추더라도, 이제 직접 가서 애플리케이션을 중지해보겠다 (중지함)
+애플리케이션이 활성화되어 있지 않지 
+
+이때도 DB에 쿼리를 할 수 있다 
+애플리케이션을 시작해도 전에 생성한 데이터가 전부 그대로 남아 있다
+
+
+
+
+
+이번 단계에선 REST API를 MySQL 데이터베이스로 연결했다 
+H2에서 MySQL로 전환되는 걸 살펴봤다 
+그냥 몇 가지 설정을 변경하고, application.properties에서 몇 개를 바꾸기만 했는데도 
+이런 게 JPA와 Hibernate의 매력이다 
+그럼 다음 단계에서 보겠다
