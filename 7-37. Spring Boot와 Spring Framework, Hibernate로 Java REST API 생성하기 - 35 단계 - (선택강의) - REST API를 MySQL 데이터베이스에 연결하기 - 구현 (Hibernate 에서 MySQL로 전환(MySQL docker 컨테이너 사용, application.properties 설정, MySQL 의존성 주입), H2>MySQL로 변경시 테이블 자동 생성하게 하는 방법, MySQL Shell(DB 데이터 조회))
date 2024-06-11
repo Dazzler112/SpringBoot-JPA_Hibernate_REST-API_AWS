@@ -1,0 +1,257 @@
+
+
+이번 단계에선 MySQL을 Docker 컨테이너로 실행해보고 REST API를 MySQL DB에 연결해 보겠다
+
+docker를 설치하였으면
+cmd에서 
+docker version을 입력하면 클라이언트와 서버가 나타난다
+
+🔵 Docker 버전 확인및 상태 확인
+
+-------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+C:\Users\LG>docker version
+Client:
+ Cloud integration: v1.0.35+desktop.13
+ Version:           26.1.1
+ API version:       1.45
+ Go version:        go1.21.9
+ Git commit:        4cf5afa
+ Built:             Tue Apr 30 11:48:43 2024
+ OS/Arch:           windows/amd64
+ Context:           default
+
+Server: Docker Desktop 4.30.0 (149282)
+ Engine:
+  Version:          26.1.1
+  API version:      1.45 (minimum version 1.24)
+  Go version:       go1.21.9
+  Git commit:       ac2de55
+  Built:            Tue Apr 30 11:48:28 2024
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          1.6.31
+  GitCommit:        e377cd56a71523140ca6ae87e30244719194a521
+ runc:
+  Version:          1.1.12
+  GitCommit:        v1.1.12-0-g51d5e94
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+-------------------------------------------------------------------------------------------
+
+터미널이나 명령 프롬프트에서 이런 화면이 보이지 않으면 얼른 Docker를 실행해라
+그러면 MySQL 컨테이너를 Docker 컨테이너로 실행할 준비가 된 것이다 
+
+🔵 Docker 컨테이너로 MySQL 실행
+
+MySQL을 Docker 컨테이너로 실행하는 명령문은 꽤 길다
+-------------------------------------------------------------------------------------------
+
+🔵 Launch MySQL as Docker Container
+
+docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=social-media-user --env MYSQL_PASSWORD=dummypassword --env MYSQL_DATABASE=social-media-database --name mysql --publish 3306:3306 mysql:8-oracle
+-------------------------------------------------------------------------------------------
+
+강의 사이트에서 이 명령문을 사용할 수 있게 해두었다
+
+이전 강의로 가서 명령문을 복사하고 복사한 명령문을 사용해서 MySQL을 Docker 컨테이너로 실행하면 된다
+
+명령프롬프트에 붙여넣기해서 실행하겠다
+
+-------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+C:\Users\LG>docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=social-media-user --env MYSQL_PASSWORD=dummypassword --env MYSQL_DATABASE=social-media-database --name mysql --publish 3306:3306 mysql:8-oracle
+Unable to find image 'mysql:8-oracle' locally
+8-oracle: Pulling from library/mysql
+07bc88e18c4a: Pull complete
+1a9c1668bf49: Pull complete
+1021dda8eecf: Pull complete
+fb61b56acac1: Pull complete
+0bca83908a5b: Pull complete
+165e8b3d37ca: Pull complete
+3e1b086f1295: Pull complete
+dba651668484: Pull complete
+ed90f5355e12: Pull complete
+0412f59ab2b5: Pull complete
+Digest: sha256:aa021e164da6aacbefc59ed0b933427e4835636be380f3b6523f4a6c9564e1f0
+Status: Downloaded newer image for mysql:8-oracle
+c1e898818d562d605b2f36c7c7a6249cb19ae0273ae55cee934d23467da73a94
+
+-------------------------------------------------------------------------------------------
+엔터를 누르면 로컬에서 'mysql:8-oracle'이미지를 찾을수 없읍' 이라고 표시될 텐데 
+MySQL 이미지를 다운받고 있다 다운로드는 약 1분 정도 걸릴 것이다, 인터넷 속도에 따라 다르겠지
+
+이미지가 다운로드되고 새 컨테이너도 생성됐다 
+
+
+docker 한칸 띄고 container 한칸 띄고 ls를 입력하면
+
+-------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+C:\Users\LG>docker container ls
+CONTAINER ID   IMAGE            COMMAND                   CREATED         STATUS         PORTS                               NAMES
+c1e898818d56   mysql:8-oracle   "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes   0.0.0.0:3306->3306/tcp, 33060/tcp   mysql
+
+-------------------------------------------------------------------------------------------
+
+모든 컨테이너를 목록으로 보여준다 
+실행 중인 컨테이너가 나오지 
+MySQL에 속한 이 컨테이너가 여기서 실행 중이다
+
+이제 이 명령문을 쪼개서 좀 더 파헤쳐보자
+-------------------------------------------------------------------------------------------
+docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=social-media-user --env MYSQL_PASSWORD=dummypassword --env MYSQL_DATABASE=social-media-database --name mysql --publish 3306:3306 mysql:8-oracle
+-------------------------------------------------------------------------------------------
+
+이 명령문은 좀 복잡해 보이지만 세분하면 아주 쉽다
+
+-------------------------------------------------------------------------------------------
+
+docker run --detach
+--env MYSQL_ROOT_PASSWORD=dummypassword
+--env MYSQL_USER=social-media-user 
+--env MYSQL_PASSWORD=dummypassword 
+--env MYSQL_DATABASE=social-media-database 
+--name mysql 
+--publish 3306:3306 
+mysql:8-oracle
+
+-------------------------------------------------------------------------------------------
+환경 변수를 다음 줄로 가져와보겠다, 컨테이너에 이름을 붙이고 특정 포트에 퍼블리싱하고 있지, 이미지 이름이 나오고
+
+mysql:8-oracle << 여기 있는 것이 이미지 이름인데 
+mysql:8-oracle이 MySQL 이미지의 완전한 이름이자 버전이다 
+MySQL의 8-oracle 이라는 이 특정 태그는 아무 운영체제에서나 실행될 수 있다
+Linux, Windows, Mac에서도 실행된다, 그래서 MySQL의 이 특정 태그를 선택한 것이다
+
+MySQL을 실행할 때 루트 관리자 비밀번호는 뭐고, 생성하려는 사용자 ID는 뭔지 또 사용자 ID의 비밀번호는 뭔지, 
+=>--env MYSQL_ROOT_PASSWORD=dummypassword
+  --env MYSQL_USER=social-media-user 
+  --env MYSQL_PASSWORD=dummypassword 
+
+생성하려는 DB는 뭔지를 설정해줘야 하고 
+=> --env MYSQL_DATABASE=social-media-database 
+
+컨테이너에 어떤 이름을 붙이고 싶은지
+=> --name mysql
+
+컨테이너를 실행할 포트는 뭔지도 설정해야 하지
+=> --publish 3306:3306 
+
+
+관리자 비밀 번호를 dummypassword로 설정하고 있고 --env MYSQL_ROOT_PASSWORD=dummypassword
+MySQL 사용자를 social-media-user로, social-media-user의 비밀번호를 dummypassword로 생성하고 있다
+이 두 가지 자격 증명을 사용해서 애플리케이션에서 DB로 연결할 수 있고
+=> --env MYSQL_USER=social-media-user 
+   --env MYSQL_PASSWORD=dummypassword 
+
+social-media-database  라는 DB를 생성하고 있다 
+이름은 컨테이너 이름을 말하지 --name mysql 
+
+docker container ls에서 이름을 살펴보면 mysql이라고 나와있지?
+------------------------------------
+C:\Users\LG>docker container ls
+CONTAINER ID   IMAGE            COMMAND                   CREATED         STATUS         PORTS                               NAMES
+c1e898818d56   mysql:8-oracle   "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes   0.0.0.0:3306->3306/tcp, 33060/tcp   mysql
+------------------------------------
+mysql이라는 이름은 --name mysql  여기서 온 것이다, 이걸 3306포트에서 실행하려는 것이고 => --publish 3306:3306 
+운영체제에서 뭔가를 실행하려고 할 때마다 포트를 할당해줘야 한다
+이 컨테이너는 3306포트에서 실행되고 있지
+PORTS
+0.0.0.0:3306->3306/tcp, 33060/tcp
+
+이제 MySQL 컨테이너가 작동하고 있다 
+이제 할 일은 애플리케이션에서 이 컨테이너로 연결하는 거다
+애플리케이션에서 어떻게 연결할까?
+
+
+🔵 MySQL 컨테이너와 애플리케이션 연결 하기
+
+이때 가야 할 곳이 application.properties이다
+여기서 해야 할 일은 H2 DB로 연결하는 것이 아니라 MySQL DB로 연결하는 것이다
+
+-------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+
+spring.application.name=restful-web-services
+
+logging.level.org.springframework=info
+
+management.endpoints.web.exposure.include=*
+
+#1: 이제 여기 이 부분만 주석 처리하겠다, H2 DB로 연결하려는 게 아니지
+#spring.datasource.url=jdbc:h2:mem:testdb
+
+spring.jpa.defer-datasource-initialization=true
+
+spring.jpa.show-sql=true
+
+#2: 우리는 MySQL DB로 연결하려는 거기 때문이다 spring.datasource.url=을 입력하고 여기에 MySQL DB로 연결되는 URL을 넣어야겠지
+spring.datasource.url=
+
+#2-1:데이터 소스로 연결할 사용자 ID와 비밀번호도 있어야 한다 datasource.username=라고 입력하고 비밀번호도 필요하다
+spring.datasource.username=
+
+#2-2: datasource.password= 입력
+spring.datasource.password=
+-------------------------------------------------------------------------------------------
+
+docker run --detach
+--env MYSQL_ROOT_PASSWORD=dummypassword
+--env MYSQL_USER=social-media-user 
+--env MYSQL_PASSWORD=dummypassword 
+--env MYSQL_DATABASE=social-media-database 
+--name mysql 
+--publish 3306:3306 
+mysql:8-oracle
+이제 이 명령문을 여기서 복사해서 아래로 내리고 ctrl+/ 를 눌러서
+이부분 들을 주석 처리한다
+
+
+-------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+
+spring.application.name=restful-web-services
+
+logging.level.org.springframework=info
+
+management.endpoints.web.exposure.include=*
+
+#spring.datasource.url=jdbc:h2:mem:testdb
+
+spring.jpa.defer-datasource-initialization=true
+
+spring.jpa.show-sql=true
+
+#3-2: 그리고 사용할 URL은 JDBC URL 이다 MySQL로 연결하려는 거지 jdbc:mysql:을 입력하고 DB가 실행되는 포트는 뭐지? 로컬호스트 3306 포트에서 실행된다
+#localhost:3306을 입력하고 다음 슬래시가 오고 DB 이름이 온다, DB 이름은 MYSQL_DATABASE의 값, 즉 social-media-database지 여기 mysql:다음에는 //를 넣어야 하지 이렇게 입력하는 건 신경 안 써도 된다 이 부분도 이전 강의에 넣어서 사용할 수 있게 해둘 것이다 원한다면 
+/*
+spring.datasource.url=jdbc:mysql://localhost:3306/social-media-database
+spring.datasource.username=social-media-user
+spring.datasource.password=dummypassword 
+*/
+#여기 이 프로퍼티 값을 복사해도 된다
+spring.datasource.url=jdbc:mysql://localhost:3306/social-media-database
+
+#3: 사용하려는 사용자 이름은 social-media-user이고
+spring.datasource.username=social-media-user
+
+#3-1: 사용할 비밀번호는 dummypassword 이다
+spring.datasource.password=dummypassword 
+
+-------------------------------------------------------------------------------------------
+
+이제 세 가지 프로퍼티를 설정했다, spring.datasource.url과 spring.datasource.username 그리고 spring.datasource.password지
+
