@@ -255,3 +255,390 @@ spring.datasource.password=dummypassword
 
 이제 세 가지 프로퍼티를 설정했다, spring.datasource.url과 spring.datasource.username 그리고 spring.datasource.password지
 
+🟢 spring.datasource.url을 주석처리하고 테이블 자동생성하게 하는 법
+설정해야 할 프로퍼티가 두어 가지 더 있는데 
+H2 같은 인메모리 DB와 연결할 때는 Spring Boot Auto-configuration이 직접 엔터티를 살펴보고 테이블을 생성한다
+하지만 MySQL 같은 DB로 연결하는 경우에는 Spring Boot Auto-configuration이 테이블을 생성하지 않는다
+
+
+Spring Boot Auto-configuration이 모든 테이블을 생성해주도록 하려고 한다
+
+-------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+
+spring.application.name=restful-web-services
+
+logging.level.org.springframework=info
+
+management.endpoints.web.exposure.include=*
+
+#spring.datasource.url=jdbc:h2:mem:testdb
+
+spring.jpa.defer-datasource-initialization=true
+
+spring.jpa.show-sql=true
+
+spring.datasource.url=jdbc:mysql://localhost:3306/social-media-database
+spring.datasource.username=social-media-user
+spring.datasource.password=dummypassword 
+
+#4: 이렇게 입력하겠다 spring.jpa.hibernate.ddl-auto=update
+#이렇게 하면 애플리케이션을 시작할 때 현재 있는 엔터티를 기반으로 DB스키마가 확실히 업데이트 된다
+spring.jpa.hibernate.ddl-auto=update
+
+#4-1: 그리고 사용할 방언도 설정해주려고 하는데, spring.jpa.properties.hibernate.dialect라고 입력한다
+# MySQLDialect라는 이름으로 클래스를 검색하면 MySQLDialect 라고 하는 게 뜬다
+spring.jpa.properties.hibernate.dialect
+
+-------------------------------------------------------------------------------------------
+
+/**
+ * A {@linkplain Dialect SQL dialect} for MySQL 5.7 and above.
+ *
+ * @author Gavin King
+ */
+public class MySQLDialect extends Dialect {
+
+MySQLDialect로 가보면 이게 MySQL 5 이상 버전에 권장되는 방언이지
+이제 이걸 활용해볼 것이다 MySQLDialect를 우클릭해서 Copy Qualified Name을 눌러서 application에 붙여넣기 한다
+
+-------------------------------------------------------------------------------------------
+
+⏺ application.properties 파일
+
+
+
+spring.application.name=restful-web-services
+
+logging.level.org.springframework=info
+
+management.endpoints.web.exposure.include=*
+
+#spring.datasource.url=jdbc:h2:mem:testdb
+
+spring.jpa.defer-datasource-initialization=true
+
+spring.jpa.show-sql=true
+
+spring.datasource.url=jdbc:mysql://localhost:3306/social-media-database
+spring.datasource.username=social-media-user
+spring.datasource.password=dummypassword 
+
+spring.jpa.hibernate.ddl-auto=update
+
+#5: =org.hibernate.dialect.MySQLDialect가 입력되었지
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+
+-------------------------------------------------------------------------------------------
+
+이제 application.properties가 MySQL DB에 연결될 준비가 다 됐다
+
+애플리케이션을 멈추고 pom.xml을 열겠다
+MySQL DB에 연결하려는 거지
+
+-------------------------------------------------------------------------------------------
+
+
+⏺ pom.xml 파일
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-rest-hal-explorer</artifactId>
+		</dependency>				
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
+			<version>3.3.0</version>
+		</dependency>		
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		
+		<!--
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.0.2</version>
+		</dependency>		
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+		</dependency>
+		-->
+	
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
+    <!--6: 지금운 여기에 H2로 설정되어 있는데 이제 여기서 H2를 삭제하고 MySQL DB로 연결할 수 있는 의존성을 설정하겠다 이 부분은 주석처리 하겠다 H2를 주석처리하고-->
+<!--		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>-->
+
+    <!--6-1: MySQL Connector를 설정해보자 dependency에 groupId와 artifactId를 설정한다, groupId는 mysql이고 artifactId는 mysql-connector-java가 되겠지 저장한다-->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version>
+		</dependency>	
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+-------------------------------------------------------------------------------------------
+
+이제 의존성이 다운로드되었으니까 애플리케이션을 멈췄다가 시작하면 된다 
+애플리케이션이 제대로 시작되는지 보고 
+콘솔에 테이블이 생성된게 보인다
+----------------------------------------------
+platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: create table post (id integer not null, description varchar(255), user_id integer, primary key (id)) engine=InnoDB
+Hibernate: create table post_seq (next_val bigint) engine=InnoDB
+Hibernate: insert into post_seq values ( 1 )
+Hibernate: create table user_details (id integer not null, birth_date date, name varchar(255), primary key (id)) engine=InnoDB
+Hibernate: create table user_details_seq (next_val bigint) engine=InnoDB
+Hibernate: insert into user_details_seq values ( 1 )
+Hibernate: alter table post add constraint FKa3biitl48c71riii9uyelpdhb foreign key (user_id) references user_details (id)
+----------------------------------------------
+
+바로 localhost:8008/jpa/users를 실행해보자
+                              |
+                              V
+-------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users 사이트화면 ==>
+
+[]
+
+-------------------------------------------------------------------------------------------
+
+돌아오는 사용자가 없다
+왜 돌아오는 사용자가 없을까?
+data.sql에 들어 있는 건 실제 DB로 연결하고 있다면 실행되지 않을 것이다 
+data.sql에 있는 것들은 인메모리 DB로 연결하는 경우에만 실행되기 때문이다
+
+현제 DB에는 아무런 데이터도 없지, 그래서 빈 값을 돌려받는 것이다
+
+이제 Talend API Tester로 가보겠다
+Talend API Tester로 가서 사용자를 생성해보자
+
+-----------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST    | ▼  |    |    http://localhost:8080/jpa/users/                        |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+
+  HEADERS   ⬇                   | Form ▼ |      ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________   ___________________________   |   
+☑ | Content-Type |:| application/json     | 🧪 |  |     {
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |        "name": "Ravi",
+  ______________                                  |        "birthDate": "1997-08-11"                          
+ ( + Add header )   🗝 Add authorization     🗑    |      }                                                  
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                  | 
+                                                  |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                
+
+-----------------------------------------------------------------------------------------------------------------
+
+localhost:8080/jpa/users에 POST 요청을 할 것이다
+콘텐츠 타입은 application/json이고 이름은 Ravi로 하겠다 생년월일은 여기 나와 있는 걸로 사용해서 전송을 누른다
+                                                        |
+                                                        V
+-----------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  201                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              |
+Location: http://localhost:8080/jpa/users/1   |                                                                
+Content-Length:	0 byte                        |                     No Content 
+Date: Tue, 11 Jun 2024 15:42:44 GMT           |                                                                                
+Keep-Alive: timeout=60                        |                                                 
+Connection: keep-alive                        |                                       
+                                              |                  
+▶ COMPLETE REQUEST HEADERS                    |                                                                                                                    
+                                                                                        
+                                                                                                    
+                                                 📄 copy                                                          
+
+-----------------------------------------------------------------------------------------------------------------
+
+그럼 대신 사용자를 생성해주지
+
+
+localhost:8080/jpa/users를 실행하면 여기에 Ravi가 보이지
+
+-------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users 사이트화면 ==>
+
+
+[
+  {
+    "id": 1,
+    "name": "Ravi",
+    "birthDate": "1997-08-11"
+  }
+]
+
+-------------------------------------------------------------------------------------------
+
+이제 Ravi의 게시물을 생성할 수 있다 
+Ravi의 ID는 1이다 
+localhost:8080/jpa/users/1을 입력하면 Ravi의 세부 정보를 돌려받겠지
+
+-------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users/1 사이트화면 ==>
+
+
+{
+  "name": "Ravi",
+  "birthDate": "1997-08-11",
+    "_links": {
+      "all-users": {
+        "href": "http://localhost:8080/jpa/users"
+      }
+    }
+}
+
+-------------------------------------------------------------------------------------------
+
+이제 게시물을 생성할 수 있다 
+여기에 /posts 를 붙이면 
+
+-------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users/1/posts 사이트화면 ==>
+
+[]
+
+-------------------------------------------------------------------------------------------
+
+빈 게시물을 돌려받는다
+Ravi에 연관된 게시물이 없지, 바로 게시물을 생성해보겠다
+
+-----------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST    | ▼  |    |    http://localhost:8080/jpa/users/1/posts                 |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+
+  HEADERS   ⬇                   | Form ▼ |      ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   ______________   ___________________________   |   
+☑ | Content-Type |:| application/json     | 🧪 |  |     {
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |        "description": "I'm learning MySQL"
+  ______________                                  |      }                            
+ ( + Add header )   🗝 Add authorization     🗑    |                                                        
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                  | 
+                                                  |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                
+
+-----------------------------------------------------------------------------------------------------------------
+
+여기에 이렇게 넣겠다 localhost:8080/jpa/users/1/posts
+게시물을 생성하는데 "MySQL을 배우고 있어요"( "I'm learning MySQL" ) 라는 설명을 달겠다 
+이제 POST 요청을 실행해보자
+                                              |
+                                              V
+-----------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  201                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |  ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              |
+Location: http://localhost:8080/jpa/users/    |
+          10001/posts/1                       |                                                                
+Content-Length:	0 byte                        |                     No Content 
+Date: Tue, 11 Jun 2024 15:52:15 GMT           |                                                                                
+Keep-Alive: timeout=60                        |                                                 
+Connection: keep-alive                        |                                       
+                                              |                  
+▶ COMPLETE REQUEST HEADERS                    |                                                                                                                    
+                                                                                        
+                                                                                                    
+                                                 📄 copy                                                          
+
+-----------------------------------------------------------------------------------------------------------------
+
+성공적이다
+localhost:8080/jpa/users/1/posts 이걸 새로고침하면 
+
+-------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/jpa/users/1/posts 사이트화면 ==>
+
+[
+  {
+    "id": 1,
+    "description": "I'm learning MySQL"
+  }
+]
+
+-------------------------------------------------------------------------------------------
+
+됐다 
+이제 Ravi의 게시물도 확인할 수 있다 
+그럼 실제로 MySQL DB에서 데이터를 받아온다는 걸 어떻게 알 수 있을까?
+
