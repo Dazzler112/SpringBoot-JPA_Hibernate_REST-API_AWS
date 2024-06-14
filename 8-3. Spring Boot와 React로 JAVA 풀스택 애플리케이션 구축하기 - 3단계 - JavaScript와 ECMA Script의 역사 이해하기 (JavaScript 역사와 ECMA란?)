@@ -1,0 +1,72 @@
+
+
+Quick Look into JavaScript History
+                                                                                                      ______     ______
+● JavaScript evolved considerably in the last decade or so                                           (  +1  )   (  -1  )
+  ■ (EARLIER JS Versions) Very difficult to write maintainable JavaScript Code                        ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ Improved drastically in the last decade                                                           ______     ______
+    ○ JAVASCRIPT VERSIONS                                                                            (  +2  )   (  -2  )
+      ◦ ES5 - 2009                                                                                    ‾‾‾‾‾‾     ‾‾‾‾‾‾
+      ◦ ES6 - 2015 - ES2015                                                                           ______     ______
+      ◦ ES7 - 2016 - ES2016                                                                          (  +5  )   (  -5  )
+      ◦ ...                                                                                           ‾‾‾‾‾‾     ‾‾‾‾‾‾
+      ◦ ES13 - 2022 - ES2022                                                                                  0
+      ◦ ES14 - 2023 - ES2023                                                                             ____________   
+      ◦ ...                                                                                             (   Reset    ) 
+  ■ ES: ECMASCRIPT                                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾
+    ○ EcmaScript is standard
+    ○ JavaScript is implementation
+● GOOD NEWS: Writing Good JavaScript code is not so difficult :)
+  ■ Do NOT worry if you are new to JavaScript
+
+
+JavaScript의 역사를 잠깐 살펴보겠다 
+● JavaScript evolved considerably in the last decade or so
+JavaScript는 지난 10년 동안 매우 진화했다 
+  ■ (EARLIER JS Versions) Very difficult to write maintainable JavaScript Code 
+JavaScript의 초기 버전에선 유지 보수할 수 있는 JavaScript코드를 짜는 것이 매우 어려웠다
+초기에 작성한 대부분의 JavaScript 코드는 DOM, 즉 문서 객체 모델을 다루는 데 사용되었다 
+그런데 코드를 작성하기가 매우 어려웠고 일정 기간 관리하는 것도 어려웠다
+
+교육자가 경력을 쌓기 시작하던 때 JavaScript 코드 작성을 싫어했다고 한다
+
+  ■ Improved drastically in the last decade 
+하지만 지난 10년 동안 JavaScript는 크게 발전했다
+    ○ JAVASCRIPT VERSIONS
+      ◦ ES5 - 2009
+      ◦ ES6 - 2015 - ES2015 
+      ◦ ES7 - 2016 - ES2016 
+      ◦ ...
+      ◦ ES13 - 2022 - ES2022 
+      ◦ ES14 - 2023 - ES2023
+      ◦ ...
+하지만 지난 10년 동안 JavaScript는 크게 발전했다 
+새로운 JavaScript 버전이 계속해서 나온다, ES5, ES6, ES7 등
+매년 많은 버전이 출시된다
+ES7, ES13, ES14버전으로 JavaScript 코드를 잘 작성하는 것은 매우 쉽다
+  ■ ES: ECMASCRIPT
+그럼 여기에서 ES는 무엇일까
+ES는 ECMA Script의 약자이다
+    ○ EcmaScript is standard
+ECMA Script는 표준이고 
+    ○ JavaScript is implementation
+JavaScript는 표준을 구현한 것이다
+
+인터페이스가 있고 구현한 게 있다면, ECMA Script는 인터페이스고 JavaScript는 그 인터페이스를 구현한 것이지
+
+● GOOD NEWS: Writing Good JavaScript code is not so difficult :)
+ECMA Script가 진화하면서 괜찮은 JavaScript 코드를 작성하는 것이 더 이상 어렵지 않게 되었다
+
+이 강의에서 작성할 모든 코드는 최신 ECMA Script 표준을 따른다
+  ■ Do NOT worry if you are new to JavaScript
+그리고 JavaScript가 처음이어도 전혀 걱정할 필요가 없다 
+Java에 익숙하다면 더할 나위 없다
+
+
+
+
+
+
+JavaScript와 JavaScript의 신규 기능까지 알려주는 영상은 아주 많고 
+교육자는 현대 JavaScript를 아주 쉽게 배울 수 있도록 준비했다고 한다
+다음 강의에서 보겠다
