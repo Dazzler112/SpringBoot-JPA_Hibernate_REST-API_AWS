@@ -1,0 +1,116 @@
+
+
+Full Stack Architecture
+
+● Front-end: React Framework                                                             _______________________                                                                                                                            
+  ■ Modern JavaScript                                                                   |   React Application   |
+● Backend REST API: Spring Boot                                                         |   Modern JavaScript   |
+● Database                                                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ■ H2 > MySQL                                                                                     |
+● Authentication                                                                         _______________________                                                                                                                            
+  ■ Spring Security (Basic > JWT)                                                       |      RESTFUL API      | 
+                                                                                        |  Spring Boot on Java  | 
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+                                                                                                   |
+                                                                                         _______________________                                                                                                                             
+                                                                                        |       Database        |                                                                                                                      
+                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                                                            
+
+
+이제 풀 스택 아키텍처가 무엇인지 이야기해보자
+풀 스택 아키텍쳐는 왜 필요할까?
+그리고 이번 강의에서 구현해볼 풀 스택 아키텍처에 관해서도 이야기하겠다 
+풀 스텍 아키텍처를 말할 때 주로 세 가지 컴포넌트를 이야기한다
+
+하나는 프론트엔드
+두 번째는 REST API
+세 번째는 DB나 외부 시스템을 말한다 
+
+프론트엔드는 주로 브라우저에서 실행된다 
+백엔드는 서버에서 실행되는 거고, 서버에는 DB가 있겠지
+
+● Front-end: React Framework                                                                                                                                                                              
+  ■ Modern JavaScript   
+이 과정에서는 리액트를 JavaScript 프레임워크로 사용해 프론트엔드 애플리케이션을 구현할 것이다 리액트로 말이다
+현대 JavaScript를 사용해 리액트 애플리케이션을 만든다 
+● Backend REST API: Spring Boot
+Spring Boot로 REST API를 만들 것이고
+● Database                                                                          
+  ■ H2 > MySQL   
+DB는 H2로 시작해서 이후에는 MySQL을 데이터베이스로 사용하는 방법도 배울 것이다 
+● Authentication 
+애플리케이션을 만들 때는 인증이 매우, 매우 중요하다,
+  ■ Spring Security (Basic > JWT)
+우리 REST API 보호를 위해 Spring Security를 사용할 것이다 
+일단 Basic Security라는 것으로 시작하고 이후에는 JWT 토큰을 사용할 것이다 
+
+
+요약하면, 브라우저에서 실행되는 프론트엔드 리액트 애플리케이션을 만들 것이다
+Java의 Spring Boot로 구축된 REST API에 연결된다
+Basic과 JWT를 사용해 애플리케이션 인증도 구현할 것이다
+
+
+
+
+
+
+그럼 이제 궁금할거다, 왜 풀스택 아키텍처일까?
+Why Full-Stack Architecture
+
+● Full Stack Architectures are complex to build                                     _____________     _____________      _______
+  ■ You need to understand different languages                                     |  React App  |   | Mobile App  |    |  IOT  |
+  ■ You need to understand a variety of frameworks                                  ‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾
+  ■ You need to use a variety of tools                                                      \              |           /
+● Why Full-Stack?                                                                             \            |         /
+  ■ Because they give you flexibility and allow reuse of REST API                              _______________________
+    ○ OPTION: Create a Mobile App talking to REST API                                         |      RESTFUL API      |
+    ○ OPTION: Create an IOT App talking to REST API                                           |  Spring Boot on Java  |
+                                                                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                          |
+                                                                                               _______________________
+                                                                                              |       Database        |  
+                                                                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+
+왜 풀스택 아키텍처가 인기가 있을까?
+● Full Stack Architectures are complex to build  
+풀 스택 아키텍처는 구축하기가 복잡하다 
+  ■ You need to understand different languages  
+여러 언어를 이해해야 한다 
+Java도 알아야 하고 JavaScript도 알아야 하고 
+  ■ You need to understand a variety of frameworks  
+다양한 프레임워크도 알아야 하지 
+Spring Boot, 리액트 등 애플리케이션을 구축하는 데 필요한 여러 프레임워크를 알아야 한다
+  ■ You need to use a variety of tools 
+알아야 할 도구는 또 얼마나 많지 
+Java 빌드 도구는 JavaScript빌드 도구와 또 다르기 때문이다 
+
+보다시피 풀 스택 아키텍처는 구축하기 상당히 복잡하다 
+
+● Why Full-Stack?  
+그러면 기업들은 왜 풀 스택 애플리케이션을 선택할까? 
+  ■ Because they give you flexibility and allow reuse of REST API 
+기업들이 풀 스택 아키텍처로 가는 이유는 풀 스택 아키텍처는 유연성이 있고 REST API를 사용할 수 있기 때문이다
+REST API가 있으면 다른 애플리케이션을 만들어서 REST API와 소통하도록 만들수있지
+
+    ○ OPTION: Create a Mobile App talking to REST API
+예를 들어 REST API와 소통하는 모바일 애플리케이션도 만들 수 있다 
+아이폰 앱이나 안드로이드 앱도 REST API에 직접 통신할 수 있다
+프론트엔드에 리액트 애플리케이션을 만들고 REST API와 통신하는 다른 모바일 앱도 추가로 만들 수 있는 것이다
+이렇게 하면 REST API에 있는 비즈니스 로직을 재사용할 수 있다 
+    
+    ○ OPTION: Create an IOT App talking to REST API  
+또 다른 예로 IoT 앱도 REST API와 통신하도록 만들 수 있겠지
+여기에서도 비즈니스 로직을 재사용할 수 있다, 비즈니스 로직을 다시 작성할 필요가 없지
+백엔드에 REST API가 있고 프론트엔드 애플리케이션과 통신하면서 유연성이 생기는 거지
+REST API에 이미 있는 로직을 다른 형태의 애플리케이션에서 쉽게 재사용해서 구축할 수 있다
+
+
+
+
+
+
+이번 학습엔 풀 스택 아키텍처가 무엇인지 알아봤다
+풀 스택 아키텍처가 왜 필요하고 우리가 구축할 애플리케이션에 필요한 아키텍처는 어떤 것 인지도 알아봤다
+그럼 다음 강의에서 보겠다
