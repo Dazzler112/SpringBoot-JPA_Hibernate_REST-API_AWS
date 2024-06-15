@@ -1,0 +1,51 @@
+
+
+Installing Visual Studio Code
+
+● Multi-Platform: Windows, Mac, Linux
+● Multi-Language: JavaScript, Python, Java
+● Extensible: Variety of plugins
+● Usage growing every year
+● Installation:
+  ■ Google for "Download Visual Studio Code"
+
+
+
+Visual Studio Code를 설치해보겠다 
+● Multi-Platform: Windows, Mac, Linux
+Visual Studio Code는 멀티 플랫폼 IDE이다
+Windows와 Mac, Linux를 지원하고 
+● Multi-Language: JavaScript, Python, Java
+언어도 다양하게 지원한다
+VSC로 다양한 애플리케이션을 구축할 수 있다 JavaScript 애플리케이션도 만들 수 있고 
+Python 애플리케이션, Java 애플리케이션 등 다양한 언어로 만들 수 있지 
+● Extensible: Variety of plugins
+VSC는 확장성도 있다 
+플러그인이 다양하게 포함되어 있어서 다양한 애플리케이션을 구축하기 매우 쉽다
+● Usage growing every year
+VSC의 사용성은 매년 성장한다 지난 5년 간 VSC의 사용량이 증가한 걸 볼 수 있다
+이 그래프 수치는 Google Trends에서 볼 수 있다 
+VSC의 지난 5년 간 검색수를 볼 수도 있다 
+
+● Installation:
+  ■ Google for "Download Visual Studio Code"
+이제 VSC 설치를 시작해보겠다, Download Visual Studio Code라고 Google에 검색하면 된다
+(별로 어려울건 없어서 별도로 적지 않겠음)
+
+VSC를 설치하는 것은 아주 쉽다
+VSC를 실행시키면 어떤 테마를 사용할지도 선택할 수 있지 
+
+시간이 있다면 Walkthroughs를 살펴보는 것도 추천한다 
+Walkthroughs로 기본적인 걸 배울 수 있기때문이다 
+VSC에 들어가서 필수적인 기능을 살펴보는 데 도움이 된다 
+
+More를 누르면 또 다른 Walkthrough를 볼 수 있다 
+Get Started with VS Code는 튜토리얼 같은 거다
+
+
+
+
+우리는 VSC를 시작해봤다
+앞서 말했듯 VSC는 오늘날 가장 인기있는 IDE중 하나이다 
+멀티 플랫폼을 지원하고 여러 언어를 지원하며 확장성도 좋다
+다음 강의에 보겠다
