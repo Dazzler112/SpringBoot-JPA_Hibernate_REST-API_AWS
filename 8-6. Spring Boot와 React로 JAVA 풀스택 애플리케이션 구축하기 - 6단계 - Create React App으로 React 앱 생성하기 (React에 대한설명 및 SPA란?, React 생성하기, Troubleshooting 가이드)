@@ -1,0 +1,371 @@
+
+
+1️⃣ What is React?
+
+● React: One of the most popular JavaScript libraries                                     Djy  yyjj   
+to build SPA (Single Page Application)                                                    D   z8   E   
+  ■ Popular alternatives: Angular, VueJS                                                 z8y8w zByZw  
+● Open-source project created by Facebook                                               9  D5 Dz jz  Bw
+● Componente-Based                                                                      9  D5 B8 Wz  Bw
+● Mostly used to build front-end web SPA application                                     ,z859, zzyZw  
+  ■ Can also be used to create native apps for Android, iOS(React Native)                 D   B8   E   
+                                                                                          ,Djy  yyjj   
+                                                                                            
+                                                                                           React Js
+
+
+이번 학습엔 리액트가 무엇인지 보고 첫 번째 리액트 프로젝트를 만들어보자
+리액트란 무엇인가? 
+● React: One of the most popular JavaScript libraries to build SPA (Single Page Application) 
+리액트는 단일 페이지 애플리케이션(SPA) 구축에 가장 인기있는 JavaScript 라이브러리중 하나이다
+
+🟢 SPA란?
+
+그럼 단일 페이지 애플리케이션은 무엇일까?
+앞서 우리는 웹 애플리케이션을 만들었지 Todo 하나를 여기 추가한다고 생각해보자
+어떻게 될까?
+전체 페이지가 새로 고침 되겠지, 두 개의 할 일이 있고 하나를 더 추가해 세 개가 되는건데 
+Todo 전체를 보여주기 위해 전체 페이지를 새로 고침 한다,
+이와 달리 단일 페이지 애플리케이션은 페이지에서 변경되는 해당 파트만 새로 고침하면 된다
+Todo만 바뀌는 거면 페이지에서 Todo 부분만 새로 고침 하는 것이다
+Todo 목록 부분만 업데이트 하는 거지
+이런 방식으로 애플리케이션을 구축하는 것을 단일 페이지 애플리케이션이라 한다
+강의에서 추후에 더 자세히 다를 예정이다
+
+
+리액트는 단일 페이지 애플리케이션을 만드는 가장 유명한 JavaScript 라이브러리 중 하나이다
+
+  ■ Popular alternatives: Angular, VueJS
+다른 종류로는 Angular와 Vue.js도 있다
+● Open-source project created by Facebook 
+리액트는 페이스북이 만든 오픈 소스 프로젝트이다
+● Componente-Based
+리액트에선 컴포넌트의 조합으로 애플리케이션을 만든다
+리액트는 컴포넌트 기반이다 
+컴포넌트라는 서로 다른 모듈을 여러 개 만들 수 있고 이 컴포넌트를 활용해 전체 애플리케이션을 만든다
+● Mostly used to build front-end web SPA application
+리액트는 주로 프론트엔드 웹 SPA 애플리케이션을 만드는데 사용되지만, 
+  ■ Can also be used to create native apps for Android, iOS(React Native)
+안드로이드나 iOS 네이티브 애플리케이션을 만드는 데도 사용할 수 있다
+리액트에서 이런 일을 하는 프레임워크를 React Native라고 한다
+
+
+
+그럼 이제 새로운 리액트 프로젝트를 만들어볼까?
+어떻게 할 수 있을까??
+
+
+
+
+
+2️⃣ Creating React App with Create React App
+
+● Create React App: Recommended way to create a new                                             DWyW wjj5    
+single-page application(SPA) using React                                                        W   8y   5   
+  ■ Compatible with macOS, Windows, and Linux                                                  yZw9y W8jzz,  
+  ■ Prerequisite: Latest version of Node JS                                                  9, wB  Bj D5  zw
+    ○ NPM - package manager: Install, delete, and update JS packages(npm --version)          9  ,B  zy 55  Bw
+    ○ NPX - package executer: Execute JS packages directly, without installing                ,yZwEy w9jzBw  
+  ■ Let's get started:                                                                          W   zy   5   
+    ○ DO NOT WORRY: Troubleshooting instructions at the end of the viedo!                       BWjW wjj5,   
+    ○ cd YOUR_FOLDER
+    ○ npx create-react-app todo-app                                                              React Js
+    ○ cd todo-app
+    ○ npm start
+
+
+
+● Create React App: Recommended way to create a new single-page application(SPA) using React   
+리액트 애플리케이션을 만드는 가장 좋은 방법은 Create React App을 사용하는 것이다
+이것이 리액트로 단일 페이지 애플리케이션을 만드는 가장 좋은 방법이다
+  ■ Compatible with macOS, Windows, and Linux
+Mac Os, Windows, Linux와 호환된다
+  ■ Prerequisite: Latest version of Node JS
+단, 전제 조건이 있는데, Nods.js의 가장 최신 버전을 사용하고 있는지 확인해야 한다
+    ○ NPM - package manager: Install, delete, and update JS packages(npm --version)
+앞서 Node.js의 최신 버전을 설치했다 Node.js를 설치할 때 npm이라는 패키지 관리자도 함께 설치했다
+패키지 관리자는 JavaScript 패키지를 설치하고 삭제하고 업데이트 하는 데 사용된다
+앞서 언급했듯 이것은 Java에서 Maven이나 Gradle이 하는 것과 아주 비슷하다 
+npm --version이라고 입력해 보면 
+
+--------------------------------------------------------------------------------------------
+
+⏺ cmd 창 ==>
+
+C:\Users\LG>npm --version
+10.7.0
+
+--------------------------------------------------------------------------------------------
+npm 최신 버전이 나오는 걸 볼 수 있다 
+    ○ NPX - package executer: Execute JS packages directly, without installing
+그리고 npx는 Node.js와 함께 설치한 또 다른 것이다 
+
+--------------------------------------------------------------------------------------------
+
+⏺ cmd 창 ==>
+
+
+C:\Users\LG>npm --version
+10.7.0
+
+C:\Users\LG>npx --version
+10.7.0
+
+C:\Users\LG>
+
+--------------------------------------------------------------------------------------------
+npx --version이라고 입력해보면 같은 버전이 나오는 게 보인다 
+
+npx는 npm과 매우 비슷하다 
+하지만 이건 패키지 실행 도구이다 JavaScript 패키지를 설치하지 않고도 바로 실행할 수 있게 해주는 거지,
+Create React App을 설치하려면 npx를 활용해야 한다
+ 
+  ■ Let's get started:
+그럼 시작해보자
+    ○ DO NOT WORRY: Troubleshooting instructions at the end of the viedo! 
+설치하다가 문제가 생겨도 걱정하지 말아라 이번 영상 마지막에 트러블슈팅 가이드가 나올 것이다
+    ○ cd YOUR_FOLDER
+일반 가장 먼저 할 일은 cd로 해당 폴더로 들어가라
+frontend라는 폴더를 만들어서 이 코드를 설치할 것이다 (내경우 C:\study 폴더 안에 frontend 폴더를 생성했음)
+그래서 cd로 해당 폴더로 가야 하는거지 
+
+cd하고 frontend 폴더로 가보자
+--------------------------------------------------------------------------------------------
+
+⏺ cmd 창 ==>
+
+
+C:\Users\LG>cd C:\study\frontend
+
+C:\study\frontend>
+
+--------------------------------------------------------------------------------------------
+좋다
+
+    ○ npx create-react-app todo-app
+다음은 Create React App을 이용해 애플리케이션을 생성해보겠다
+애플리케이션 이름은 todo-app으로 하자
+
+npx create-react-app todo-app 이라고 입력하겠다
+우리는 여기에 Create React App 패키지를 실제로 설치하진 않았다
+하지만 npx를 사용하기 때문에 바로 실행할 수 있는 것이다
+npx create-react-app todo-app 이제 엔터를 눌러보겠다
+--------------------------------------------------------------------------------------------
+
+⏺ cmd 창 ==>
+
+
+C:\study\frontend>npx create-react-app todo-app
+Need to install the following packages:
+create-react-app@5.0.1
+Ok to proceed? (y) y             //1: 이런 패키지를 설치해야 한다는 문구가 나온다
+                                 //y를 입력해 yes 라고 하겠다
+
+npm warn deprecated uid-number@0.0.6: This package is no longer supported.
+npm warn deprecated fstream-ignore@1.0.5: This package is no longer supported.
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated rimraf@2.7.1: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated fstream@1.0.12: This package is no longer supported.
+npm warn deprecated tar@2.2.2: This version of tar is no longer supported, and will not receive security updates. Please upgrade asap.
+
+Creating a new React app in C:\study\frontend\todo-app.
+
+Installing packages. This might take a couple of minutes.
+Installing react, react-dom, and react-scripts with cra-template...  //React와 React-dom, React-script를 설치하고있다, cra-template라는 걸 사용하고 있다, Create React App Template이지
+
+|   <== 설치 로딩중
+--------------------------------------------------------------------------------------------
+Create React App 패키지가 다운로드 되고 설치될 것이다, 몇 분 정도 걸릴 수있다 
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+⏺ cmd 창 ==>
+
+
+C:\study\frontend>npx create-react-app todo-app
+Need to install the following packages:
+create-react-app@5.0.1
+Ok to proceed? (y) y
+
+npm warn deprecated uid-number@0.0.6: This package is no longer supported.
+npm warn deprecated fstream-ignore@1.0.5: This package is no longer supported.
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated rimraf@2.7.1: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+npm warn deprecated fstream@1.0.12: This package is no longer supported.
+npm warn deprecated tar@2.2.2: This version of tar is no longer supported, and will not receive security updates. Please upgrade asap.
+
+Creating a new React app in C:\study\frontend\todo-app.
+
+Installing packages. This might take a couple of minutes.
+Installing react, react-dom, and react-scripts with cra-template...
+
+
+added 1476 packages in 1m
+
+258 packages are looking for funding
+  run `npm fund` for details
+
+Initialized a git repository.
+
+Installing template dependencies using npm...
+
+added 67 packages, and changed 1 package in 7s
+
+262 packages are looking for funding
+  run `npm fund` for details
+Removing template package using npm...
+
+
+removed 1 package, and audited 1543 packages in 5s
+
+262 packages are looking for funding
+  run `npm fund` for details
+
+8 vulnerabilities (2 moderate, 6 high)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+Created git commit.
+
+Success! Created todo-app at C:\study\frontend\todo-app
+Inside that directory, you can run several commands:
+
+  npm start
+    Starts the development server.
+
+  npm run build
+    Bundles the app into static files for production.
+
+  npm test
+    Starts the test runner.
+
+  npm run eject
+    Removes this tool and copies build dependencies, configuration files
+    and scripts into the app directory. If you do this, you can’t go back!
+
+We suggest that you begin by typing:
+
+  cd todo-app
+  npm start
+
+Happy hacking!
+
+C:\study\frontend>
+
+--------------------------------------------------------------------------------------------
+수 분이 지나고 이런 Succes 메시지가 떴다
+Happy hacking!이라고 한다 
+첫 번째 리액트 애플리케이션을 만들었다, 축하한다
+
+이제 실행시키고 싶을 것이다 
+
+실행 방법은 여기에 나와있다 
+  cd todo-app
+  npm start
+
+    ○ cd todo-app
+    ○ npm start
+--------------------------------------------------------------------------------------------
+
+⏺ cmd 창 ==>
+
+
+C:\study\frontend>cd todo-app          //2: cd todo-app이라고 해보자, 그럼 만들어진 todo-app으로 가겠지
+
+C:\study\frontend\todo-app>npm start   //2-1: cd todo-app으로 이동하면 npm start라는 명령어를 실행할 수 있다, npm start라고 입력
+
+> todo-app@0.1.0 start
+> react-scripts start
+--------------------------------------------------------------------------------------------
+
+애플리케이션이 실행되어 이제 브라우저에서 보인다
+http://localhost:3000 이지
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+(자세한것 확인 하려면 3000으로 접속...)
+
+                                          ,5BB5w         jDBDj          
+                                         zz    yE8w   DZB,   j9         
+                                         9        BBj8W       zy        
+                                         9         BBy        z5        
+                                         9       5B  yz       8y        
+                                         BW   ,,BzWWjwBzW,    z         
+                                       wjBBzzy5zy,wwww,wzzjDzzByW       
+                                    yEEDw Bw  Bj         Bw  B, yzZB,   
+                                  yEy     w8 8y   5zzDw   9w5z     w8z  
+                                 w9        y5y   85jjyzW   DD        5z 
+                                 w9        y5y   85jjyzw   DD        Dz 
+                                  yE5     w8 z5   yBzD,   9,yz     W9z  
+                                    j9ZDW B,  By         zw  B, y9ZD    
+                                       wWBBz8D5zy,wWWWwwzByz8zByW       
+                                         BW     DzWwW,Bzw     z         
+                                         9       yz  yB       8y        
+                                         9         BBj        z5        
+                                         9       ,zDW9j       zy        
+                                         Bz    yE8,   5ZBw   yE         
+                                          ,yBBy,         WDBDW          
+
+                                    Edit src/App.js and save to reload.
+                                                Learn React
+
+
+--------------------------------------------------------------------------------------------
+
+첫 번째 리액트 애플리케이션을 시작하고 실행시킨 것을 축하드린다 
+
+
+
+
+
+
+3️⃣ Troubleshooting
+
+● Windows: Launch command prompt as administrator
+● Mac or Linux: Use sudo
+  ■ sudo npx create-react-app todo-app
+● Other things you can try:
+  ■ npm unistall - g create-react-app
+  ■ npx clear-npx-cache
+● Complete troubleshooting guide:
+  ■ Google for "create react app troubleshooting"
+
+
+만약 리액트 애플리케이션을 만드는 데 문제가 있다면 알려주는 트러블슈팅 팁을 참고해라
+● Windows: Launch command prompt as administrator
+Windos라면 명령 프롬프트를 관리자 권한으로 실행시켜라
+cmd라고 입력해보면 cmd를 실행할 때 마우스 오른쪽을 클릭하고 관리자 권한으로 실행해라 
+● Mac or Linux: Use sudo
+Mac이나 Linux에서 권한 문제가 발생하면 sudo를 사용하면 된다 
+  ■ sudo npx create-react-app todo-app
+sudo npx create-react-app todo-app 이렇게 하면 이 명령을 관리자 권한으로 실행한다 
+● Other things you can try:
+컴퓨터에 설치된 Create React App 버전에 문제가 있는 경우
+  ■ npm unistall - g create-react-app
+이렇게 해봐라, 일단 Create React App을 삭제한다
+npm unistall - g => -g는 전역 삭제한다는 뜻이고, 
+  ■ npx clear-npx-cache
+그 다음에는 캐시를 삭제한다 npx clear-npx-cache로 캐시를 지운다음
+npx create-react-app 명령어를 사용해 다시 설치해봐라
+● Complete troubleshooting guide:
+  ■ Google for "create react app troubleshooting"
+Create React App의 트러블슈팅 가이드도 따로 있다 
+create react app troubleshooting이라고 검색하면 된다
+그럼 검색 상단에 Create React App 페이지가 나온다 (참조: https://create-react-app.dev/docs/troubleshooting/)
+Create React App과 관련된 디버깅 정보를 많이 찾을 수 있다
+
+
+
+
+
+
+
+오늘 우리는 첫 번째 리액트 애플리케이션을 만들어봤다
+다음 강의에 계속 하겠다
