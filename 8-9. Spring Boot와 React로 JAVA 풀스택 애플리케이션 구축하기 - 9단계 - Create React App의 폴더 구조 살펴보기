@@ -1,0 +1,191 @@
+
+
+Exploring Create React App Folder Structure
+
+● Goal: Get a 10,000feet overview of folder structure                           -----------------------------------------
+  ■ README.md: Documentation                                                     V TODO-APP
+  ■ package.json: Define dependencies (similar to Maven pom.xml)                  > 📁 node_modules
+  ■ node_modules: Folder where all the dependencies are downloaded to              V 📁🌎 public
+  ■ React Initialization                                                              ⭐ favicon.ico
+    ○ public/index.html: Contains root div                                             5 index.html
+    ○ src/index.js: Initializes React App. Loads App Component.                        📄 logo192.png
+      ◦ src/index.css - Styling for entire application                                 📄 logo512.png
+    ○ src/App.js: Code for App component                                               {} manifest.json
+      ◦ src/App.css - Styling for App component                                        🤖 robots.txt
+      ◦ src/App.test.js - Unit tests for App component                              V 📁 src
+        ◦ Unit test is right along side production code(Different to Java approach)   S App.css
+  ■ Remember: Syntax might look little complex                                       js App.js
+                                                                                     🧪 App.test.js
+                                                                                      S index.css
+                                                                                     js index.js
+                                                                                      ⁕ logo.svg
+                                                                                     js reportWebVitals.js
+                                                                                     js setupTests.js  
+                                                                                     
+                                                                                    .gitignore
+                                                                                    N package-lock.json
+                                                                                    N package.json
+                                                                                    i README.md
+                                                                                
+                                                                                
+                                                                                
+                                                                                > OUTLINE
+                                                                                > TIMELINE
+                                                                                -----------------------------------------
+
+
+이번에는 Create React App이 생성한 폴더 구조를 살펴보겠다 
+
+-----------------------------------------
+V TODO-APP
+  >📁 node_modules
+  >📁🌎 public
+  >📁 src
+   🔶 .gitignore
+    N package-lock.json
+    N package.json
+    i README.md
+
+
+
+> OUTLINE
+> TIMELINE
+-----------------------------------------
+build라는 폴더도 있고 node_modules, public, src 같은 폴더가 있다
+이 폴더 안에는 수 많은 파일이 있다
+● Goal: Get a 10,000feet overview of folder structure 
+여기 있는 폴더를 빠르게 훑고 지나가겠다, 여기 있는 파일들도 빠르게 살펴보고 시작해보자
+  ■ README.md: Documentation  
+README.md는 보통 설명 문서를 담고 있다
+대개 여기 있는 파일이다 ( (i) README.md )
+
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ README.md 파일
+
+
+# Getting Started with Create React App
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+......
+
+---------------------------------------------------------------------------------------------------
+어떤 명령을 실행할 수 있는지, 외에도 많은 정보가 여기에 담겨 있다
+
+
+  ■ package.json: Define dependencies (similar to Maven pom.xml)
+다음 package.json은 종속성을 정의하는 파일이지
+Maven의 pom.xml과 유사하다
+
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ package.json 파일
+
+
+
+{
+  "name": "todo-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
+
+---------------------------------------------------------------------------------------------------
+
+여기에서 package.json을 보면 실행 애플리케이션과 함께 중요하게 봐야 할 것이 바로
+react와 react-dom이다
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+리액트는 프레임워크를 불러오지
+브라우저에서 실행해야 하니까 우리는 React-DOM, 즉 문서 객체 모델 프레임워크가 필요하다
+
+
+  ■ node_modules: Folder where all the dependencies are downloaded to
+node_modules이다 package.json에 종속성이 있다
+모두 npm이 다운로드 해줄 거고 모두 node_modules에 있을 것이다
+-----------------------------------------
+V TODO-APP
+  V📁 node_modules
+   >📁 .bin
+   >📁 .cache 
+   >📁 @adobe
+   >📁 @alloc
+   >📁 @ampproject
+   ...
+  >📁🌎 public
+  >📁 src
+   🔶 .gitignore
+    N package-lock.json
+    N package.json
+    i README.md
+
+
+
+> OUTLINE
+> TIMELINE
+-----------------------------------------
+모든 종속성이 다운로드 되는 폴더라 할 수 있다
+
+
+
