@@ -1,0 +1,729 @@
+
+
+Visual Studio Code - Tips
+
+● Toggle Explorer                                                              -----------------------------------------
+  ■ Ctrl + B or Cmd + B                                                          V TODO-APP
+● Explorer Left Hand Side Bar                                                     > 📁 node_modules
+  ■ Search etc                                                                    V 📁🌎 public
+                                                                                      ⭐ favicon.ico
+                                                                                       5 index.html
+                                                                                       📄 logo192.png
+                                                                                       📄 logo512.png
+                                                                                       {} manifest.json
+                                                                                       🤖 robots.txt
+                                                                                  V 📁 src
+                                                                                      S App.css
+                                                                                     js App.js
+                                                                                     🧪 App.test.js
+                                                                                      S index.css
+                                                                                     js index.js
+                                                                                      ⁕ logo.svg
+                                                                                     js reportWebVitals.js
+                                                                                     js setupTests.js  
+                                                                                     
+                                                                                    .gitignore
+                                                                                    N package-lock.json
+                                                                                    N package.json
+                                                                                    i README.md
+                                                                                
+                                                                                
+                                                                                
+                                                                                > OUTLINE
+                                                                                > TIMELINE
+                                                                                -----------------------------------------
+
+
+
+
+이번 강의에는 VSC를 다뤄보겠다
+● Toggle Explorer 
+  ■ Ctrl + B or Cmd + B
+Toggle Explorer라는 매우 중요한 기능부터 시작하곘다, 
+ctrl+B를 누른다 
+
+-----------------------------------------
+V TODO-APP
+  > 📁 node_modules
+  V 📁🌎 public
+      ⭐ favicon.ico
+       5 index.html
+       📄 logo192.png
+       📄 logo512.png
+       {} manifest.json
+       🤖 robots.txt
+  V 📁 src
+      S App.css
+     js App.js
+     🧪 App.test.js
+      S index.css
+     js index.js
+      ⁕ logo.svg
+     js reportWebVitals.js
+     js setupTests.js  
+     
+    .gitignore
+    N package-lock.json
+    N package.json
+    i README.md
+
+
+
+> OUTLINE
+> TIMELINE
+-----------------------------------------
+여기 보이는 이게 Explorer이다
+Explorer에는 폴더가 다 보이고 특정 폴더 안에 특정 파일을 선택할 수 있다
+
+App.css를 열고 싶으면 클릭하면 이렇게 열린다
+
+-------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.css 파일
+
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+-------------------------------------------------------------------------------------------------
+
+개발 할 때는 전체화면으로 보고싶다 하면 그래서 Toggle Explorer 기능이 유용한 것이다
+이걸 클릭하면 Explorer 창을 토글할 수 있고 다시 돌아오게 할 수 있다 ctrl+b를 하면 다시 Explorer가 보이지
+단축키는 ctrl + B를 입력하면 이렇게 Explorer가 토글된다
+
+교육자가 가장 좋아하는 명령어 중 하나라고 한다, 
+또 하나는 ctrl + p이다
+-----------------------------------------
+  ____________________________________________________________________________
+ |  ________________________________________________________________________  |
+ | | 이름으로 파일을 검색 (줄로 이동하려면 : 추가 또는 기호로 이동하려면 @ 추가) | |
+ |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  |
+ |   3 App.css src                                                            |
+ |   5 index.html public                                                      |
+ |                                                                            |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-----------------------------------------
+
+특정 파일을 열 수 있다, ctrl + p를 누르면 예를 들어 App.js를 검색하면 
+
+-----------------------------------------
+  ____________________________________________________________________________
+ |  ________________________________________________________________________  |
+ | | App.js                                                                 | |
+ |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  |
+ |   js App.js src      <== 이 파일이 하이라이트됨                              |
+ |   js App.test.js src                                                       |
+ |                                                                            |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-----------------------------------------
+이 파일이 나타난다
+
+-------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.js 파일
+
+
+import logo from './logo.svg';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
+  );
+}
+
+export default App;
+
+-------------------------------------------------------------------------------------------------
+바로 App.js 파일을 열 수 있다,
+
+
+● Explorer Left Hand Side Bar  
+  ■ Search etc  
+Visual Studio Editor의 왼쪽을 보면
+---------------------------------
+     ___________________________
+    |                           |
+🔎 <  탐색기 (Ctrl + Shift + F) |
+    |                           |
+     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---------------------------------
+가장 상단에 Explorer가 보이지
+여기에서도 검색을 할 수 있다 
+
+---------------------------------
+  __________________________________
+ | Search                   Aa ab ⁕ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _______________________________
+ | Replace                    AB | 💱
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  ...
+---------------------------------
+
+코드도 검색할 수 있다 
+
+---------------------------------
+  __________________________________
+ | className                Aa ab ⁕ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _______________________________
+ | Replace                    AB | 💱
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  ...
+   1개 파일에서 4개 결과 - 편집
+   기에서 열기
+  V JS App.js src             (4)
+    <div className="App">
+    <header className="App-he...
+    <img src={logo} className=...
+    className="App-link"
+---------------------------------
+예를 들어 className으로 검색해 보면 className이라는 텍스트를 포함한 모든게 나온다
+찾아서 바꾸기 같은 것도 가능하지
+
+
+
+그다음 맨 좌측 세번째 보이는 그림은 SourceControl 이다
+---------------------------------
+   ⚪         ___________________________
+    |   ⚪   |                           |
+    | ㅡㅡ|  <   소스제어(Ctrl+Shift+G)    |
+   ⚪        |                           |
+              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---------------------------------
+
+---------------------------------
+  _____________________________
+ |메시지(Ctrl+Enter(으)로"ma... |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _____________________________
+ |         ✔ 커밋         |  V  |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+V 변경 사항                   (1)
+ 5 index.html public          M
+---------------------------------
+
+Git이나 비슷한 걸 사용하는 경우 여기에서 직접 변경 내역을 확인하고
+커밋할 수 있지
+
+
+
+
+
+마지막은 맨 좌측에 그림의 Extensions이다
+---------------------------------
+           ___________________________
+    ⬜    |                           |
+⬜       <   확장(Ctrl + Shift + X)    |
+⬜⬜      |                           |
+            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+---------------------------------
+VSC에는 여러 가지 확장 프로그램이 있다 
+예를 들어 파이썬 프로그래밍을 하고 싶으면 python Extension을 설치하면 된다
+Extension에서 이런 게 가능하다
+
+
+
+
+
+Visual Studio Code - Tips
+
+● Toggle Explorer                                                              -----------------------------------------
+  ■ Ctrl + B or Cmd + B                                                          V TODO-APP
+● Explorer Left Hand Side Bar                                                     > 📁 node_modules
+  ■ Search etc                                                                    V 📁🌎 public
+● Make a change to index.html                                                         ⭐ favicon.ico
+  ■ Change Title                                                                       5 index.html
+● Make a change to App.js                                                              📄 logo192.png
+                                                                                       📄 logo512.png
+                                                                                       {} manifest.json
+                                                                                       🤖 robots.txt
+                                                                                  V 📁 src
+                                                                                      S App.css
+                                                                                     js App.js
+                                                                                     🧪 App.test.js
+                                                                                      S index.css
+                                                                                     js index.js
+                                                                                      ⁕ logo.svg
+                                                                                     js reportWebVitals.js
+                                                                                     js setupTests.js  
+                                                                                     
+                                                                                    .gitignore
+                                                                                    N package-lock.json
+                                                                                    N package.json
+                                                                                    i README.md
+                                                                                
+                                                                                
+                                                                                
+                                                                                > OUTLINE
+                                                                                > TIMELINE
+                                                                                -----------------------------------------
+
+강의를 하면서 VSC에 대해 더 많이 배우게 될 것이다
+● Make a change to index.html  
+  ■ Change Title
+앞서 우리는 index.html을 약간 변경했지 제목을 바꿨다
+ctrl+p를 눌러서 index.html를 불러온다
+
+-------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ index.html 파일
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+
+    //1: 우리가 바꾼 게 이부분이였지 Todo App Title로 제목을 변경했다 저장하면 
+    <title>Todo App Title</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
+
+-------------------------------------------------------------------------------------------------
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App Title          |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+                                          ,5BB5w         jDBDj          
+                                         zz    yE8w   DZB,   j9         
+                                         9        BBj8W       zy        
+                                         9         BBy        z5        
+                                         9       5B  yz       8y        
+                                         BW   ,,BzWWjwBzW,    z         
+                                       wjBBzzy5zy,wwww,wzzjDzzByW       
+                                    yEEDw Bw  Bj         Bw  B, yzZB,   
+                                  yEy     w8 8y   5zzDw   9w5z     w8z  
+                                 w9        y5y   85jjyzW   DD        5z 
+                                 w9        y5y   85jjyzw   DD        Dz 
+                                  yE5     w8 z5   yBzD,   9,yz     W9z  
+                                    j9ZDW B,  By         zw  B, y9ZD    
+                                       wWBBz8D5zy,wWWWwwzByz8zByW       
+                                         BW     DzWwW,Bzw     z         
+                                         9       yz  yB       8y        
+                                         9         BBj        z5        
+                                         9       ,zDW9j       zy        
+                                         Bz    yE8,   5ZBw   yE         
+                                          ,yBBy,         WDBDW          
+
+                                    Edit src/App.js and save to reload.
+                                                Learn React
+
+
+--------------------------------------------------------------------------------------------
+
+바로 반영되는 게 보였지 (http://localhost:3000 안들어가 지는 경우 npm start를 다시 시작)
+Todo App Title이 나온다
+다시 Todo App으로 바꿔보면 
+
+-------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ index.html 파일
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+
+    //2: 다시 Todo App으로 수정 
+    <title>Todo App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
+
+-------------------------------------------------------------------------------------------------
+                                                  |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+                                          ,5BB5w         jDBDj          
+                                         zz    yE8w   DZB,   j9         
+                                         9        BBj8W       zy        
+                                         9         BBy        z5        
+                                         9       5B  yz       8y        
+                                         BW   ,,BzWWjwBzW,    z         
+                                       wjBBzzy5zy,wwww,wzzjDzzByW       
+                                    yEEDw Bw  Bj         Bw  B, yzZB,   
+                                  yEy     w8 8y   5zzDw   9w5z     w8z  
+                                 w9        y5y   85jjyzW   DD        5z 
+                                 w9        y5y   85jjyzw   DD        Dz 
+                                  yE5     w8 z5   yBzD,   9,yz     W9z  
+                                    j9ZDW B,  By         zw  B, y9ZD    
+                                       wWBBz8D5zy,wWWWwwzByz8zByW       
+                                         BW     DzWwW,Bzw     z         
+                                         9       yz  yB       8y        
+                                         9         BBj        z5        
+                                         9       ,zDW9j       zy        
+                                         Bz    yE8,   5ZBw   yE         
+                                          ,yBBy,         WDBDW          
+
+                                    Edit src/App.js and save to reload.
+                                                Learn React
+
+
+--------------------------------------------------------------------------------------------
+
+제목이 Todo App이 되는 걸 볼 수 있다
+
+
+● Make a change to App.js
+그리고 App.js도 약간 변경해보겠다
+
+-------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.js 파일
+
+
+
+import logo from './logo.svg';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+
+      //3:여기 헤더 부분에 있는 모든 걸 지운 다음에
+{/*     <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+*/}
+    //3계속: My Todo Application이라고 써보겠다 저장하고 와보면
+    My Todo Application
+    </div>
+  );
+}
+
+export default App;
+
+-------------------------------------------------------------------------------------------------
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+                                     My Todo Application
+
+
+--------------------------------------------------------------------------------------------
+
+여기에 My Todo Application이 보인다
+
+---------------------------------
+import logo from './logo.svg';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      My Todo Application
+    </div>
+  );
+}
+
+export default App;
+---------------------------------
+
+여기에서 변화를 줬더니 브라우저에 자동으로 반영되었다
+
+
+
+
+
+
+Visual Studio Code - Tips
+
+● Toggle Explorer                                                              -----------------------------------------
+  ■ Ctrl + B or Cmd + B                                                          V TODO-APP
+● Explorer Left Hand Side Bar                                                     > 📁 node_modules
+  ■ Search etc                                                                    V 📁🌎 public
+● Make a change to index.html                                                         ⭐ favicon.ico
+  ■ Change Title                                                                       5 index.html
+● Make a change to App.js                                                              📄 logo192.png
+  ■ Remove everything in App div                                                       📄 logo512.png
+  ■ Add My Todo Application                                                            {} manifest.json
+● How is the magic happening?                                                          🤖 robots.txt
+  ■ Create React App                                                               V 📁 src
+  ■ Automatically builds and renders in the browser                                  S App.css
+                                                                                     js App.js
+                                                                                     🧪 App.test.js
+                                                                                      S index.css
+                                                                                     js index.js
+                                                                                      ⁕ logo.svg
+                                                                                     js reportWebVitals.js
+                                                                                     js setupTests.js  
+                                                                                     
+                                                                                    .gitignore
+                                                                                    N package-lock.json
+                                                                                    N package.json
+                                                                                    i README.md
+                                                                                
+                                                                                
+                                                                                
+                                                                                > OUTLINE
+                                                                                > TIMELINE
+                                                                                -----------------------------------------
+
+
+App.js에서 App div의 모든 걸 지우고 My Todo Application이라고 썼더니 
+브라우저에 바로 반영되는 걸 확인했었다
+● How is the magic happening?
+어떻게 이런 일이 가능할까?
+  ■ Create React App 
+Create React App 덕분이다 
+  ■ Automatically builds and renders in the browser
+npm start로 애플리케이션을 실행하고 코드를 변경하면 npm은 자동으로 앱을 빌드하고 브라우저에 렌더링한다
+
+--------------------------------------------------------------------------------------------
+
+⏺ cmd 창>
+
+
+Compiled with warnings.
+
+[eslint]
+src\App.js
+  Line 1:8:  'logo' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint]
+src\App.js
+  Line 1:8:  'logo' is defined but never used  no-unused-vars
+
+webpack compiled with 1 warning
+
+--------------------------------------------------------------------------------------------
+여기서 로그도 볼 수 있다
+컴파일 도중 Warning이 하나 있네
+logo가 정의되었으나 사용하지 않았다고 한다 
+---------------------------------
+import logo from './logo.svg';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      My Todo Application
+    </div>
+  );
+}
+
+export default App;
+---------------------------------
+여기에 사용되지 않는 입력이 있었기 때문에 이런 오류가 발생하는 것이다 ( import logo from './logo.svg'; )
+
+import logo from './logo.svg'; 여기에 오류가 발생했다 
+강의에서 임포트와 관련해서 많은 이야기를 할 것이다 
+일단 지금은 이걸 지우고 사용하지 않는 코드기 때문이다 지우고 저장한다
+-------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.js 파일
+
+
+//import logo from './logo.svg'; <== 이 부분 삭제하고 저장
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+    My Todo Application
+    </div>
+  );
+}
+
+export default App;
+
+-------------------------------------------------------------------------------------------------
+
+프롬프트로 돌아가서 보면
+--------------------------------------------------------------------------------------------
+
+⏺ cmd 창>
+
+
+Compiling...
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.27.0.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+
+--------------------------------------------------------------------------------------------
+이제 오류가 없다
+코드를 변경하자마자 코드가 컴파일 되었다
+브라우저는 최신 코드로 업데이트 될 것이다
+
+
+
+
+
+
+이번 수업의 목표는 VSC를 한 번 다뤄보는 거였다
+코드를 변경하고 브라우저에서 실행되는 걸 보았지
+리액트 수업이 기대되지? 다음 강의에서 보겠다
