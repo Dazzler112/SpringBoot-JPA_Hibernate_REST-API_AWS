@@ -189,3 +189,500 @@ V TODO-APP
 
 
 
+  ■ React Initialization 
+그럼 이제 리액트 초기화를 보자
+리액트는 어떻게 초기화할까?
+    ○ public/index.html: Contains root div                                        
+    ○ src/index.js: Initializes React App. Loads App Component.            
+      ◦ src/index.css - Styling for entire application                          
+    ○ src/App.js: Code for App component                                            
+      ◦ src/App.css - Styling for App component                         
+      ◦ src/App.test.js - Unit tests for App component                        
+        ◦ Unit test is right along side production code(Different to Java approach)  
+리액트를 초기화할 때 매우 중요한 파일 세 개가 있다
+
+처음으로 로드되는 파일은 index.html인데 
+public에서 index.html, 이게 브라우저에서 가장 먼저 로드되는 가장 중요한 파일이다
+
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ index.html 파일
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>Todo App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
+
+---------------------------------------------------------------------------------------------------
+들어가보면
+My Todo Application을 새로 고침하고 오른쪽 마우스를 클릭해서 페이지 소스를 보겠다
+
+---------------------------------------------------------------------------------------------------
+
+🌎 view-source:http://localhost:3000/ 페이지화면 ==>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="/manifest.json" />
+    <!--
+      Notice the use of  in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>Todo App</title>
+  <script defer src="/static/js/bundle.js"></script></head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+  </body>
+</html>
+
+---------------------------------------------------------------------------------------------------
+그러면 index.html과 거의 같다는 것을 알 수 있다
+
+이게 처음으로 로드되는 파일이다
+index.html 파일 여기에는  <div id="root"></div>  root 라는 div가 있다, 
+view-source:http://localhost:3000 스크롤을 조금 내려보면 여기도 root div가 있다
+
+이 root div에는 뭐가 들어갈까?, 바로 다음에 나오는 파일에서 결정된다   
+
+    ○ src/index.js: Initializes React App. Loads App Component.            
+src/index.js지 리액트 앱을 초기화하고 앱 컴포넌트라는 걸 로드하는 것이다
+
+코드를 얼른 살펴보자
+
+
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ index.js 파일
+
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+
+---------------------------------------------------------------------------------------------------
+이것이 index.js이다 public이 아니라 src에 있다
+src 아래 index.js에 가보면 여기에서 root div에 접근하고 있지, 그 안에는 앱 컴포넌트가 있다 ( const root = ReactDOM.createRoot(document.getElementById('root')); )
+앱 컴포넌트는 실제 화면에 표시되는 컴포넌트이다
+이 index.js에서 앱 컴포넌트를 올리는 것이다 ( <App /> )
+
+App.js를 실제로 열어보면 이런 게 보이겠지
+My Todo Application에 Updated를 추가하면 어떻게 될까
+
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.js 파일
+
+
+
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+
+      //1: 뒤에 Updated를 추가
+      My Todo Application Updated
+    </div>
+  );
+}
+
+export default App;
+---------------------------------------------------------------------------------------------------
+ 여기 My Todo Application Updated가 보이지       |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+                                     My Todo Application Updated
+
+
+--------------------------------------------------------------------------------------------
+
+구조는 간단하다, index.html에는 root div가 있고 index.js 앱 컴포넌트로 root div를 채우지
+
+추가로
+      ◦ src/index.css - Styling for entire application  
+스타일 정보도 있다, 어떤 CSS를 사용할까?
+index.css라는 파일에 전체 애플리케이션의 스타일을 담고 있다
+
+index.css를 열어보면 
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ index.css 파일
+
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+---------------------------------------------------------------------------------------------------
+
+전체 애플리케이션에 대한 스타일 정보가 있지
+예를 들어 margin을 10px로 주고 padding을 10px로 주고 저장해보면
+-----------------------------
+body {
+  //1: margin을 10px 주고 padding을 10px 준다 그리고 저장
+  margin: 10px;
+  padding: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+-----------------------------
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                     My Todo Application Updated
+
+
+--------------------------------------------------------------------------------------------
+브라우저로 가면 여백이 생긴 것을 볼 수 있다
+
+margin, padding을 지우고 저장하면
+-----------------------------
+body {
+
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+-----------------------------
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+                                     My Todo Application Updated
+
+
+--------------------------------------------------------------------------------------------
+
+상단에 여백이 줄어드는 것을 볼 수 있다 하지만 margin, padding을 다시 더하면
+상단에 공간이 더 생기는 걸 볼 수 있지
+
+이렇게 더 늘려볼 수도 있다
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ index.css 파일
+
+
+body {
+
+  //2: 20씩 여백을 더 줌
+  margin: 20px;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+---------------------------------------------------------------------------------------------------
+                                                  |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                     My Todo Application Updated
+
+
+
+--------------------------------------------------------------------------------------------
+
+상단에 훨씬 더 넓은 공간이 생겼다
+
+index.css는 전체 애플리케이션의 CSS를 정의하는 파일이다
+하지만 특정 컴포넌트에만 적용되는 CSS도 있다 
+
+
+
+    ○ src/App.js: Code for App component                               
+      ◦ src/App.css - Styling for App component 
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.js 파일
+
+
+
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+
+      //1: 뒤에 Updated를 추가
+      My Todo Application Updated
+    </div>
+  );
+}
+
+export default App;
+---------------------------------------------------------------------------------------------------
+여기에 App을 컴포넌트라고 하는데 App.css에 특정 컴포넌트 CSS를 담을 수 있다
+
+여기 App.css 파일을 보면
+
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.css 파일
+
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+---------------------------------------------------------------------------------------------------
+많은 CSS가 있는 게 보이지
+여기 있는 CSS가 다 필요하진 않으니 가장 위에 있는 하나만 빼고 모두 지워 보겠다
+                                                              |
+                                                              V
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.css 파일
+
+
+.App {
+  text-align: center;
+}
+---------------------------------------------------------------------------------------------------
+.App에 text-align이 center지 하나만 남기겠다, 다른 CSS는 모두 지웠다
+저장하고 돌아가보면 잘 올라오는 게 보인다
+                                                  |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                     My Todo Application Updated
+
+
+
+--------------------------------------------------------------------------------------------
+
+
+코드 파일 외에도 앱 컴포넌트의 단위 테스트 파일도 있다
+      ◦ src/App.test.js - Unit tests for App component                     
+        ◦ Unit test is right along side production code(Different to Java approach) 
+App.test.js라는 단위 테스트가 있다
+한 가지 흥미로운 건 App.test.js가 App.js와 같은 디렉토리에 있다는 거다
+Java 애플리케이션에선 프로덕션 코드와 테스트 코드를 주로 분리한다
+별도의 폴더가 있고 src/main/java에 프로덕션 코드가 있다면 src/test/java에 테스트 코드가 있다
+하지만 JavaScript 애플리케이션에는 단위 테스트 코드가 프로덕션 코드와 함께 있다
+
+  ■ Remember: Syntax might look little complex  
+보다시피 문법이 다소 복잡하다고 느낄 것이다
+JavaScript가 처음이라면
+----------------------------------------
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      My Todo Application Updated
+    </div>
+  );
+}
+
+export default App;
+----------------------------------------
+이런 구문이 기존에 익숙한 것과는 다소 다를 수 있다
+임포트 하는 방식이나 함수를 정의하는 방식, 반환하는 방법, export하는 방법 등말이다
+모든 것이 새로울 것이다
+
+걱정 하지 말아라
+이 과정이 끝날 때는 아주 쉽게 할 수 있도록 만들어 주겠다
+
+
+
+
+
+
+
+이번 시간에는 Create React App으로 생성된 폴더 구조를 대충 훑어봤다
+다음 강의에서 보겠다
