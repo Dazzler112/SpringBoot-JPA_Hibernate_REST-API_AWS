@@ -1,0 +1,216 @@
+
+
+Why do we need React Components?
+
+● web applications have complex structure                                                      ----------------------------------------------------------------------------------------------------------------------
+  ■ Menu, Header, Footer, Welcome Page, Login Page, Logout Page, Todo Page, etc
+● Components help you modularize React apps
+  ■ Create separate components for each page element                                             http://localhost:8087/list-todos 페이지화면 ==>
+    ○ Menu Component                                                                                                
+    ○ Header Component                                                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    ○ Footer Component                                                                              in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+    ○ ..                                                                                          _______________________________________________________________________________________________________________
+  ■ Why?                                                                                                
+    ○ Modularization                                                                                  Your Todos
+    ○ Reuse                                                                                                
+                                                                                                      Description	                      Taget Date	   Is Done?
+                                                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                                                                                                     _______________      _______________
+                                                                                                      Get AWS Certified                       2025-05-12	   false            | Delete(노바탕) |   | Update (녹바탕) |
+                                                                                                                                                                                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                      ---------------------------------------------------------------------------------------------------------
+                                                                                                      ....
+                                                                                                ----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+                                                                                                                                    ____________                        
+                                                                                                                                 ↗ |   Login    |              
+                                                                                                                               /    ‾‾‾‾‾‾‾‾‾‾‾‾                    
+                                                                                                                             /      ____________                   
+                                                                                                                           /       |   Logout   |              
+                                                                                                                          /     ↗   ‾‾‾‾‾‾‾‾‾‾‾‾                    
+                                                                                                                         /    /     ____________                  
+                                                                                                                        /   /     ↗|  ListTodo  |
+                                                                                                                       /   /    /   ‾‾‾‾‾‾‾‾‾‾‾‾                 
+                                                                               _____________________         ______________   /     ____________ 
+                                                                              |  React Application  |  ==>  |  Components  |  ==>  |    Todo    |
+                                                                              |     JavaScript      |       |              |  \     ‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾     \    ____________  
+                                                                                                                       \    \     ↘ |   Header   |                         
+                                                                                                                        \     \      ‾‾‾‾‾‾‾‾‾‾‾‾                         
+                                                                                                                          \     \                                
+                                                                                                                            \     ↘  ____________                           
+                                                                                                                              \     |   Footer   |                    
+                                                                                                                                \    ‾‾‾‾‾‾‾‾‾‾‾‾                         
+                                                                                                                                  \   ____________                          
+                                                                                                                                    ↘|    Menu    |                  
+                                                                                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾                        
+                                                                                                                                                              
+                                                                                                                                                              
+                                                                                                                                                              
+이번 강의에선 리액트 컴포넌트가 왜 필요한지 보겠다
+● web applications have complex structure  
+웹 애플리케이션은 대게 복잡한 구조를 가지고 있다
+  ■ Menu, Header, Footer, Welcome Page, Login Page, Logout Page, Todo Page, etc
+메뉴도 있고 헤더와 바닥글, 여러 종류의 페이지, 환영 페이지, 로그인페이지, 로그아웃 페이지, Todo 페이지, 편집 페이지 등이 있다
+각 페이지에는 메뉴와 헤더, 바닥글, 본문 등 여러 요소가 있고 페이지의 종류는 아주 많겠지 로그인, 로그아웃, 환영 페이지 등이다
+● Components help you modularize React apps
+  ■ Create separate components for each page element
+리액트를 사용하면 각 페이지 요소에 대해 별도 컴포넌트를 만든다
+리액트 애플리케이션을 모듈화 하게 되는 것이다 
+    ○ Menu Component   
+    ○ Header Component 
+    ○ Footer Component 
+    ○ ..    
+별도의 메뉴컴포넌트, 헤더 컴포넌트, 바닥글 컴포넌트 등이 있는 것이다
+  ■ Why?  
+    ○ Modularization
+    ○ Reuse 
+별도의 컴포넌트가 있으면 모듈화가 잘 된 거고 컴포넌트 재사용도 더 잘 될 것이다
+Todo 관리 애플리케이션을 만들 때 다양한 컴포넌트를 만들게 된다
+헤더, 바닥글, 메뉴, Todo 컴포넌트, TodoList 컴포넌트, 로그아웃 컴포넌트, 로그인 컴포넌트도 있겠지
+
+
+리액트 컴포넌트가 필요한 이유를 이해했으니 리액트 컴포넌트를 조금 더 깊게 이해해보도록 초점을 옮겨보겠다
+
+
+
+
+
+
+Understanding React Components
+
+● First component typically loaded in React Apps: App Component                                              _____________________                   
+● Parts of a Component                                                                                      |        View         |     
+  ■ View (JSX or JavaScript)                                                                                |  JSX or Javascript  |            
+  ■ Logic (JavaScript)                                                                                    ↗  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                    
+  ■ Styling (CSS)                                                                                       /      ____________________                  
+  ■ State (Internal Data Store)                                                                       /     ↗ |        Logic       | 
+  ■ Props (PassData)                                                                                 /     /  |      JavaScript    |    
+● (Remember) React component names must always start with a capital letter                          /    /     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                 
+                                                                                       ______________   /      ____________________ 
+                                                                                      |  Components  |  ==>   |       Styling      |   
+                                                                                      |              |        |         CSS        |          
+                                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾  \       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                     \   \     ____________________  
+                                                                                                      \    ↘  |        State       |
+                                                                                                       \      | Internal Data Store|                     
+                                                                                                        \      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                         
+                                                                                                         \                                
+                                                                                                           ↘  ____________________                           
+                                                                                                             |        Props       |
+                                                                                                             |      Pass Data     |          
+                                                                                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+
+● First component typically loaded in React Apps: App Component
+보통 리액트 앱에서 처음으로 로드되는 컴포넌트는 앱 컴포넌트이다
+
+이미 봤지
+어디서 로드되지??
+
+index.js에 가보면
+
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ index.js 파일
+
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(                          ________________________________________________________________
+  <React.StrictMode>                 |                                                                 |                                            
+    <App /> //ctrl+커서를하면 ==>   <  function App() {                                                 |                                           
+              보임                    |  return (                                                      | 
+                                     |    <div className="App">                                        |  
+                                     |      {/* <header className="App-header">                        |            
+                                     |        <img src={logo} className="App-logo" alt="logo" />       |                         
+                                     |        <p>                                                      | 
+                                     |          Edit <code>src/App.js</code> and save to reload.       |                           
+                                     |        </p>                                                     | 
+                                     |        <a                                                       |   
+  </React.StrictMode>                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+);                            
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
+
+---------------------------------------------------------------------------------------------------
+
+앱 컴포넌트가 여기에서 로드되는 걸 볼 수 있다
+<App /> 이게 첫 번째로 로드 되는 컴포넌트고 보통은 다른 컴포넌트를 만들 때
+앱 컴포넌트의 자식으로 만든다
+
+● Parts of a Component
+컴포넌트를 만들 때 마다 컴포넌트에는 여러 부분이 있다 
+  ■ View (JSX or JavaScript)
+HTML과 비슷한 View가 있는데 
+리액트는 JSX를 사용한다
+  ■ Logic (JavaScript)
+그리고 로직을 정의할 수 있다 JavaScript로 말이다
+  ■ Styling (CSS)  
+스타일도 정의할 수 있다 특정 요소가 어떤 모습인지 정의하는 것이다 CSS 파일에서 이루어진다
+  ■ State (Internal Data Store)
+뷰와 로직, 스타일 외 리액트 컴포넌트에는 State라는 게 있다 
+State는 컴포넌트의 내부 데이터 저장소와 같다 
+  ■ Props (PassData) 
+Props도 있다
+Props를 사용해서 컴포넌트 사이 데이터를 전달할 수 있다 
+
+각 컴포넌트에는 View 정보가 있고 
+로직, 스타일 정보와 State, Props가 있다
+
+● (Remember) React component names must always start with a capital letter 
+리액트 컴포넌트에서 꼭 기억해야 할 것은 컴포넌트의 이름이 항상 대문자로 시작해야 한다는 것이다
+
+이런 이론만 들으면 지겨울 것이다
+
+
+
+(저장용)
+-------------------------------
+    function FirstComponent() {
+      return (
+        <div className="FirstComponent">FirstComponent</div>
+      );
+    }
+     class ThirdComponent extends Component {
+      render() {
+        return (
+          <div className="ThirdComponent">ThirdComponent</div>
+        );
+      }
+     }
+-------------------------------
+
+
+
+Creating a React Component
+  ________________________________________________________________________
+ |   function FirstComponent() {                                          |
+ |     return (                                                           |           
+ |       <div className="FirstComponent">FirstComponent</div>             |           
+ |     );                                                                 |     
+ |   }                                                                    |        
+ |    class ThirdComponent extends Component {                            |                
+ |     render() {                                                         |         
+ |       return (                                                         |         
+ |         <div className="ThirdComponent">ThirdComponent</div>           |           
+ |       );                                                               |         
+ |     }                                                                  |      
+ |    }                                                                   |       
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+직접 해보는 게 좋겠다, 다음 강의에서 첫 번째 리액트 컴포넌트를 만들겠다
+첫 번째 리액트 컴포넌트라니, 흥미롭지 않니? 다음 강의에서 계속 하곘다
