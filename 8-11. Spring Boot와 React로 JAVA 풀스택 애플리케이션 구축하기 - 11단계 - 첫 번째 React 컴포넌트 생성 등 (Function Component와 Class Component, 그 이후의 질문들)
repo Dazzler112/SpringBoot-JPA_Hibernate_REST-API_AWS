@@ -299,3 +299,238 @@ First 컴포넌트와 Second 컴포넌트가 앱 컴포넌트의 자식으로 �
 함수를 활용해서 First Component, Second Component, App Component를 만들지 
 이들이 함수 컴포넌트이다
 
+리액트에서는 클래스 컴포넌트라는 것도 있다 
+리액트에서 클래스 컴포넌트는 어떻게 만들까?
+이것도 아주 간단하다
+
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.js 파일
+
+
+
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <FirstComponent></FirstComponent>
+      <SecondComponet></SecondComponet>
+    </div>
+  );
+}
+
+function FirstComponent (){
+  return (
+    <div className="FirstComponent">First Component</div>
+  );
+}
+
+function SecondComponet () {
+  return(
+    <div className="SecondComponent">Second Component</div>
+  );
+}
+
+//5: 클래스 컴포넌트를 만드는 방법은 class를 쓰면 된다 그리고 여기에 이름을 쓰면 된다 ThirdComponent라고 해보겠다, 괄호를 열고 닫아주고
+//클래스 컴포넌트에서 또 해야 할 일은 함수 컴포넌트 코드와 매우 유사한 메서드를 정의하는 것이다 SecondComponet()를 복사해서 붙여넣기 하겠다
+class ThirdComponent {<== //5-3:ThirdComponent()의 () 삭제, 함수에만 괄호가 필요하다 클래스에는 괄호가 없다 이름만 있다//5-4: 바로 아래로..
+    //5-1: ThirdComponent 안에서 html을 반환하는 메서드를 정의할 것이다
+  SecondComponent () {
+    return(
+        //5-2: 이부분은 ThirdComponent 가 될 거고 className도 ThirdComponent가 되겠지, 클래스 컴포넌트에서 중요한 한 가지는 괄호가 필요 없다는 것이다 //5-3: class ThirdComponent 부분으로..
+      <div className="ThirdComponent">Third Component</div>
+    );
+  }
+}
+
+export default App;
+
+---------------------------------------------------------------------------------------------------
+   
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.js 파일
+
+
+//6-2: 임포트 구문은 Java의 임포트와 매우 비슷하다 바깥의 다른 곳에 있는 함수나 클래스를 사용하고 싶은 경우가 있다면, import를 여기에 쓰면 된다
+//무엇을 사용하려고 하지? Component를 사용하고 싶다 중괄호 열고 닫은 사이 Component를 넣어주고, Component는 어디에 정의되었지? 리액트 프레임워크에서 정의되었다 from 'react'라고 하겠다
+//우리는 extends Component라고 했고 리액트에서 Component를 임포트 했다 어떻게 되는지 확인해보자
+import { Component } from 'react';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <FirstComponent></FirstComponent>
+      <SecondComponet></SecondComponet>
+      <ThirdComponent></ThirdComponent>
+    </div>
+  );
+}
+
+function FirstComponent (){
+  return (
+    <div className="FirstComponent">First Component</div>
+  );
+}
+
+function SecondComponet () {
+  return(
+    <div className="SecondComponent">Second Component</div>
+  );
+}
+
+class ThirdComponent  extends Component { //6-1: 세번째로 할 일은 extends 하고 Component를 주는 것이다, 그리고 임포트 해야 한다 //6-2: import 부분으로...
+  
+  render () { //6: 첫 번째로 ThirdComponent라는 클래스가 생겼다, 두 번째로 이 메서드 이름을 render로 지정해야지 (SecondComponent() 에서 render로)
+              //6 계속: 클래스 컴포넌트에서 우리가 정의하는 건 렌더링 메서드이다, 렌더링 메서드는 컴포넌트 일부로 보여주고 싶은 텍스트를 반환해야 한다 //6-1: ThirdComponent로...
+    return(
+      <div className="ThirdComponent">Third Component</div>
+    );
+  }
+}
+
+export default App;
+
+---------------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+
+--------------------------------------------------------------------------------------------
+
+First Component, Second Component, Third Component 멋지다
+
+이제 네 번째 컴포넌트를 추가해보자
+
+---------------------------------------------------------------------------------------------------
+⏺ VSC
+
+⏺ App.js 파일
+
+
+
+import { Component } from 'react';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      {/* <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header> */}
+      <FirstComponent></FirstComponent>
+      <SecondComponet></SecondComponet>
+      <ThirdComponent></ThirdComponent>
+      //7-2: Fourth Component를 띄어보자 <FourthComponent><FourthComponent/> 가 되지 저장하고
+      <FourthComponent/>
+    </div>
+  );
+}
+
+function FirstComponent (){
+  return (
+    <div className="FirstComponent">First Component</div>
+  );
+}
+
+function SecondComponet () {
+  return(
+    <div className="SecondComponent">Second Component</div>
+  );
+}
+
+class ThirdComponent  extends Component{
+
+  render () {
+    return(
+      <div className="ThirdComponent">Third Component</div>
+    );
+  }
+}
+
+//7: 네 번째 컴포넌트도 클래스 컴포넌트로 만들겠다, 여기에 Fourth Component라 하고 extends Component 이다
+class FourthComponent extends Component{
+  render (){
+    return(
+        //7-1: 여기도 FourthComponent가 될 거고 여기 텍스트도 Fourth Component겠지 저장하고 Fourth Component를 띄워보자 //7-2: App() 컴포넌트로가서 작성...
+      <div className="FourthComponent">Fourth Component</div>
+    );
+  }
+}
+
+export default App;
+
+---------------------------------------------------------------------------------------------------
+                                                  |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+좋다 First, Second, Third, Fourth Component가 여기 있다
+
+
+
+
+
+
+
+
+이번 강의에선 함수 컴포넌트와 클래스 컴포넌트를 몇 개 만들어보았다
+JavaScript 구문에 익숙해지는 데는 시간이 걸릴 것이다,
+이번 강의의 핵심이다
+그러면 이런 질문들을 생각해 봐야 한다 
+함수 컴포넌트와 클래스 컴포넌트는 어떻게 다를까?
+어떤 기준으로 선택하지?
+
+또 다른 질문은 입력에 관련된 것이다
+import { Component } from 'react'; <=여기에서 중괄호를 썼는데 
+return(<div className="ThirdComponent">Third Component</div>); <= 무언가를 반환할 때 여기에는 괄호를 썼다
+중괄호는 언제 쓸까?, 괄호는 언제 쓸까?
+
+또 다른 질문이 떠오를 수도 있다 
+이번 섹션을 진행하면서 이 질문에 대한 답을 찾아 나가 보자
+다음 강의에서 보겠다
