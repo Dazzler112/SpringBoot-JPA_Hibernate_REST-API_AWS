@@ -1,0 +1,356 @@
+
+
+이번 수업에선 두 번째 질문을 생각해 보겠다
+
+function FirstComponent (){
+  return (
+    <div className="FirstComponent">First Component</div>
+  );
+}
+
+return 여기에 왜 괄호를 쓸까?
+여기에 <div className="FirstComponent">First Component</div> 이 값을 보관하고 싶으니까 괄호 안에 넣겠지
+모든 컴포넌트에서 뭘 가지고 있든 괄호 안에 넣는다
+
+class ThirdComponent  extends Component{
+
+  render () {
+    return(
+      <div className="ThirdComponent">Third Component</div>
+    );
+  }
+}
+
+그럼 괄호 안에 뭘 넣을까?, 뭘 반환하고 있는 걸까?
+이번 강의에서 이야기해보자
+
+
+
+
+
+Getting Started with JSX - Views with React
+
+● React projects use JSX for presentation                                                 Djy  yyjj   
+● Stricter than HTML                                                                      D   z8   E   
+  ■ Close tags are mandatory                                                              z8y8w zByZw  
+  ■ Only one top-level tag allowed:                                                     9  D5 Dz jz  Bw
+    ○ Cannot return multiple top-level JSX tags                                         9  D5 B8 Wz  Bw
+    ○ Wrap into a shared parent                                                          ,z859, zzyZw  
+      ◦ <div>...</div> or <>...</> (empty wrapper)                                        D   B8   E   
+● How is JSX enabled in a React project?                                                  ,Djy  yyjj   
+  ■ Different browsers have different support levels modern JS features                                                                                            
+    (ES2015, ... ES2002, ...)                                                              React Js
+    ○ How to ensure backward compatibility for your JS code?
+    ○ Solution: Babel
+    ○ Babel also converts JSX to JS
+
+
+● React projects use JSX for presentation 
+대부분의 리액트 프로젝트는 프레젠테이션을 JSX로 한다
+JSX는 JavaScript XML의 약자다
+● Stricter than HTML
+JavaScript XML은 HTML보다 엄격하다
+  ■ Close tags are mandatory 
+닫는 태그가 필수이고 
+  ■ Only one top-level tag allowed:
+최상위 태그는 하나만 가능하다
+    ○ Cannot return multiple top-level JSX tags
+여러 개의 최상위 JSX 태그를 반환할 수 없다
+    ○ Wrap into a shared parent
+여러 개 최상위 태그가 있을 수 없고 공유 부모로 묶어줘야 한다
+      ◦ <div>...</div> or <>...</> (empty wrapper)
+div로 묶거나 빈 태그를 상단에 만들 수도 있다
+● How is JSX enabled in a React project?
+
+function SecondComponet () {
+  return(
+    <div className="SecondComponent">Second Component</div>
+  );
+}
+여기에 우리가 보관하는 건 JSX겠지?
+여기에 있는 각 컴포넌트에서 반환하는 것은 뷰 정보이며 ( <div className="SecondComponent">Second Component</div> ) JSX지
+
+들어가서 FourthComponent에 이걸 지우면 어떻게 될까?( Fourth Component</div> 부분 삭제..)
+어떤 일이 생길 것 같니?
+class FourthComponent extends Component{
+  render (){
+    return(
+      <div className="FourthComponent">
+    );
+  }
+}
+여기 보다 시피 에러가 발생한다 ( JSX 요소 'div'에 닫는 태그가 없습니다.ts(17008) )
+코드가 컴파일 되지 않는 걸 볼 수 있다, 코드에 오류가 있다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+(자세한것 확인 하려면 3000으로 접속...)
+
+
+Compiled with problems:
+×
+ERROR in ./src/App.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\study\frontend\todo-app\src\App.js: Unterminated JSX contents. (54:39)
+
+  52 |   render (){
+  53 |     return(
+> 54 |       <div className="FourthComponent">
+     |                                        ^
+  55 |     );
+  56 |   }
+  57 | }
+    at constructor (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:351:19)
+    at FlowParserMixin.raise (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:3233:19)
+      ...
+      ..
+--------------------------------------------------------------------------------------------
+
+브라우저로 가면 모듈 빌드가 실패했다고 뜬다
+구문 오류라고 한다, Unterminated JSX Content다
+div 태그를 닫아줘야 한다
+
+-------------------------------
+class FourthComponent extends Component{
+  render (){
+    return(
+      <div className="FourthComponent">Fourth Component</div>
+    );
+  }
+}
+-------------------------------
+
+여는 div 태그가 있으면 닫는 div가 있어야지, 각각 닫혀야 한다
+
+
+
+
+다른 걸 해볼까?, 다른 div를 추가하겠다 
+
+-------------------------------
+class FourthComponent extends Component{
+  render (){
+    return(
+      <div className="FourthComponent">Fourth Component</div>
+      //이 div를 복사해서 여기 아래에 붙여 넣겠다
+      <div className="FourthComponent">Fourth Component</div>
+    );
+  }
+}
+-------------------------------
+오류가 나는 걸 볼 수 있다 ( JSX 식에는 부모 요소가 하나 있어야 합니다.ts(2657) )
+JSX는 하나의 부모 요소가 있어야 한다고 한다, 이런 식으로 하고 싶으면 이걸 묶는 div를 만들면 된다
+                        |
+                        V
+-------------------------------
+class FourthComponent extends Component{
+  render (){
+    return(
+      // 이걸 div로 묶고 닫는 태그는 여기에다 써주고 탭으로 정렬하겠다
+      <div>
+      <div className="FourthComponent">Fourth Component</div>
+      <div className="FourthComponent">Fourth Component</div>
+      </div>
+    );
+  }
+}
+-------------------------------
+이제 컴파일 되고 여기 브라우저로 넘어가서 보면 
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+
+Fourth Component가 보인다
+JSX는 HTML보다 엄격하다, JavaScript XML은 반드시 닫는 태그가 있어야 한다
+JavaScript XML은 부모 태그가 있어야 한다
+동시에 여러 개 태그를 반환할 수 없다, 허용되지 않는다
+
+-------------------------------
+class FourthComponent extends Component{
+  render (){
+    return(
+      <div className="FourthComponent">Fourth Component</div>
+      <div className="FourthComponent">Fourth Component</div>
+          );
+  }
+}
+이건 두 개의 별도 태그고 컴포넌트로 뷰로 이렇게 반환할 수 없다
+그새서 가장 상위에 div를 추가하는 것이다
+=====================
+                  |  
+                  V
+class FourthComponent extends Component{
+  render (){
+    return(
+      <div>
+        <div className="FourthComponent">Fourth Component</div>
+        <div className="FourthComponent">Fourth Component</div>
+      </div>
+    );
+  }
+}
+그냥 빈 태그를 써도 된다
+=====================
+                 or |
+                    V
+class FourthComponent extends Component{
+  render (){
+    return(
+      <>
+        <div className="FourthComponent">Fourth Component</div>
+        <div className="FourthComponent">Fourth Component</div>
+      </>
+    );
+  }
+}
+여기에 넣는 이런 걸 빈 태그라고 하는데 div 태그에서 div라는 텍스트를 삭제한 거지
+여기 태그(<>) 닫는 태그(</>) 모두 삭제해주면 빈 태그가 되는 것이다
+-------------------------------
+
+
+
+
+JSX는 보여지는 것을 다루는 것이다 (뷰단)
+HTML보다 엄격하고 닫는 태그가 필수적이며 최상위 태그는 하나여야 하지
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import { Component } from 'react';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <FirstComponent></FirstComponent>
+      <SecondComponet></SecondComponet>
+      <ThirdComponent></ThirdComponent>
+      <FourthComponent></FourthComponent>
+    </div>
+  );
+}
+
+function FirstComponent (){
+  return (
+    <div className="FirstComponent">First Component</div>
+  );
+}
+
+function SecondComponet () {
+  return(
+    <div className="SecondComponent">Second Component</div>
+  );
+}
+
+class ThirdComponent  extends Component{
+
+  render () {
+    return(
+      <div className="ThirdComponent">Third Component</div>
+    );
+  }
+}
+
+class FourthComponent extends Component{
+  render (){
+    return(
+      <>
+        <div className="FourthComponent">Fourth Component</div>
+        <div className="FourthComponent">Fourth Component</div>
+      </>
+    );
+  }
+}
+
+export default App;
+------------------------------------------------------------------------------------------
+
+function FirstComponent (){..}등등 여기 각 컴포넌트는 JSX를 반환하고 
+function App() {<div className="App"><FirstComponent></FirstComponent>...</div>} 앱 컴포넌트도 여기에 담겨있는 건 JSX지
+앱에서도 만약 <FirstComponent></FirstComponent> 중 </FirstComponent>이걸 지우면 컴파일 에러가 뜰 것이다 </FirstComponent>이걸 추가해야 한다
+
+
+별도의 닫는 태그 말고도 이 태그를 종료할 수 있는 다른 방법이 있는데
+-------------------------------
+function App() {
+  return (
+    <div className="App">
+      //여기 슬래시 기호를 쓰면 된다, 꺾쇠를 열고 컴포넌트 이름을 적고 슬래시를 적고 꺾쇠를 닫는다
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  );
+}
+-------------------------------
+노드와 닫는 노드를 함께 이런 식으로도 작성할 수 있다
+컴포넌트를 포함하기 위해 사용하는 일종의 단축키 같은 구문인 것이다
+노드와 닫는 노드만 있다면 이렇게 줄여 써도 충분하다
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+코드가 컴파일 되는 게 보이지
+
+
+
+● How is JSX enabled in a React project?  
+그럼 이제 리액트 프로젝트에서 JSX가 어떻게 활성화되는지 궁금하지?
+  ■ Different browsers have different support levels modern JS features (ES2015, ... ES2002, ...) 
+문제는 브라우저마다 최신 기능에 대한 지원 수준이 다르다는 것이다
+앞서 언급했듯 표준은 많이 있다
+ES5부터 해서 최근에는 년도를 붙인다 ES2015, 2022, 2023, 2024 이런식이다
+리액트 애플리케이션을 개발할 때 가장 최신 버전의 표준을 사용할 것이다
+하지만 오래된 브라우저는 새로운 표준을 지원하지 않을 수 있다
+    ○ How to ensure backward compatibility for your JS code?
+JS 코드에 대한 호환성을 어떻게 보장할까?
+    ○ Solution: Babel
+해결책으로 Babel이라는 것이 있다
+Babel은 현대 JavaScript로 코드를 작성해도 옛날 브라우저에서 실행될 수 있도록 해준다
+Babel은 현대 JavaScript 코드의 호환성을 보장해주지
+    ○ Babel also converts JSX to JS
+더 좋은 점은 Babel도 JSX를 지원한다는 것이다, Babel은 JavaScript XML 포맷을 이해하고
+JavaScript로 변환해서 옛날 브라우저도 JSX를 이해할 수 있게 만들어주지
+
+
