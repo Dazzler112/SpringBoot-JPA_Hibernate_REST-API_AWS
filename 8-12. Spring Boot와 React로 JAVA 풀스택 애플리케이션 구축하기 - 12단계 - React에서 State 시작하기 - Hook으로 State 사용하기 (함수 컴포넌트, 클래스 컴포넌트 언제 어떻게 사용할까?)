@@ -1,0 +1,155 @@
+
+
+Creating a React Component
+  ________________________________________________________________________
+ |   function FirstComponent() {                                          |
+ |     return (                                                           |           
+ |       <div className="FirstComponent">FirstComponent</div>             |           
+ |     );                                                                 |     
+ |   }                                                                    |        
+ |    class ThirdComponent extends Component {                            |                
+ |     render() {                                                         |         
+ |       return (                                                         |         
+ |         <div className="ThirdComponent">ThirdComponent</div>           |           
+ |       );                                                               |         
+ |     }                                                                  |      
+ |    }                                                                   |       
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● For now, we will keep things simple:
+  ■ We will write all code in one module
+    ○ First Component
+    ○ Exercise: Second Component
+    ○ Third Component as Class Component
+    ○ Exercise: Fourth Component
+
+
+지난 시간에 우리는 리액트 컴포넌트 몇 개를 만들어 봤다 
+함수 컴포넌트와 클래스 컴포넌트를 만들었지
+간단하게 만들기 위해 모든 컴포넌트를 같은 모듈에 만들었다
+----------------------------------------
+import { Component } from 'react';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <FirstComponent></FirstComponent>
+      <SecondComponet></SecondComponet>
+      <ThirdComponent></ThirdComponent>
+      <FourthComponent></FourthComponent>
+    </div>
+  );
+}
+
+function FirstComponent (){
+  return (
+    <div className="FirstComponent">First Component</div>
+  );
+}
+
+function SecondComponet () {
+  return(
+    <div className="SecondComponent">Second Component</div>
+  );
+}
+
+class ThirdComponent  extends Component{
+
+  render () {
+    return(
+      <div className="ThirdComponent">Third Component</div>
+    );
+  }
+}
+
+class FourthComponent extends Component{
+  render (){
+    return(
+      <div className="FourthComponent">Fourth Component</div>
+    );
+  }
+}
+
+export default App;
+----------------------------------------
+
+여기 있는 각 JavaScript 파일을 모듈이라고 한다 
+같은 모듈 안에 별도의 컴포넌트 4개를 만들었지 
+
+function App() {
+  return (
+    <div className="App">
+      <FirstComponent></FirstComponent>
+      <SecondComponet></SecondComponet>
+      <ThirdComponent></ThirdComponent>
+      <FourthComponent></FourthComponent>
+    </div>
+  );
+}
+앱 컴포넌트 외에 FirstComponent, SecondComponent, ThirdComponent, FourthComponent를 만들었다
+사실 컴포넌트는 각자의 모듈, 각자의 파일 안에 있는 게 이상적이다
+하지만 일단 지금은 이렇게 하겠다
+지금은 하나의 모듈 안에 모든 코드를 작성했지만 강의를 하면서 개별 모듈로 분리하겠다
+
+
+🔵 함수 컴포넌트, 클래스 컴포넌트 언제 어떤 것 을 사용 해야 할까?
+그럼 첫 번째 질문부터 살펴보자
+언제 함수 컴포넌트를 사용하고 언제 클래스 컴포넌트를 사용할까?
+
+
+
+
+
+
+Understanding State in React
+
+● State: Built-in React object used to contain data or information                                           _____________________                   
+ about the component                                                                                        |        View         |     
+● (REMEMBER) In earlier versions of React, ONLY class Components can have state                             |  JSX or Javascript  |            
+● Hooks were introduced in React 16.8                                                                     ↗  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                    
+  ■ Hooks are very easy to use                                                                          /      ____________________                  
+  ■ useState hook allows adding state to Function Components                                          /     ↗ |        Logic       | 
+  ■ Props (PassData)                                                                                 /     /  |      JavaScript    |    
+● (Remember) React component names must always start with a capital letter                          /    /     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                 
+                                                                                       ______________   /      ____________________ 
+                                                                                      |  Components  |  ==>   |       Styling      |   
+                                                                                      |              |        |         CSS        |          
+                                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾  \       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                     \   \     ____________________  
+                                                                                                      \    ↘  |        State       |
+                                                                                                       \      | Internal Data Store|                     
+                                                                                                        \      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                         
+                                                                                                         \                                
+                                                                                                           ↘  ____________________                           
+                                                                                                             |        Props       |
+                                                                                                             |      Pass Data     |          
+                                                                                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+
+● State: Built-in React object used to contain data or information about the component
+잠시 후 우리는 State라는 걸 배우게 될 것이다
+리액트에서 너가 만든 각 컴포넌트에는 State라는 게 있다 
+State는 특정 컴포넌트에 대한 데이터나 정보일 뿐이다
+● (REMEMBER) In earlier versions of React, ONLY class Components can have state
+리액트 초기 버전에선 클래스 컴포넌트만 State를 가질 수 있다 
+함수 컴포넌트에는 State가 없다
+● Hooks were introduced in React 16.8
+하지만 리액트 16.8에서 큰 변화가 이루어졌다
+Hooks라는 새로운 개념이 소개되었다
+  ■ Hooks are very easy to use
+  ■ useState hook allows adding state to Function Components 
+Hooks가 좋은 점은 함수 컴포넌트에도 State를 추가할 수 있게 해준다는 것이다
+
+
+리액트 초기 버전에서는 함수 컴포넌트와 연결된 State를 가질 수가 없다고 말했지
+클래스 컴포넌트만 연결된 State를 가질 수 있었다
+하지만 리액트 16.8부터 큰 변화가 생겼다
+Hooks가 함수 컴포넌트에도 State를 쉽게 추가할 수 있게 해주기 때문에 
+16.8 이후 버전으로 애플리케이션을 구축한다면, 그리니까 리액트 17, 18, 19등을 사용한다면
+거의 다 함수 컴포넌트를 사용해서 애플리케이션을 만드는 것을 볼 수 있다
+이제 클래스 컴포넌트를 사용할 필요가 없다, 그래서 이 강의에서 우리는 함수 컴포넌트에 집중할 것이다,
+이 강의가 2018년 처음으로 만들어졌을 때는 State가 필요하다는 이유로 클래스 컴포넌트를 확장해서 사용했다
+하지만 이제 함수 컴포넌트에도 State를 가질 수 있으니 이제 부터는 함수 컴포넌트에만 집중한다
+
+
+요약하면 리액트 16.8이나 이후 버전을 사용한다면 함수 컴포넌트를 사용하는 것을 추천한다
