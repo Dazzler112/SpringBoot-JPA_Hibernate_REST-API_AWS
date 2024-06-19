@@ -916,3 +916,570 @@ ________________________________________________________________________________
 
 
 
+● Let's try JSX in our components 
+우리는 컴포넌트에서 이미 JSX를 약간 사용해보았지
+컴포넌트 어디에 사용하는 거지?
+-------------------------------
+  return (
+    <div className="App">
+      <FirstComponent></FirstComponent>
+      <SecondComponet></SecondComponet>
+      <ThirdComponent></ThirdComponent>
+      <FourthComponent></FourthComponent>
+    </div>
+-------------------------------
+이게 JSX이다
+-------------------------------
+function FirstComponent (){
+  return (
+    <div className="FirstComponent">First Component</div>
+  );
+}
+-------------------------------
+이것도 JSX지, JavaScript XML 포맷이다
+
+얘기했던 것 중 하나는 바로 괄호를 사용했다는 거였지
+  ■ Parentheses () make returning complex JSX values easier
+괄호를 왜 사용한다고? 복잡한 JSX 값을 쉽게 반환하게 해주니까이다
+
+
+그럼 이렇게 해볼까?
+-------------------------------
+function FirstComponent (){
+  return <div className="FirstComponent">First Component</div>
+}
+-------------------------------
+여기 괄호를 지우겠다, 이렇게 해서 되니?
+ㅇㅇ 된다
+
+하지만 다음줄로 내리면 어떻게 될까??
+-------------------------------
+function FirstComponent (){
+  return 
+  <div className="FirstComponent">First Component</div>
+}
+-------------------------------
+
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+First Component가 안 보인다
+
+조금 더 해볼까? 여러 개가 보이는 곳으로 간다
+여기 App이 좋은 예이다
+여기로 가서 return 이 괄호를 지워보자
+-------------------------------
+function App() {
+  return 
+    <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+ 
+}
+-------------------------------
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+--------------------------------------------------------------------------------------------
+전부 다 없어졌다
+
+
+여기서 한 줄을 당겨 보겠다
+-------------------------------
+function App() {
+  return <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+ 
+}
+-------------------------------
+                          |
+                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+
+전부 다 다시 나타났다
+
+즉, JSX를 반환할 때 return하는 줄에 반드시 첫 번째 요소가 있어야 한다
+return하는 줄에 첫 번째 요소가 없다면 아무것도 반환되지 않을 것이다
+-------------------------------
+function App() {
+  return 
+
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+ 
+}
+-------------------------------
+에러가 발생하는 거지
+그래서 
+             |
+             V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+--------------------------------------------------------------------------------------------
+이런 식으로 하면 아무것도 보이지 않지
+
+
+이런 식으로 하거나, 추천하는 방법은 이렇게
+-------------------------------
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  );
+}
+-------------------------------
+괄호를 쓰는 것이다
+교육자는 괄호 사이에 반환 갑을 작성하라고 추천함
+return <div className="App">.... 이렇게 코드를 작성해도 되고
+return (...); 괄호를 써도 된다
+교육자는 괄호를 쓰는 걸 선호한다고 한다, return에 괄호를 추가하는 거지 
+-------------------------------
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  )
+}
+-------------------------------
+
+반환 값은 바로 아래에 있고 닫는 괄호는 여기에 쓰겠다
+교육자가 추천하는 포맷이라고 한다, 강의 내내 이런 형식을 사용할 것이다
+
+여기 FirstComponent에도 다시 괄호를 사용하겠다, 
+-------------------------------
+function FirstComponent (){
+  //여기에 괄호를 쓴다
+  return (
+  <div className="FirstComponent">First Component</div>
+        )
+}
+-------------------------------
+
+JSX를 반환할 때 추천하는 접근 방식은 괄호에 JSX를 넣는 것이다
+
+  ■ Custom Components should start with upper case letter
+이 규칙은 앞서 이야기 했지, 컴포넌트는 대문자로 시작해야 한다는 것도 이야기했다
+컴포넌트가 대문자로 시작하지 않으면 어떻게 되나 보겠다
+
+-------------------------------
+function App() {
+  return (
+      <div className="App">
+      <firstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  )
+}
+
+function firstComponent (){
+  return (
+  <div className="FirstComponent">First Component</div>
+  )
+}
+-------------------------------
+FirstComponent의 첫 글자를 소문자로 하고 이것도 소문자로 하겠다
+어떻게 되지?
+                          |
+                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+
+
+Warning: <firstComponent /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements.
+    at firstComponent
+    at div
+    at App
+Warning @ react-dom.development.js:86
+...
+Show lessUnderstand this error
+react-dom.development.js:86 Warning: The tag <firstComponent> is unrecognized in this browser. If you meant to render a React component, start its name with an uppercase letter.
+    at firstComponent
+    at div
+    at App
+--------------------------------------------------------------------------------------------
+
+콘솔에 경고가 뜬다 firstComponent의 대소문자 사용이 잘못되었다
+리액트 컴포넌트에는 PascalCase를 사용하고 HTML 요소에는 소문자를 사용해라 ( <firstComponent /> is using incorrect casing. Use PascalCase for React components, or lowercase for HTML elements. )
+
+
+컴포넌트 이름에는 대문자를 쓰라는 뜻이다
+-------------------------------
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  )
+}
+
+function FirstComponent (){
+  return (
+  <div className="FirstComponent">First Component</div>
+  )
+}
+-------------------------------
+
+그러면 왜 컴포넌트 이름은 대문자인 게 좋다는 걸까?
+
+    ○ For HTML you should use small case
+HTML에는 소문자를 써야 한다
+무슨 뜻이지?
+
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+      </div>
+여기 우리는 div를 사용하지 Div 이렇게 대문자로 쓰지 않는다 
+<Div className="App">..</Div> 이런 식으로 쓰지 않지
+HTML에선 가능하지만 JSX에서는 안된다
+
+이런식으로 DIV로 쓰면 어떻게 될까? 어떻게 될 것 같냐?
+-------------------------------
+function App() {
+  return (
+      <DIV className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </DIV>
+  )
+}
+-------------------------------
+가보자        |
+             V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+
+
+Compiled with problems:
+×
+ERROR
+[eslint] 
+src\App.js
+  Line 7:8:  'DIV' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+
+--------------------------------------------------------------------------------------------
+DIV가 정의되지 않았다고 나온다, 맞다 오류가 발생한다
+애플리케이션이 실행되고 있는 명령 프롬프트로 가면
+
+--------------------------------------------------------------------------------------------
+
+⏺ cmd창 ==>
+
+Failed to compile.
+
+[eslint]
+src\App.js
+  Line 7:8:  'DIV' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+ERROR in [eslint]
+src\App.js
+  Line 7:8:  'DIV' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error
+--------------------------------------------------------------------------------------------
+정의 되지 않았다고 나온다
+
+다시 소문자 div로 바꾸면
+
+코드가 성공적으로 컴파일 되고
+--------------------------------------------------------------------------------------------
+
+⏺ cmd창 ==>
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.27.0.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+
+--------------------------------------------------------------------------------------------
+                    |
+                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+
+브라우저에도 보인다
+
+교육자는 이렇게 HTML은 소문자로, 컴포넌트는 대문자로 작성하게 한 JSX가 마음에 든다고 한다
+어떤 JSX를 쓰더라도 HTML과 스스로 작성한 코드를 명확히 구분할 수 있다
+
+
+  ■ Specify CSS class - className
+    ○ Similar to HTML class attribute
+마지막으로 할 이야기는 특정 CSS 클래스이다
+이 클래스는 className 이다
+
+우리는 지금까지 className을 사용했지
+-------------------------------
+function FirstComponent (){
+  return (
+  <div className="FirstComponent">First Component</div>
+  )
+}
+-------------------------------
+여기 className은 FirstComponent지
+
+만약 원래 HTML이라면 이렇게 작성했을 것이다
+<div class="FirstComponent">First Component</div>
+class라고 쓰고 CSS 클래스를 줬겠지
+
+하지만 JSX에선 className이라고 쓰는 걸 추천한다 
+class 대신 JSX에선 className을 쓴다, 여기에 CSS를 넣어주면 된다
+앱 컴포넌트는 App.css에 넣어주면 된다
+
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+이 네 개 컴포넌트에 대한 CSS 파일은 아직 만들지 않았다 
+
+App.css에 가서 .App안에서 글자 크기를 키워보겠다
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.css
+
+
+.App {
+  text-align: center;
+
+  //font-size라 쓰고 30픽셀로 주고 저장한다
+  font-size: 30px;
+}
+
+------------------------------------------------------------------------------------------
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component       <==(글자가 커졌음)
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+여기 각 요소의 크기가 커진 것을 볼 수 있다
+
+다시 css로 가서
+이걸 20픽셀로 주면
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.css
+
+
+.App {
+  text-align: center;
+  font-size: 20px;
+}
+
+------------------------------------------------------------------------------------------
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component       <==(다시 20px로 줄어듬)
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+조금 작아진 게 보인다
+
+-------------------------------
+⏺ App.css
+
+.App {
+  text-align: center;
+  font-size: 20px;
+}
+-------------------------------
+이 특정 컴포넌트에 대해 App.css에 적어주면 된다 
+
+그리고 특정 요소와 연관시킬 수 있는 방법은 className 속성을 사용하면 된다
+
+-------------------------------
+function App() {
+  return (
+      <DIV className="App">
+-------------------------------
+여기는 className으로 App을 사용하고 있지 
+그래서 .App에 있는 CSS 스타일이 여기 나와있는 전체에 적용되는 것이다
+
+
+
+
+
+
+
+
+
+
+정리)-----------------------------------------------------
+이번 강의에선 우리는 JSX, 즉 JavaScript XML을 가지고 놀아봤다
+JavaScript XML은 HTML보다 엄격하다
+닫는 태그가 필수이고 
+하나의 최상위 태그만 있어야 한다,
+Babel 덕분에 리액트 프로젝트에 사용할 수 있지 
+Babel은 JSX를 JS로 변환한다
+또한 JSX를 컴포넌트에 사용해봤다
+괄호는 복잡한 JSX 값을 반환하기 쉽게 만들어줬다
+직접 만든 컴포넌트는 대문자로 시작해야 한다는 것도 이야기했고 
+HTML 요소를 사용한다면 항상 소문자를 사용해야 한다는 것도 봤다
+CSS 클래스를 적용하고 싶으면 className을 사용하라고 했다
+다음 강의에 보겠다
+---------------------------------------------------------(
