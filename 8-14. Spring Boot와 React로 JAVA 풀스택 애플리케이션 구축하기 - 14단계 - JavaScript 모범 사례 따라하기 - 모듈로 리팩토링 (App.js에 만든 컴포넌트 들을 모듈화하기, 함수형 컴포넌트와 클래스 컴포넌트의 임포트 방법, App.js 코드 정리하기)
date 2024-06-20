@@ -1,0 +1,334 @@
+
+
+Let's follow JavaScript Best Practices
+
+● 1: Each component in its own file (or module)                                        -----------------------------------------
+  ■ src/components/learning-examples/FirstComponent.jsx                                  V TODO-APP
+                                                                                          > 📁 node_modules
+                                                                                           V 📁🌎 public
+                                                                                              ⭐ favicon.ico
+                                                                                              5 index.html
+                                                                                              📄 logo192.png
+                                                                                              📄 logo512.png
+                                                                                              {} manifest.json
+                                                                                              🤖 robots.txt
+                                                                                            V 📁 src
+                                                                                              S App.css
+                                                                                             js App.js
+                                                                                             🧪 App.test.js
+                                                                                              S index.css
+                                                                                             js index.js
+                                                                                              ⁕ logo.svg
+                                                                                             js reportWebVitals.js
+                                                                                             js setupTests.js  
+                                                                                             
+                                                                                            .gitignore
+                                                                                            N package-lock.json
+                                                                                            N package.json
+                                                                                            i README.md
+                                                                                          -----------------------------------------
+
+
+이번 시간에는 JavaScript 모범 사례를 살펴보자
+● 1: Each component in its own file (or module)
+JavaScript 모범 사례 중 하나는 각 컴포넌트는 각 파일에 들어있어야 한다는 것이다
+JavaScript에서 각 파일은 모듈이라고 하고, 각 컴포넌트는 각자의 모듈에 있어야 한다는 뜻이다
+  ■ src/components/learning-examples/FirstComponent.jsx 
+FirstComponent를 별도의 파일로 옮기는 게 좋겠지
+
+해보자
+VSC로 가서 ctrl+B를 눌러서 익스플로러를 토글한다, src아래에 별도의 폴더가 필요하다
+모든 컴포넌트는 이 특정 폴더 아래에 만들 것이다
+src에 오른쪽 마우스클릭 > New Folder를 선택 > 폴더 이름은 components라고 하겠다 그리고 그 밑에 다른 폴더를 만들어서
+learning-examples이라고 하겠다 learning-examples아래에 새파일을 만들고 FirstComponent.jsx 라고 하자
+이 컴포넌트는 JavaScript XML을 포함한다, 그래서 FirstComponent.jsx라고 하는거지
+
+FirstComponent.jsx 파일이 생겼다, 그리고 App.js에서 코드를 복사하고 싶다, 
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import { Component } from 'react';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <FirstComponent></FirstComponent>
+      <SecondComponet></SecondComponet>
+      <ThirdComponent></ThirdComponent>
+      <FourthComponent></FourthComponent>
+    </div>
+  );
+}
+
+function FirstComponent (){
+  return (
+    <div className="FirstComponent">First Component</div>
+  );
+}
+.....
+------------------------------------------------------------------------------------------
+
+App.js에서 FirstComponent.jsx로 옮기고 싶지
+FirstComponent() 이 부분을 복사해서 FirstComponent.jsx 파일로 옮긴다
+                                                    |
+                                                    V
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ FirstComponent.jsx
+
+
+function FirstComponent (){
+    return (
+    <div className="FirstComponent">First Component</div>
+    )
+}
+------------------------------------------------------------------------------------------
+파일을 둘 다 저장하고 
+
+몇 가지 오류가 있다 
+
+------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+Failed to compile.
+
+[eslint]
+src\App.js
+  Line 22:8:  'FirstComponent' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+ERROR in [eslint]
+src\App.js
+  Line 22:8:  'FirstComponent' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error
+
+------------------------------------------------------------------------------------------
+
+FirstComponent는 정의되지 않았다
+
+이 에러는 어디서 왔지?
+App.js의 22번째 줄에서 왔다고 한다
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import { Component } from 'react';
+import './App.css';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  )
+}
+....
+------------------------------------------------------------------------------------------
+App.js 22번째 줄 FirstComponent가 정의되지 않았다 왜 정의되지 않았지?
+Java와 아주 비슷하다, 클래스를 사용한다면 임포트해줘야 한다, FirstComponent를 임포트해야지
+                                              |
+                                              V
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import { Component } from 'react';
+import './App.css';
+
+//1: import FirstComponent 어디에서 임포트 하는 거지? 특정 모듈에서 임포트 할 것이다, 어떤 모듈? './components/learning-examples/FirstComponent <= 이건 파일이지 .jsx를 끝에 안 붙여도 된다'
+//  ./components/learning-examples/FirstComponent 하고 저장한다
+import FirstComponent from './components/learning-examples/FirstComponent';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  )
+}
+....
+------------------------------------------------------------------------------------------
+
+될까?
+
+------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+Failed to compile.
+
+Attempted import error: './components/learning-examples/FirstComponent' does not contain a default export (imported as 'FirstComponent').
+WARNING in [eslint]
+src\components\learning-examples\FirstComponent.jsx
+  Line 1:10:  'FirstComponent' is defined but never used  no-unused-vars
+
+ERROR in ./src/App.js 12:36-50
+export 'default' (imported as 'FirstComponent') was not found in './components/learning-examples/FirstComponent' (module has no exports)
+
+webpack compiled with 1 error and 1 warning
+------------------------------------------------------------------------------------------
+
+임포트 시도 에러이다, components의 learning-examples의 FirstComponent에 디폴트 export가 없다고한다
+
+FirstComponent라고 임포트 하는데 디폴트 export가 없다는 것이다
+
+
+FirstComponent에서 아무것도 내보내지 않는다는 것이다
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ FirstComponent.jsx
+
+
+//2: 여기에 export default 라고 쓰는 것으로 해결할 수 있다 그리고 저장
+export default function FirstComponent (){
+    return (
+    <div className="FirstComponent">First Component</div>
+    )
+}
+
+------------------------------------------------------------------------------------------
+에러가 없는지 볼까??                   |
+                                      V
+------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.27.0.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+
+------------------------------------------------------------------------------------------
+
+없다 컴피일이 잘 된다
+그럼 이제 브라우저로 가 보자 
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+모두 잘 보인다
+멋지지?
+
+이제 SecondComponent도 비슷하게 할 수 있다, ThirdComponent와 FourthComponent도
+FirstComponent.jsx파일을 복사해서 붙여넣기 하고 이름을 SecondComponent라고 하고 
+코드는 App.js에서 SecondComponent를 잘라와야지
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ SecondComponent.jsx
+
+
+//3: export default는 남겨두고 붙여넣는다, export default 함수여야 하기 때문이다, 저장하고
+export default function SecondComponet () {
+  return(
+    <div className="SecondComponent">Second Component</div>
+  );
+}
+
+------------------------------------------------------------------------------------------
+
+App.js로 가보겠다
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import { Component } from 'react';
+import './App.css';
+import FirstComponent from './components/learning-examples/FirstComponent';
+
+//4: Second Component도 임포트해야지 위에것을 복사해서 아래에 붙여넣고 Second로 고쳐주자 되나 확인해볼까?
+import SecondComponet from './components/learning-examples/SecondComponent';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  )
+}
+....
+------------------------------------------------------------------------------------------
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+된다
+Second Component가 나온다
+
