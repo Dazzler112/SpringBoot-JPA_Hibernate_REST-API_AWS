@@ -332,3 +332,567 @@ Todo App                |
 된다
 Second Component가 나온다
 
+좋다 Third와 Fourth Component도 동일하게 해보겠다
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import { Component } from 'react';
+import './App.css';
+import FirstComponent from './components/learning-examples/FirstComponent';
+import SecondComponet from './components/learning-examples/SecondComponent';
+
+//5: ThirdComponents, FourthComponent도 임포트 구문을 추가하겠다, ThirdComponent는 여기에 ThirdComponent가 되고
+import ThirdComponet from './components/learning-examples/ThirdComponent';
+//5-1: 여기에는 FourthComponet, 여기도 FourthComponet가 돼야지, 그러면 컴포넌트 파일을 또 복사 붙여넣기 하자
+import FourthComponet from './components/learning-examples/FourthComponent';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  )
+}
+....
+------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ ThirdComponet.jsx
+
+//6: 이건 클래스 컴포넌트다 렌더링 메서드가 있다, 이 특정 클래스에서 클래스 컴포넌트를 생성하는 건 마지막 일 것이다
+// export default하고 이 클래스를 주고 저장한다
+export default class ThirdComponent  extends Component{
+
+  render () {
+    return(
+      <div className="ThirdComponent">Third Component</div>
+    );
+  }
+}
+
+------------------------------------------------------------------------------------------
+
+이것도 될까??
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import { Component } from 'react';
+import './App.css';
+import FirstComponent from './components/learning-examples/FirstComponent';
+import SecondComponet from './components/learning-examples/SecondComponent';
+
+import ThirdComponet from './components/learning-examples/ThirdComponent';
+//7: 일단은 FourthComponent의 임포트 구문은 주석 처리 하겠다, 저장한다
+//import FourthComponet from './components/learning-examples/FourthComponent';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  )
+}
+....
+------------------------------------------------------------------------------------------
+
+될까?
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+
+
+Compiled with problems:
+×
+ERROR
+[eslint] 
+src\App.js
+  Line 28:8:  'ThirdComponent' is not defined   react/jsx-no-undef
+  Line 29:8:  'FourthComponent' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+
+--------------------------------------------------------------------------------------------
+
+안된다, 오류이다
+컴파일에 문제가 있다
+에러가 어디에서 났지? ThirdComponent.jsx
+문제가 뭐지?
+문제는 리액트에서 Component를 임포트한다는 거지, extends Component라고 썼잖아
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ ThirdComponet.jsx
+
+
+//8: 여기에도 임포트가 필요하다, 추가해보자 저장하고 브라우저로 간다
+import { Component } from 'react';
+
+export default class ThirdComponent  extends Component{
+
+  render () {
+    return(
+      <div className="ThirdComponent">Third Component</div>
+    );
+  }
+}
+
+------------------------------------------------------------------------------------------
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+
+잘 된 것 같다
+좋다
+
+이제 FourthComponent로 가보자
+FourthComponent는 쉽다 복사하면 된다, Fourth는 ThirdComponent를 복사한다 복사하고 이름을 FourthComponent로
+FourthComponent도 App.js 코드에서 복사하고 붙여넣자
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ FourthComponent.jsx
+
+
+import { Component } from 'react';
+
+//9: App.js에서 코드 잘라 붙여넣기, 이것도 저장하고
+export default class FourthComponent extends Component{
+    render (){
+      return(
+        <>
+          <div className="FourthComponent">Fourth Component</div>
+          <div className="FourthComponent">Fourth Component</div>
+        </>
+      );
+    }
+  }
+
+-----------------------------------------
+
+⏺ App.js
+
+
+import { Component } from 'react';
+import './App.css';
+import FirstComponent from './components/learning-examples/FirstComponent';
+import SecondComponet from './components/learning-examples/SecondComponent';
+import ThirdComponet from './components/learning-examples/ThirdComponent';
+
+//9-1: 여기 Fourth에 한 주석을 해제하고 저장한다
+import FourthComponet from './components/learning-examples/FourthComponent';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponet />
+      <ThirdComponent />
+      <FourthComponent />
+    </div>
+  )
+}
+....
+------------------------------------------------------------------------------------------
+될까?                                     |
+                                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+
+된다, 모든 게 잘 된다 
+
+
+명령 프롬프트로 가면 
+
+------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.27.0.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+
+------------------------------------------------------------------------------------------
+
+Component가 정의되었지만 사용되지 않았다고한다
+App.js 2번째 줄이다
+좋지 않다
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+//import { Component } from 'react'; //<== 이부분을 지우고 저장 (이곳에만 지금 주석처리 실제 IDE에선 삭제함)
+import './App.css'; 
+import FirstComponent from './components/learning-examples/FirstComponent';
+import SecondComponent from './components/learning-examples/SecondComponent';
+import ThirdComponent  from './components/learning-examples/ThirdComponent';
+import FourthComponent from './components/learning-examples/FourthComponent';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponent />
+      <ThirdComponent/>
+      <FourthComponent />
+    </div>
+  )
+}
+
+export default App;
+------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.27.0.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+
+
+------------------------------------------------------------------------------------------
+그럼 이제 경고도 없다
+좋다
+
+
+각각의 컴포넌트를 각자의 파일로 옮겼다
+그럼 또 다른 질문이 생길 것이다
+앞서 우린 중괄호를 이용해 컴포넌트를 가져왔다 (예)import { Component } from 'react';)
+지금은 여기에 중괄호가 전혀 없다 (예) import FirstComponent from './components/learning-examples/FirstComponent';)
+import FirstComponent 여기에 중괄호는 없지
+
+하지만 ThirdComponent로 가보면 Component를 임포트할 때 중괄호를 사용한다
+---------------------------------------
+import { Component } from 'react';
+
+export default class ThirdComponent  extends Component{
+
+  render () {
+    return(
+      <div className="ThirdComponent">Third Component</div>
+    );
+  }
+}
+---------------------------------------
+리액트에서 임포트할 때는 중괄호를 쓰지
+
+
+하지만 우리는 여기에 중괄호를 전혀 사용하지 않았다
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+//import { Component } from 'react'; //<== 이부분을 지우고 저장 (이곳에만 지금 주석처리 실제 IDE에선 삭제함)
+import './App.css'; 
+import FirstComponent from './components/learning-examples/FirstComponent';
+import SecondComponent from './components/learning-examples/SecondComponent';
+import ThirdComponent  from './components/learning-examples/ThirdComponent';
+import FourthComponent from './components/learning-examples/FourthComponent';
+
+....
+------------------------------------------------------------------------------------------
+왜지?
+
+
+
+FirstComponent로 가서 여기에 또 다른 컴포넌트를 정의해 보겠다
+재사용하고자하는 컴포넌트는 함수일 수도 있겠지
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ FirstComponet.jsx
+
+
+export default function FirstComponent (){
+    return (
+    <div className="FirstComponent">First Component</div>
+    )
+  }
+
+
+//10: FifthComponent라고 하겠다, 이 모듈에서 우리는 두 가지 다른 컴포넌트를 정의하고 있다, FifthComponent가 있고 FirstComponent가 있지
+// 이것도 외부에서 사용하고 싶으면 여기에도 export default를 써주면 되겠지?? 
+export default function FifthComponent (){
+    return (
+    <div className="FifthComponent">Fifth Component</div>
+    )
+  }
+------------------------------------------------------------------------------------------
+
+이게 가능할까? 가능하다고 생각하니? export default를 두 번 쓸 수 있을까? 한번 보자
+
+------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+
+Compiling...
+Failed to compile.
+
+SyntaxError: C:\study\frontend\todo-app\src\components\learning-examples\FirstComponent.jsx: Only one default export allowed per module. (8:0)
+   6 |
+   7 |
+>  8 | export default function FifthComponent (){
+     | ^
+   9 |     return (
+  10 |     <div className="FifthComponent">Fifth Component</div>
+  11 |     )
+    at parser.next (<anonymous>)
+    at normalizeFile.next (<anonymous>)
+    at run.next (<anonymous>)
+    at transform.next (<anonymous>)
+ERROR in ./src/components/learning-examples/FirstComponent.jsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\study\frontend\todo-app\src\components\learning-examples\FirstComponent.jsx: Only one default export allowed per module. (8:0)
+
+   6 |
+   7 |
+>  8 | export default function FifthComponent (){
+     | ^
+   9 |     return (
+  10 |     <div className="FifthComponent">Fifth Component</div>
+  11 |     )
+    at constructor (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:351:19)
+    at FlowParserMixin.raise (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:3233:19)
+    at FlowParserMixin.checkDuplicateExports (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:13525:14)
+    at FlowParserMixin.checkExport (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:13455:14)
+    at FlowParserMixin.parseExport (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:13290:12)
+    at FlowParserMixin.parseStatementContent (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:12336:27)
+    at FlowParserMixin.parseStatementLike (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:12223:17)
+    at FlowParserMixin.parseStatementLike (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:5017:24)
+    at FlowParserMixin.parseModuleItem (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:12200:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:12780:36)
+    at FlowParserMixin.parseBlockBody (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:12773:10)
+    at FlowParserMixin.parseProgram (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:12100:10)
+    at FlowParserMixin.parseTopLevel (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:12090:25)
+    at FlowParserMixin.parseTopLevel (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:5784:28)
+    at FlowParserMixin.parse (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:13904:10)
+    at parse (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:13946:38)
+    at parser (C:\study\frontend\todo-app\node_modules\@babel\core\lib\parser\index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (C:\study\frontend\todo-app\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (C:\study\frontend\todo-app\node_modules\@babel\core\lib\transformation\index.js:21:50)
+    at run.next (<anonymous>)
+    at transform (C:\study\frontend\todo-app\node_modules\@babel\core\lib\transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (C:\study\frontend\todo-app\node_modules\gensync\index.js:261:32)
+    at C:\study\frontend\todo-app\node_modules\gensync\index.js:273:13
+    at async.call.result.err.err (C:\study\frontend\todo-app\node_modules\gensync\index.js:223:11)
+
+ERROR in [eslint]
+src\components\learning-examples\FirstComponent.jsx
+  Line 8:  Parsing error: Only one default export allowed per module. (8:0)
+
+webpack compiled with 2 errors
+
+------------------------------------------------------------------------------------------
+
+Parsing 에러이다
+모듈 당 하나의 default export만 가능하다, 둘 중 하나만 default export 된다는 거지 (   Line 8:  Parsing error: Only one default export allowed per module. (8:0) )
+
+이건 FirstComponent니까 FirstComponent가 기본 export였으면 좋겠다
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ FirstComponet.jsx
+
+
+export default function FirstComponent (){
+    return (
+    <div className="FirstComponent">First Component</div>
+    )
+  }
+
+
+//11: 이건 일반 export라 하고, 일반 export가 있으면, 만약 App.js에서 FifthComponent를 보여주고 싶으면 이걸 어떻게 임포트 할까? //11-1: App.js파일로...
+export function FifthComponent (){
+    return (
+    <div className="FifthComponent">Fifth Component</div>
+    )
+  }
+
+-----------------------------------------
+
+⏺ App.js
+
+
+import './App.css';
+
+//11-1: 이건 FirstComponent와 동일한 파일에 있지, 
+import FirstComponent from './components/learning-examples/FirstComponent';
+//11-1 계속: 한 가지 방법은 import라 하고 FirstComponent.jsx에 있는 FifthComponent의 이름을 가져오는것이다, 그치?
+//이제 FifthComponent의 이름을 가지고 온다 FirstComponent에서 가능할까? 저장하고 브라우저로 가보자
+import FifthComponent from './components/learning-examples/FirstComponent';
+
+import SecondComponent from './components/learning-examples/SecondComponent';
+import ThirdComponent  from './components/learning-examples/ThirdComponent';
+import FourthComponent from './components/learning-examples/FourthComponent';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponent />
+      <ThirdComponent/>
+      <FourthComponent />
+    </div>
+  )
+}
+
+export default App;
+------------------------------------------------------------------------------------------
+                                                  |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+
+--------------------------------------------------------------------------------------------
+
+FifthComponent가 보이냐? App.js에 FifthComponent를 추가해보자
+-----------------------------------------
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponent />
+      <ThirdComponent/>
+      <FourthComponent />
+
+      // FifthComponent를 적는다
+      <FifthComponent />
+    </div>
+  )
+}
+-----------------------------------------
+어떻게 될까??               |
+                           V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+                                           First Component
+
+
+--------------------------------------------------------------------------------------------
+
+아하!, First Component를 사용한다
+
