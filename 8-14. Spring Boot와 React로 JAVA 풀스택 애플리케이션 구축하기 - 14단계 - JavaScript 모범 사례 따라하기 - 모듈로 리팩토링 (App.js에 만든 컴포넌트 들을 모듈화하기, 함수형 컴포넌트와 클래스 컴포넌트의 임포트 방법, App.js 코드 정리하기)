@@ -896,3 +896,466 @@ Todo App                |
 
 아하!, First Component를 사용한다
 
+❓ 왜 FifthComponent가 아니지?
+중괄호를 쓰지 않으면 나오는 것은 무조건 기본 컴포넌트이다
+
+-----------------------------------------
+export default function FirstComponent (){
+    return (
+    <div className="FirstComponent">First Component</div>
+    )
+  }
+
+
+export function FifthComponent (){
+    return (
+    <div className="FifthComponent">Fifth Component</div>
+    )
+  }
+-----------------------------------------
+여기 FirstComponent 에서 기본으로 내보내는 컴포넌트는 바로 이 FirstComponent인 것이다
+
+-----------------------------------------
+import FirstComponent from './components/learning-examples/FirstComponent';
+import FifthComponent from './components/learning-examples/FirstComponent';
+import SecondComponent from './components/learning-examples/SecondComponent';
+import ThirdComponent  from './components/learning-examples/ThirdComponent';
+import FourthComponent from './components/learning-examples/FourthComponent';
+-----------------------------------------
+여기 이름이 뭐든 이 default가 임포트가 되는 것이다
+TenthComponent라고 해도 중괄호 없이 임포트 하는 건 FirstComponent지 그게 기본 컴포넌트이다
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import './App.css';
+import FirstComponent from './components/learning-examples/FirstComponent';
+import FifthComponent from './components/learning-examples/FirstComponent';
+//12: 여기로 가서 import 아무 이름이나 해도 된다, 기본으로 export되니 아무 이름이나 해라, TenthComponent이름을 복사해서 여기 붙여넣고 
+import TenthComponent from './components/learning-examples/FirstComponent';
+
+import SecondComponent from './components/learning-examples/SecondComponent';
+import ThirdComponent  from './components/learning-examples/ThirdComponent';
+import FourthComponent from './components/learning-examples/FourthComponent';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponent />
+      <ThirdComponent/>
+      <FourthComponent />
+      <FifthComponent />
+
+      //12-1: TenthComponent라 하고 / 쓰고 태그를 닫는다 저장하고 브라우저로 간다
+      <TenthComponent />
+    </div>
+  )
+}
+
+export default App;
+
+------------------------------------------------------------------------------------------
+                                     |
+                                     V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+                                           First Component
+                                           First Component
+
+
+--------------------------------------------------------------------------------------------
+여기 또 다른 FirstComponent가 생겼다
+
+
+진짜 FifthComponent를 사용하고 싶으면 중괄호에 넣어야 한다 
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import './App.css';
+import FirstComponent from './components/learning-examples/FirstComponent';
+
+//13: 중괄호가 이게 default export가 아니라는 걸 알려준다, 됐다, 여기에서 이 이름으로 export 되는 FifthComponent가 여기에서 매칭된다 TenthComponent는 지우고 저장하자 
+import {FifthComponent} from './components/learning-examples/FirstComponent';
+// import TenthComponent from './components/learning-examples/FirstComponent'; <== 해당 임포트 삭제
+
+import SecondComponent from './components/learning-examples/SecondComponent';
+import ThirdComponent  from './components/learning-examples/ThirdComponent';
+import FourthComponent from './components/learning-examples/FourthComponent';
+
+function App() {
+  return (
+      <div className="App">
+      {/* <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header> */}
+      <FirstComponent />
+      <SecondComponent />
+      <ThirdComponent/>
+      <FourthComponent />
+      <FifthComponent />
+      <TenthComponent />
+    </div>
+  )
+}
+
+export default App;
+
+------------------------------------------------------------------------------------------
+
+어떻게 되지?
+
+                                           |
+                                           V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+                                           Fifth Component
+
+
+--------------------------------------------------------------------------------------------
+
+축하한다 FifthComponent가 보인다
+
+
+
+
+
+
+
+
+
+Let's follow JavaScript Best Practices
+
+● 1: Each component in its own file (or module)                                        -----------------------------------------
+  ■ src/components/learning-examples/FirstComponent.jsx                                  V TODO-APP
+  ■ Exercise: Move ScondComponent, ThirdComponent & FourthComponent                       > 📁 node_modules
+    to their own modules                                                                   V 📁🌎 public
+  ■ To use a class from a different module, you need to import it                            ⭐ favicon.ico
+    ○ Default import                                                                           5 index.html
+      ◦ import FirstComponent from './components/learning/FirstComponent.jsx'                 📄 logo192.png
+    ○ Named import                                                                            📄 logo512.png
+      ◦ import {FifthComponent} from './components/learning/FirstComponent.jsx'               {} manifest.json
+● 2: Exercise: Create LearningComponent and move all code in                                  🤖 robots.txt
+     App component to it!                                                                   V 📁 src
+                                                                                              S App.css
+                                                                                             js App.js
+                                                                                             🧪 App.test.js
+                                                                                              S index.css
+                                                                                             js index.js
+                                                                                              ⁕ logo.svg
+                                                                                             js reportWebVitals.js
+                                                                                             js setupTests.js  
+                                                                                             
+                                                                                            .gitignore
+                                                                                            N package-lock.json
+                                                                                            N package.json
+                                                                                            i README.md
+                                                                                          -----------------------------------------
+
+
+이번 강의에서는 코드를 잘 정리하는 방법을 배웠다 
+● 1: Each component in its own file (or module)
+각 컴포넌트를 각 파일, 각 모듈에 집어넣었지
+  ■ src/components/learning-examples/FirstComponent.jsx
+FirstComponent를 learning-examples로 옮겼고
+  ■ Exercise: Move ScondComponent, ThirdComponent & FourthComponent to their own modules
+SecondComponent와 ThirdComponent, FourthComponent도 각자 모듈로 옮겼다
+  ■ To use a class from a different module, you need to import it 
+서로 다른 모듈에서 클래스를 사용하려면 임포트를 해야 했다 
+ThirdComponent나 FourthComponent, SecondComponent를 App.js에서 사용하고 싶으면 
+FirstComponent, SecondComponent, ThirdComponent, FourthComponent를 App.js에서 임포트 해야지
+
+임포트에 두 가지 종류가 있는 것도 보았지, default import와 named import이다
+    ○ Default import 
+      ◦ import FirstComponent from './components/learning/FirstComponent.jsx' 
+export default로 된 JavaScript 요소라면 그냥 임포트를 하면 되지 
+
+    ○ Named import 
+      ◦ import {FifthComponent} from './components/learning/FirstComponent.jsx' 
+하지만 default export가 아니라면, 그런 경우에 export 할 일이 있다면 
+이름을 지정해서 임포트 해야 한다, 중괄호 안에 컴포넌트 이름을 써주면 됐었지
+
+
+
+강의를 마치기 전에 간단한 실습을 하나 해보겠다
+● 2: Exercise: Create LearningComponent and move all code in App component to it! 
+여기 App.js는 지금 import가 너무 많지
+
+---------------------------------
+import './App.css';
+import FirstComponent from './components/learning-examples/FirstComponent';
+import {FifthComponent} from './components/learning-examples/FirstComponent';
+import SecondComponent from './components/learning-examples/SecondComponent';
+import ThirdComponent  from './components/learning-examples/ThirdComponent';
+import FourthComponent from './components/learning-examples/FourthComponent';
+
+function App() {
+  return (
+      <div className="App">
+      <FirstComponent />
+      <SecondComponent />
+      <ThirdComponent/>
+      <FourthComponent />
+      <FifthComponent />
+    </div>
+  )
+}
+
+export default App;
+---------------------------------
+App.js를 보면 여기에 import가 많이 있는 걸 볼 수 있다
+너가 또 다른 컴포넌트를 하나 만들어봐라
+LearningComponent라고 이름을 붙이고 이 폴더에 넣어라 learning-examples폴더지
+이 LearningComponent는 이 모든 컴포넌트를 임포트하는 컴포넌트이다
+
+여기에 있는 
+      <FirstComponent />
+      <SecondComponent />
+      <ThirdComponent/>
+      <FourthComponent />
+      <FifthComponent />
+이 코드 전체를 LearningComponent로 옮기고
+LearningComponent를 여기에 포함해라
+
+
+learning-examples폴더에 여기에 컴포넌트를 생성해보겠다 LearningComponent.jsx라고 쓰겠다 
+그리고 LearningComponent에서 전부 임포트 하고 싶다
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+//14: App.js에있는 모든 import를 LearningComponent에서.jsx로 복사한다 (import './App.css'; 빼고) //14-1: LearningComponent.jsx 파일로..
+import './App.css';
+/*
+import FirstComponent from './components/learning-examples/FirstComponent';
+import {FifthComponent} from './components/learning-examples/FirstComponent';
+import SecondComponent from './components/learning-examples/SecondComponent';
+import ThirdComponent  from './components/learning-examples/ThirdComponent';
+import FourthComponent from './components/learning-examples/FourthComponent';
+*/ <== 잘라내기
+
+//14-2: 이부분을 복사 //14-3: LearningComponent.jsx 파일로..
+function App() {
+  return (
+      <div className="App">
+      //14-4: 여기에 <FirstComponent /> <SecondComponent />.. 이것들 대신 LearningComponent()를 넣을것이다
+      <FirstComponent />
+      <SecondComponent />
+      <ThirdComponent/>
+      <FourthComponent />
+      <FifthComponent />
+    </div>
+  )
+}
+export default App;
+
+---------------------------------
+
+⏺ LearningComponent.jsx
+
+
+//14-1: 붙여넣기!, 그런데 경로가 변경되지 임포트가 훨씬 간단해진다
+/*
+import FirstComponent from './components/learning-examples/FirstComponent';
+import {FifthComponent} from './components/learning-examples/FirstComponent';
+import SecondComponent from './components/learning-examples/SecondComponent';
+import ThirdComponent  from './components/learning-examples/ThirdComponent';
+import FourthComponent from './components/learning-examples/FourthComponent';
+*/
+                                      | ./FirstComponent, ./SecondComponent, ./ThirdComponent 이런식으로 되지
+                                      V    같은 폴더에 있으니까그렇다, 맞지?, 그다음 본문 로직도 이동해야지 //14-2: App.js파일로..
+import FirstComponent from './FirstComponent';
+import {FifthComponent} from './FirstComponent';
+import SecondComponent from './SecondComponent';
+import ThirdComponent  from './ThirdComponent';
+import FourthComponent from './FourthComponent';
+
+
+//14-3: 붙여넣기 이제 여기는 LearningComponent라 하겠다 export default를 주고, 이제 LearningComponent를 App.js에 사용하고 싶다 //14-4: App.js 파일로..
+export default function LearningComponent라() {
+    return (
+        <div className="App">
+        {/* <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <p>
+            Edit <code>src/App.js</code> and save to reload.
+          </p>
+          <a
+            className="App-link"
+            href="https://reactjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn React
+          </a>
+        </header> */}
+        <FirstComponent />
+        <SecondComponent />
+        <ThirdComponent/>
+        <FourthComponent />
+        <FifthComponent />
+      </div>
+    )
+  }
+------------------------------------------------------------------------------------------
+
+남은건뭐지? 오류가 생길 것이다                 
+아주 익숙한 오류가 생긴다   
+
+------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+
+Failed to compile.
+
+[eslint]
+src\App.js
+  Line 22:7:  'LearningComponent' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+ERROR in [eslint]
+src\App.js
+  Line 22:7:  'LearningComponent' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error
+
+------------------------------------------------------------------------------------------
+LearningComponent가 정의되지 않았다 왜지?
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+import './App.css';
+
+//15: import LearningComponent from './components/learning-examples/LearningComponent'; 저장하면
+import LearningComponent from './components/learning-examples/LearningComponent';
+
+function App() {
+  return (
+    <div className="App">
+     <LearningComponent />
+    </div>
+  )
+}
+
+export default App;
+------------------------------------------------------------------------------------------
+                                              |
+                                              V
+------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.27.0.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+------------------------------------------------------------------------------------------
+
+오류 없이 잘 컴파일 된다
+
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                           First Component
+                                           Second Component
+                                           Third Component
+                                           Fourth Component
+                                           Fourth Component
+                                           Fifth Component
+
+
+--------------------------------------------------------------------------------------------
+축하한다
+
+
+
+
+
+
+
+
+
+Java 프로그래머들이 JavaScript로 가면서 모듈이라는 개념을 이해하는 데 많은 어려움을 겪었다 
+왜 괄호가 필요한지, 왜 중괄호가 필요한지도
+그래서 이러한 상호작용을 만들어서 JavaScript의 기본적인 개념을 리액트의 기본적인 내용과 조합해본 것이다
+컴포넌트가 무엇인지, JSX가 무엇인지도 이해해봤다
+다음 학습에서 보겠다
