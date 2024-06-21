@@ -819,3 +819,120 @@ twitter, linkedin instagram 이다
 
 
 
+사실 단 하나의 파라미터와 한 줄의 코드만 있으면 정말 간단하게 만들 수 있다 
+
+------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ LearningJavaScript.jsx
+
+
+
+const person = {
+    name: 'Ranga Karanam',
+    address: {
+        line1: 'Baker Street',
+        city: 'London',
+        country: 'UK',
+    },
+    profiles: ['twitter', 'linkedin', 'instagram'],
+    printProfile: () => {
+        person.profiles.map(
+            //13: 여기 괄호를 지우고 profile이라 한 다음 중괄호도 지우면 훨씬 더 간단해졌지, 
+            profile => console.log(profile)
+        ) 
+    }
+       //코드 정리: person.profiles.map 에서 같은 줄 화살표 함수를 정의했다 profile console.log(profile)
+}
+
+
+export default function LearningJavaScript () {
+    return(
+        <>
+        <div>{person.name}</div>
+        <div>{person.address.line1}</div>
+        <div>{person.profiles[0]}</div>
+        <div>{person.printProfile()}</div>
+        </>
+    )
+}
+
+------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+Quick JavaScript Tour FOr Java Developers
+
+ ____________________________________________________________________
+|  const person = {                                                  |
+|    name: 'Ranga Karana',                                           | 
+|    address: {                                                      |    
+|      line1: 'Baker Street',                                        |  
+|      city: 'London',                                               |       
+|      country: 'UK',                                                |        
+|    },                                                              | 
+|    profiles: ['twitter'. 'linkedin', 'instagram'],                 |       
+|    printProfile: () => {                                           |     
+|      profile => console.log(profile)                               |           
+|    }                                                               |         
+|  }                                                                 |           
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● No need to use semicolon!
+● Dynamic objects
+● You can store a function in an object!
+
+
+이 여정의 목적은 다음 섹션으로 넘어가기 전에 JavaScript를 잠깐 보여주는 거였다
+● No need to use semicolon!
+보다시피 JavaScript에는 세미콜론을 쓰지 않아도 됐지, 코드 한 줄마다 세미콜론을 쓸 필요가 없었다
+● Dynamic objects
+동적 객체를 만들 수도 있었다
+원하는 속성을 포함한 객체를 만들 수 있었고 객체는 여러 계층 구조를 가질 수도 있었다
+예1) name: 'Ranga Karana',
+예2)    name: 'Ranga Karana',                         
+        address: {                                            
+          line1: 'Baker Street',                                 
+          city: 'London',                                               
+          country: 'UK',                                                 
+        },
+● You can store a function in an object!
+객체 안에 함수를 저장할 수 도 있었다, 여기 함수 안에 직접 함수를 만들어 객체의 일부로 만들었지
+   printProfile: () => {                                           
+      profile => console.log(profile)                                 
+   }     
+
+
+
+
+
+
+
+
+
+Digging Deeper into Components - Counter
+                                                                                ______     ______
+● Parts of a Component                                                         (  +1  )   (  -1  )
+  ■ View (JSX or JavaScript)                                                    ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ Logic (JavaScript)                                                          ______     ______
+  ■ Styling (CSS)                                                              (  +2  )   (  -2  )
+  ■ State (Internal Data Store)                                                 ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ Props (Pass Data)                                                           ______     ______
+● Let's learn more about each of these building another simple example         (  +5  )   (  -5  )
+  ■ A Counter App                                                               ‾‾‾‾‾‾     ‾‾‾‾‾‾
+● Let's take a hands-on step by step approach                                           0
+                                                                                   ____________   
+                                                                                  (   Reset    ) 
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾
+
+이 섹션의 목표는 리액트와 JavaScript를 간단히 소개하는 거였다 
+이 섹션을 즐겁게 지나왔기를 바란다, 
+다음 섹션에선 카운터 애플리케이션을 하나씩 순서대로 만들것이다
+새로운 것도 두 가지 배울 예정이다
+State와 Props이다
+다음 섹션에서 보겠다
