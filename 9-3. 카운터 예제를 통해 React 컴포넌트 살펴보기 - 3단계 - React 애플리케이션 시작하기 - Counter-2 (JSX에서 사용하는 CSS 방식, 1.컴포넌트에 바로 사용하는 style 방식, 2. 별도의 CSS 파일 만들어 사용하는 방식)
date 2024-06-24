@@ -310,3 +310,428 @@ src\components\counter\Counter.jsx
 
 대답은 '아니오' 이다
 
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                  //5: 마지막으로 해야 할 게 있는데, 앞뒤에서 중괄호를 한 번 더 여닫아줘야 한다, 이번에는 될까?, 저장하면
+                 style={{fontSize: "100px"}}
+
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                        0
+                                     ________
+                                    |        |
+                                    |   +1   | (<=여기선 표시가 안되지만 +1이 100px크기로 커짐)
+                                    |        |
+                                     ‾‾‾‾‾‾‾‾   
+                                  
+-------------------------------------------------------------------------------------------
+
+보다시피 글씨가 100픽셀로 표시된다 좋다,
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                  //6: 크기를 좀 줄여서 30px로 바꿔주겠다 
+                 style={{fontSize: "30px"}}
+
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                        0
+                                      ______
+                                     |  +1  | (<=여기선 표시가 안되지만 +1이 30px크기로 커짐)
+                                      ‾‾‾‾‾‾ 
+                                  
+-------------------------------------------------------------------------------------------
+
+글자 크기가 30픽셀로 바뀌었다
+보기 좋다 
+이런 식으로 요소에서 직접 CSS 스타일을 정의할 수 있다
+
+
+이렇게 요소에서 바로 스타일을 정의할 때 좀 더 권장되는 방식은 여기 있는 속성값을 별도의 스타일 객체로 정의하는 것이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    //7:위쪽에서 상수를 선언하고 변수명은 'buttonStyle'로 하겠다, 여기에 속성값을 넣는다//7-1:아래 버튼의 style위로..
+    const buttonStyle = {fontSize: "30px"}; 
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                 //7-1: 그런 다음 style에 buttonStyle을 넣고, 이제 앞선 강의에서 함수 이름에 중괄호를 붙였던 이유를 알겠지?
+                 //이건 JSX 문법이다, JSX 문법에서 이렇게 중괄호를 열면 JavaScript 객체 값에 접근한다는 걸 의미한다, 중괄호를 연 다음에는 다시 닫아주고,
+                 //JavaScript XML의 객체 표기법이지, 우리는 이 안에서 또 다른 객체를 정의한 것이다, ( const buttonStyle = {fontSize: "30px"}; )<=이 객체에는 JavaScript 속성과 값이 있고 이렇게 저장하면 
+                 style={buttonStyle}
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                        0
+                                      ______
+                                     |  +1  | (<=여기선 표시가 안되지만 +1이 30px크기로 커짐)
+                                      ‾‾‾‾‾‾ 
+                                  
+-------------------------------------------------------------------------------------------
+
+이런 식으로 화면에 표시된다
+
+그럼 이제 스타일을 조금 더 추가해 좀 더 예쁜 모양으로 만들어 보겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    //8: JavaScript 객체로 정의하는 거니까 뒤에 쉼표를 붙인 다음 'backgroundColor'를 추가하겠다 배경색은 원하는 대로 지정하면 된다 '#00a5ab'라는 걸로 하겠다
+    const buttonStyle = {
+          fontSize: "30px",
+          backgroundColor: "#00a5ab"
+    };
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                 style={buttonStyle}
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+어떻게 나오는지 보자                             |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                        0
+                                      ______
+                                     |  +1  | (<=바탕 색상이 어두운 민트계열로 생김)
+                                      ‾‾‾‾‾‾ 
+                                  
+-------------------------------------------------------------------------------------------
+
+좋다, +1 뒤로 배경색이 보인다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    const buttonStyle = {
+          fontSize: "30px",
+          backgroundColor: "#00a5ab"
+
+          //9: width 속성도 추가하겠다 값은 100px로 지정하겠다, 좋다
+          width: "100px",
+          //9-1: 그리고 마진은 10px로 지정하겠다
+          margin: "10px",
+          //9-2: 글자 색은 흰색으로 할 거니까 color는 'white'로 하겠다
+          color: "white",
+          //9-3: 패딩도 약간 추가하겠다, padding은 15px로 지정하겠다
+          padding: "15px", 
+    };
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                 style={buttonStyle}
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                        0
+                                      _________
+                                     |   +1    | 
+                                     |         |(<=글자색, 패딩,width, 마진 적용됨)
+                                      ‾‾‾‾‾‾‾‾‾ 
+                                  
+-------------------------------------------------------------------------------------------
+
+거의 다 된 것 같다, 마지막으로 버튼을 조금 둥굴게 만들어 보겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+
+export default function Counter() {
+
+    const buttonStyle = {
+        fontSize: "30px",
+        backgroundColor: "#00a5ab",
+        width: "100px",    
+        margin: "10px",
+        color: "white",
+        padding: "15px",
+
+        //10: 그러려면 border-radius라는 속성을 추가해야 한다, JavaScript 객체에서는 어떻게 써야 할까?
+        //JavaScript에서 이 속성을 사용할 때 'borderRadius'로 써야 한다 값은 30px로 지정하겠다, 저장하겠다
+        borderRadius: "30px"
+    };
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                 style={buttonStyle}
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                        0
+                                       
+                                     ◜ ‾‾‾‾‾‾‾ ◝ 
+                                     |   +1    | (<=border-radius 적용됨)
+                                     ◟ _______ ◞ 
+                                  
+-------------------------------------------------------------------------------------------
+
+좋다, +1 버튼을 둥글게 만들었다
+
+
+글자 크기를 조금 줄이겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    const buttonStyle = {
+
+        //11: 16 픽셀로 줄였음..
+        fontSize: "16px",
+        backgroundColor: "#00a5ab",
+        width: "100px",    
+        margin: "10px",
+        color: "white",
+        padding: "15px",
+        borderRadius: "30px"  
+    };
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                 style={buttonStyle}
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+이제 이렇게 멋진 버튼이 완성됐다, JavaScript 객체를 정의해 버튼 스타일을 적용해 봤다
+
+
+
+하지만 가장 좋은 방법은 CSS 파일을 만드는 것이다, 
+    const buttonStyle = {
+        fontSize: "30px",
+        backgroundColor: "#00a5ab",
+        width: "100px",    
+        margin: "10px",
+        color: "white",
+        padding: "15px",
+        borderRadius: "30px"  
+    };
+이렇게 JavaScript 객체를 정의하는 것보다
+CSS 파일에 정의하는 게 더 나은 접근 방식이다
+
+
