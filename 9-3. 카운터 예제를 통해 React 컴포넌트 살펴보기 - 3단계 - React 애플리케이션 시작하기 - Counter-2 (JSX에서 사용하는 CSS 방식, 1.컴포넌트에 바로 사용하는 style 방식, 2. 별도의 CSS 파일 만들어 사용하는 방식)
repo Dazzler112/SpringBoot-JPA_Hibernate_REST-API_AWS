@@ -1,0 +1,312 @@
+
+
+Define CSS in JSX
+
+  ________________________________________________________________________
+ |   const customStyle = {                                                |  
+ |     backgroundColor: "green",                                          |                    
+ |     fontSize: "16px",                                                  |          
+ |     padding: "15px 30px",                                              |              
+ |     color: "white",                                                    |        
+ |     width: "100px",                                                    |          
+ |     border: "1px solid #666666",                                       |               
+ |     borderRadius: "30px",                                              |                  
+ |   };                                                                   |         
+ |                                                                        |                       
+ |   <button style={customStyle}>+1</button>                              |                  
+ |                                                                        |                 
+ |   <button className="cssClass">+1</button>                             |                     
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+● Options of styling your React components
+  ■ 1:style
+    ○ Error:<button style={border-radius:30px}>
+    ○ Correct Syntax: <button style={{borderRadius:"30px"}>    
+  ■ 2: className
+    ○ Define the cssClass in your component CSS file
+
+
+
+이번 학습엔 버튼과 카운터에 필요한 CSS를 정의하는 데 집중하겠다
+● Options of styling your React components
+리액트 컴포넌트 스타일은 다양한 방식으로 적용할 수 있다 
+  ■ 1:style
+    ○ Error:<button style={border-radius:30px}>
+    ○ Correct Syntax: <button style={{borderRadius:"30px"}> 
+한 가지 방법은 'style'속성을 사용하는 것이다
+스타일을 요소 자체의 속성으로 포함시키는 방법이지
+스타일을 요소 자체의 속성으로 포함시키는 방법이지
+  ■ 2: className
+    ○ Define the cssClass in your component CSS file
+두 번째 방법은 'className'을 사용하는 것이다
+지금까지는 className만 사용했지
+
+이번 단계에선 style과 className을 모두 사용해 보자
+그럼 이제 버튼 클래스에 사용할 스타일을 정의해보자
+
+
+🔵 CSS style방식 정의 (리액트)
+
+컴포넌트에서 버튼 클래스로 가보겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+          //1: 이 안에서 스타일을 정의할 것이다
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+              //1-1: 형식을 이렇게 변경한 다음 이 밑에서 스타일을 정의해 보겠다
+              //style속성을 추가하고, 스타일을 어떻게 정의해 볼까?, 여기에 바로 스타일을 정의하면 되겠지? 
+              //그럼 font-size를 추가하고 100px로 지정해 보겠다 동작할까?
+                 style="font-size: 100px"
+
+          >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+
+                                  
+-------------------------------------------------------------------------------------------
+
+아무것도 나오지 않는다 
+
+--------------------------------------------------------------------------------------------
+
+⏺ cmd창 >
+
+
+Compiled with warnings.
+
+[eslint]
+src\components\counter\Counter.jsx
+  Line 14:18:  Style prop value must be an object  react/style-prop-object
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint]
+src\components\counter\Counter.jsx
+  Line 14:18:  Style prop value must be an object  react/style-prop-object
+
+webpack compiled with 1 warning
+--------------------------------------------------------------------------------------------
+
+Style 프로퍼티 값은 객체여야 한다고 나온다
+무슨 뜻일까?
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                  //2: Style에는 이렇게 객체 형태의 값을 넣어야 한다는 뜻이다, 이렇게 하면 동작할까? 저장하면
+                 style={font-size: 100px}
+         
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+
+Compiled with problems:
+×
+ERROR in ./src/components/counter/Counter.jsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\study\frontend\todo-app\src\components\counter\Counter.jsx: Unexpected token, expected "}" (14:33)
+
+  12 |          <button className="counterButton" 
+  13 |                  onClick={incrementCounterFunction}
+> 14 |                  style={font-size: 100px}
+     |                                  ^
+  15 |          
+  16 |          >+1</button>
+  17 |         </div>
+    at constructor (C:\study\frontend\todo-app\node_modules\@babel\parser\lib\index.js:351:19)
+  ....
+ERROR
+[eslint] 
+src\components\counter\Counter.jsx
+  Line 14:33:  Parsing error: Unexpected token, expected "}" (14:33)
+-------------------------------------------------------------------------------------------
+
+또 오류가 난다. '}' 토큰이 없어서 모듈 빌드가 실패했다고 나온다, 왜일까?
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                  //3: 아마도 여기에 큰따옴표를 붙이지 않아서 그런 것 같다, 100px이건 값이다 (font-size:)앞쪽은 프로퍼티이고 뒤쪽은 (100px) 값이다
+                  //이렇게 하면 될까?
+                 style={font-size: "100px"}
+         
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+
+Compiled with problems:
+×
+ERROR in ./src/components/counter/Counter.jsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\study\frontend\todo-app\src\components\counter\Counter.jsx: Unexpected token, expected "}" (14:33)
+
+  12 |          <button className="counterButton" 
+  13 |                  onClick={incrementCounterFunction}
+> 14 |                  style={font-size: "100px"}
+     |                                  ^
+  15 |          
+  16 |          >+1</button>
+  17 |         </div>
+  ....
+ERROR
+[eslint] 
+src\components\counter\Counter.jsx
+  Line 14:33:  Parsing error: Unexpected token, expected "}" (14:33)
+-------------------------------------------------------------------------------------------
+
+이번에도 동작하지 않는다, 마찬가지로 잘못된 토큰 오류가 발생한다
+
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+                  //4: JavaScript에선 프로퍼티 이름에 붙임표(-)를 포함할 수 없기 때문이다, 뒷부분의 첫 글자를 대문자로 바꿔줘야 한다
+                  //'font-size'가 아니라 'fontSize'로 바꿔야 한다, 이렇게 바꾸면 이번에는 될까?
+                 style={fontSize: "100px"}
+         
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+
+Compiled with problems:
+×
+ERROR in ./src/components/counter/Counter.jsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: C:\study\frontend\todo-app\src\components\counter\Counter.jsx: Unexpected token, expected "}" (14:32)
+
+  12 |          <button className="counterButton" 
+  13 |                  onClick={incrementCounterFunction}
+> 14 |                  style={fontSize: "100px"}
+     |                                 ^
+  15 |          
+  16 |          >+1</button>
+  17 |         </div>
+  ....
+ERROR
+[eslint] 
+src\components\counter\Counter.jsx
+  Line 14:33:  Parsing error: Unexpected token, expected "}" (14:33)
+-------------------------------------------------------------------------------------------
+
+대답은 '아니오' 이다
+
