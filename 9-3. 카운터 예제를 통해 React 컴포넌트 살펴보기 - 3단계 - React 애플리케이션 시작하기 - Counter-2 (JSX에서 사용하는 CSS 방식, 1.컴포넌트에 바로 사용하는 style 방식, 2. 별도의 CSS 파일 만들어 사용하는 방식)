@@ -735,3 +735,470 @@ export default function Counter() {
 CSS 파일에 정의하는 게 더 나은 접근 방식이다
 
 
+🔵 CSS 파일 만들어서 사용
+
+탐색창으로 가서 새로운 CSS 파일을 만들겠다, 폴더를 우클릭하고 새 파일에서 'Counter.css'를 만들겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.css
+
+
+//12: 여기에 방금 복사한 걸 붙여 넣겠다, 이렇게 붙여 넣겠다, 다음 주석 처리하겠다, CSS 문법대로 작성되지 않았기 떄문이다
+//CSS에선 스타일 앞에 클래스 이름을 넣어야 한다, 이 스타일을 적용할 클래스는 counterButton이지 (<button className="counterButton"..), button을 넣어도 되고
+/*   
+  const buttonStyle = {
+        fontSize: "30px",
+        backgroundColor: "#00a5ab",
+        width: "100px",    
+        margin: "10px",
+        color: "white",
+        padding: "15px",
+        borderRadius: "30px"  
+    };
+*/
+//12-1: 우린 클래스 이름인 counterButton을 넣겠다
+//여기에서 'counterButton'을 넣겠다, 그리고 속성 이름을 다시 바꿔줘야 한다 
+  .counterButton {
+    //12-2: CSS 문법에선 'font-size'이렇게 써야 한다, 모든 속성 뒤에는 세미콜론 ';'을 붙여야 하고 
+        fontSize: "30px";
+    //12-3: 이것도 background-color 로 바꾸고 ';'을 붙여준다, CSS 문법은 조금 다르기 때문에 모두 CSS 문법에 맞게 바꿔줘야 한다
+    //margin 값은 10px이고 color 값은 white지 
+        background-color: "#00a5ab";
+        width: "100px";    
+        margin: "10px";
+        color: "white";
+        //12-4: 여기 까지는 됐다
+        padding: "15px";
+        //12-5: 마지막으로 borderRadius도 이렇게 border-radius로 바꿔주면 되겠지 
+        border-radius: "30px";  
+    };
+-----------------------------------------------------------------------------------------------
+
+좋다, 다 된거 같다 바꾼걸 저장하고 
+다시 Counter.jsx로 가서
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+export default function Counter() {
+
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+        //13: 클래스 이름이 제대로 지정되어 있는지 확인하겠다 잘 되어있다, 
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+              //13-1: 이제 style 속성은 필요 업으니까 이건 지우도록 하겠다, 저장하고
+               //  style={buttonStyle}  (<= 여기서만 주석처리 실제코드에선 삭제)
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+확인해보면                                       |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                        0
+                                       ____
+                                      | +1 |
+                                       ‾‾‾‾
+                                  
+-------------------------------------------------------------------------------------------
+
+이런.. 스타일이 적용되지 않았다
+왜일까?
+
+
+CSS를 임포트하지 않았기 때문이다 
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+//14: 'import' ./Counter.css" 로 임포트해야 한다, CSS 파일을 가져오는 건 간단하다, import 뒤에 가져올 CSS 파일의 이름을 넣기만 하면 된다, 그러면..
+import './Counter.css'
+
+export default function Counter() {
+
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                        0
+                                       ____
+                                      | +1 |
+                                       ‾‾‾‾
+                                  
+-------------------------------------------------------------------------------------------
+
+여전히 아무것도 바뀌지 않았다 
+
+빠르게 한 번 살펴보자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import './Counter.css'
+
+export default function Counter() {
+
+
+    function incrementCounterFunction() {
+        console.log('increment clicked')
+    }
+    
+
+    return(
+    <div className='Counter'>
+        <span className='count'>0</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+1</button>
+        </div>
+    </div>
+    )
+}
+
+버튼의 클래스 이름은 counterButton이고 
+버튼은 여기 있고 , Counter.css 로 가보자,
+
+-----------------------------------------
+
+⏺ Counter.css
+
+
+/* const buttonStyle = {
+    fontSize: "30px",
+    backgroundColor: "#00a5ab",
+    width: "100px",    
+    margin: "10px",
+    color: "white",
+    padding: "15px",
+    borderRadius: "30px"  
+}; */
+
+.counterButton {
+    font-size: "30px";
+    background-color: #00a5ab;
+    width: "100px";   
+    margin: "10px";
+    color: "white";
+    padding: "15px";
+    border-radius: "30px";  
+};
+
+여기에도 똑같이 '.counterButton'이 있다
+-----------------------------------------------------------------------------------------------
+
+왜 스타일 적용이 안 될까?
+CSS 에선 값에 큰따옴표를 붙일 필요가 없기 때문이다 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.css
+
+
+/* const buttonStyle = {
+    fontSize: "30px",
+    backgroundColor: "#00a5ab",
+    width: "100px",    
+    margin: "10px",
+    color: "white",
+    padding: "15px",
+    borderRadius: "30px"  
+}; */
+
+//15: 값에 ""삭제!, 값에 붙어 있는 큰따옴표를 지워줘야 한다, 큰따옴표를 모두 지우겠다
+//이게 올바른 CSS 문법이다, 이렇게 저장하고 
+.counterButton {
+    font-size: 30px;
+    background-color: #00a5ab;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+};
+
+-----------------------------------------------------------------------------------------------
+확인해보면                                       |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                        0
+                                       
+                                     ◜ ‾‾‾‾‾‾‾ ◝ 
+                                     |   +1    | (<= 모든 스타일이 적용됨)
+                                     ◟ _______ ◞ 
+                                  
+-------------------------------------------------------------------------------------------
+
++1 버튼 스타일이 적용됐다
+
+이제 숫자 표시 부분의 스타일을 추가해 보겠다
+카운트 부분의 클래스 이름은 count이다
+클래스 이름으로 만들겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.css
+
+
+/* const buttonStyle = {
+    fontSize: "30px",
+    backgroundColor: "#00a5ab",
+    width: "100px",    
+    margin: "10px",
+    color: "white",
+    padding: "15px",
+    borderRadius: "30px"  
+}; */
+
+.counterButton {
+    font-size: 30px;
+    background-color: #00a5ab;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+}
+
+//16: '.count' 뒤에 스타일을 정의하겠다
+.count {
+  //16-1: 카운트를 표시할 글자 크기는 150px로 지정하겠다
+    font-size: 150px;
+  //16-2: 그리고 여기에 패딩을 약간 추가하겠다, padding을 추가해 20px 만큼 패딩을 넣겠다
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                          0  ( <== 위의 150px, 패딩은 20px만큼 들어감 (여기선 확인 한됨))
+                                        
+                                     ◜ ‾‾‾‾‾‾‾ ◝ 
+                                     |   +1    | 
+                                     ◟ _______ ◞ 
+                                  
+-------------------------------------------------------------------------------------------
+
+좋다 
+이제 +1 버튼을 완성했으니까 
++1 버튼을 클릭했을 때 위에 있는 숫자가 증가하게 만들어 보자
+
+CSS는 이 정도면 된 것 같다 
+
+
+리액트 애플리케이션 관점에서 이런 식으로 스타일을 추가하는 것도 해봤고
+Counter 컴포넌트와 분리된 CSS 파일을 추가해 필요한 스타일을 모두 정의하는 것도 해봤다
+스타일을 정의할 때 Counter 컴포넌트에 있는 클래스들을 사용했고 
+
+마지막으로 CSS에 몇 가지 속성을 추가로 정의해 버튼의 모양을 조금 더 보기 좋게 바꿔보겠다
+
+
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.css
+
+
+
+/* const buttonStyle = {
+    fontSize: "30px",
+    backgroundColor: "#00a5ab",
+    width: "100px",    
+    margin: "10px",
+    color: "white",
+    padding: "15px",
+    borderRadius: "30px"  
+}; */
+
+.counterButton {
+    font-size: 30px;
+    background-color: #00a5ab;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+    //17: 테두리 색깔이 일정하지 않으니까 스타일에 'border-color'를 추가하고 black으로 지정하겠다,
+    border-color: black;
+    //17-1: 'border-width'도 추가해 5px로 지정하고 저장
+    border-width: 5px;
+}
+
+.count {
+    font-size: 150px;
+    padding: 20px;
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                          
+                                          0  
+                                        
+                                     ◜ ‾‾‾‾‾‾‾ ◝ 
+                                     |   +1    |  (<= bordercolor 와 borderwidth가 적용됨)
+                                     ◟ _______ ◞ 
+
+
+-------------------------------------------------------------------------------------------
+
+좋다, 괜찮은 것 같다
+이렇게 +1 버튼과 카운터가 함께 표시되도록 만들었다 
+
+여기 있는 CSS 속성 중에 잘 모르는 게 있어도 걱정할 필요는 없다 
+본격적으로 구현을 시작하기 전에 모양새를 가다듬은 것뿐이다
+그게 이번 단계의 목적이었다
+다음 단계에선 더 재미있는 걸 해볼 것이다 
+
+
+
+
+
+
+
+Define CSS in JSX
+
+  ________________________________________________________________________
+ |   const customStyle = {                                                |  
+ |     backgroundColor: "green",                                          |                    
+ |     fontSize: "16px",                                                  |          
+ |     padding: "15px 30px",                                              |              
+ |     color: "white",                                                    |        
+ |     width: "100px",                                                    |          
+ |     border: "1px solid #666666",                                       |               
+ |     borderRadius: "30px",                                              |                  
+ |   };                                                                   |         
+ |                                                                        |                       
+ |   <button style={customStyle}>+1</button>                              |                  
+ |                                                                        |                 
+ |   <button className="cssClass">+1</button>                             |                     
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+● Options of styling your React components
+  ■ 1:style
+    ○ Error:<button style={border-radius:30px}>
+    ○ Correct Syntax: <button style={{borderRadius:"30px"}>    
+  ■ 2: className
+    ○ Define the cssClass in your component CSS file
+
+
+
+
+이번 시간에는 JSX에서 CSS를 정의하는 방법을 살펴봤다
+두 가지 방법이 있었지 
+  ■ 1:style
+첫 번째는 style 속성을 사용해 요소 안에서 하드코딩하는 방식이었다
+    ○ Error:<button style={border-radius:30px}> 이 방식에선 이 처럼 사용하면 오류가 발생한다,
+요소 안에서 바로 스타일 값을 정의할 때는 반드시 중괄호를 이중으로 써야 한다 ( ○ Correct Syntax: <button style={{borderRadius:"30px"}> ) 
+안에서 스타일을 정의한 다음, 중괄호를 두 번 닫아줘야 하고 
+그리고 JavaScript 속성으로 스타일을 정의할 때는 붙임표 '-'를 사용하면 안 된다 ( border-radius ) -r에 해당하는 부분을 대문자 R로 바꿔줘야 한다
+  ■ 2: className
+이렇게 정의한 속성을 CSS 방식으로 바꾸는 것도 해봤다 
+    ○ Define the cssClass in your component CSS file
+컴포넌트에서 클래스 이름을 'className="cssClass"' 이런 식으로 정의하고, 이 클래스에 대한 스타일을 CSS 파일에 정의해봤다
+
+다음 시간에 보겠다
