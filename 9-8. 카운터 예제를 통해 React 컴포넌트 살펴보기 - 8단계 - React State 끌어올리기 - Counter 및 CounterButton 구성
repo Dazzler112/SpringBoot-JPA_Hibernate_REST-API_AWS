@@ -1,0 +1,443 @@
+
+
+Enhancing Counter Example
+                                                                                ______     ______
+● 1: Let's create multiple counter buttons                                     (  +1  )   (  -1  )
+● 2: Let's have a different increment value for each button                     ‾‾‾‾‾‾     ‾‾‾‾‾‾
+● 3: Let's have common state for all our buttons                                ______     ______
+                                                                               (  +2  )   (  -2  )
+                                                                                ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                ______     ______
+                                                                               (  +5  )   (  -5  )
+                                                                                ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                        0
+                                                                                   ____________   
+                                                                                  (   Reset    ) 
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+
+앞선 단계에서 우리는 여러 개의 카운터 버튼을 생성하고, 각 버튼의 증분 값을 서로 다르게 설정했다
+하지만 지금은 각 버튼이 상태(State)를 관리하고 있다
+● 3: Let's have common state for all our buttons
+어떻게 하면 모든 버튼에 대한 공통 State를 만들 수 있을까?
++1 버튼을 클릭했을 때도 공통 State가 증가하고
++2 버튼을 클릭했을 때도 공통 State가 증가할 수 있도록 말이다
+이번 단계에선 이 내용을 주로 살펴볼 것이다
+
+현재 모든 Counter는 App.js에 정의되어 있다, 그리고 각 Counter에는 자기만의 App.js에 정의되어 있다,
+그리고 각 Counter에는 
+     <Counter by={1}/>
+     <Counter by={2}/>           
+     <Counter by={5}/>
+자기만의 state가 
+
+이제 state를 Counter보다 한 단계 위에 있는 레벨로 옮겨서 전역 State로 만들 것이다,
+그렇게 만드려면 State를 위로 끌어올려야 한다
+
+
+
+
+Moving State up and More...
+                                                                                ______     ______
+● How can we have one state for all counters?                                  (  +1  )   (  -1  )
+  ■ 1: Rename Counter to CounterButton                                          ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                ______     ______
+                                                                               (  +2  )   (  -2  )
+                                                                                ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                ______     ______
+                                                                               (  +5  )   (  -5  )
+                                                                                ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                        0
+                                                                                   ____________   
+                                                                                  (   Reset    ) 
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾
+
+상태를 끌어 올리기 전에 
+● How can we have one state for all counters? 
+  ■ 1: Rename Counter to CounterButton
+먼저 컴포넌트 이름부터 바꾸겠다
+지금까지 카운터라고 불렀던 건 사실 카운터 버튼이다 
+Counter를 CounterButton으로 바꾸고 진짜 카운터를 위한 Counter 클래스를 새로 만들 것이다
+
+그럼 이름부터 바꾸겠다
+
+Counter.jsx에서
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+//1: 함수 컴포넌트 이름을 CounterButton으로 바꾸고 , 아래 있는 것도//1-1: 아래 Props로..
+export default function CounterButton({by}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+//1-1: 전부 CounterButton으로 바꾸겠다, App.js에서도..//1-2:App.js 파일로..
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------
+
+⏺ App.js
+
+
+
+import './App.css';
+
+//1-2: CounterButton을 임포트하는 걸로 바꾸고 //1-3: App()안으로.. 
+import CounterButton from './components/counter/Counter';
+
+function App() {
+  return (
+    <div className="App">
+
+    //1-3: Counter를 모두 CounterButton으로 바꾸겠다..
+     <CounterButton by={1}/>
+     <CounterButton by={2}/>           
+     <CounterButton by={5}/>
+    </div>
+  )
+}
+
+// {property1: 'value1', property2: 'value2'} 
+/*
+function PlayingWithProps(properties) {
+
+  console.log(properties)
+  console.log(properties.property1)
+  console.log(properties.property2)
+  return(
+    <div>Props</div>
+  )
+} 
+*/
+
+function PlayingWithProps({property1, property2}) {
+
+  console.log(property1)
+  console.log(property2)
+  return(
+    <div>Props</div>
+  )
+}
+
+export default App;
+
+-----------------------------------------------------------------------------------------------
+
+이렇게 Counter 대신 CounterButton을 사용하도록 바꿨다
+새로고침하고 실행해보면
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                        
+                                          0               
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0               
+                                                                            (사이트에서 확인해야 잘 알수 있음) 
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0              
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+
+
+-------------------------------------------------------------------------------------------
+
+모두 잘 동작한다
+보다시피 기능에는 아무 문제가 없다
+
+이렇게 CounterButton 클래스를 만들었다,
+다음으로 해야 할 일은 CounterButton을 모두 Counter 클래스로 옮기는 것이다 
+Counter.jsx에서 'Counter'라는 함수를 만들 것이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+//2: 여기에 function 키워드를 쓰고 Counter()를 만들겠다
+function Counter() {
+    //2-1: 이 안에 카운터 버튼을 모두 추가할 것이다, return 키워드를 넣고 괄호를 붙이고
+    return(
+        //2-2: 그다음 괄호 안에 App.js에 있는 CounterButton을 모두 추가할 것이다, by는 각각 1,2,5로 지정하고 그런 다음 빈 래퍼(<>)로 감싸주겠다
+      <>
+       <CounterButton by={1}/>
+       <CounterButton by={2}/>           
+       <CounterButton by={5}/>
+      </>
+    )
+}
+
+export default function CounterButton({by}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------------------------------------------------------
+
+Counter() 함수를 실행할 준비가 됐다
+이제 CounterButton() 함수는 디폴트로 내보낼 필요가 없다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+//3-1: Counter()를 디폴트로 내보내야 한다 (앞에 export default 사용, 이렇게 저장하고
+export default function Counter() {
+    return(
+       <> 
+        <CounterButton by={1}/>
+        <CounterButton by={2}/>           
+        <CounterButton by={5}/>
+       </>
+    )
+}
+
+//3: export default를 없애준 후 //3-1: Counter()함수로..
+function CounterButton({by}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+-----------------------------------------------------------------------------------------------
+
+다시 App.js로 가보자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+
+import './App.css';
+
+//4: CounterButton을 다시 Counter로 바꾸겠다, Counter에서 Counter를 임포트하고 //4-1: App()으로.
+import Counter from './components/counter/Counter';
+
+function App() {
+  return (
+    <div className="App">
+    
+      //4-1:여기에 Counter를 하나만 넣겠다 다른건 전부 필요없는 것 들이다, 이렇게 저장하고..
+      <Counter/>
+    //  <CounterButton by={2}/>    (<= 여기서만 주석처리 실제 코드에선 삭제함)       
+    //  <CounterButton by={5}/>
+    </div>
+  )
+}
+
+// {property1: 'value1', property2: 'value2'} 
+/*
+function PlayingWithProps(properties) {
+
+  console.log(properties)
+  console.log(properties.property1)
+  console.log(properties.property2)
+  return(
+    <div>Props</div>
+  )
+} 
+*/
+
+function PlayingWithProps({property1, property2}) {
+
+  console.log(property1)
+  console.log(property2)
+  return(
+    <div>Props</div>
+  )
+}
+
+export default App;
+
+-----------------------------------------------------------------------------------------------
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                        
+                                          3               
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0               
+                                                                            (사이트에서 확인해야 잘 알수 있음) 
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          5              
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+
+
+-------------------------------------------------------------------------------------------
+
+좋다, 코드를 많이 바꿨다
+이제 계층 구조가 생겼다
+App에 Counter가 있고 Counter에 CounterButton이 있다
+하지만 보다시피 기능은 여전히 정상적으로 동작한다
+
+이 구조의 장점은 Counter 레벨에서 상태를 관리할 수 있다는 것이다
