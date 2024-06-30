@@ -639,3 +639,300 @@ Todo App                |
 자세히 보면 지금 코드에 버그가 있다, 전체 카운트 값이 늘기만 하고 줄지는 않는다 
 
 
+빼기 버튼을 눌러도 감소하지 않는 이유는 여기 있는 두 함수 모두에서
+incrementMethod()를 호출하고 있기 때문이다, 지금 바로 고쳐보자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+
+    //6: 함수이름으로 'decrementCounterParentFunction'으로 하고 
+    function decrementCounterParentFunction(by) {
+        //6 계속: 이것도 (count - by)로 바꾸고 //6-1: return으로..
+        setCount(count - by)
+    }
+
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+
+        //6-1: 버튼에 'decrementMethod'속성을 만들어 방금 만든 이 decrementCounterParentFunction 메서드를 넣겠다 // 6-2: CounterButton()함수로..
+        <CounterButton by={1} 
+                      incrementMethod={incrementCounterParentFunction} 
+                      decrementMethod={decrementCounterParentFunction}/>
+        <CounterButton by={2} 
+                      incrementMethod={incrementCounterParentFunction} 
+                      decrementMethod={decrementCounterParentFunction}/>           
+        <CounterButton by={5} 
+                      incrementMethod={incrementCounterParentFunction} 
+                      decrementMethod={decrementCounterParentFunction}/>
+       </>
+    )
+}
+
+//6-2: 이제 decrementMethod로 받은 값을 사용하겠다, 매개변수를 추가하고 //6-3: decrementCounterFunction()으로..
+function CounterButton({by, incrementMethod, decrementMethod}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+  //6:
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+        incrementMethod(by)
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+        //6-3: 이쪽에 이렇게 decrementMethod()메서드를 호출하면 된다, 저장하고 브라우저로 가서
+        decrementMethod(by)
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+-----------------------------------------------------------------------------------------------
+새로고침하고                                           |
++1, -1을 클릭해보자                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                         -3     
+                                          0              
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0               
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0              
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Download the React DevTools for a better development experience:         react refresh:6 
+  https://reactjs.org/link/react-devtools
+-------------------------------------------------------------------------------------------
+
+잘 된다
++2, -2, -2, +2 +2, -2 , +5
+모두 잘 작동한다
+
+
+이제 개별 상태 변수를 모두 지우겠다
+
+더 이상 각 컴포넌트에서 상태를 추적할 필요가 없기때문이다 
+이제는 상위 레벨에서만 상태를 관리하면 된다
+지금은 그냥 간단하게 화면에 표시하는 부분만 지우겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+
+    function decrementCounterParentFunction(by) {
+        setCount(count - by)
+    }
+
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+        <CounterButton by={2} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>           
+        <CounterButton by={5} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+       </>
+    )
+}
+
+function CounterButton({by, incrementMethod, decrementMethod}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+        incrementMethod(by)
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+        decrementMethod(by)
+    }
+
+    return(
+    <div className='Counter'>
+
+        //7: 이부분 삭제
+//        <span className='count'>{count}</span>  (<= 여기서만 주석처리 실제 코드에선 삭제..)
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------------------------------------------------------
+
+CounterButton에 있는 상태 코드는 그대로 두고, 상태를 표시하는 부분만 지우겠다
+
+이렇게 하고 화면을 새로 고치면
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0                
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Download the React DevTools for a better development experience:         react refresh:6 
+  https://reactjs.org/link/react-devtools
+-------------------------------------------------------------------------------------------
+
+버튼 위에 있던 카운트 값이 사라진다
++1, -1, +2, +2, -2, -2, +5 -5
+이렇게 표시 된다
+
+모든 게 잘 동작한다
+
+
+
+
+
+
+Moving State up and More...
+                                                                                ______     ______
+● How can we have one state for all counters?                                  (  +1  )   (  -1  )
+  ■ 1: Rename Counter to CounterButton                                          ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ 2: Calling a parent component method                                        ______     ______
+    ○ <CounterButton incrementMethod={increment}>                              (  +2  )   (  -2  )
+  ■ 3: Exercise: Counter Button as separate module                              ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                ______     ______
+                                                                               (  +5  )   (  -5  )
+                                                                                ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                        0
+                                                                                   ____________   
+                                                                                  (   Reset    ) 
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+이렇게 하나의 카운터와 해당 카운터를 조작하는 여러 개의 버튼을 만들었다
+
+여기서 과제를 하나 내주겠다
+CounterButton 코드를 별도의 모듈로 분리해 보길 바란다 
+그럼 다음 학습에서 보겠다
