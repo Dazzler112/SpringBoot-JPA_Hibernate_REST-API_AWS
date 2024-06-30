@@ -1,0 +1,344 @@
+
+
+Moving State up and More...
+                                                                                ______     ______
+● How can we have one state for all counters?                                  (  +1  )   (  -1  )
+  ■ 1: Rename Counter to CounterButton                                          ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ 2: Calling a parent component method                                        ______     ______
+    ○ <CounterButton incrementMethod={increment}>                              (  +2  )   (  -2  )
+                                                                                ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                ______     ______
+                                                                               (  +5  )   (  -5  )
+                                                                                ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                        0
+                                                                                   ____________   
+                                                                                  (   Reset    ) 
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+지난 단계에서 끌어올리기 작업을 시작했다 
+  ■ 2: Calling a parent component method
+하위 컴포넌트뿐만 아니라 상위 컴포넌트인 Counter에도 상태(State)를 추가했다 
+    ○ <CounterButton incrementMethod={increment}>
+상위 컴포넌트에 카운트를 증가시키는 메서드도 추가했다, 이를 다른 CounterButton에서 호출하려고 한다
+어떻게 하면 될까?
+
+
+ 이 메서드를 호출하는 방법을 살펴보기 전에 좀 더 단순한 메서드를 만들어 보겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+
+    //1: 새로운 메서드 함수로 'someMethodInParent()'를 만들고 
+    function someMethodInParent() {
+        //1-1: 여기서 로그를 출력하겠다 '상위 메서드 호출됨(parent method called)', 이렇게 만든 다음
+        console.log('parent method called')        
+    }
+
+    return(
+       <> 
+        //1-2: 하위 컴포넌트에서 이 메서드를 호출해 보겠다, 카운터 버튼이 클릭 될 때마다 이 메서드가 호출되도록, 어떻게 해야 할까?
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1}/>
+        <CounterButton by={2}/>           
+        <CounterButton by={5}/>
+       </>
+    )
+}
+
+function CounterButton({by}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------------------------------------------------------
+
+하위 컴포넌트에서는 상위 컴포넌트의 메서드에 접근할 수 없다
+
+유일한 방법은 위에서 아래쪽으로 메서드를 넘겨주는 것이다
+상위 레벨에서 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+
+    function someMethodInParent() {
+        console.log('parent method called')
+    }
+
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+
+        //2: someMethodInParent라는 속성을 추가해 해당 메서드를 넘겨줘야 한다
+        //someMethodInParent속성에 someMethodInParent메서드의 참조 값을 넣어 전달하는 것이다
+        <CounterButton by={1} someMethodInParent={someMethodInParent}/>
+
+        //2-1: 모든 컴포넌트에 이 코드를 추가하겠다 ( someMethodInParent={someMethodInParent} )
+        // 'someMethodInParent={someMethodInParent}' 설정을 각각에 추가할 것이다
+        <CounterButton by={2} someMethodInParent={someMethodInParent}/>
+
+        //2-1 계속: 여기도 someMethodInParent={someMethodInParent} 추가..
+        <CounterButton by={5} someMethodInParent={someMethodInParent}/>
+       </>
+    )
+}
+
+function CounterButton({by}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+-----------------------------------------------------------------------------------------------
+
+이제 이 값을 프로퍼티로 받으면 된다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+
+    function someMethodInParent() {
+        console.log('parent method called')
+    }
+
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1} someMethodInParent={someMethodInParent}/>
+        <CounterButton by={2} someMethodInParent={someMethodInParent}/>           
+        <CounterButton by={5} someMethodInParent={someMethodInParent}/>
+       </>
+    )
+}
+
+//3:  CounterButton()의 매개변수에서,'by, someMethodInParent' 이렇게 말이다
+// 이렇게 하면 CounterButton 안에서 메서드에 접근할 수 있다, 이걸 메서드 형태로 호출하면 된다
+function CounterButton({by, someMethodInParent}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+        //3-1: setCount() 밑에서 someMethodInParent()를 호출하겠다
+        someMethodInParent()
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+        //3-1 계속: 어떻게 되는지 보자, 이렇게 하면 함수를 호출할 수 있는지 확인해보자 
+        someMethodInParent()
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+-----------------------------------------------------------------------------------------------
+브라우저로 가서                                  |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0      
+                                          0              
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0               
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0              
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Download the React DevTools for a better development experience:         react refresh:6 
+  https://reactjs.org/link/react-devtools
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+   parent method called                                                     Counter.jsx:14 
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+   parent method called                                                     Counter.jsx:14 
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+   parent method called                                                     Counter.jsx:14 
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+   parent method called                                                     Counter.jsx:14 
+-------------------------------------------------------------------------------------------
+
++1을 클릭하면 '상위 메서드 호출됨(parent method called)'이 출력된다
+-1을 클릭해도 같은 메시지가 나오고,
++2와 -2도 마찬가지다
+좋다 
+
+이제
+우리는 하위 컴포넌트에서 상위 레벨 메서드를 호출할 수 있다
+훌륭하다, 우리가 원하는 동작을 구현하는 데 필요했던 것이다
+
+하지만 우리가 정말로 호출하고 싶은 건 
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+이 메서드이다
+someMethodInParent()를 호출하고 싶은게 아니다
+
