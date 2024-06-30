@@ -53,6 +53,7 @@ Moving State up and More...
                                                                                   (   Reset    ) 
                                                                                    ‾‾‾‾‾‾‾‾‾‾‾‾
 
+
 상태를 끌어 올리기 전에 
 ● How can we have one state for all counters? 
   ■ 1: Rename Counter to CounterButton
@@ -441,3 +442,479 @@ App에 Counter가 있고 Counter에 CounterButton이 있다
 하지만 보다시피 기능은 여전히 정상적으로 동작한다
 
 이 구조의 장점은 Counter 레벨에서 상태를 관리할 수 있다는 것이다
+
+
+Counter 레벨에서 상태를 관리하려면 어떻게 해야 할까?
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+export default function Counter() {
+
+    //5-1: 여기에 const [count, setCount] = useState(0);를 붙여넣으면 되겠지
+    //이렇게 하면 Counter레벨에서 count 상태를 관리할 수 있다, 이 상태 값을 맨 위에 표시할 것이다, 그리고 //5-2: CounterButton() 컴포넌트로..
+    const [count, setCount] = useState(0);
+
+    return(
+       <> 
+        //5-3: 이 안에 붙여 넣겠다, 이렇게 하면 맨 위에 count 값이 나오고, 각 CounterButton에서도 count 값을 표시할 것이다
+        //이렇게 상태 변수를 추가했다
+        <span className='count'>{count}</span>
+
+        <CounterButton by={1}/>
+        <CounterButton by={2}/>           
+        <CounterButton by={5}/>
+       </>
+    )
+}
+
+function CounterButton({by}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+
+    //5: 이 코드를 복사해서 //5-1: Counter()함수로..
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+    }
+
+    return(
+    <div className='Counter'>
+
+        //5-2: 이 ( <span className='count'>{count}</span> ) 코드를 복사해 //5-3: Counter()함수로..
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------------------------------------------------------
+처음에는 0이 나올 것이다                        |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0
+                                          0               
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0               
+                                                                            (사이트에서 확인해야 잘 알수 있음) 
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0              
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+
+
+-------------------------------------------------------------------------------------------
+
+여기 맨 위에 나온 0이 방금 추가한 것이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    return(
+       <> 
+
+        //6: 다른 것과 구분하기 위해 이 className을 'totalCount'로 바꾸겠다
+        //클래스 이름을 totalCount로 바꾼 다음, Counter.css로 가서 //6-1 Counter.css파일로...
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1}/>
+        <CounterButton by={2}/>           
+        <CounterButton by={5}/>
+       </>
+    )
+}
+
+function CounterButton({by}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+------------------------------------------
+
+
+⏺ Counter.css
+
+
+
+/* const buttonStyle = {
+    fontSize: "30px",
+    backgroundColor: "#00a5ab",
+    width: "100px",    
+    margin: "10px",
+    color: "white",
+    padding: "15px",
+    borderRadius: "30px"  
+}; */
+
+.counterButton {
+    font-size: 30px;
+    background-color: #00a5ab;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+    border-color: black;
+    border-width: 5px;
+}
+
+.count {
+    font-size: 50px;
+    padding: 20px;
+}
+
+//6-1: .totalCount스타일을 정의하겠다 
+.totalCount {
+    //6-2: color 속성을 추가하고, 위에 있는 색깔(#00a5ab)을 가져와서 넣겠다
+    color: #00a5ab;
+    //6-3: 그리고 글씨 크기도 복사해서 넣겠다 
+    font-size: 150px;   
+}
+-----------------------------------------------------------------------------------------------
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0      (<= 글자 색상이 다르고 크기가 커짐)  (사이트에서 확인해야 잘 알수 있음) 
+                                          0               
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0               
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0              
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+
+
+-------------------------------------------------------------------------------------------
+
+이제 전체 카운트 값은 이렇게 다른 색으로 표시된다
+
+나머지 카운트 값들 크기를 좀 줄이겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.css
+
+
+
+/* const buttonStyle = {
+    fontSize: "30px",
+    backgroundColor: "#00a5ab",
+    width: "100px",    
+    margin: "10px",
+    color: "white",
+    padding: "15px",
+    borderRadius: "30px"  
+}; */
+
+.counterButton {
+    font-size: 30px;
+    background-color: #00a5ab;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+    border-color: black;
+    border-width: 5px;
+}
+
+.count {
+    //7: 글자 크기를 50px로 하겠다
+    font-size: 50px;
+    padding: 20px;
+}
+
+.totalCount {
+    color: #00a5ab;
+    font-size: 150px;   
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0      
+                                          0       (<= 나머지 글자 크기가 작아짐)  (사이트에서 확인해야 잘 알수 있음)         
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0               
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞
+                                          
+                                          0              
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+
+
+-------------------------------------------------------------------------------------------
+
+맨 위에 전체 카운트가 있고 밑에는 각 카운터의 개별 카운트 값이 표시된다
+
+
+우리가 원하는 건 카운터 버튼이 클릭될 때마다 
+상위 레벨의 State를 함께 증가시키는 것이다
+
+그러려면 상위 레벨에 메서드를 만들어야 한다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    //8: 함수 이름은 'incrementCounterParentFunction()'으로 하겠다
+    //일반적으로 코드를 작성항 때는 함수이름에 'Parent'나 'Child'같은 걸 포함시킬 필요가 없다, 
+    //하지만 하위 컴포넌트에 있는 로직을 상위 컴포넌트로 옮길 때는 헷갈릴 수도 있기 때문에 함수를 'incrementCounterParentFunction'으로 만든 것이다
+    //이 함수는 매개변수로 증분 값을 받아야 한다 'by'라는 변수로 증분 값을 받겠다, 이 함수에서 상태 값에 by값을 더해 업데이트해야 한다 
+    function incrementCounterParentFunction(by) {
+        //8-1: CounterButton()컴포넌트의 incrementCounterFunction()함수로의 setCount를 복사해. setCount(count + by)를 호출하겠다, 다 됐다
+        setCount(count + by)
+    }
+
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1}/>
+        <CounterButton by={2}/>           
+        <CounterButton by={5}/>
+       </>
+    )
+}
+
+function CounterButton({by}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------------------------------------------------------
+
+count에 by를 더했다, 메서드가 완성됐다
+
+이제 이 함수를 CounterButton 안에서 호출해야 한다
+
+----------------------------------------------------
+
+function CounterButton({by}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+    }
+
+    return(
+    <div className='Counter'>
+        <span className='count'>{count}</span>
+        <div>
+         <button className="counterButton" 
+
+          //9?: 여기에서 이 메서드를 호출할 때 incrementCounterParentFunction()도 함께 호출해야 한다, 어떻게 하면 될까?
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+----------------------------------------------------
+
+다음 단계로 가서 구현 방법을 살펴보자
