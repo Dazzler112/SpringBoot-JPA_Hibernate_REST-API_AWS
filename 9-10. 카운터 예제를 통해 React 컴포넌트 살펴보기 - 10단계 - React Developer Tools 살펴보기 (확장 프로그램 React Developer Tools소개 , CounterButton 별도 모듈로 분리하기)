@@ -257,3 +257,305 @@ Counter가 CounterButton을 로딩하지
 
 
 
+그럼 이제 CounterButton을 별도 모듈로 분리하는 작업을 해보자
+
+
+
+
+Moving State up and More...
+                                                                                ______     ______
+● How can we have one state for all counters?                                  (  +1  )   (  -1  )
+  ■ 1: Rename Counter to CounterButton                                          ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ 2: Calling a parent component method                                        ______     ______
+    ○ <CounterButton incrementMethod={increment}>                              (  +2  )   (  -2  )
+  ■ 3: Exercise: CounterButton as separate module                               ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                ______     ______
+                                                                               (  +5  )   (  -5  )
+                                                                                ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                        0
+                                                                                   ____________   
+                                                                                  (   Reset    ) 
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+
+
+
+Counter로 가보겠다 
+여기 있는 CounterButton을 별도 모듈로 분리할 것이다
+여기서 관련된 코드를 모두 선택하고
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import { useState } from 'react'
+import {PropTypes} from 'prop-types'
+import './Counter.css'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+
+    function decrementCounterParentFunction(by) {
+        setCount(count - by)
+    }
+
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+        <CounterButton by={2} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>           
+        <CounterButton by={5} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+       </>
+    )
+}
+
+//1: 여기서 부터 맨 아래까지 잘라내겠다
+function CounterButton({by, incrementMethod, decrementMethod}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+        incrementMethod(by)
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+        decrementMethod(by)
+    }
+
+    return(
+    <div className='Counter'>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+//1계속 : 여기까지 잘라내기
+-----------------------------------------------------------------------------------------------
+
+그런 다음 이번에도 counter폴더에서 새파일을 선택하고 'CounterButton.jsx'를 만들겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ CounterButton.jsx
+
+
+//2-4: 여기로 옮기겠다, 이렇게 저장 하겠다
+import {PropTypes} from 'prop-types'
+
+//2: 여기에 코드를 붙여넣겠다 저장한 다음, Counter.jsx로 가서//2-1: Counter.jsx파일로..
+//2-2: 함수 앞에 export defualt를 붙여 내보내 주고 //2-3:다시 Counter.jsx로..
+export default function CounterButton({by, incrementMethod, decrementMethod}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+        incrementMethod(by)
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+        decrementMethod(by)
+    }
+
+    return(
+    <div className='Counter'>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+---------------------------------------------
+
+
+⏺ Counter.jsx
+
+
+import { useState } from 'react'
+
+//2-3: CounterButton에는 PropTypes가 필요하니 이 코드도 잘라서 //2-4: CounterButton.jsx로..
+// import {PropTypes} from 'prop-types' (잘라내기)
+
+import './Counter.css'
+
+//2-1: 임포트를 추가해 CounterButton을 가져오겠다, 가져올 곳은 './CounterButton'이지, CounterButton.jsx에서//2-2: CounterButton.jsx로..
+import CounterButton from './CounterButton'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+
+    function decrementCounterParentFunction(by) {
+        setCount(count - by)
+    }
+
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+        <CounterButton by={2} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>           
+        <CounterButton by={5} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+       </>
+    )
+}
+
+
+-----------------------------------------------------------------------------------------------
+
+useState가 정의되지 않았다고 나온다 
+이 오류가 발생하는 이유는 CounterButton.jsx에서 useState를 임포트하지 않았기 때문이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ CounterButton.jsx
+
+
+
+//3: 이렇게 넣고 다시 해보곘다
+import {PropTypes} from 'prop-types'
+
+export default function CounterButton({by, incrementMethod, decrementMethod}) {
+
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);
+
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+        incrementMethod(by)
+    }
+
+    function decrementCounterFunction() {
+        
+        setCount(count - by)
+        decrementMethod(by)
+    }
+
+    return(
+    <div className='Counter'>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+-----------------------------------------------------------------------------------------------
+                                                  |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0                
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+
+-------------------------------------------------------------------------------------------
+
+이제 컴포넌트도 표시되고 버튼도 정상적으로 동작한다 
+이제 Counter 모듈에는 상태와 상태 값을 변경하는 메서드, 그리고 CounterButton 렌더링 코드만 있다
+카운터 버튼과 관련된 로직은 별도의 CounterButton 모듈에서 담당하고있고, 훌륭하다
+
+
+
+
+
+이번 시간에는 Chrome 확장 프로그램인 React Developer Tools를 살펴보고
+CounterButton을 별도 모듈로 분리했다
+다음 학습에서 보겠다
