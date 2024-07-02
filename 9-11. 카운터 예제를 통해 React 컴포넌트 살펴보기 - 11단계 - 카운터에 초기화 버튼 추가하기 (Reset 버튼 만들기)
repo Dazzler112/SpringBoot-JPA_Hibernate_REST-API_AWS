@@ -1,0 +1,116 @@
+
+
+Moving State up and More...
+                                                                                ______     ______
+● How can we have one state for all counters?                                  (  +1  )   (  -1  )
+  ■ 1: Rename Counter to CounterButton                                          ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ 2: Calling a parent component method                                        ______     ______
+    ○ <CounterButton incrementMethod={increment}>                              (  +2  )   (  -2  )
+  ■ 3: Exercise: CounterButton as separate module                               ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ 4: Adding Reset Button                                                      ______     ______
+                                                                               (  +5  )   (  -5  )
+                                                                                ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                        0
+                                                                                   ____________   
+                                                                                  (   Reset    ) 
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+이번 시간에는 새로운 기능을 추가해볼 것이다
+카운터를 0으로 초기화할 수 있는 초기화(Reset)버튼을 추가할 것이다
+
+초기화 버튼을 추가하는 건 어렵지 않을 것이다
+
+Counter.jsx로 가서 CounterButton 밑에 버튼을 추가하기만 하면 된다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+
+import { useState } from 'react'
+import './Counter.css'
+import CounterButton from './CounterButton'
+import ResetButton from './ResetButton'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+
+    function decrementCounterParentFunction(by) {
+        setCount(count - by)
+    }
+
+    //1-1: 'function resetCounter()' parameter(매개변수)는 없다
+    function resetCounter() {  
+        //1-2: 아주 간단하다 0으로 설정하면 된다, 저장하겠다
+        setCount(0)
+    }
+
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+        <CounterButton by={2} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>           
+        <CounterButton by={5} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+
+        //1: 여기에 버튼 요소를 추가하겠다, 초기화 버튼을 위한 컴포넌트를 따로 만들 수도 있지만, 그냥 간단하게 'button'을 쓰겠다 
+        //CounterButton으로 가서 버튼을 표시하는 데 사용했던 코드를 복사하겠다, 앞서 버튼을 추가할 때 이런 식으로 했었지( <button className="counterButton" onClick={incrementCounterFunction}>+{by}</button> )
+        //비슷하게 생긴 버튼을 추가할 것이다, className은 'counterButton이다'이러면 될 것 같다, onClick 리스너에는 'resetCounter'를 넣겠다
+         <button className="counterButton" 
+                 onClick={resetCounter}
+            //버튼 콘텐츠는 'Reset'이고 위쪽에 resetCounter() 메서드를 정의하겠다 //1-1: decrementCounterParentFunction(by) 아래로..
+         >Reset</button>   
+       </>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+                                                  |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0                
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+                                     ◜ ‾‾‾‾‾‾‾ ◝
+                                    |   Reset   |  
+                                     ◟ _______ ◞
+-------------------------------------------------------------------------------------------
+
+좋다
+초기화 버튼이 생겼다
++5를 여러번 누른다음 초기화해 보곘다,
+-5를 누르고 초기화 누르고, +5 누르고 초기화눌러도 잘 작동한다
+
