@@ -114,3 +114,259 @@ Todo App                |
 +5를 여러번 누른다음 초기화해 보곘다,
 -5를 누르고 초기화 누르고, +5 누르고 초기화눌러도 잘 작동한다
 
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+
+import { useState } from 'react'
+import './Counter.css'
+import CounterButton from './CounterButton'
+import ResetButton from './ResetButton'
+
+export default function Counter() {
+
+    const [count, setCount] = useState(0);
+
+    function incrementCounterParentFunction(by) {
+        setCount(count + by)
+    }
+
+    function decrementCounterParentFunction(by) {
+        setCount(count - by)
+    }
+
+    function resetCounter() {  
+        setCount(0)
+    }
+
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+        <CounterButton by={2} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>           
+        <CounterButton by={5} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+
+          //2: 버튼의 클래스 이름을 'resetButton'으로 바꾸겠다, 그런 다음 Counter.css로 가서..//2-1: Counter.css파일로..
+         <button className="resetButton" 
+                 onClick={resetCounter}
+         >Reset</button>   
+       </>
+    )
+}
+
+-----------------------------------------------------
+
+
+⏺ Counter.css
+
+
+
+/* const buttonStyle = {
+    fontSize: "30px",
+    backgroundColor: "#00a5ab",
+    width: "100px",    
+    margin: "10px",
+    color: "white",
+    padding: "15px",
+    borderRadius: "30px"  
+}; */
+
+.counterButton {
+    font-size: 30px;
+    background-color: #00a5ab;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+    border-color: black;
+    border-width: 5px;
+}
+
+.count {
+    font-size: 50px;
+    padding: 20px;
+}
+
+.totalCount {
+    color: #00a5ab;
+    font-size: 150px;   
+}
+
+//2-1:.counterButton의 스타일을 복사해서 바꾸겠다, 클래스 이름은 resetButton이지 
+//resetButton 스타일에서 버튼의 배경색을 다른 색으로 바꿔보겠다
+.resetButton {
+    font-size: 30px;
+    //2-2: #00a5ab 이런색으로 바꿔보겠다, 배경색을 '#824f8c'로 지정했다, 이렇게 저장하겠다
+    background-color: #824f8c;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+    border-color: black;
+    border-width: 5px;
+}
+-----------------------------------------------------------------------------------------------
+브라우저 화면으로 가보면                            |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0                
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+                                     ◜ ‾‾‾‾‾‾‾ ◝
+                                    |   Reset   |   (<= 초기화 바탕색이 바뀜)
+                                     ◟ _______ ◞
+-------------------------------------------------------------------------------------------
+이제 초기화 버튼이 다른 색으로 표시된다
+훨씬 보기 좋다
+그런데 지금 CSS 파일에는 중복된 스타일 정의가 너무 많다 
+
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.css
+
+
+
+/* const buttonStyle = {
+    fontSize: "30px",
+    backgroundColor: "#00a5ab",
+    width: "100px",    
+    margin: "10px",
+    color: "white",
+    padding: "15px",
+    borderRadius: "30px"  
+}; */
+
+//3: 그래서 기본 버튼 CSS를 추가할 것이다, button 스타일을 만들고 공통 속성을 여기로 옮길것이다
+//background-color 값을 제외하면 모든 값이 동일하다, 나머지를 모두 button으로 옮길 것이다, resetButton에서도 말이다 //3-1: resetButton으로..
+button {
+    font-size: 30px;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+    border-color: black;
+    border-width: 5px;
+}
+
+.counterButton {
+    background-color: #00a5ab;
+/* <= 이부분 잘라내기
+    font-size: 30px;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+    border-color: black;
+    border-width: 5px;
+*/
+}
+
+.count {
+    font-size: 50px;
+    padding: 20px;
+}
+
+.totalCount {
+    color: #00a5ab;
+    font-size: 150px;   
+}
+
+
+.resetButton {
+    background-color: #824f8c;
+    //3-1: 배경색 빼고 모두 지우겠다, 이렇게 저장 하겠다 
+/*(button으로 옮겼으니 이부분은 삭제 여기선 주석처리 실제코드에선 삭제)
+    font-size: 30px;
+    width: 100px;   
+    margin: 10px;
+    color: white;
+    padding: 15px;
+    border-radius: 30px;  
+    border-color: black;
+    border-width: 5px;
+*/
+}
+-----------------------------------------------------------------------------------------------
+
+두 버튼에 중복으로 있던 CSS를 공통 button 스타일로 옮겼다
+CounterButton과 resetButton에서 다르게 설정할 값만 각각의 CSS 클래스 안에 두고 
+이렇게 바꿔도                                      |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0                
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |   ( 기존과 바뀐게 없음 )
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+                                     ◜ ‾‾‾‾‾‾‾ ◝
+                                    |   Reset   |   
+                                     ◟ _______ ◞
+-------------------------------------------------------------------------------------------
+
+실제 화면에선 아무것도 달라지지 않는다 
+잘 되는거 같다
++5 버튼, -5 버튼 모두 잘 동작하고 아주 좋다
+
+
+
+
+
+
+이번 시간에는 카운터에 초기화 버튼을 추가해 봤다
+이제 카운터를 사용하고 나서 카운트가 끝나면 초기화시킬 수 있다 
+상태가 초기화한 다음 다시 카운트를 시작할 수 있다
