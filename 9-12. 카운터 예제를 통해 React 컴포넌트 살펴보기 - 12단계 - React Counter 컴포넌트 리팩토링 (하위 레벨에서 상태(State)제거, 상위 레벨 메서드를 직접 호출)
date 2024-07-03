@@ -276,3 +276,431 @@ Todo App                |
 이렇게 하위 레벨에서 상태를 제거했다
 
 
+🔵  ■ 6: Directly Call Parent Methods (상위 레벨 메서드를 직접 호출)
+
+그럼 이제 상위 레벨 메서드를 직접 호출해 보자
+
+CounterButton에서 상위 메서드를 직접 호출하려면 어떻게 해야 할까?
+그렇다 우리가 원하는 건 
+------------------------------------------
+    function incrementCounterFunction() {
+
+        incrementMethod(by)
+    }
+------------------------------------------
+
+이런 식의 메서드 호출을 제거하는 것이다
+어떻게 해야 할까?
+
+onClick에 바로 incrementMethod를 연결하면 될까?
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import {PropTypes} from 'prop-types'
+
+export default function CounterButton({by, incrementMethod, decrementMethod}) {
+
+
+    function incrementCounterFunction() {
+
+        incrementMethod(by)
+    }
+
+    function decrementCounterFunction() {
+        
+        decrementMethod(by)
+    }
+
+    return(
+    <div className='Counter'>
+        <div>
+         <button className="counterButton" 
+
+          //3: 여기에 직접 넣어서 'onClick={incrementMethod}' 이러면 될까?, 이렇게 해보겠다
+                 onClick={incrementMethod}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+-----------------------------------------------------------------------------------------------
+
+⏺cmd 창>
+
+Compiled with warnings.
+
+[eslint]
+src\components\counter\CounterButton.jsx
+  Line 6:14:  'incrementCounterFunction' is defined but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint]
+src\components\counter\CounterButton.jsx
+  Line 6:14:  'incrementCounterFunction' is defined but never used  no-unused-vars
+
+webpack compiled with 1 warning
+-----------------------------------------------------------------------------------------------
+incrementCounterFunction가 사용되지 않았다는 경고가 나온다
+
+이번에도
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import {PropTypes} from 'prop-types'
+
+export default function CounterButton({by, incrementMethod, decrementMethod}) {
+
+
+    //4: 주석 처리한 다음 저장하겠다
+    // function incrementCounterFunction() {
+
+    //     incrementMethod(by)
+    // }
+
+    function decrementCounterFunction() {
+        
+        decrementMethod(by)
+    }
+
+    return(
+    <div className='Counter'>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementMethod}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------------------------------------------------------
+                                                  |
+                                                  V
+-----------------------------------------------------------------------------------------------
+
+⏺cmd 창>
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.27.0.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+-----------------------------------------------------------------------------------------------
+경고 메시지가 사라졌다
+
+하지만 +1 버튼을 누르면?
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0[object Object]                
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |   
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+                                     ◜ ‾‾‾‾‾‾‾ ◝
+                                    |   Reset   |   
+                                     ◟ _______ ◞
+-------------------------------------------------------------------------------------------
+
+역시나 동작하지 않는다 '0[object...]'이런 게 나온다
+
+기능은 정상 동작하는지 보면 그것도 아니고
+뭐가 잘못된 걸까?
+
+문제는 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+import {PropTypes} from 'prop-types'
+
+export default function CounterButton({by, incrementMethod, decrementMethod}) {
+
+
+    // function incrementCounterFunction() {
+
+    //     incrementMethod(by)
+    // }
+
+    function decrementCounterFunction() {
+        
+        decrementMethod(by)
+    }
+
+    return(
+    <div className='Counter'>
+        <div>
+         <button className="counterButton" 
+
+                //5: incrementMethod에 매개변수 by를 넘겨주지 않았다는 것이다, by를 인자로 넘기려면 어떻게 해야 할까?
+                //이 메서드에 인자로 by를 넘기려면 여기서 화살표 함수를 사용해야 한다, 이 안에서 화살표 함수를 정의할 것이다
+                //() => 이렇게 화살표 함수를 만들고 incrementMethod()를 호출한 다음 인자로 by를 넘긴다, 이렇게 저장하고
+                 onClick={() => incrementMethod(by)}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------------------------------------------------------
+동작하는지 한번 보자                            |
+새로 고친 다음 +1을 누르면                      V                              
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          1               
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |   
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+                                     ◜ ‾‾‾‾‾‾‾ ◝
+                                    |   Reset   |   
+                                     ◟ _______ ◞
+-------------------------------------------------------------------------------------------
+
+마법 같은 일이 벌어진다
+onClick 리스너에 incrementCounterFunction 함수의 참조 값을 넘겨주는 대신에
+화살표 함수를 만들어 넣었다 ( onClick={() => incrementMethod(by)} )
+람다 함수와 비슷하게 생겼지, 
+매개 변수도 없고 () => 이렇게 화살표 함수를 만들어 incrementMethod()를 호출하고 by를 인자로 전달했다
+
+아래 있는 버튼도 똑같이 바꿔 주겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+
+import {PropTypes} from 'prop-types'
+
+export default function CounterButton({by, incrementMethod, decrementMethod}) {
+
+
+    // function incrementCounterFunction() { (<= 여기서만 주석 처리 실제코드에선 삭제)
+
+    //     incrementMethod(by)
+    // }
+
+    //6-1: 여기와 위에 있는 메서드는 전부 지우고 이렇게 저장하겠다
+    // function decrementCounterFunction() { (<= 여기서만 주석 처리 실제코드에선 삭제)
+        
+    //    decrementMethod(by)
+    // }
+
+    return(
+    <div className='Counter'>
+        <div>
+         <button className="counterButton" 
+                 onClick={() => incrementMethod(by)}
+         >+{by}</button>
+        <button className="counterButton" 
+
+                  //6: 기존 메서드는 지우고 decrementMethod(by)를 호출하겠다 //6-1: decrementCounterFunction()으로..
+                 onClick={() => decrementMethod(by)}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+-----------------------------------------------------------------------------------------------
+ 브라우저로 가서 새로고침하고                    |
+                                              V                              
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          1               
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |   
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+                                     ◜ ‾‾‾‾‾‾‾ ◝
+                                    |   Reset   |   
+                                     ◟ _______ ◞
+-------------------------------------------------------------------------------------------
+
++1, -1, +2, -2, +5, -5 모두 확인하고
++5를 연달아 클릭한 다음 초기화 해 보면
+모든 게 정상적으로 동작한다
+                                                |
+                                                V
+-----------------------------------------------------------------------------------------------
+
+⏺cmd 창>
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.27.0.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+-----------------------------------------------------------------------------------------------
+
+경고 메시지도 없다
+
+
+
+
+
+
+
+
+Digging Deeper into Components - Counter
+                                                                                ______     ______
+● Parts of a Component                                                         (  +1  )   (  -1  )
+  ■ View (JSX or JavaScript)                                                    ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ Logic (JavaScript)                                                          ______     ______
+  ■ Styling (CSS)                                                              (  +2  )   (  -2  )
+  ■ State (Internal Data Store)                                                 ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ Props (Pass Data)                                                           ______     ______
+● Let's learn more about each of these building another simple example         (  +5  )   (  -5  )
+  ■ A Counter App                                                               ‾‾‾‾‾‾     ‾‾‾‾‾‾
+● Let's take a hands-on step by step approach                                           0
+                                                                                   ____________   
+                                                                                  (   Reset    ) 
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾
+
+이 섹션에선 카운터 예제를 통해 다양한 내용을 살펴봤다
+컴포넌트를 구성하는 다양한 요소에 대해 알아봤다,
+
+뷰 영역은 HTML을 표시하는 데 사용되며 JSX로 구현한다 
+
+버튼 클릭처럼 사용자가 페이지에서 수행한 동작을 처리하는 로직에 대해서도 알아봤다
+
+CSS를 사용해 페이지 스타일을 변경하는 법도 알아봤다
+
+상태(State)에 대해서도 알아봤지, 컴포넌트에서 상태를 저장하는 방법을 배웠다
+
+프로퍼티(Props)도 사용해 봤다
+이를 통해 특정 컴포넌트로 데이터를 전달해 봤다
+
+그럼 다음 섹션에서 보겠다
