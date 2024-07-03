@@ -1,0 +1,138 @@
+
+
+Todo Management ReactApp - First Steps
+
+● 1: Counter example - What did we learn?                                                                                                    ______________         
+  ■ Basics of Components                                                                                                                  ↗ |    Login     |    
+    ○ View (JSX)                                                                                                                        /    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾           
+    ○ Styling (CSS)                                                                                                                   /      ______________          
+● 2: Todo Management App - What will we learn?                                                                                       /     ↗|    Logout    |      
+  ■ Routing                                                                                                                         /    /   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾           
+  ■ Forms                                                                                                                         /    /    ______________           
+  ■ Validation                                                                                                                   /   /   ↗ |   ListTodo   |             
+  ■ REST API calls                                                                                                             /   /   /    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                  
+  ■ Authentication                                                                                                           /   /   /   ______________             
+                                                                                                                           /   /   /  ↗ |     Todo     |          
+                                                                                                                   ______________   /    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                  
+                                                                                                                  |  Components  |                                    
+                                                                                                                ↗  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   \    ______________                          
+                                                                                                              /               \  \    ↘ |    Header    |   
+                                                                                                            /                  \   \     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                          /                     \    \    ______________   
+                                                                                                        /                        \     ↘ |    Footer    |
+                                                                                                      /                            \      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾              
+                                                                                                    /                                \   ______________                    
+                                                                                       ___________________                            ↘ |     Menu     |
+                                                                                      | React Application |                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                               
+                                                                                      |    JavaScript     |                                                                            
+                                                                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                
+                                                                                                      \                                    ______________                                      
+                                                                                                        \                               ↗ |    Formik    |                                                     
+                                                                                                          \                           /    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                        
+                                                                                                            \                       /                                                                                             
+                                                                                                              \    ______________ /       ______________                                                                                                       
+                                                                                                                ↘ |  Libraries   | ----→ |    Axios     |                                                                                                    
+                                                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾ \       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                                                    \    ______________  
+                                                                                                                                      ↘ |  ReactRouter |            
+                                                                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                                                         
+
+리액트로 Todo 관리 애플리케이션을 만드는 섹션에 온 것을 환영한다
+● 1: Counter example - What did we learn?
+  ■ Basics of Components  
+    ○ View (JSX)
+    ○ Styling (CSS)     
+지난 섹션에서 우리는 카운터 예제를 다뤘다, 컴포넌트의 기초를 다뤘지
+뷰, 스타일, State, Props 등이다  
+● 2: Todo Management App - What will we learn?
+이 섹션은 할 일 관리 애플리케이션에 중점을 둘 것이다
+이 섹션에서 무엇을 배울까?
+  ■ Routing 
+라우팅을 배운다
+한 컴포넌트에서 다른 컴포넌트로 어떻게 이동할까?
+로그인 컴포넌트라는 컴포넌트와 웰컴 컴포넌트가 있다면 
+사용자가 올바른 인증 정보를 로그인 컴포넌트에 입력하면 웰컴 컴포넌트로 어떻게 이동시킬까?
+웰컴 페이지에서 할 일 관리 페이지로 어떻게 탐색할까? 바로 라우팅이지
+이 섹션에서 이런 것들을 다룰 것이다 
+  ■ Forms  
+또 학습해볼 것은 바로 Forms이다  
+보통은 HTML 페이지가 있으면 사용자 입력을 받는 양식이 있지 
+리액트로 이런 양식을 구현하는 방법을 배워보곘다
+  ■ Validation
+이후 우리는 양식에 입력된 데이터를 검증하는 방법도 배워보겠다
+  ■ REST API calls 
+리액트 애플리케이션에서 RestAPI로 백엔드 API를 호출하는 방법도 학습해보자
+  ■ Authentication
+기본 인증과 JWT 토큰을 활용해 인증도 구현해보겠다  
+
+
+
+
+
+
+Getting Started with Todo App- Components
+
+● Starting with your TodoApp                                                       ______________________             ______________________   _______
+  ■ 1: LoginComponent                                                       name: |                      | Password: |                      | | Login |
+    ○ Make LoginComponent Controlled                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾
+      ◦ Link form fields with state                                     ________________________________________________________________________________________________________
+    ○ Implement Hard-coded Authentication                                 Welcome in28Minutes!! Click here to manage your todo's
+    ○ Implement Conditional Rendering
+  ■ 2: WelcomeComponent                                                 ________________________________________________________________________________________________________  
+    ○ Implement Routing                                                |  in28Minutes  Home  Todos                                                                       Logout |
+  ■ 3: ErrorComponent                                                   ________________________________________________________________________________________________________
+  ■ 4: ListTodosComponent                                              | © 20xx in28minutes All rights reserved         (검바탕 흰색컬러)                                        |
+  ■ 5: Add Bootstrap & style our pages                                  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ■ 6: HeaderComponent                                                    Description
+  ■ 7: LogoutComponent                                                    ____________________________________________________________________________________________________
+                                                                         |                                                                                                    |
+                                                                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                          Target Date
+                                                                          ____________________________________________________________________________________________________
+                                                                         | 03/07/2024                                                                                         |
+                                                                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                          ____________
+                                                                         | Add(초바탕) | 
+                                                                          ‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                         Your todos are
+                                                                           Description                 Target Date        Is it Done?
+                                                                          ____________________________________________________________________________________________________
+                                                                                                                                          ________________   ________________
+                                                                           Default Desc                03/12/2024         false          | Upgrade(초바탕) | | Delete(주바탕) |
+                                                                                                                                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                          ____________________________________________________________________________________________________
+                                                                                                                                          ________________   ________________
+                                                                           Learn Angular JS            03/12/2024         false          | Upgrade(초바탕) | | Delete(주바탕) |
+                                                                                                                                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                          ____________________________________________________________________________________________________
+                                                                                                                                          ________________   ________________
+                                                                           Learn to Dance              03/12/2024         false          | Upgrade(초바탕) | | Delete(주바탕) |
+                                                                                                                                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     
+                                                                                                                                   
+                                                                             Add a todo       
+
+
+
+● Starting with your TodoApp                                                                             
+이 섹션에서 우리는 다양한 범위의 컴포넌트를 구축할 것이다
+일단 앱을 만들겠지, 가장 상위 앱은 TodoApp 이 될 것이다
+  ■ 1: LoginComponent
+    ○ Make LoginComponent Controlled 
+      ◦ Link form fields with state  
+    ○ Implement Hard-coded Authentication   
+    ○ Implement Conditional Rendering    
+  ■ 2: WelcomeComponent
+    ○ Implement Routing
+  ■ 3: ErrorComponent    
+  ■ 4: ListTodosComponent      
+그 안에 우리는 로그인 컴포넌트와 웰컴 컴포넌트, 할 일 목록 컴포넌트 등을 만들겠지  
+  ■ 5: Add Bootstrap & style our pages  
+Bootstrap으로 페이지 스타일도 적용하고   
+  ■ 6: HeaderComponent
+헤더 컴포넌트와 바닥글 컴포넌트, 
+  ■ 7: LogoutComponent
+로그아웃 컴포넌트도 만들겠다    
+
+할 일이 아주 많네, 시작해보자
+다음강의에서 보겠다
