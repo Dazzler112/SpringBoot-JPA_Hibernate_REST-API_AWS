@@ -1,0 +1,278 @@
+
+
+Moving State up and More...
+                                                                                ______     ______
+● How can we have one state for all counters?                                  (  +1  )   (  -1  )
+  ■ 1: Rename Counter to CounterButton                                          ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ 2: Calling a parent component method                                        ______     ______
+    ○ <CounterButton incrementMethod={increment}>                              (  +2  )   (  -2  )
+  ■ 3: Exercise: CounterButton as separate module                               ‾‾‾‾‾‾     ‾‾‾‾‾‾
+  ■ 4: Adding Reset Button                                                      ______     ______
+  ■ 5: Remove State From Child                                                 (  +5  )   (  -5  )
+  ■ 6: Directly Call Parent Methods                                             ‾‾‾‾‾‾     ‾‾‾‾‾‾
+                                                                                        0
+                                                                                   ____________   
+                                                                                  (   Reset    ) 
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+이번 시간에는 두 가지 작업을 해볼 것이다
+  ■ 5: Remove State From Child
+첫째는 하위 레벨의 State를 제거하는 것이고 
+  ■ 6: Directly Call Parent Methods  
+둘째는 상위 메서드를 직접 호출하는 것이다
+
+CounterButton에 있는 코드를 보면, 
+-------------------------------------------------
+    return(
+       <> 
+        <span className='totalCount'>{count}</span>
+        <CounterButton by={1} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+        <CounterButton by={2} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>           
+        <CounterButton by={5} 
+            incrementMethod={incrementCounterParentFunction} decrementMethod={decrementCounterParentFunction}/>
+         <button className="counterButton" 
+                 onClick={resetCounter}
+         >Reset</button>   
+       </>
+    )
+-------------------------------------------------
+대부분의 메서드가 호출을 전달하는 용도로만 사용되고 있다
+
+이 메서드를 보면 
+-------------------------------------------------
+    function incrementCounterFunction() {
+
+        setCount(count + by)
+        incrementMethod(by)
+    }
+-------------------------------------------------
+단순히 상위 레벨의 메서드를 호출하고 있지
+
+
+🔵  ■ 5: Remove State From Child  (하위 레벨에서 상태 제거)
+
+이런 식으로 코드양을 늘리지 않고 직접 상위 레벨의 함수를 호출할 수 있는 방법은 없을까?
+
+
+이번 시간에는 그 방법을 알아보자
+
+먼저 CounterButton에 있는 State부터 제거하겠다, 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ Counter.jsx
+
+
+
+//1-2: useState도 지우겠다
+// import { useState } from 'react'  (<== 여기서만 주석처리 실제 코드에선 삭제)
+
+import {PropTypes} from 'prop-types'
+
+export default function CounterButton({by, incrementMethod, decrementMethod}) {
+
+//1: 이 상태는 더 이상 사용하지 않으니까 제거, CounterButton에서 count 상태를 제거하겠다
+/*
+    // [0, ƒ] 
+    // const [firstElt, secondElt] = array
+    const [count, setCount] = useState(0);  (<== 여기서만 주석처리 실제 코드에선 삭제)
+*/
+
+    function incrementCounterFunction() {
+
+        //1-1: 상태를 제거했으니 이제 더 이상 setCount()메서드를 호출할 필요도 없겠지
+       // setCount(count + by) (<== 여기서만 주석처리 실제 코드에선 삭제)
+        incrementMethod(by)
+    }
+
+    function decrementCounterFunction() {
+
+      //1-1 계속: 여기도 삭제.., 다 된 것 같다 //1-2: 맨위의 import로 ..
+      //  setCount(count - by) (<== 여기서만 주석처리 실제 코드에선 삭제)
+        decrementMethod(by)
+    }
+
+    return(
+    <div className='Counter'>
+        <div>
+         <button className="counterButton" 
+                 onClick={incrementCounterFunction}
+         >+{by}</button>
+        <button className="counterButton" 
+                 onClick={decrementCounterFunction}
+         >-{by}</button>
+        </div>
+    </div>
+    )
+}
+
+CounterButton.propTypes = {
+    by: PropTypes.number
+}
+
+CounterButton.defaultProps = {
+    by: 5
+}
+
+-----------------------------------------------------------------------------------------------
+
+그럼 컴포넌트를 실행해 보자
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0                
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |   
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+                                     ◜ ‾‾‾‾‾‾‾ ◝
+                                    |   Reset   |   
+                                     ◟ _______ ◞
+-------------------------------------------------------------------------------------------
+
+좋다 다 잘 동작한다
+
+명령프롬프트에 경고가 나온다 
+예전에 나온 메시지이다, PlayingWithProps를 사용하는 곳이 없다는 메시지이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ App.js
+
+
+
+import './App.css';
+import Counter from './components/counter/Counter';
+
+function App() {
+  return (
+      <div className="App">
+      {/* <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header> */}
+      <Counter/>
+    </div>
+  )
+}
+
+// {property1: 'value1', property2: 'value2'} 
+/*
+function PlayingWithProps(properties) {
+
+  console.log(properties)
+  console.log(properties.property1)
+  console.log(properties.property2)
+  return(
+    <div>Props</div>
+  )
+} 
+*/
+
+//2: PlayingWithProps()함수를 주석 처리하면 경고 메시지가 사라질 것이다
+/* (<= 주석처리)
+function PlayingWithProps({property1, property2}) {
+
+  console.log(property1)
+  console.log(property2)
+  return(
+    <div>Props</div>
+  )
+}
+*/
+
+export default App;
+
+-----------------------------------------------------------------------------------------------
+                                              |
+                                              V
+-----------------------------------------------------------------------------------------------
+
+⏺cmd 창>
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.27.0.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+-----------------------------------------------------------------------------------------------
+
+좋다 된거 같다
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                          0                
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +1    |   |   -1     |
+                              ◟ _______ ◞    ◟ _______ ◞           
+                                                                           
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +2    |   |   -2     |   
+                              ◟ _______ ◞    ◟ _______ ◞             
+                                        
+                              ◜ ‾‾‾‾‾‾‾ ◝    ◜ ‾‾‾‾‾‾‾ ◝ 
+                              |   +5    |   |    -5    |
+                              ◟ _______ ◞    ◟ _______ ◞
+
+                                     ◜ ‾‾‾‾‾‾‾ ◝
+                                    |   Reset   |   
+                                     ◟ _______ ◞
+-------------------------------------------------------------------------------------------
+
+코드 컴파일에도 문제가 없다
+
+이렇게 하위 레벨에서 상태를 제거했다
+
+
