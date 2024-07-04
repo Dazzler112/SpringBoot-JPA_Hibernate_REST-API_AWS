@@ -332,3 +332,304 @@ Todo App                |
 여기 모두 보이지
 
 
+그럼 이제 어떤 플로우를 구현해야 할까?
+입력을 해야지
+사용자 이름과 비밀번호를 로그인 컴포넌트에 입력해야 한다 
+그리고 올바른 인증 정보를 입력하면 웰컴 컴포넌트로 연결하고 싶다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            Todo Management Application
+            <LoginComponent />
+
+            //5: 일단 웰컴 컴포넌트는 주석 처리하겠다, 웰컴 컴포넌트는 주석처리하고 지금은 로그인 컴포넌트에 집중하겠다
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+    return (
+        <div className='Login'>
+            Login Component
+        </div>
+    )
+}
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+그리고 여기로 들어가면                      |
+                                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                  Todo Management Application
+                                        Login Component
+
+
+-------------------------------------------------------------------------------------------
+
+로그인 컴포넌트만 보이겠지
+
+이제 작은 로그인 컴포넌트를 만드는 데 집중해보자
+로그인 컴포넌트에는 뭐가 있어야 하지?
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            Todo Management Application
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+    return (
+        <div className='Login'>
+            //6: 보통은 사용자 이름과 비밀번호, 그리고 버튼이 있지, 여기에 추가해보자
+            //<div className은 LoginForm이라고 하고 여기에는 일단 사용자 이름을 넣는 칸이 있어야겠다
+            <div className='LoginForm'>
+                //6-1: <div></div> 인에 라벨을 추가하겠다, 
+                <div>
+                    //6-2: label이다 label은 User Name이라고 하겠다, 칸이 있어야지
+                    <label>User Name</label>
+
+                    //6-3: 입력 칸이 될 텐데 input type은 사용자 이름이니까 text로 하겠다, text 칸에서 입력을 받고 이름을 줄 수 있다 name은 username이라고 하겠다
+                    //JSX를 사용하니까 여기에 닫는 태그를 넣어줘야 한다
+                    <input type="text"/>
+
+                //6-4: 추가로 비밀번호 칸도 넣어줘야 한다, 비밀번호 칸을 위한 또 다른 div를 만들겠다
+                <div>
+                    //6-5: 이건 Password가 되겠지, username과 password가 생겼교
+                    <label>Password</label>
+                    //6-6: 여기도 name이 password지, type도 password라고 해준다 그러면 두 개는 다 됐다
+                    <input type="password" name="password"/>
+                </div>
+                </div>
+            </div>
+            button
+        </div>
+    )
+}
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            Todo Management Application
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+    return (
+        <div className='Login'>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name</label>
+                    <input type="text" name="username"/>
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input type="password" name="password"/>
+                </div>
+
+              //7: 여기 버튼도 있어야지 또 div를 만들겠다, div 안에 버튼을 만든다
+                <div>
+                  //7-1: type을 butoon이라 하고 name은 login이라고 하겠다 슬래시도 붙여준다
+                    <button type="button" name="login" />
+                </div>            
+            </div>
+        </div>
+    )
+}
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+
+로그인 컴포넌트의 기본적인 구조가 만들어졌다, 그렇지?
+가보자
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                  Todo Management Application
+                                            _________________
+                                  User Name|                 |
+                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                           __________________
+                                  Password|                  |
+                                           ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              ____
+                                             |    |  
+                                              ‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+Todo 관리 애플리케이션에 사용자 이름과 비밀번호가 있다
+버튼은 지금 보이지 않는다
+좋다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            Todo Management Application
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+    return (
+        <div className='Login'>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name</label>
+                    <input type="text" name="username"/>
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input type="password" name="password"/>
+                </div>
+                <div>
+                    //8: 여기서 닫는 태그를 지우고, 별도의 닫는 태그를 만들어 그 사이에 login이라고 적겠다
+                    <button type="button" name="login">login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+
+어떻게 됐지?
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                  Todo Management Application
+                                            _________________
+                                  User Name|                 |
+                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                           __________________
+                                  Password|                  |
+                                           ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+그래
+사용자 이름과 비밀번호, 로그인이 여기에 있다
+
+
+
+
+
+
+
+이번 학습엔 Todo 애플리케이션을 시작해보았다
+
+로그인 컴포넌트에 두 개 입력 칸을 만들고 버튼을 만들어 기능을 추가할 수 있게 만들었다
+이제 이 컴포넌트에 기능을 추가할 수 있지 
+다음 강의에 보겠다
