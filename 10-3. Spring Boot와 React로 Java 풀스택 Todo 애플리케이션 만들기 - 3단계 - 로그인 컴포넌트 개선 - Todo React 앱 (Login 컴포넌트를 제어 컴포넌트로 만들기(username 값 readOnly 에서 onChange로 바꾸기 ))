@@ -1,0 +1,414 @@
+
+
+--------------------------------------------------------------------------------------------
+
+                                            _________________
+                                  User Name|                 |
+                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                           __________________
+                                  Password|                  |
+                                           ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+
+지난 시간에는 로그인 컴포넌트를 만들었다
+지금은 컴포넌트가 그렇게 보기 좋지는 않다
+
+약간 개선을 해보자
+나중에 Bootstrap을 추가하면 예쁘게 만들수 있다
+지금은 그냥 조금 더 나은 정도로 만들겠다 시작해보자
+
+별도의 CSS 파일을 만들겠다
+todo 폴더로 가서 오른쪽 마우스를 클릭해서 새 파일을 만들고 TodoApp.css라 하겠다
+TodoApp과 관련된 모든 CSS를 여기에 추가하고 임포트 하면 된다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+//1: import './TodoApp.css'이다
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+
+    return (
+        <div className='Login'>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password"/>
+                </div>
+                <div>
+                    <button type="button" name="login">login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+자
+여기에 쓰는 것은 TodoApp 컴포넌트에 적용할 수 있다
+그러면 여기 TodoApp 안으로 가서
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+//2: 여기 label과 input, button을 모두 가져오자
+//label, input, button을 적고, 일단 간단한 걸 추가해보겠다
+label, input, button {
+    //2-1: margin은 10px, padding은 5px를 주겠다, 어떻게 되는지 볼까?
+    margin: 10px;
+    padding: 5px;
+}
+
+-----------------------------------------------------------------------------------------------
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                               _________________
+                                  User Name:  |                 | (<= margin, padding이 설정됨)
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |                  |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+
+컴포넌트가 이제 이렇게 보인다
+CSS를 추가하니 label, input, button 사이에 공간이 생긴 게 보인다
+
+애플리케이션에 Bootstrap을 추가하면 스타일을 더 추가할 수 있다
+지금은 일단 로그인 컴포넌트의 기능에 집중하겠다
+
+이제 사용자가 사용자 이름과 비밀번호를 입력하고 로그인을 누르겠지
+사용자가 로그인 버튼을 누를 때 인증을 처리하고 싶다
+
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+
+    return (
+        <div className='Login'>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+
+                    //3: 그 전에 일단 사용자 이름에 기본 값을 추가하겠다, 여기 username 부분으로 가서 디폴트 값을 추가한다
+                    //value는 in28minutes라 하겠다 저장한다
+                    <input type="text" name="username" value="in28minutes" />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password"/>
+                </div>
+                <div>
+                    <button type="button" name="login">login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+ 그러면 이제 여기 사용자 이름 칸에 입력하러 가보면    |
+                                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |                  |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+이런.. 칸에 입력할 수가 없다
+오른쪽 마우스를 클릭하고 inspect를 누른다
+
+무슨 일인지 보겠다
+콘솔로 들어가서
+---------------------------------
+
+inspect의 콘솔창
+
+
+❌ ▶Warning: You provided a `value` prop     react-dom.development.js:94 
+to a form field without an `onChange` handler. This will render a 
+read-only field. If the field should be mutable use `defaultValue`. 
+Otherwise, set either `onChange` or `readOnly`.
+    at input
+    at div
+    at div
+    at div
+    at LoginComponent
+    at div
+    at TodoApp
+    at div
+    at App
+---------------------------------
+여기에 오류가 출력되어 있지
+제어할 수 없는 입력 값을 바꾸려고 한다고 나온다
+
+정의되지 않은 값이 정의된 값으로 바뀌면서 생길 수 있다고 한다
+컴포넌트가 살아있는 동안 입력 요소를 제어할지 제어하지 않을지 선택하라
+
+
+🔵 컴포넌트 제어 및 React 양식 다룰 때 두가지 유의해야 할 사항
+
+리액트에는 컴포넌트 제어라는 개념이 있다
+리액트에서 양식 요소를 다룰 때 두 가지 유의해야 할 사항이 있다
+
+1. 하나는 React State이다
+React State에서 양식에 사용되는 변수 값을 유지할 수 있다 이게 첫번째이다
+
+2. 두번째는 양식 요소 자체의 값이다
+이 요소에 오른쪽 마우스를 클릭하고 검사해보면 이 값을 저장하고 있는 게 DOM 요소인 걸 볼 수 있어요 ( <input type="text" name="username" value="in28minutes"> )
+이 값을 바꾸면 특정 DOM 요소가 자동으로 업데이트 되는 거지
+
+특정 요소 값을 저장하는 State와 DOM 값이 있는 것이다
+리액트에서 양식 요소를 사용할 때 이 두 가지가 동기화되어야 한다
+특정 구성 요소에 이렇게 설정하면 컴포넌트는 제어 컴포넌트가 되는 거지
+
+
+
+그러면 로그인 컴포넌트를 어떻게 제어 컴포넌트로 만들까?
+State를 만드는 것부터 시작한다
+사용자 이름을 저장할 수가 없기 때문이다
+username을 저장할 State를 만들어보겠다
+State는 어떻게 사용하지??
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+//4-1: 여기 import가 생기는 걸 볼 수 있지, 리액트에서 useState를 임포트하고 있다 //4-2: 다시 LoginComponent() 함수로..
+import { useState } from 'react'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    //4: useState 하면 된다, useState를 추가한다 //4-1: import로 ..
+    //4-2: 기본 값을 in28minutes로 하고 싶다, useState의 값으로 in28minutes를 주겠다, 이건 두 개 요소가 있는 배열을 반환할 것이다, const로 정의하겠다
+    // 첫 번째는 이 State 값에 접근할 수 있는 변수이다 여기에는 username이 들어가야겠다
+    //그리고 username을 업데이트할 메서드가 필요하다, State의 username을 변경해줄 것이다, 이 메서드를 호출하면 State에 저장된 값을 업데이트할 것이다
+    //이제 username과 setUsername 메서드를 useState로 가져왔다
+    const [username, setUsername] = useState('in28minutes')
+
+    return (
+        <div className='Login'>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+
+                    //4-3: 그럼 이제 여기에서 username 값을 사용해보자, 여기 in28minutes를 직접 입력하는 대신 State에 접근하면 되겠지
+                    //여기 {username}을 넣어줍니다 ,양식 요소를 이 State와 묶어주는 것이다, 저장하고 양식으로 돌아가서 새로 고침 해보겠다
+                    <input type="text" name="username" value="{username}" />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password"/>
+                </div>
+                <div>
+                    <button type="button" name="login">login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+                                                 |
+                                                 V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                               _________________
+                                  User Name:  |{username}       | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |                  |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+
+값이 이렇게 보이는 것은 여기 큰따옴표가 있기 때문이다
+
+-------------------------------------------
+
+⏺ TodoApp.jsx
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+
+    return (
+        <div className='Login'>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                                                    // 여기 따옴표를 지워주겠다(value="{username}" 에서 value={username}로..) 저장한다
+                    <input type="text" name="username" value={username} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password"/>
+                </div>
+                <div>
+                    <button type="button" name="login">login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+-------------------------------------------
+                                     |
+                                     V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |                  |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+이제 여기 in28minutes라는 값이 보이지
+
