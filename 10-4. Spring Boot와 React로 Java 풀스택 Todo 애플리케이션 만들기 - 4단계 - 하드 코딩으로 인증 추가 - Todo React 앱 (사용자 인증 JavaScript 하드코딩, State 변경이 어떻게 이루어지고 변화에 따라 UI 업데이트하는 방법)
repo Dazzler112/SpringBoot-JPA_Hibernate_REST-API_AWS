@@ -521,3 +521,799 @@ in28minutes와 dummy의 조합이 유요한 거지
 
 그럼 이제 성공인지 실패인지 알 수 있다 
 이제 중요한 것은 이 메시지를 보여주는 것이다 ( Authenticated Successfully or Authentication Failed. Please check your credentials. )
+인증이 실패하거나 성공했을 때 어떻게 이 메시지를 보여줄까?
+생각해 보자
+어떤 식으로 접근하겠냐?
+
+한 가지 접근 방법은 이 State 안의 값을 바탕으로 메시지를 보여주는 것이다
+
+우리는 State 안에 변수를 두고 성공 메시지를 보여줄지 오류 메시지를 보여줄지 결정할 수 있다
+이제 State 변수를 생성하겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+  
+    //4: 위에걸 복사해서, 둘 다 디폴트 값을 갖는 State로 만들겠다 false가 되겠지
+    //변수 이름은 showSuccessMessage라고 하고 setShowSuccessMessage는 메서드 이름이 될 것이다 
+    // showSuccessMessage이게 State내의 변수 이름이고 setShowSuccessMessage이건 State를 업데이트 하는 데 사용되는 메서드 이름이지
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)   
+
+    //4-1: 오류 메시지도 비슷하게 할 수 있다 앞쪽을 showErrorMessage로, 여기도 setShowErrorMessage로 바꾼다
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+        
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+
+            //4-2: 사용자 이름 인증이 성공하면 어떻게 되지? 이렇게 출력해야겠지
+            //setShowSuccessMessage를 true로 호출하고 seShowErroeMessage를 false로 호출한다
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else {
+            console.log('Failed');
+
+            //4-3: else에는 반대로 하면 되겠지, setShowSuccessMessage는 false로, setShowErrorMessage는 true로 한다
+            //그럼 이제 State로 가서 보면 이 값이 업데이트 되는 걸 볼 수 있겠지, 저장하고
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+
+    return (
+        <div className='Login'>
+            <div className="successMessage">Authenticated Successfully</div>
+            <div className="errorMessage">Authentication Failed. Please check your credentials.</div>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+크롬으로 돌아가서 로그인을 눌러보자
+
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Authenticated Successfully
+                    Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |                  |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Failed                                                                 TodoApp.jsx:30
+-------------------------------------------------------------------------------------------
+
+Failed이다
+컴포넌트로 가서 로그인 컴포넌트로 가면 이 변수의 State를 볼 수 있지
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+        LoginComponent
+
+
+LoginComponent                    ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+new entry : ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+hooks                                      🧪  ㅁ
+  1️⃣State: "in28minutes"
+  2️⃣State: ""
+  3️⃣State: false
+  4️⃣State: false
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+source                                         ㅁ
+  bundle.js:140
+-------------------------------------
+-------------------------------------------------------------------------------------------
+
+새로 고침 하면 사용자 이름은 in28minutes고 비밀번호 칸은 비어있지 
+
+State 변수 두 개는 모두 false가 기본값이다
+useState(false)에서 온 걸
+(    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)    )
+알 수 있지
+디폴트 값은 showSuccessMessage와 showErrorMessage는 모두 false로 초기화 된다
+-------------------------------------
+hooks                                      🧪  ㅁ
+  1️⃣State: "in28minutes"
+  2️⃣State: ""
+  3️⃣State: false
+  4️⃣State: false
+-------------------------------------
+여기 보이지, 뭐가 뭔지 모르겠지?
+
+여기 Parse hook names를 클릭하면(🧪 모양 클릭) 
+-------------------------------------
+hooks                                      🧪  ㅁ
+  1️⃣State(username): "in28minutes"
+  2️⃣State(password): ""
+  3️⃣State(showSuccessMessage): false
+  4️⃣State(showErrorMessage): false
+-------------------------------------
+여기 보이지, 뭐가 뭔지 모르겠지?
+showSuccessMessage의 State 변수가 false인 걸 볼 수 있다
+showErrorMessage도 마찬가지로 false지
+
+그럼 이제 로그인을 클릭해 보겠다
+
+사용자 이름과 비밀번호 조합을 잘못 입력해보자
+                                        
+ 그냥 이상태로 로그인을 누르면 어떻게 되지?           
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Authenticated Successfully
+                    Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |                  |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+        LoginComponent
+
+
+LoginComponent                    ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+new entry : ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+hooks                                      🧪  ㅁ
+  1️⃣State(username): "in28minutes"
+  2️⃣State(password): ""
+  3️⃣State(showSuccessMessage): false           ㅁ
+  4️⃣State(showErrorMessage): true               ☑
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+source                                         ㅁ
+  bundle.js:140
+-------------------------------------
+-------------------------------------------------------------------------------------------
+
+showErrorMessage가 true가 된다
+showSuccessMessage false지 
+오류 메시지는 보여주고 싶지만 성공 메시지는 보여주지 않겠다는 거지
+
+왜냐하면
+-------------------------------------
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+-------------------------------------
+여기 else의 코드가 실행되기 때문이다
+인증에 실패한 것이다
+showSuccessMessage는 false가 되고 setShowErrorMessage는 true가 된다
+
+사용자 이름은 in28minutes, 비밀번호는 dummy로 올바른 값을 입력하고 클릭을 누르면
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Authenticated Successfully
+                    Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+        LoginComponent
+
+
+LoginComponent                    ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+new entry : ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+hooks                                      🧪  ㅁ
+  1️⃣State(username): "in28minutes"
+  2️⃣State(password): ""
+  3️⃣State(showSuccessMessage): true            ㅁ
+  4️⃣State(showErrorMessage): false             ☑
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+source                                         ㅁ
+  bundle.js:140
+-------------------------------------
+-------------------------------------------------------------------------------------------
+
+showSuccessMessage는 true로, showErrorMessage는 false로 바뀌지
+-------------------------------------
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+-------------------------------------
+if 코드가 실행되기 때문이다
+
+콘솔로 가면 여기
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Success                                                                  TodoApp.jsx:31
+-------------------------------------------------------------------------------------------
+
+Success가 출력되는 걸 볼 수 있다
+
+---------------------------------------
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+---------------------------------------
+console.log로 Success를 출력하고 ShowSuccessMessage는 true, showErrorMessage는 false지
+
+이제 우리는 State의 값을 업데이트 할 수 있지
+ShowSuccessMessage가 true이면 이 State를 기반으로 UI를 업데이트 해야지 Authenticated Successfully 이 메시지를 보여주고 싶다
+State의 showErrorMessage가 ture이면 Authentication Failed. Please check your credentials. 이 메시지를 보여주고 싶다
+지금은 두 메시지가 모두 뜨지
+어떻게 구현할지 한 번 생각해 봐라
+
+별도의 메서드로 구현하는 것부터 시작하겠다
+각각에 대해 별도의 함수 컴포넌트를 만들 것이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+
+    return (
+        <div className='Login'>
+            <div className="successMessage">Authenticated Successfully</div>
+            <div className="errorMessage">Authentication Failed. Please check your credentials.</div>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+//5: 여기로 가서 function SuccessMessageComponent라 하고 return 해야지
+function SuccessMessageComponent () {
+
+  //5-2: 그러면 if문을 써야지, if setShowSuccessMessage가 true일 때지, if setShowSuccessMessage가 true인 경우에, 복잡한 구문 대신 한 줄이니까 이렇게 간단히 반환할 수 있겠지
+  //if(showSuccessMessage) 이 뷰를 리턴한다 //5-3: if(showSuccessMessage) return 아래로 작성..
+  if(showSuccessMessage) {
+    //5-1: 이 메세지를 준다, 이 메시지를 특정한 조건에서만 반환하고 싶다 //5-2: return위로..
+    return <div className="successMessage">Authenticated Successfully</div>
+  }
+  //5-3: 아니면 null을 반환하겠다 , 이렇게 SuccessMessageComponent가 됐다 저장하고
+  return null
+}
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+이제 Todo 관리 앱으로 가보면 
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+
+
+Compiled with problems:
+×
+ERROR
+[eslint] 
+src\components\todo\TodoApp.jsx
+  Line 64:6:  'setShowSuccessMessage' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+
+--------------------------------------------------------------------------------------------
+
+이렇게 나온다, showSuccessMessage가 정의되지 않았다
+
+이 함수 컴포넌트는 다른 곳에 연결되어 있지
+--------------------------------------------------
+function SuccessMessageComponent () {
+
+  if(setShowSuccessMessage) {
+      return <div className="successMessage">Authenticated Successfully</div>
+  } 
+  return null
+
+}
+--------------------------------------------------
+
+이 함수 컴포넌트는 다른 컴포넌트의 State에 연결되어 있다
+
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+
+    //6-1: 여기로 옮기겠다
+    function SuccessMessageComponent () {
+    
+      if(showSuccessMessage) {
+          return <div className="successMessage">Authenticated Successfully</div>
+      } 
+      return null
+    
+    }
+
+    return (
+        <div className='Login'>
+            <div className="successMessage">Authenticated Successfully</div>
+            <div className="errorMessage">Authentication Failed. Please check your credentials.</div>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+//6: 이 함수를 다른 곳으로 옮기겠다 //6-1: handleSubmit() 함수 아래로 옮기기...
+/* <== 이 주석처리는 다른 함수로 옮김
+function SuccessMessageComponent () {
+
+  if(showSuccessMessage) {
+      return <div className="successMessage">Authenticated Successfully</div>
+  } 
+  return null
+
+}
+*/
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Authenticated Successfully
+                    Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+이제 코드가 컴파일 된다
+
+이제 SuccessMessageComponent를 사용할 수 있다
+여기 이렇게 적는 대신에
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <LoginComponent />
+            {/* <WelcomeComponent /> */}
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+
+    function SuccessMessageComponent () {
+    
+      if(showSuccessMessage) {
+          return <div className="successMessage">Authenticated Successfully</div>
+      } 
+      return null
+    
+    }
+    
+    return (
+        <div className='Login'>
+
+            //7: 이걸 지우고 SuccessMessageComponent를 추가하는 거지 (<SuccessMessageComponent />) 저장한다
+        //    <div className="successMessage">Authenticated Successfully</div> (<= 여기서만 주석처리 실제코드에선 삭제)
+             <SuccessMessageComponent /> 
+  
+            <div className="errorMessage">Authentication Failed. Please check your credentials.</div>
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+ 새로고침 하면                                   |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                           
+                    Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |                  |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+        LoginComponent
+          SuccessMessageComponent
+
+
+LoginComponent                    ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+new entry : ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+hooks                                      🧪  ㅁ
+  1️⃣State(username): "in28minutes"
+  2️⃣State(password): ""
+  3️⃣State(showSuccessMessage): false           ㅁ
+  4️⃣State(showErrorMessage): false             ㅁ
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+source                                         ㅁ
+  bundle.js:140
+-------------------------------------
+-------------------------------------------------------------------------------------------
+
+이제 성공 메시지가 보이지 않는다
