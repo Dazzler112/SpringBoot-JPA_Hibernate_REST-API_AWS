@@ -682,3 +682,223 @@ Todo App                |
 웰컴 컴포넌트로 라우팅 한다
 로그인에 성공하면 우리는 또 다른 hook을 사용해서 라우팅할 수 있다
 
+지금 까지는 useState라는 hook을 사용했지
+import { useState } from 'react' 이걸로 State를 다뤘다
+react-router-dom에 정의된 또 다른 hook이 있다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+
+//5: 바로 useNavigate지, useNavigate로 다른 페이지를 탐색할 수 있다, 위치를 변경하는 명령 메서드를 반환하는 거지 
+//useNavigate를 사용해보겠다 //5-1: LoginComponent()의 const변수들 있는곳에 작성..
+import {BrowserRouter, Routes, Route, useNavigate} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome' element={<WelcomeComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+
+  //5-1: 여기 State변수 아래에 const를 만들겠다 const로 만들고 navigate = useNavigate()를 쓰겠다, 함수를 반환해줄 것이다, 그리고 우리 handleSubmit메서드에서 //5-2: handleSubmit 메서드로..
+    const navigate = useNavigate;
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+
+        //5-2: 모든 작업이 성공하면 특정 URL을 탐색하고 싶다, 어디로 탐색하고 싶지? (<Route path='/welcome' element={<WelcomeComponent />}>) 여기 있지? 우리는 /welcome 페이지를 탐색하고 싶다
+        //여기에서 '/welcome' , 저장하겠다
+        navigate('/welcome')
+
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+새로 고침 하면                                 |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/login 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                    
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+in28minutes , dummy로 로그인 하면 
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                    
+                                    Welcome Component
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+ㅇㅋ 축하한다
+웰컴 컴포넌트로 연결되었다
+값을 올바르게 입력한 거지
+
+
+
+만약 올바른 값을 입력하지 않으면 어떻게 될까?
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/login 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                        Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●●●●●●        |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+오류 메시지가 보인다 
+
+
+
+
+
+
+
+
+이번 시간에 우리는 react-router-dom을 추가했다
+컴포넌트에 Routes를 생성했고
+---------------------------------------
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome' element={<WelcomeComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+---------------------------------------
+로그인 컴포넌트에 해당하는 로그인 라우터와 웰컴 컴포넌트에 해당하는 웰컴 라우터를 만들었지
+사용자가 올바른 인증 정보를 입력하면 로그인 컴포넌트에서 다른 컴포넌트로 이동하는 방법도 배웠다
+웰컴 컴포넌트로 연결했지, 그렇게 하기 위해서 useNavigate를 사용했다
+useNavigate는 함수에 대한 참조를 반환하고, 여기에서 navigate함수를 호출해 웰컴 페이지로 연결되었지
+다음 시간에 보겠다
