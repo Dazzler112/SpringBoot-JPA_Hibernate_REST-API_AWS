@@ -323,3 +323,362 @@ function WelcomeComponent() {
 이제 임포트한 이 두가지를 사용해보겠다
 일단 Browser Router가 있지
 
+TodoApp 안에서 라우팅을 추가할 것이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+
+//3-3: 여기에 임포트 하겠다 ( {BrowserRouter, Routes} 에 ,Route 추가 ) 이것도 react-router-dom에서 가져온다
+//이제 세 개가 있다, BrowserRouter, Routes, Route이다, Route는 특정 Routes를 구성하는 곳이지 //3-4: 다시 TodoApp()으로..
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+
+          //3: Browser Router이다, 라우터 안에 Routes라는 걸 구성할 것이다
+            <BrowserRouter>
+              //3-1: Browser Router의 일부로 Routes를 구성한다, 그리고 Route를 구성해야지
+              <Routes>
+
+               //3-2: 뭘 구성한다고? Route를 구성한다, 아직 Route는 임포트를 안 했네, 일단 Route를 임포트 해야겠다 //3-3: import 부분으로..
+                //3-4: 우리가 구성하려는 건 path이다 어떤 경로와 어떤 요소(element)로 가야할까?, 여기에서 사용하는 특정 구문이 있다, 일단 element에 중괄호를 열고 닫겠다
+                //path와 element가 여기에 있다 일단( <Route path='' element={}> ) 이걸 복제하겠다
+                //그리고 첫 번째 요소는 로그인 컴포넌트를 넣겠다, 첫 번째 요소에 로그인 컴포넌트, 두 번째 요소에 웰컴 컴포넌트를 넣는다
+                //첫 번째 요소는 로그인 컴포넌트지 두 번째 요소는 웰컴 컴포넌트이다, 
+                //🔵1. 로그인 컴포넌트에 어떤 경로를 주고 싶니? login이겠지, 
+                <Route path='/login' element={<LoginComponent />}></Route>
+                //🔵2. 웰컴 컴포넌트에는 welcome을 주고싶다 그리고 경로 앞부분에 /를 적어준다 /login, /welcome이라 적고 저장한다
+                <Route path='/welcome' element={<WelcomeComponent />}></Route>
+
+              </Routes>
+            </BrowserRouter>
+
+            <LoginComponent />
+            <WelcomeComponent />
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+Routes로 브라우저 라우터를 구성하고 있는 것이다
+사용자가 /login이라는 URL로 가면 로그인 컴포넌트를 보여주는 거지
+( <Route path='/login' element={<LoginComponent />}></Route> )
+여기에 JSX 변수 표기 방식을 쓰고 있는 게 보이지 ( {<LoginComponent />} ) <LoginComponent /> 이게 사용자가 /login으로 보여주고 싶은 요소이다
+
+/welcome으로 가면 우리는 웰컴 컴포넌트를 보여주고 싶다
+( <Route path='/welcome' element={<WelcomeComponent />}></Route> )
+
+
+저장하고 브라우저로 가보자
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                       
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+ ❗▼ No routes matched location "/"                                          history.ts:501
+  warning	@	history.ts:501
+  Show less
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+ ❗▼ No routes matched location "/"                                          history.ts:501
+  warning	@	history.ts:501
+  Show less
+-------------------------------------------------------------------------------------------
+
+일단 지금은 오류가 보인다
+
+/localhost:3000 /에 해당하는 Route가 없다
+/에 해당하는 Route도 하나 추가하겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+
+                  //4: /에 해당하는 Route도 하나 추가하겠다, /에 해당하는 Route는 로그인 컴포넌트를 보여주도록 하겠다
+                  //사용자가 이 URL로 가면 로그인 컴포넌트를 보여주는 것이다
+                    <Route path='/' element={<LoginComponent />}></Route>   
+        
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome' element={<WelcomeComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+    return (
+        <div className='Welcome'>
+            Welcome Component
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+콘솔창을 지우고 페이지를 새로 고침 하면          |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                    
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |                  |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------- 
+
+오류가 사라진다, 
+그리고 여기 주소창에 /login이라고 입력하면
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/login 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                    
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |                  |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+로그인 URL로 가는 것이다
+
+주소창에 welcome이라고 입력하면 
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                    
+                                    Welcome Component
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+웰컴 컴포넌트가 보이지
+
+이렇게 각 컴포넌트에 연결된 URL들이 있다
+
+이제 뭘 해야 하지?
+한 컴포넌트에서 다른 컴포넌트로 라우팅 해야 한다
+로그인에서 사용자가 올바른 정보를 입력하면 웰컴 컴포넌트로 라우팅하고 싶다
+
+어떻게 하지?
+
+여기 handleSubmit에서 
+-------------------------------------
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+-------------------------------------
+웰컴 컴포넌트로 라우팅 한다
+로그인에 성공하면 우리는 또 다른 hook을 사용해서 라우팅할 수 있다
+
