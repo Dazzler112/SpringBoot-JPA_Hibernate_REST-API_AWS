@@ -1,0 +1,1102 @@
+
+
+--------------------------------------------------------------------------------
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome' element={<WelcomeComponent />}></Route>
+                    <Route path='*' element={<ErrorComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+--------------------------------------------------------------------------------
+
+지난 시간에 우리는 react-router-dom 으로 라우팅을 추가했다
+
+웰컴 컴포넌트에다가 사용자 이름을 코딩해서 넣어두었지
+----------------------------------------
+function WelcomeComponent() {
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome in28minutes</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+----------------------------------------
+
+in28minutes라는 사용자 이름을 직접 하드코딩으로 넣었다
+이제 우리가 하려는 것은 사용자가 입력한 값을 가져오는 것이다
+
+로그인 양식에서 in28minutes 말고 다른 걸 입력해도 그걸 가져와서 
+올바른 인증 정보를 입력하고 로그인을 누르면 
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                   Welcome in28minutes 
+                                      
+                                    Welcome Component
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+여기 보여주고 싶은거지 ( Welcome in28minutes  )
+할 수 있다, 한 번 해보자
+
+----------------------------------------
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate('/welcome')
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+----------------------------------------
+
+여기는 제출 버튼을 클릭했을 때인데 
+/welcome 이라는 특정URL을 탐색하는 거지
+
+navigate 메서드를 호출해서 로그인 컴포넌트에서 웰컴 컴포넌트로 라우팅 했다 (navigate('/welcome'))
+이제 여기에서 할 수 있는 것 중 하나는 경로 파라미터를 추가하는 것이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+
+                    //1-1: 여기에서 /welcome 뒤에 /:username 이라고 적는다, 이제 파라미터가 username의 값을 받아온다
+                    //특정 웰컴 컴포넌트에서 이 username의 값을 받아오는 거지 
+                    <Route path='/welcome/:username' element={<WelcomeComponent />}></Route>
+                    <Route path='*' element={<ErrorComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+
+            //1: 예를 들어 여기 경로 파라미터에 /welcome/in28minutes 이렇게 쓸 수 있다
+            // 그리고 Route에서 받는 것이다 //1-1: 위의 TodoApp() 으로..
+            navigate('/welcome/in28minutes')
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome in28minutes</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+웰컴 컴포넌트로 전달된 값을 어떻게 받을까?
+또 다른 hook을 사용하면 되는데 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+
+//2: useParams이다 ( {} 안에 useParams 추가 ) userParams는 라우팅 경로에 해당하는 현재 URL에서 동적 파라미터인 키/값 쌍을 객체로 반환한다 ( Returns an object of key/value pairs of the dynamic params from the current URL that were matched by the route path. )
+//URL에서 라우팅 파라미터와 일치하는 값은 무엇이든 useParams hook을 통해 반환된다 (path='/welcome/:username'), 그래서 우리는 웰컴컴포넌트로 가서 //2-1: WelcomeComponent()로..
+import {BrowserRouter, Routes, Route, useNavigate, userParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome/:username' element={<WelcomeComponent />}></Route>
+                    <Route path='*' element={<ErrorComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate('/welcome')
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    //2-1: useParams를 쓰고 const로 선언하고 변수명은 params라고 하겠다 = useParams()를 주는것이다, 
+    //됐다 console.log로 params를 출력해보자, 어떤 게 출력될까?
+    const params = useParams()
+
+    console.log(params)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome in28minutes</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+로그인으로 가서
+in28minutes, dummy 를 입력하면 어떻게 될까?
+로그인을 클릭 하면
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                   Welcome in28minutes 
+                                      
+                                    Welcome Component
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Success                                                                 TodoApp.jsx:39
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ {username: 'in28minutes'}                                             TodoApp.jsx:78 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ [object Object]                                                       TodoApp.jsx:78 
+-------------------------------------------------------------------------------------------
+
+username : in28minutes가 여기 출력된다
+
+어떻게 되는 거지?
+
+로그인 컴포넌트에서 우리가 했던 것은 
+-------------------------------------------
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate('/welcome/in28minutes')
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+-------------------------------------------
+URL 리디렉션을 하드 코딩 했지
+
+로그인 컴포넌트의 handleSubmit 메서드로 가 보면 여기
+navigate('/welcome/in28minutes') <= /in28minutes를 하드 코딩으로 넣어놨다
+/welcome/in28minutes으로 리디렉션 하는 거지 
+<Route path='/welcome/:username' element={<WelcomeComponent />}></Route> <= 여기에 구성한 라우터에 해당하는 부분이다 
+/:username 이 변수에 in28minutes가 들어온 거지, 
+username으로 들어온 것으로 그 값인 in28minutes가 객체 형식으로 여기에 출력됐다 (  ▶ {username: 'in28minutes'} )
+출력된 것은 객체이다
+
+
+
+그리고 우리 웰컴 컴포넌트에서 이제 이 파라미터를 사용해야지 (const params = useParams())
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome/:username' element={<WelcomeComponent />}></Route>
+                    <Route path='*' element={<ErrorComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate('/welcome/in28minutes')
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const params = useParams()
+
+    //3: 파라미터를 사용하는 방법 중 하나는 params.username이라고 하는 것이다 ( console.log(params) 에 .username 추가..)
+    //보통 Java에서 사용하는 방법이지, 객체가 반환될 거고 속성에 접근하는 거지 object.property는 Java에서 일반적으로 객체에서 무언가를 가져올때 쓰는 방법이다 
+    console.log(params.username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome in28minutes</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+이제 로그인 페이지로 들어가서
+in28minutes, dummy를 입력하고 로그인을 누르겠다
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                   Welcome in28minutes 
+                                      
+                                    Welcome Component
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Success                                                                 TodoApp.jsx:39
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ in28minutes                                                           TodoApp.jsx:78 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ in28minutes                                                           TodoApp.jsx:78  
+-------------------------------------------------------------------------------------------
+
+in28minutes가 여기 출력되는게 보이지
+
+
+그리고 JavaScript 프로그래머들이 주로 사용하는 방법도 있다 
+객체를 직접 받는 대신 객체의 값을 받는 것이다
+
+(JavaScript 방식)
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome/:username' element={<WelcomeComponent />}></Route>
+                    <Route path='*' element={<ErrorComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate('/welcome/in28minutes')
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    //4: 중괄호를 열어주고 여기에 username을 넣는다, const로 선언된 이것( {username} )은 객체이고 
+    //username에 매칭되는 게 무엇이든 그 값이 자동으로 여기 username 변수에 할당되지, 그래서 params.username 대신 
+    const {username} = useParams()
+
+    //4-1: 그냥 username을 쓰면 된다, 저장하고
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome in28minutes</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+in28minutes를 입력하면
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                   Welcome in28minutes 
+                                      
+                                    Welcome Component
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Success                                                                 TodoApp.jsx:39
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ in28minutes                                                           TodoApp.jsx:78 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ in28minutes                                                           TodoApp.jsx:78  
+-------------------------------------------------------------------------------------------
+
+여기 in28minutes가 출력되는 게 보이지
+
+다른 걸 입력해볼까?
+welcome/dummy
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/dummy 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                   Welcome in28minutes 
+                                      
+                                    Welcome Component
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Success                                                                 TodoApp.jsx:39
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ dummy                                                                 TodoApp.jsx:78 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ dummy                                                                 TodoApp.jsx:78  
+-------------------------------------------------------------------------------------------
+
+그러면 dummy가 출력된다
+
+값에 접근하는 또 다른 방법이었다
+---------------------------------
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome in28minutes</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+---------------------------------
+JavaScript 개발자들은 대부분 이런 접근법을 사용한다
+
+그러면 이제 in28minutes를 하드 코딩 하는 대신 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome/:username' element={<WelcomeComponent />}></Route>
+                    <Route path='*' element={<ErrorComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate('/welcome/in28minutes')
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+
+            //5: 여기 username을 쓰면 되지 in28minutes 대신 username을 넣고 새로 고침 해보겠다
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/dummy 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                      Welcome dummy 
+                                      
+                                    Welcome Component
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Success                                                                 TodoApp.jsx:39
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ dummy                                                                 TodoApp.jsx:78 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ dummy                                                                 TodoApp.jsx:78  
+-------------------------------------------------------------------------------------------
+
+보인다
+Welcome, dummy 
+
+
+welcome/dummy 대신 in28minutes를 입력하면
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                   Welcome in28minutes 
+                                      
+                                    Welcome Component
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Success                                                                 TodoApp.jsx:39
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ in28minutes                                                           TodoApp.jsx:78 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ in28minutes                                                           TodoApp.jsx:78  
+-------------------------------------------------------------------------------------------
+
+Welcome in28minutes가 나오고
+
+만약 Sherlock Holmes라고 하면
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/SherlockHolmes 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Welcome SherlockHomes 
+                                      
+                                    Welcome Component
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Success                                                                 TodoApp.jsx:39
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ SherlockHolmes                                                        TodoApp.jsx:78 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ SherlockHolmes                                                        TodoApp.jsx:78  
+-------------------------------------------------------------------------------------------
+
+
+컴포넌트에서 파라미터를 받아서 컴포넌트 안에서 사용해봤다
+
+
+그리고 한 가지 더 수정해야 할 것은 로그인 컴포넌트에
+리디렉션 URL을 하드 코딩으로 넣어놨지, 입력된 username을 사용하지 않았다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome/:username' element={<WelcomeComponent />}></Route>
+                    <Route path='*' element={<ErrorComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+
+          //6: in28minutes를 직접 넣어뒀다 이제 이걸 username으로 바꾸겠다, 이게 기본적인 JavaScript 코드이다
+          //여기 함수에 있는 코드는 간단한 JavaScript 코드이다 
+          //JavaScript에서 여기 변수를 넣고 싶으면 이렇게 하면 되지 ${}라 쓰고 안에 변수 이름을 적어주면 된다
+          //그리고 이 부분이 변수 값으로 대체되려면, 여기에 변수를 넣으려면 우리는 백틱(`)을 써야 한다 우리는 지금 작은 따옴표를 쓰고 있지
+          //이 작은 따옴표는 지우고 백틱(`)을 입력하겠다 ('' 에서 `` 로 교체), 백틱을 입력하면 어떻게 되지?
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+localhost:3000/login으로 가서 in28minutes와 dummy를 입력하고 로그인을 누르면
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                   Welcome in28minutes  
+                                      
+                                    Welcome Component
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Success                                                                 TodoApp.jsx:39
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ in28minutes                                                           TodoApp.jsx:78 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ in28minutes                                                           TodoApp.jsx:78  
+-------------------------------------------------------------------------------------------
+
+in28minutes로 리디렉션 되지
+
+
+
+
+
+
+
+이번 시간에는 다른 컴포넌트로 파라미터를 전달하는 방법을 배웠다
+로그인 컴포넌트는 경로를 파라미터로 웰컴 컴포넌트에 보낸다 ( navigate(`/welcome/${username}`) )
+URL 형태로 말이다
+username이 이제 URL의 일부인 것이다 ( ${username} )
+라우터에선 그 값을 받기 위해 변수를 정의하고 있지 ( <Route path='/welcome/:username' element={<WelcomeComponent />}></Route> 의 /:username부분 )
+웰컴 컴포넌트에선 useParams를 사용해서 파라미터 값을 받아오고 컴포넌트 안에서 사용했다 ( const {username} = useParams(), 리턴 안의 <h1>Welcome {username}</h1> 부분 )
+다음 시간에 보겠다
