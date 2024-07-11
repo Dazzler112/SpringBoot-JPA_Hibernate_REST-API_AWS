@@ -1,0 +1,473 @@
+
+
+이번 시간에는 TodoList 컴포넌트를 만들어보자
+
+컴포넌트의 일부로 Todo를 목록으로 만들어 보여주고 싶다
+컴포넌트 중 하나를 복사한다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />}></Route>
+                    <Route path='/login' element={<LoginComponent />}></Route>
+                    <Route path='/welcome/:username' element={<WelcomeComponent />}></Route>
+                    <Route path='*' element={<ErrorComponent />}></Route>
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+//1: 에러 컴포넌트를 복사하겠다 ,그리고 ListTodosComponent라 한다
+function ErrorComponent() {
+    return (
+        //1-1: className은 ListTodosComponent
+        <div className='ErrorComponent'>
+
+            //1-2: 그리고 h1에는 Things You Want To Do!라 적고
+            <h1>Things You Want To Do!</h1>
+
+            //1-3: div안에는 모든 Todo를 넣어야겠지, Todo Details가 여기에 들어간다
+            <div>Todo Details</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+일단 최소한 ListTodosComponent가 작동하려면
+일단 라우터를 정의해야겠지
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+
+                    //2: 여기로 와서 위의 Route를 하나 복사하고 여기 붙이고, ListTodosComponent로 라우팅하고 싶다 
+                    //path에 /todos라 적겠다, 경로 순서는 중요하지 않지만 주로 에러 컴포넌트는 마지막에 넣는다
+                    <Route path='/todos' element={<ListTodosComponent />} />
+
+                    //2-1: 에러 컴포넌트는 밑에 두겠다, 그리고 또 하나는 사실 여기 닫는 태그는 필요없다, Route에 별도의 닫는 태그가 필요없다
+                    //Route 자체에는 내용이 없기 때문에 </Route> 이게 아닌 그냥 직접 /> 이렇게 닫아주면 된다 (</Route> 삭제하고 />로 닫아주는 걸로 수정), 그럼 더 간단해진다 모두 이렇게 하겠다
+                    //닫는 태그를 지우고 /를 넣어서 닫는 거지 , 이제 저장하면 되겠지
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+    return (
+        <div className='ListTodosComponent'>
+            <h1>Things You Want To Do!</h1>
+            <div>Todo Details</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+그럼 /todos를 탐색해보겠다
+사이트에 /todos를 해보면
+
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Things You Want To Do!
+                                      
+                                     Todo Details
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+Things You Want To Do! , Todo Details 잘 뜬다
+
+
+일단은 Todo를 하드 코딩으로 넣어서 여기 보여줄 것이다
+
+하드 코딩을 해보자
+몇 개의 todo를 넣어보자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    //3: 여기에 const로 정의하겠다 todos = 일단 하나로 해볼까 todos의 값으로 id가 1, 그리고 description을 이렇게 써보자 'Learn AWS'
+    const todos = {id : 1, description : 'Learn AWS'}
+
+    return (
+        <div className='ListTodosComponent'>
+            <h1>Things You Want To Do!</h1>
+      
+            //3-1: 그리고 여기에서 Todo Details를 보여주는 거지, 일단은 todos가 하나인데 나중에는 많아질 것이다, 그래서 여기에 테이블을 만들겠다
+            <div>
+                //3-2: Todos 목록을 보여주기 위한 테이블을 만들고 테이블 태그도 닫아준다
+                <table>
+                //3-3: 그리고 테이블에는 항상 thead라고 헤더가 들어가는 곳이 있다, 테이블 헤더는 여기 thead에 들어가야한다
+                     <thead>
+                       //3-5: thead안에 tr은 행을 말한다
+                        <tr>
+                           //3-6: 일단 우리는 id만 있으니까 <td>id 그리고 description이지 ,간단한 테이블을 만들어봤다, 여기 tr을 복사해서 tbody에도 넣어주겠다
+                           <td>id</td>
+                           <td>description</td>
+                        </tr>
+                    </thead>
+                //3-4: 그리고 tbody는 실제 콘텐츠가 들어가는 거지, 
+                    <tbody>
+                      //3-7: (붙여넣기) 일단 저장하고 들여쓰기 한다
+                        <tr>
+                            //3-8: 그리고 여기는 id와 description 대신 todos의 값을 보여주고 싶다
+                            //그러려면 todos.id와 todos.description이라고 적으면 되겠지, JavaScript에서 값을 가져와 JSX에서 보여주는 것이다, 중괄호 사이에 넣어주었다, 저장하고
+                            <td>{todos.id}</td>
+                            <td>{todos.description}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+브라우자로 가보자
+
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Things You Want To Do!
+                                      
+id description
+1  Learn AWS
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+
+좋다 id와 description이 있지
+1 Learn AWS도 잘 보인다
+
+
