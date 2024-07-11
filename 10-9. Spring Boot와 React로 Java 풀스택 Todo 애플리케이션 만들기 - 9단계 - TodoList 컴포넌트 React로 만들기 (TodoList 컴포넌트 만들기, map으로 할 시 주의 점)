@@ -781,3 +781,408 @@ id description
        ▶ [[Prototype]]: Array(0)
 -------------------------------------------------------------------------------------------
 
+이와 비슷하게 각 요소와 일치하는 JSX로 매핑하는 작업을 하고 싶다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    const todos = [
+        {id : 1, description : 'Learn AWS'},
+        {id : 2, description : 'Learn Full Stack Dev'},
+        {id : 3, description : 'Learn DevOps'}
+      ]
+
+    return (
+        <div className='ListTodosComponent'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>id</td>
+                            <td>description</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                     //5: 여기에서 요소 전체를 이 JSX로 매핑하고 싶은 거지 어떻게 할까? 지금 정의해 보겠다
+                     //여기에 동적 값을 넣을 것이다 중괄호를 열고 닫아주겠다, 여기에서 todos의 값을 가져오는 것이다
+                      {
+                        //5-1: todos.map이라 하고 괄호를 열고 닫아준다, 각 todo 값을 가지고 할 것이다
+                        todos.map(
+                          //5-2: 다른 데 매핑할 것이다 어디로 매핑하지? 여기 보이는 이 행에다 매핑한다, JSX 표현식이 복잡하니까
+                          // 괄호를 열고 닫은 다음 그 사이에 이걸 복사해서(tbody의 tr태그)
+                           todo => (
+                                  //5-3: 여기 넣겠다
+                                    <tr>
+                                      //5-4: 그리고 여긴 todos.id 가 아니라 todo.id가 들어가야 되겠고 todo.description이지
+                                      //각 todo를 JSX 표현식으로 매핑해서 각 todo에 해당하는 tr을 만들었다, 저장하고
+                                     <td>{todos.id}</td>
+                                     <td>{todo.description}</td>
+                                    </tr>
+                           )
+                        )
+                      }
+                        /* (이부분 잘라내서 위로 붙여넣기 여기서만 주석 처리 실제 코드는 잘라서 없음)
+                         <tr>
+                         <td>{todos.id}</td>
+                         <td>{todos.description}</td>
+                        </tr>
+                        */
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+페이지로 가보면 보이겠지?
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Things You Want To Do!
+                                      
+id description
+1  Learn AWS
+2	Learn Full Stack Dev
+3	Learn DevOps
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+❗ ▶ Warning: Each child in a list should have a unique "key" prop.          TodoApp.jsx:117
+
+  Check the render method of `ListTodosComponent`. See 
+  https://reactjs.org/link/warning-keys for more information.
+      at tr
+      at ListTodosComponent
+      at RenderedRoute (http://localhost:3000/static/js/bundle.js:39829:5)
+      at Routes (http://localhost:3000/static/js/bundle.js:40520:5)
+      at Router (http://localhost:3000/static/js/bundle.js:40454:15)
+      at BrowserRouter (http://localhost:3000/static/js/bundle.js:38407:5)
+      at div
+      at TodoApp
+      at div
+      at App
+-------------------------------------------------------------------------------------------
+
+id가 있고 description이 있지
+1 Learn AWS, 2	Learn Full Stack Dev, 3	Learn DevOps
+출력된 값이 모두 보이지
+
+경고가 하나 떴다, 한번 보자
+리스트의 각 자식은 유일한 키 속성을 가져야 한다 (Each child in a list should have a unique "key" prop.)
+리액트에선 리스트를 사용할 때 각 요소가 유일한 키를 갖는 것이 좋다
+
+
+리액트는 ID로 DOM 요소를 업데이트한다, 리액트를 효율적으로 잘 사용하려면
+키를 추가하는 게 좋겠지
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    const todos = [
+        {id : 1, description : 'Learn AWS'},
+        {id : 2, description : 'Learn Full Stack Dev'},
+        {id : 3, description : 'Learn DevOps'}
+      ]
+
+    return (
+        <div className='ListTodosComponent'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>id</td>
+                            <td>description</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+
+                            todos.map(
+                                todo => (
+                             //6: 여기에 키를 추가해 보겠다 여기 tr에다가 key속성을 주고 id 필드를 그냥 사용하겠다 key={todo.id} 잘 됐다
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+새로 고침하고
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Things You Want To Do!
+                                      
+id description
+1  Learn AWS
+2	Learn Full Stack Dev
+3	Learn DevOps
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+페이지를 새로 고침 하면 이제 경고가 나오지 않는 게 보이지
+
+
+
+
+
+
+
+
+
+이번 시간에는 ListTodoComponent를 만들어봤다
+리스트 컴포넌트에서도 할 일이 조금 더 있는데
+다음 시간에 해보겠다
