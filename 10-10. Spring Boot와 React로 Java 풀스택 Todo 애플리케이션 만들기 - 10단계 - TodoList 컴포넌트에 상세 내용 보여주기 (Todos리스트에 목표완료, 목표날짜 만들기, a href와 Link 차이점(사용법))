@@ -995,3 +995,249 @@ ID	Description	            is Done?     	 Target Date
 -------------------------------------------------------------------------------------------
 Go here을 클릭하겠다
 Go here를 클릭했을 때 전체 페이지가 새로 고침 되는 게 보이지
+
+
+
+하지만 다른 방법이 있다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+
+//6-1: Link 를 임포트하고 a 대신 Link를 사용한 다음, 저장하고 
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+
+           //6: Link와 to를 사용하는 방법이지, 여기에서 Link를 사용하면 이건 React Router DOM에서 온 것이라 여기에 임포트도 해 주어야 한다 //6-1: import부분으로...
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='ListTodosComponent'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+웰컴 페이지로 돌아간다
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                   Welcome in28minutes 
+                                      
+                              Manage Your todos - Go here
+                                                  ‾‾‾‾‾‾‾
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+                             ‾‾‾‾‾‾‾      
+-------------------------------------------------------------------------------------------
+  Name                  | Status | Type              | Initiator       | Size     | Time
+-------------------------------------------------------------------------------------------
+  
+-------------------------------------------------------------------------------------------
+
+콘솔을 지우고 Go here을 클릭해 보겠다
+
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Things You Want To Do!
+                                      
+ID	Description	            is Done?     	 Target Date
+1	  Learn AWS		             false        Sat Jul 05 2036
+2	  Learn Full Stack Dev		 false        Sat Jul 05 2036
+3	  Learn DevOps		         false        Sat Jul 05 2036
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+                             ‾‾‾‾‾‾‾      
+-------------------------------------------------------------------------------------------
+  Name                  | Status | Type              | Initiator       | Size     | Time
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+네트워크 활동이 전혀 없다
+페이지의 이 부분만 새로운 컴포넌트로 새로 고침 되는 것이다
+
+
+여기서 빌드하는 건 단일 페이지 애플리케이션이다, 단일 페이지 애플리케이션을 빌드할 때
+전체 페이지를 새로 고치고 싶지 않다
+바뀌어야 하는 이 특정 컴포넌트만 새로 고침 하면 된다, 그게 Link 요소가 해 주는 일이다
+
+웰컴 컴포넌트에서 이 컴포넌트(Todos)로 연결하는 Link를 추가한 것이다
+
+
+
+
+이번 시간에는 Todo 페이지에 몇 가지 속성을 추가했다, 
+목표 완료일 속성을 추가하고
+웰컴 페이지에서 Todos 페이지로 연결해주는 링크도 추가했지
+그럼 일종의 플로우가 생긴 셈이다
+localhost:3000 으로 가서 사용자 이름과 비밀번호를 입력하고 로그인을 누르면
+Welcome 페이지로 연결되겠지 Go here를 클릭하면 Todos 페이지로 데려가준다
+다음 시간에도 계속해서 애플리케이션을 만들어 보겠다
