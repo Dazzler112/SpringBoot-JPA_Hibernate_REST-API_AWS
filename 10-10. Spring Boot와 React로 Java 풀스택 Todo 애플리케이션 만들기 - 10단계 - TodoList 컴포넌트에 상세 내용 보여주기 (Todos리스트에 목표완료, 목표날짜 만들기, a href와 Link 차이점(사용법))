@@ -1,0 +1,551 @@
+
+
+이번 시간에는 몇 가지 디테일을 추가해보겠다
+
+    const todos = [
+        {id : 1, description : 'Learn AWS'},
+        {id : 2, description : 'Learn Full Stack Dev'},
+        {id : 3, description : 'Learn DevOps'}
+      ]
+
+여기 있는 기능 외에도 Todo가 완료되었는지 여부나 완료 일자 같은 걸 추가하고 싶다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    //1-1: const today라고 선언하고 new Date()를 준다, 이건 State로 반환할 것이다
+    const today = new Date()
+
+    //1-2: 그리고 미래의 날자를 생성하고 싶다, 그 날짜가 Todos를 완수할 목표일이 되겠지 cons targetDate라고 선언하고 new Date()를 생성하는데 today.getFullyear()에다 숫자를 더하겠다
+    //아무 숫자를 더하고 today.getMonth(), 그리고 today.getDay() 미래의 아무 날짜를 생성하려고 한다 getFullyear, getMonth, getDay 이다 그러면 이 targetDate를 여기 쓸수 있다 //1-3: 다시 const todos 안으로..
+    const targetDate = new Date(today.getFullyear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+
+        //1: done을 false라고 추가하겠다 이 todo는 완료되지 않았다는 거지
+        //그리고 tartgetDate도 추가하겠다 목표 완료일은 미래로 설정해야겠지, 목표일을 미래 날짜로 어떻게 설정하지? 코드로 작성해 보겠다 //1-1: 위에서 생성..
+        //1-3: targetDate의 값이 여기 나와있는 targetDate로 들어가야 겠지, 이걸 모두 복사하겠다 done은 false, targetDate는 targetDate이다 목표일 까지 복사해서 넣었다
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='ListTodosComponent'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>id</td>
+                            <td>description</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+
+그리고 이 정보를 테이블에 보여주고 싶다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullyear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='ListTodosComponent'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                      //2: 헤더의 td에서 is Done? 
+                            <td>Is Done?</td>
+                      //2-1:그리고 이것도 쓰겠다  Target Date , ID, Description, Is Done?, TargetDate가 있다 //2-2: tbody로..
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                        //2-2: 위의 td를 복사해서 붙여넣고 todo.description 대신 todo.done을 보여주고 
+                                        <td>{todo.done}</td>
+                        //2-3: 다음에는 todo.targetDate를 보여주겠다 , done과 targetDate 변수명이 올바르게 입력되었는지 확인하고 저장한다
+                                        <td>{todo.targetDate}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+ ❗ ▶ Uncaught                                           react-dom.development.js:13123 
+    Error: Objects are not valid as a React child (found: [object 
+    Date]). If you meant to render a collection of children, use an 
+    array instead.
+        at throwOnInvalidObjectType (react-dom.development.js:13123:1)
+        at reconcileChildFibers (react-dom.development.js:14064:1)
+        at reconcileChildren (react-dom.development.js:19186:1)
+        at updateHostComponent (react-dom.development.js:19953:1)
+        at beginWork (react-dom.development.js:21657:1)
+        at HTMLUnknownElement.callCallback (react-dom.development.js:4164:1)
+        at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:1)
+        at invokeGuardedCallback (react-dom.development.js:4277:1)
+        at beginWork$1 (react-dom.development.js:27490:1)
+        at performUnitOfWork (react-dom.development.js:26596:1)
+-------------------------------------------------------------------------------------------
+
+오류가 발생한다 보자
+객체는 리액트의 자식이 될 수 없다고 나온다( Objects are not valid as a React child )
+데이터 객체를 자식 요소로 둘 수 없다
+
+그래서 이렇게 하겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Welcome Component
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='ListTodosComponent'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done}</td>
+
+                                        //3: .toDateString 메서드를 호출한다 그리고 저장하겠다
+                                        <td>{todo.targetDate()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+그러면
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+                                 Things You Want To Do!
+                                      
+ID	Description	           is Done?     	 Target Date
+1	  Learn AWS		                       Sat Jul 05 2036
+2	  Learn Full Stack Dev		           Sat Jul 05 2036
+3	  Learn DevOps		                   Sat Jul 05 2036
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+targetDate가 날짜 형식의 문자열로 보인다
+is Done? 은 현재 나오지 않는다 
+
