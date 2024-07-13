@@ -597,3 +597,234 @@ ID	Description	            is Done?     	 Target Date
 헤더와 바닥글 컴포넌트는 여전히 그대로이다
 
 새로고침 되지 않는다, 오직 컨텐츠 페이지만 새로 고침 되는 것이다
+
+
+그리고 이제 추가해볼 것은 바로 로그아웃 컴포넌트이다
+에러 컴포넌트를 복사한 다음 LogoutComponent를 만들겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <HeaderComponent />
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+
+                //3-4: 여기에서 LogoutComponent에 해당하는 Route를 정의하고 path를 /logout으로 주겠다, 그리고 Route를 정의한다
+                //이제 로그아웃 컴포넌트로 연결되는 라우터가 생겼다
+                    <Route path='/logout' element={<LogoutComponent />} />
+
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            <FooterComponent />
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='ListTodosComponent'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+function HeaderComponent() {
+    return (
+        <div className='header'>
+            Header <hr/>
+        </div>
+    )
+}
+
+function FooterComponent() {
+    return (
+        <div className='footer'>
+           <hr/> Footer 
+        </div>
+    )
+}
+
+//3: 이름을 LogoutComponent로 하고
+function LogoutComponent() {
+    return (
+      //3-1: 로그아웃 컴포넌트의 className은 LogoutComponent라 하고
+        <div className='LogoutComponent'>
+
+            //3-2: 여긴 로그아웃 되었다 (You are logged out!)
+            <h1>You are logged out!</h1>
+
+            //3-3: 엡을 사용해 줘서 감사하다 다시 방문해 달라 (Thank you for using our App. Come back soon!), 그리고 저장한다, 그리고 로그아웃 컴포넌트도 라우터가 정의되어야 한다 //3-4: TodoApp()으로...
+            <div>Thank you for using our App. Come back soon!</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+여기에서 이제 로그아웃을 하고 싶으면, 나중에는 헤더에다가 로그아웃 기능을 추가하겠지만
+일단 주소창에 /logout으로 리디렉션 해보겠다
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/logout 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                        Header
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                  You are logged out!
+                                      
+                      Thank you for using our App. Come back soon!
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        Footer
+
+-------------------------------------------------------------------------------------------
+
+localhost:3000/logout으로 가면 로그아웃 페이지가 나오고
+헤더와 바닥글도 잘 나오는 게 보인다
+
+
+
+
+
+이번 시간에 우리는 헤더와 바닥글 컴포넌트를 만들고 모든 페이지에서 보이게 했다
+로그아웃 컴포넌트도 만들었다
+다음 시간에는 Bootstrap을 해보겠다
