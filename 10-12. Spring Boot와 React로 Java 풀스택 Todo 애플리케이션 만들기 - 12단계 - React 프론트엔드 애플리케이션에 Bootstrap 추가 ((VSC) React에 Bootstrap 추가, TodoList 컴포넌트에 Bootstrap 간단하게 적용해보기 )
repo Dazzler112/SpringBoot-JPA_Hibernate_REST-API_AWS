@@ -361,3 +361,269 @@ ID	Description	            is Done?     	 Target Date
 -------------------------------------------------------------------------------------------
 
 전체 플로우가 이렇게 된다
+이제 코드에 Bootstrap을 사용해보자
+
+일단 페이지 하나부터 스타일을 적용해보겠다
+
+TodoList 컴포넌트부터 시작해 보겠다
+TodoApp.jsx로 가서 ListTodosComponent를 찾아가서
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <HeaderComponent />
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            <FooterComponent />
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+//3: 뭘 사용하려는 거지? 여기에 Bootstrap을 사용하려 한다, 그래서 여기 ListTodoComponent 안에서
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+
+        //3-1: Bootstrap에서 사용하기 가장 좋은 div는 바로 container이다 (ListTodosComponent 에서 container로)
+        //이건 container라고 하고 
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+
+                //3-2: 여기는 className으로 table을 주겠다, 이제 어떻게 보이는지 볼까 변경 사항을 저장하고
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+function HeaderComponent() {
+    return (
+        <div className='header'>
+            Header <hr/>
+        </div>
+    )
+}
+
+function FooterComponent() {
+    return (
+        <div className='footer'>
+           <hr/> Footer 
+        </div>
+    )
+}
+
+function LogoutComponent() {
+    return (
+        <div className='LogoutComponent'>
+            <h1>You are logged out!</h1>
+            <div>Thank you for using our App. Come back soon!</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+이건 
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                        Header
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                 Things You Want To Do!
+                                      
+ID	Description	            is Done?     	 Target Date
+1	  Learn AWS		             false        Sat Jul 05 2036
+2	  Learn Full Stack Dev		 false        Sat Jul 05 2036
+3	  Learn DevOps		         false        Sat Jul 05 2036
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        Footer
+
+-------------------------------------------------------------------------------------------
+
+변경 전 모습이다
+                                  |
+                                  V
+                      
+저장하고 돌아온 모습은 
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                        Header
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                 Things You Want To Do!
+                                      
+                  ID	  Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev		 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        Footer
+
+-------------------------------------------------------------------------------------------
+
+훨씬 정돈된 모습을 볼 수 있다
+
+전체 테이블이 잘 정돈되었다, ID, Description, Is Done?, Target Date 모두 잘 보인다
+테이블은 페이지 가운데 위치하고 페이지가 깔끔하다
+
+
+
+
+
+
+
+이번 시간에 우리는 Bootstrap을 추가하고 ListTodosComponent를 정돈해봤다
+정돈해야 할 컴포넌트가 많지
+헤더와 바닥글도 정돈해야 하는데 다음 시간에 해보겠다
