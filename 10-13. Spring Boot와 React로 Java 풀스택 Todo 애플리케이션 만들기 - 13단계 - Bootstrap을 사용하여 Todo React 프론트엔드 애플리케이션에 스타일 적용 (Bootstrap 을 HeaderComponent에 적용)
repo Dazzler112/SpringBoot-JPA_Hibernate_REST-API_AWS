@@ -813,3 +813,487 @@ Todo App                |
 in28minutes가 좀 더 나은 모습으로 보이지
 완벽하게 보이는 방법은 잠시 후에 살펴보겠다
 
+일단은 모든 링크를 추가하겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <HeaderComponent />
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            <FooterComponent />
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+function HeaderComponent() {
+    return (
+        <header className='header'>
+            <div className='container'>
+                <ul className='navbar-nav'>
+                    <li className='nav-item'><a className='nav-link' href="https://www.in28minutes.com">in28minutes</a></li>
+
+                    //5: 다른 링크가 보이게 하려면 복사 붙여 넣기 하겠다 (위의 li 복붙)
+                    //일단 홈페이지로 링크를 추가하겠다 /welcome/in28minutes지, 저장하고 페이지로 가겠다
+                    <li className='nav-item'><a className='nav-link' href="/welcome/in28minutes">Home</a></li>
+                </ul>
+            </div>
+            Header <hr/>
+        </header>
+    )
+}
+
+function FooterComponent() {
+    return (
+        <footer className='footer'>
+            <div className='container'>
+                Your Footer  
+            </div>
+        </footer>
+    )
+}
+
+function LogoutComponent() {
+    return (
+        <div className='LogoutComponent'>
+            <h1>You are logged out!</h1>
+            <div>Thank you for using our App. Come back soon!</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+                                      in28minutes     
+
+                                         Home
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev		 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        
+
+
+                                  Your Footer
+-------------------------------------------------------------------------------------------
+
+홈이 생겼지
+클릭하면
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                       in28minutes
+                                    
+                                          Home
+
+                                   Welcome in28minutes 
+                                      
+                                Manage Your todos - Go here
+                                                    ‾‾‾‾‾‾‾
+                                      
+
+
+
+
+                                     Your Footer
+-------------------------------------------------------------------------------------------
+
+localhost:3000/welcome/in28minutes로 간다
+
+Home을 클릭하면 전체 페에지가 새로 고침 된다
+왜냐하면 우리는 a 태그를 사용하고 있기때문이다, 더 좋은 방법은 Link를 사용하는 것이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+⏺ HeaderComponent 컴포넌트
+
+function HeaderComponent() {
+    return (
+        <header className='header'>
+            <div className='container'>
+                <ul className='navbar-nav'>
+                    <li className='nav-item'><a className='nav-link' href="https://www.in28minutes.com">in28minutes</a></li>
+
+                  //6: a 대신 여기에 Link를 사용하겠다, 위의 여기 in28minutes는 첫 번째 링크인데 완전히 다른 웹사이트지, 이 웹사이트로 리디렉션 하고 싶다
+                  //하지만 welcome/in28minutes는 단일 페이지 애플리케이션 내부 링크이다 Todo 관리 애플리케이션 내부니까 우리는 Link로 연결할 수 있다
+                  //Link의 className도 nav-link고 이건 to가 돼야지, 저장한다
+                    <li className='nav-item'><Link className='nav-link' to="/welcome/in28minutes">Home</Link></li>
+                </ul>
+            </div>
+            Header <hr/>
+        </header>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------
+
+
+⏺ cmd 창 > 
+
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.17.80.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+
+-----------------------------------------------------------------------------------------------
+
+컴파일이 잘 됐으면 새로 고침 해보자
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+
+
+-------------------------------------------------------------------------------------------
+
+이런.. 뭐가 문제인지 검사를 해보자, 콘솔로 가겠다
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+ ❗ ▶ Uncaught                                                    index.tsx:954 Uncaught
+      TypeError: Cannot destructure property 'basename' of          
+    'react__WEBPACK_IMPORTED_MODULE_0__.useContext(...)' as 
+    it is null.
+    at LinkWithRef (index.tsx:954:1)
+    at renderWithHooks (react-dom.development.js:15486:1)
+    at updateForwardRef (react-dom.development.js:19245:1)
+    at beginWork (react-dom.development.js:21675:1)
+    at HTMLUnknownElement.callCallback (react-dom.development.js:4164:1)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:1)
+    at invokeGuardedCallback (react-dom.development.js:4277:1)
+    at beginWork$1 (react-dom.development.js:27490:1)
+    at performUnitOfWork (react-dom.development.js:26596:1)
+    at workLoopSync (react-dom.development.js:26505:1)
+  Show 15 more frames
+-------------------------------------------------------------------------------------------
+
+이런 오류가 있다
+useHref는 Router 컴포넌트 안에만 사용할 수 있다고 나온다
+
+
+그러니까 Link는 라우터 요소에만 사용할 수 있다는 것이다
+헤더 컴포넌트를 보자
+
+헤더 컴포넌트가 어디에 있지?
+-----------------------------------------------------------------------------------------------
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <HeaderComponent />
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            <FooterComponent />
+        </div>
+    )
+}
+....
+function HeaderComponent() {
+    return (
+        <header className='header'>
+            <div className='container'>
+                <ul className='navbar-nav'>
+                    <li className='nav-item'><a className='nav-link' href="https://www.in28minutes.com">in28minutes</a></li>
+                    <li className='nav-item'><Link className='nav-link' to="/welcome/in28minutes">Home</Link></li>
+                </ul>
+            </div>
+            Header <hr/>
+        </header>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+TodoApp에 바로 포함하고 있다
+라우터의 일부가 아니다
+-----------------------
+ <div className='TodoApp'>
+            <HeaderComponent />
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            <FooterComponent />
+        </div>
+-----------------------
+라우터의 일부가 아니면 Link 요소를 사용할 수 없다
+Link 요소를 사용하고 싶다면 BrowserRouter안에 넣어줘야 한다는 말이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+
+        //7: <HeaderComponent/>를 <BrowserRouter>안으로 넣어주겠다
+            <BrowserRouter>
+              <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+              <FooterComponent />
+            </BrowserRouter>
+          //7-1: 바닥글 컴포넌트도 동일하게 한다, FooterComponent도 BrowserRoute 안에 넣어준다, 저장하고 페이지로 돌아가보자
+            
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                       in28minutes
+                                    
+                                          Home
+
+                                   Welcome in28minutes 
+                                      
+                                Manage Your todos - Go here
+                                                    ‾‾‾‾‾‾‾
+                                      
+
+
+
+
+                                     Your Footer
+-------------------------------------------------------------------------------------------
+
+좋다, 아주 순조롭게 잘 됐다
+헤더에 링크가 있지 링크 형식을 좀 더 정리하고 싶다
+어쨌든 Home을 클릭하면 특정 컴포넌트만 새로 고침 되니 좋다
+Todos로 가서 Home을 클릭하면 이 컴포넌트만 새로고침 되지
+전체 페이지가 새로 고침 되지 않는다
+
+좋다, 나중에 더 정리를 해보자
+
