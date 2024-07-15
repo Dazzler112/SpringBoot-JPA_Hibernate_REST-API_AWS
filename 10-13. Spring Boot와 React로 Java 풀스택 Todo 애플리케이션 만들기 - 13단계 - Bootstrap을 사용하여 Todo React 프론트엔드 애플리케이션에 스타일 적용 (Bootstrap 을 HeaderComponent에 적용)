@@ -1,0 +1,815 @@
+
+
+--------------------------------------------------------------------------------------------
+
+
+
+    in28minutes  Home  Todos                                               Login  Logout
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+                                   Welcome in28minutes 
+                                      
+                                Manage Your todos - Go here
+                                                    ‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                            Footer
+
+
+
+-------------------------------------------------------------------------------------------
+
+이번 시간에는 바닥글과 헤더의 형태를 잡아보겠다
+우리는 이런 헤더를 만들 것이다, in28minutes라는 로고가 있다
+메뉴 두어 개가 있겠지, Home과 Todos, 그리고 로그인 로그아웃도 여기에 있다
+로그인 로그아웃 중 하나만 보이면 더 좋겠지
+이미 로그인 했으면 로그아웃이 보일거고 로그인을 안 했으면 로그인이 보여야겠지
+여기 보이는 헤더, 이 탐색 바는 일종의 타겟인 거지
+
+그럼 어떻게 하는지 보자
+
+바닥글부터 시작하겠다
+
+일단 올바른 HTML 요소를 사용하고 싶다
+바닥글로 가서 Footer지
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <HeaderComponent />
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            <FooterComponent />
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+function HeaderComponent() {
+    return (
+        <div className='header'>
+            Header <hr/>
+        </div>
+    )
+}
+
+function FooterComponent() {
+    return (
+    //1: HTML에 보면 footer라는 태그가 있다, footer 태그를 사용하고 className은 footer이다
+        <footer className='footer'>
+
+      //1-1: 그리고 Bootstrap을 쓸 때는 container를 class로 갖는 div사용을 추천한다, 여기 container가 있지
+        <div className='container'>
+
+          //1-2: 그래서 여기 바닥글에 넣고 싶은 걸 넣으면 된다, 예를 들면 저작권 정보나 링크 같은 것들이겠지
+          //이런 것들을 하단에 보여주는 것이다
+            Your Footer 
+          </div>
+          //1-3: 여기hr 태그는 지우겠다, 좋다 
+      //    <hr/> (<== 여기서만 주석 처리 실제코드는 삭제)
+        </footer>
+    )
+}
+
+function LogoutComponent() {
+    return (
+        <div className='LogoutComponent'>
+            <h1>You are logged out!</h1>
+            <div>Thank you for using our App. Come back soon!</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+여기에서 바닥글의 CSS를 추가하고 싶다
+지금 바닥글을 보면
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                            Header
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+                                   Welcome in28minutes 
+                                      
+                                Manage Your todos - Go here
+                                                    ‾‾‾‾‾‾‾
+                                       Your Footer
+
+
+
+-------------------------------------------------------------------------------------------
+
+본문과 합쳐진 것처럼 보이지
+맨밑에 나오게 하고 싶다
+
+TodoApp.css로 가서 바닥글의 CSS를 추가하는 것으로 할 수 있다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.css
+
+
+
+label, input, button {
+    margin: 10px;
+    padding: 5px;
+}
+
+//2: TodoApp 안에 footer가 있다면, 제일 밑에 두고 싶다는 거지
+footer {
+    //2-1: bottom을 0으로 주고, position은 absolute로 하겠다 항상 바닥에 있을 것이다
+    bottom: 0;
+    position: absolute;
+    //2-2: width는 너비지 90%로 주고 
+    width: 90%;
+    //2-3: height는 높이이다 40px로 주자, 저장
+    height: 40px;
+}
+-----------------------------------------------------------------------------------------------
+
+이제 바닥글을 보면
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                            Header
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+                                   Welcome in28minutes 
+                                      
+                                Manage Your todos - Go here
+                                                    ‾‾‾‾‾‾‾
+                                      
+
+
+
+
+                                     Your Footer
+-------------------------------------------------------------------------------------------
+
+바닥글이 이제 페이지 바닥에 보인다 
+
+그리고 todos로 가보면
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+                                        Header
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev		 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        
+
+
+                                  Your Footer
+-------------------------------------------------------------------------------------------
+
+바닥글이 바닥에 있다
+
+이제 바닥글이 있으니 원하는 내용을 추가하면 된다 
+
+
+이제 헤더를 살펴보자
+
+헤더에 보여주고 싶은 요소가 많이 있다
+헤더 컴포넌트로 가보자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <HeaderComponent />
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            <FooterComponent />
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+function HeaderComponent() {
+    return (
+
+  //3: 헤더에 주로 쓰이는 HTML 태그는 header이다 header 안에는 div를 만들겠다
+        <header className='header'>
+
+          //3-1: container로 div를 만든다 className은 container이다
+          <div className='container'>
+            
+          //3-4: <ul>쓰고
+            <ul>
+            //3-5: <li>가 있고
+              <li>
+              //3-2: 헤더에 포함하고 싶은 것은 모두 여기에 적으면 된다, 헤더에 보여주고 싶은 걸 일단 적어보겠다
+              //헤더에 일단 보여주고 싶은 것은 웹사이트로 가는 링크이다, 예를 들어 a href 해서 https://www.in28minutes.com 그리고 텍스트로 in28minutes 적는다 클릭해서 갈 수 있는 거지
+                <a href="https://www.in28minutes.com">in28minutes</a>
+  
+              //3-3: 그리고 또 다른 링크도 있으면 좋겠다 일단 이걸 모두 ul(unordered list)에 넣겠다 //3-4: ul로 링크 감싸주기..
+
+              //3-5 계속: <a href가 있고 들어가는 거다 
+              </li>
+              //3-4 계속: </ul>도 넣어주고 ,<li>로 리스트를 만들어 준다//3-5:<ul>안에 <li>생성
+            <ul>
+          </div>
+            Header <hr/>
+        </header>
+    )
+}
+
+function FooterComponent() {
+    return (
+        <footer className='footer'>
+            <div className='container'>
+                Your Footer  
+            </div>
+        </footer>
+    )
+}
+
+function LogoutComponent() {
+    return (
+        <div className='LogoutComponent'>
+            <h1>You are logged out!</h1>
+            <div>Thank you for using our App. Come back soon!</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+첫 번쨰 링크를 만들었다
+어떻게 보이나 보자
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+            ●                           in28minutes     
+                                        ‾‾‾‾‾‾‾‾‾‾‾
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev		 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        
+
+
+                                  Your Footer
+-------------------------------------------------------------------------------------------
+
+in28minutes가 이렇게 나온다 
+페이지를 새로 고침 하면 이렇게 보인다, 상단에 in28minutes 링크가 보인다
+형태를 잡아주겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <HeaderComponent />
+            <BrowserRouter>
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            <FooterComponent />
+        </div>
+    )
+}
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+        </div>
+    )
+}
+
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+function HeaderComponent() {
+    return (
+        <header className='header'>
+            <div className='container'>
+
+            //4: className을 추가한다 Bootstrap 클래스가 정의된 게 있다, 탐색을 정의하는 데 사용할 수 있는 Bootstrap 클래스가 몇 개 있는데, 
+            //그중 하나가 navbar-nav지 여기 추가 하겠다
+                <ul className='navbar-nav'>
+
+                //4-1: 그리고 li에는 className을 nav-item이라 추가하겠다, 링크 자체는 또 다른 클래스 이름을 준다, className='nav-link'이다, 이제 저장하고
+                    <li className='nav-item'><a className='nav-link' href="https://www.in28minutes.com">in28minutes</a></li>
+                </ul>
+            </div>
+            Header <hr/>
+        </header>
+    )
+}
+
+function FooterComponent() {
+    return (
+        <footer className='footer'>
+            <div className='container'>
+                Your Footer  
+            </div>
+        </footer>
+    )
+}
+
+function LogoutComponent() {
+    return (
+        <div className='LogoutComponent'>
+            <h1>You are logged out!</h1>
+            <div>Thank you for using our App. Come back soon!</div>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+                                      in28minutes     
+                                        
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev		 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        
+
+
+                                  Your Footer
+-------------------------------------------------------------------------------------------
+
+in28minutes가 좀 더 나은 모습으로 보이지
+완벽하게 보이는 방법은 잠시 후에 살펴보겠다
+
