@@ -888,3 +888,431 @@ Todo App                |
 홈페이지도 보기 좋다
 
 이제 코드가 80줄 정도 된다 
+이제 마지막 컴포넌트가 하나 남아있다, 마지막이다 
+LoginComponent를 옮겨야 한다
+로그인 컴포넌트가 마지막이다
+
+todo폴더 > 우클릭 > 새파일 > LoginComponent.jsx 로 생성
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ LoginComponent.jsx 
+
+
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+//10: export default LoginComponent, 저장
+export default LoginComponent
+
+-----------------------------------------------------------------------------------------------
+
+그러면 오류가 나지 
+고치면 된다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx 
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+
+//11: import LoginComponent from './import LoginComponent' 저장하고 
+import LoginComponent from './LoginComponent'
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+Compiled with problems:
+
+ERROR
+[eslint] 
+src\components\todo\LoginComponent.jsx
+  Line 3:37:  'useState' is not defined     no-undef
+  Line 4:37:  'useState' is not defined     no-undef
+  Line 5:57:  'useState' is not defined     no-undef
+  Line 6:53:  'useState' is not defined     no-undef
+  Line 7:22:  'useNavigate' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+                                        
+-------------------------------------------------------------------------------------------
+
+useState, useNavigate
+이 두 개가 필요하다는 거지
+TodoApp.jsx에 상단의
+--------------------------------
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate} from 'react-router-dom'
+--------------------------------
+이 두개를 복사해서
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ LoginComponent.jsx 
+
+
+
+//12: LoginComponent에 넣으면 import가 생기지, 사용 안하는 것들은 지우겠다 (BrowserRouter, Routes, Route 삭제..) 이제 TodoApp으로 가서//12-1: TodoApp.jsx로 ..
+import { useState } from 'react'
+import {useNavigate} from 'react-router-dom'
+
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default LoginComponent
+
+
+----------------------------------------
+
+
+⏺ TodoApp.jsx
+
+
+//12-1: useStae와 useNavigate를 지워도 된다 저장하고
+// import { useState } from 'react' (<= 여기서만 주석 처리 실제코드에선 살제)
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+
+
+-----------------------------------------------------------------------------------------------
+
+지루한 작업으로 느껴질 수도 있지만, 정말 중요한 작업이라고 생각한다 
+무언가 구축할 때 유지 보수 가능한 방식으로 만들고 싶지?
+모듈 크기가 커질수록 관리하기 정말 어렵기때문이다
+그래서 지금까지 이런 작업을 하는 것이다,
+모든 컴포넌트를 각자의 파일로 옮기는 거지 
+
+그러면 이제 우리 TodoApp은 
+---------------------------------------
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+---------------------------------------
+코드가 30줄 밖에 남지 않았다 
+
+좋다
+
+잘 작동하는지 보겠다 
+
+
+Todos
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev		 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        
+
+
+-------------------------------------------------------------------------------------------
+
+check!
+
+
+Login
+                                      
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+check!
+
+
+Logout
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/logout 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                  You are logged out!
+                                      
+                      Thank you for using our App. Come back soon!
+
+                                        
+
+
+-------------------------------------------------------------------------------------------
+
+check!
+
+
+
+
+로그인 가서 뭘 해보면 
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●●●●          |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+지금은 다 잘 되는 것 같다
+
+
+
+
+
+이번 시간에는 지루한 작업을 많이 했다,
+하지만 앞으로는 재미있는 작업이 될 것이다
+이 링크를 사용자 로그인 여부에 따라 활성화할 것이다
+사용자가 로그인 했는지 여부 정보를 어디에 저장할 수 있을까?
+생각해 보자, 다음 시간에 보겠다
