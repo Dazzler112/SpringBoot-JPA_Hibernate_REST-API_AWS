@@ -492,3 +492,399 @@ Todo App                |
 세 개 컴포넌트를 밖으로 옮겼다 
 헤더, 바닥글, 로그아웃이지 
 
+다른 컴포넌트도 옮기겠다
+
+다음 컴포넌트는 ListTodosComponent이다
+이 컴포넌트의 링크를 가져오지
+todos폴더 > 우클릭 > 새파일 ListTodosComponent.jsx 라 쓴다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+
+//7: TodoApp.jsx에 있는 코드를 여기 넣겠다, 몇 가지 import가 필요하겠지
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const todos = [
+        {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+        {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+        {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+      ]
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+//7-1: export default으로 ListTodosComponent이다 //7-2: TodoApp.jsx 파일로..
+export default ListTodosComponent
+
+
+-----------------------------------------------
+
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+
+//7-2: import는 ListTodosComponent from './ListTodosComponent' 겠지, 좋다 저장하겠다
+import ListTodosComponent from './ListTodosComponent'
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+....
+-----------------------------------------------------------------------------------------------
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev		 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        
+
+
+-------------------------------------------------------------------------------------------
+
+이제 ListTodosComponent가 작동한다
+좋다 거의 100줄 까지 근접했다
+
+이제 에러 컴포넌트도 옮긴다
+todos폴더 우클릭 > 새파일 > ErrorComponent.jsx 이다
+지금은 지루하게 느껴질 수 있지만, 나중에는 많은 기능을 추가하면서 이 파일들이 커지는 걸 보게 될 것이다
+애플리케이션을 유지 보수하려면 컴포넌트를 모듈로 분리하는게 좋다
+우리가 지금 하고 있는 작업이지
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+//8: 붙여넣고
+function ErrorComponent() {
+    return (
+        <div className='ErrorComponent'>
+            <h1>We are working really hard!</h1>
+            <div>Apologies for the 404. Reach out to our team at ABC-DEF-GHIJ</div>
+        </div>
+    )
+}
+
+//8-1: export default ErrorComponent 를 해준다, 됐다 그리고 이제 에러 컴포넌트를 임포트해야지 //8-2: TodoApp.jsx파일로..
+export default ErrorComponent
+
+
+----------------------------------------
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+
+//8-2: import ErrorComponent from './ErrorComponent' 해준다, 좋다
+import ErrorComponent from './ErrorComponent'
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+...
+-----------------------------------------------------------------------------------------------
+
+
+다음은 웰컴 컴포넌트이다 
+Todos > 우클릭 > 새파일 WelcomeComponent.jsx 생성
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+
+//8: TodoApp.jsx에서 잘라 붙여넣기 하고
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+        </div>
+    )
+}
+
+//8-1: export default에 붙여넣기 한다 WelcomeComponent 저장하고, 임포트 해야지 //8-2: TodoApp.jsx파일로..
+export default WelcomeComponent
+
+
+----------------------------------------
+
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+
+//8-2: ./WelcomeComponent' 에서 가져온다, 좋다
+import WelcomeComponent from './WelcomeComponent'
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+-----------------------------------------------------------------------------------------------
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+Compiled with problems:
+
+ERROR
+[eslint] 
+src\components\todo\WelcomeComponent.jsx
+  Line 5:24:   'useParams' is not defined  no-undef
+  Line 13:38:  'Link' is not defined       react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+
+-------------------------------------------------------------------------------------------
+
+WelcomeComponent에서 useParams와 Link가 정의되지 않았다고 나온다 
+임포트 해야겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx 
+
+
+import { useState } from 'react'
+
+//9: (VSC에선 표시됨) 여기 보면 현재 useParams, Link 이 두 개는 현재 사용하지 않으니 지워도 된다 이걸 복사해서 웰컴 컴포넌트에 붙여 넣겠다 //9-1: WelcomeComponent.jsx 파일로...
+//9-2: useParams, Link 이건 TodoApp에서 사용되지 않는다 (useParams, Link 삭제..) 좋다
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+
+----------------------------------------
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+//9-1: 보다시피 여기 몇 개는 사용되지 않지, 웰컴 컴포넌트에선 지워준다 (BrowserRouter, Routes, Route, useNavigate 삭제..) TodoApp에는 useParams와 Link를 지워도 되겠지 //9-2: TodoApp.jsx로..
+import {useParams, Link} from 'react-router-dom'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    console.log(username)
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+-----------------------------------------------------------------------------------------------
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev		 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        
+
+
+-------------------------------------------------------------------------------------------
+
+페이지가 잘 작동한다
+홈페이지도 보기 좋다
+
+이제 코드가 80줄 정도 된다 
