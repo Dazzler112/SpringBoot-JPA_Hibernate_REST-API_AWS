@@ -1,0 +1,494 @@
+
+
+인증과 권한을 추가하고 정보를 저장하고 그에 기반한 헤더 링크 사용 여부를 결정하는 것에 앞서
+일단 약간 리팩토링을 시작하곘다
+
+이미 봤다시피 이 코드가 이제 거의 200줄이 될 만큼 커졌다
+그리고 앞으로 애플리케이션을 발전시키면서 이 컴포넌트에 더 많은 코드를 추가할 것이다
+
+그러니까 이제 리팰토링을 통해 각각의 컴포넌트를 각자의 모듈에 넣을 시점이지 
+시작해보자
+
+쉬운 것부터 시작하겠다
+로그아웃 컴포넌트부터 만들어보자
+
+todo폴더에서 오른쪽 마우스를 클릭하고 새 파일을 만든다
+todo 밑에 로그아웃 컴포넌트를 만들자 LogoutComponent.jsx jsx로 만들어서 JSX 확장을 추가할 수 있도록 하겠다
+
+TodoApp.jsx의 LogoutComponent()를 잘라내서 LogoutComponent.jsx에 붙여넣고
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ LogoutComponent.jsx
+
+
+//1: 붙여 넣고 //1-2: TodoApp.jsx로..
+function LogoutComponent() {
+    return (
+        <div className='LogoutComponent'>
+            <h1>You are logged out!</h1>
+            <div>
+                Thank you for using our App. Come back soon!
+            </div>
+        </div>
+    )
+}
+//1-3: export를 안 했다, export default라 적고 LogoutComponent이다, 이걸 위의 function 앞에 적어도 되고 마지막에 적어도 된다 저장하자
+export default LogoutComponent
+--------------------------------------------------
+
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+//1-2: 임포트로 로그아웃 컴포넌트를 가져 와야지, import LogoutComponent from '../LogoutComponent', 그리고 LogoutComponent에 export를 안한거 갔다 가서 확인해보자//1-3: LogoutComponent.jsx로..
+import LogoutComponent from '../LogoutComponent'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+                <FooterComponent />
+            </BrowserRouter>
+        </div>
+    )
+}
+....
+-----------------------------------------------------------------------------------------------
+
+페이지로 돌아가면,
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000 사이트화면 ==>
+
+
+
+Compiled with problems:
+
+ERROR in ./src/components/todo/TodoApp.jsx 9:0-49
+Module not found: Error: Can't resolve '../LogoutComponent' in 'C:\study\frontend\todo-app\src\components\todo'
+
+-------------------------------------------------------------------------------------------
+
+이런, LogoutComponent를 불러올 수 없다
+
+뭐가 문제일까?
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+
+//2: '../LogoutComponent' 이부분이 ..이 아니라 ./이 되어야지 같은 폴더에 있기 때문이다, 이렇게 된다 LogoutComponent, 저장
+import LogoutComponent from './LogoutComponent'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+                <FooterComponent />
+            </BrowserRouter>
+        </div>
+    )
+}
+....
+-----------------------------------------------------------------------------------------------
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/logout 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                  You are logged out!
+                                      
+                      Thank you for using our App. Come back soon!
+
+                                        
+
+
+
+
+                                  Your Footer
+
+-------------------------------------------------------------------------------------------
+
+로그아웃 컴포넌트가 보인다
+잘 동작한다
+
+이제 다른 것도 동일하게 해보겠다
+
+바닥글 컴포넌트를 해보자
+todo 폴더에 마우스 오른쪽 클릭 새파일 파일 이름을 FooterComponent.jsx 로 하겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ LogoutComponent.jsx
+
+
+
+//3: TodoApp.jsx에 있는 FooterComponent를 잘라서 여기 붙여넣고
+function FooterComponent() {
+    return (
+        <footer className='footer'>
+            <div className='container'>
+                Your Footer  
+            </div>
+        </footer>
+    )
+}
+
+//3-1: export로 함수를 내보내줘야 하고, 좋다 이제 임포트도 해보자 //3-2: TodoApp.jsx 파일로..
+export default FooterComponent
+
+------------------------------------------
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+
+//3-2: FooterComponent이다 from './FooterComponent'지, 저장
+import FooterComponent from './FooterComponent'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+                <FooterComponent />
+            </BrowserRouter>
+        </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/logout 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                  You are logged out!
+                                      
+                      Thank you for using our App. Come back soon!
+
+                                        
+
+
+
+
+                                  Your Footer
+
+-------------------------------------------------------------------------------------------
+
+좋다, 여기 바닥글이 있지
+
+
+
+이제 더이상 바닥글에 대해 신경쓰고 싶지 않다 그래서 별도 컴포넌트로 옮긴거지
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import FooterComponent from './FooterComponent'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+
+              //4: 여기 바닥글은 지우겠다, 이 footer를 삭제해서 더 이상 보이지 않게 한다
+           //     <FooterComponent /> (<== 여기서만 주설 처리 실제 코드는 삭제)
+            </BrowserRouter>
+        </div>
+    )
+}
+...
+-----------------------------------------------------------------------------------------------
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/logout 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                  You are logged out!
+                                      
+                      Thank you for using our App. Come back soon!
+
+                                        
+
+
+-------------------------------------------------------------------------------------------
+
+바닥글 코드는 FooterComponent.jsx로 옮겼고 더 이상 바닥글이 보이지 않는다
+
+
+스크롤을 내려 헤더 컴포넌트를 보겠다
+헤더 컴포넌트도 todo폴더에 마우스 우클릭 > 새파일 > HeaderComponent.jsx라 하고 생성
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ HeaderComponent.jsx
+
+
+//5-1: 여기 붙여넣기 한다 그리고 저장, 그리고 import를 입력해야지? //5-2: TodoApp.jsx파일로..
+function HeaderComponent() {
+    return (
+        <header className="border-bottom border-light border-5 mb-5 p-2">
+        <div className="container">
+            <div className="row">
+                <nav className="navbar navbar-expand-lg">
+                    <a className="navbar-brand ms-2 fs-2 fw-bold text-black" href="https://www.in28minutes.com">in28minutes</a>
+                    <div className="collapse navbar-collapse">
+                        <ul className="navbar-nav">
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/welcome/in28minutes">Home</Link></li>
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/todos">Todos</Link></li>
+                        </ul>
+                    </div>
+                    <ul className="navbar-nav">
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/login">Login</Link></li>
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/logout">Logout</Link></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    )
+}
+
+//5: export default HeaderComponent 하고 헤더 컴포넌트를 복사해오겠다
+export default HeaderComponent
+
+
+------------------------------------------
+
+
+⏺ TodoApp.jsx
+
+
+
+import { useState } from 'react'
+import {BrowserRouter, Routes, Route, useNavigate, useParams, Link} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+
+//5-3: 그리고 이제 FooterComponent는 사용하지 않으니, FooterComponent의 import를 지우고 저장하겠다
+// import FooterComponent from './FooterComponent'(<= 여기서만 주석 처리 실제 코드는 삭제)
+
+//5-2: 입력값을 입력해보자, 이제 헤더 컴포넌트를 추가하고 있지
+import HeaderComponent from './HeaderComponent'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+Compiled with problems:
+ERROR
+[eslint] 
+src\components\todo\HeaderComponent.jsx
+  Line 10:60:  'Link' is not defined  react/jsx-no-undef
+  Line 11:60:  'Link' is not defined  react/jsx-no-undef
+  Line 15:56:  'Link' is not defined  react/jsx-no-undef
+  Line 16:56:  'Link' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+                                        
+
+-------------------------------------------------------------------------------------------
+
+Link가 정의되지 않았다고 나온다
+
+왜 Link가 정의되지 않은거지?
+import를 안했기 때문이다 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ HeaderComponent.jsx
+
+
+
+//6: import를 추가하려고 보면 다 사용되지 않았다, 링크 빼고 나머지는 다 지우겠다 (TodoApp.jsx에 복사한 import중 (BrowserRouter, Routes, Route, useNavigate, useParams,) 삭제) 그리고 저장
+import {Link} from 'react-router-dom'
+
+
+
+function HeaderComponent() {
+    return (
+        <header className="border-bottom border-light border-5 mb-5 p-2">
+        <div className="container">
+            <div className="row">
+                <nav className="navbar navbar-expand-lg">
+                    <a className="navbar-brand ms-2 fs-2 fw-bold text-black" href="https://www.in28minutes.com">in28minutes</a>
+                    <div className="collapse navbar-collapse">
+                        <ul className="navbar-nav">
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/welcome/in28minutes">Home</Link></li>
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/todos">Todos</Link></li>
+                        </ul>
+                    </div>
+                    <ul className="navbar-nav">
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/login">Login</Link></li>
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/logout">Logout</Link></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    )
+}
+
+export default HeaderComponent
+
+
+-----------------------------------------------------------------------------------------------
+
+잘 되는지 볼까?
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/logout 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                  You are logged out!
+                                      
+                      Thank you for using our App. Come back soon!
+
+                                        
+
+
+-------------------------------------------------------------------------------------------
+
+ㅇㅋ 잘 보인다
+클릭도 되고 다 잘 된다, 좋다 
+
+
+지금 까지 뭘 했지?
+세 개 컴포넌트를 밖으로 옮겼다 
+헤더, 바닥글, 로그아웃이지 
+
