@@ -1,0 +1,331 @@
+
+
+
+--------------------------------------------------------------------------------------------
+
+
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●●●●●         |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+
+앞서 우리는 로그인 컴포넌트를 만들었다
+유효하지 않은 인증정보를 입력하고 로그인을 누르면 어떻게 됐지?
+메시지가 뜨지, 인증에 실패했다 정보를 확인해라
+
+어떻게 되는거지?
+로그인 컴포넌트로 가서 배운 내용을 환기시켜 보자
+
+-----------------------------------
+import { useState } from 'react'
+import {useNavigate} from 'react-router-dom'
+
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default LoginComponent
+-----------------------------------
+
+지금은 하드 코딩 된 로직을 바탕으로 인증을 하고 있다
+if(username === 'in28minutes' && password === 'dummy') ID가 in28minutes고 dummy라고 되어있지, 이게 맞지 않으면 무언가를 State에 설정한다
+setShowSuccessMessage(false) => showSuccessMessage는 false로 
+setShowErrorMessage(true) =>ShowErrorMessage는 true로 하지
+멋지다
+
+그리고 이걸 바탕으로 메시지를 보여주는 것이다
+{showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+
+그러니까 State에 값을 설정해서 컴포넌트에서 그 값을 활용하는 거지
+
+State에 무엇을 설정하든 특정 컴포넌트에서만 활용 가능하다
+이 컴포넌트를 벗어나는 순간 사라지지, 올바른 ID와 비밀번호를 입력하고 로그인을 누르면
+이전의 State는 바로 사라진다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+
+                                        
+
+
+-------------------------------------------------------------------------------------------
+
+로그인 컴포넌트의 State는 더 이상 존재하지 않는다 
+하지만 우리는 사용자가 로그인 했다는 사실을 유지한 채로 헤더 컴포넌트에서 사용하고 싶다
+
+사용자가 로그인하면 사용자가 로그인했다는 상태가 필요하다,
+사용자가 로그아웃하면 로그아웃했다는 상태가 필요하지
+서로 다른 컴포넌트에서 이 State를 공유하고 싶은 것이다
+헤더 컴포넌트에 이 State를 공유하고 싶다
+다른 컴포넌트에 이 사용자가 로그인 했다는 사실을 공유할 수 있으면 좋겠다
+
+공통 State에 무언가 담아서 서로 다른 컴포넌트에서 접근하고 싶다
+리액트의 초기 버전에선 이게 아주 어려웠다
+하지만 리액트에 hook이라는 개념이 등장하면서 정말 쉬워졌다
+우리는 컨텍스트라는 걸 생성해서 여러 컴포넌트에서 이 컨텍스트로 접근하도록 만들 수 있다
+
+이번 시간에는 컨텍스트를 어떻게 만들고 여러 컴포넌트와 공유하는 방법을 보여주겠다
+
+
+로그인 컴포넌트를 보면 인증 관련 로직이 있다, 맞지?
+특정 사용자를 인증하는 로직이 있다 (if문)
+이 인증 관련 로직을 별도의 컴포넌트로 옮기는 작업을 할 것이다
+그래서 일단 새로운 컴포넌트를 생성하겠다
+
+todo폴더 > 우클릭 > 새 폴더 security로 생성한다
+security 폴더 안에 새 파일을 만들어서 AuthContext.js 라고하자
+이름을 지정했다 파일이름을 AuthContext.js로 했다 AuthContext에서 우리는 컨텍스트를 생성할 것이다
+다음으로는 컨텍스트에 State를 추가하고 //1: Create a Context
+컨텍스트 안에서 우리는 공유하는 거지 //2: Put some state in the context
+생성한 컨텍스트를 다른 컴포넌트와 공유한다 //3: Share the created context with other components
+
+일단 컨텍스트 생성부터 하겠다 //1: Create a Context
+컨텍스트 생성은 매우 쉽다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+//1-1: import도 뜬다, 리액트에서 createContext를 가져온다, 이게 hook 메서드이다 //1-2: 다시 아래로.. 
+import { createContext } from "react";
+
+// Create a Context
+//1: CreateContext라는 hook을 사용하면 된다, 보면 Context가 리액트에 정의되어 있다 엔터를 눌러 선택하겠다 
+//1-2: 이것은 인증 컨텍스트를 반환할 것이다, const authContext = createContext()
+const AuthContext = createContext()
+
+
+-----------------------------------------------------------------------------------------------
+
+이제 다른 컴포넌트와 공유할 컨텍스트를 생성했다
+이제 컨텍스트에 몇 개 값을 넣고 다른 컴포넌트와 공유할 것이다
+
+
+그렇게 하기 위해 함수 컴포넌트를 하나 생성하자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext } from "react";
+
+//1: Create a Context
+const AuthContext = createContext()
+
+//Put some state in the context
+//Share the created context with other components
+
+//2: function AuthProvider라고 하겠다, 다른 컴포넌트에 컨텍스트를 제공하는 것이다
+function AuthProvider() {
+
+    //2-1: 이 함수는 JSX를 반환한다
+    return (
+        //2-2: JSX에선 이 컨텍스트를 다른 컴포넌트에 제공해야 한다
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+AuthProvider가 준비되면 우리는 이 AuthProvider를 부모로 사용할 것이다
+일단 지금은 TodoApp으로 간다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+
+        //3: 여기 나와 있는 각 요소에 AuthProvider에 있는 컨텍스트를 제공하려는 것이다
+        //그래서 결국 하려는 것은 여기 들어와서 <AuthProvider>로 묶는 이런 식의 작업을 할 것이다
+        //AuthProvider, BrowserRouter, BrowserRouter, AuthProvider 순이지 우리가 사용할 구문은 이런 식이다
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            </AuthProvider>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+AuthProvider가 여기에서 하는 일은 모두 자식을 감싸는 거지
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext } from "react";
+
+//1: Create a Context
+
+const AuthContext = createContext()
+
+//Put some state in the context
+//Share the created context with other components
+
+        //4: 그래서 여기 중괄호 사이에 children을 넣어주겠다, AuthProvider 아래 모든 자식은 이 변수에 할당되는 것이다 그리고 이제는
+function AuthProvider({ children }) {
+
+    return (
+        //4-1: AuthProvider의 모든 자식에게 컨텍스트를 제공해야 한다 AuthContext.Provider 라고 적겠다
+        <AuthContext.Provider>
+        //4-2: 그리고 이 안에 모든 자식들이 들어간다
+            { children }
+        </AuthContext.Provider>
+    )
+}
+
+
+-----------------------------------------------------------------------------------------------
+
+일단 여기에서 컨텍스트를 생성하고 ( const AuthContext = createContext() )
+
+설정할 것이다
+-------------------------------
+function AuthProvider({ children }) {
+
+    return (
+        <AuthContext.Provider>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+-------------------------------
+컨텍스트를 다른 AuthProvider의 자식들과 공유하도록 말이지
+
+그럼 이제 AuthProvider에 State를 넣어보자
+
+지금은 일단 컨텍스트를 생성하고 ( const AuthContext = createContext() )
+AuthProvider를 통해 모든 컴포넌트에  ( function AuthProvider({ children }) {.. )
+컨텍스트를 제공하려는 것이다
+-------------------------------
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            </AuthProvider>
+-------------------------------
+여기에 AuthProvider를 사용하려면 export를 해줘야 사용할 수 있겠지
+
+
