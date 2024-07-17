@@ -744,3 +744,415 @@ export default function AuthProvider({ children }) {
 
 여기에서도 number로 접근해야 한다 
 
+헤더 컴포넌트로 가서
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ HeaderComponent.jsx
+
+
+
+
+import {Link} from 'react-router-dom'
+import { AuthContext } from './security/AuthContext'
+import { useContext } from 'react'
+
+
+function HeaderComponent() {
+
+    const authContext = useContext(AuthContext)
+
+    //10: value 대신 number라고 하고  저장하겠다
+    console.log(authContext.number);
+
+    return (
+        <header className="border-bottom border-light border-5 mb-5 p-2">
+        <div className="container">
+            <div className="row">
+                <nav className="navbar navbar-expand-lg">
+                    <a className="navbar-brand ms-2 fs-2 fw-bold text-black" href="https://www.in28minutes.com">in28minutes</a>
+                    <div className="collapse navbar-collapse">
+                        <ul className="navbar-nav">
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/welcome/in28minutes">Home</Link></li>
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/todos">Todos</Link></li>
+                        </ul>
+                    </div>
+                    <ul className="navbar-nav">
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/login">Login</Link></li>
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/logout">Logout</Link></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    )
+}
+
+export default HeaderComponent
+-----------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●●●●●         |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  0                                                               HeaderComponent.jsx:10 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  0                                                               HeaderComponent.jsx:10 
+-------------------------------------------------------------------------------------------
+
+이제 여기 0이 출력된다 
+
+다른 페이지로 가서
+전체를 새로 고침 해도 
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+
+                                        
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  0                                                               HeaderComponent.jsx:10 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  0                                                               HeaderComponent.jsx:10 
+-------------------------------------------------------------------------------------------
+
+0이 여기 출력되지
+이게 값이다
+
+확실하게 하기 위해 AuthContext로 들어가서 초기 값을 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useState } from "react";
+
+//1: Create a Context
+export const AuthContext = createContext()
+
+
+//2: Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //Put some state in the context
+
+    //11: 10으로 설정하고 저장해 보겠다
+    const [number, setNumber] = useState(10)
+
+    return (
+        <AuthContext.Provider value={ {number} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+그러면 여기                               |
+                                         V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+
+                                        
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  10                                                              HeaderComponent.jsx:10 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  10                                                              HeaderComponent.jsx:10 
+-------------------------------------------------------------------------------------------
+
+10이 출력되는 걸 볼 수 있다
+새로 고침 하면 10이 출력된다
+
+이제 좋은 점은
+AuthContext.js 이 컨텍스트를 어디에서나 사용할 수 있다는 것이다
+예를 들어 헤더 컴포넌트뿐만 아니라 다르 컴포넌트에서도 사용하고 싶다
+
+예를 들어 FooterComponent에서 사용하고 싶다면 FooterComponent로 가서 
+
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ FooterComponent.jsx
+
+
+
+//12-1: ./security/AuthContext에서 AuthContext를 가져와서 임포트 한다, 좋다 저장한다 그리고 이건 FooterComponent에서 온 거지 틱을 추가하겠다 //12-2: FooterComponent()안으로..
+import { AuthContext } from "./security/AuthContext";
+
+function FooterComponent() {
+
+    //12: 똑같은 코드를 넣으면 되겠지 AuthContext를 임포트헀는지 확인하고
+    const authContext = useContext(AuthContext)  //<== 여기에서 ctrl+스페이스 하고 엔터를 누르면 //12-1: import부분으로..
+
+    //12-2: console.log `을 쓰고 Footer Component, 변수는 ${}로 감싼다
+    //텍스트는 출력되고 변수 값은 대체될 것이다 저장하고
+    console.log(`Footer Component - ${authContext.number}`);
+
+    return (
+        <footer className='footer'>
+            <div className='container'>
+                Your Footer  
+            </div>
+        </footer>
+    )
+}
+
+export default FooterComponent
+
+-----------------------------------------------------------------------------------------------
+
+새로 고침 한다
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+
+                                        
+
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  10                                                              HeaderComponent.jsx:10 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  10                                                              HeaderComponent.jsx:10 
+-------------------------------------------------------------------------------------------
+
+Footer Component가 더 이상 애플리케이션의 일부가 아니어서 보이지 않고 있다
+얼른 TodoApp에 추가하고 어떻게 되는지 보자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+import AuthProvider from './security/AuthContext'
+
+//13계속: import FooterComponent from './FooterComponent'임포트
+import FooterComponent from './FooterComponent'
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+
+           //13: 여기 그냥 FooterComponent를 추가하겠다 임포트도 하고 좋다
+           <FooterComponent/>     
+
+            </AuthProvider>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+그러면
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+
+Compiled with problems:
+
+ERROR
+[eslint] 
+src\components\todo\FooterComponent.jsx
+  Line 5:25:  'useContext' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+
+-------------------------------------------------------------------------------------------
+
+useContext가 정의되지 않았다고 나온다
+FooterComponent로 가서 useContext를 정의하겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ FooterComponent.jsx
+
+
+//14-1: useContext를 임포트 하지, 좋다
+import { useContext } from "react";
+
+import { AuthContext } from "./security/AuthContext";
+
+function FooterComponent() {
+
+                         // 14:  ↓여기서 ctrl+스페이스 하면 리액트에서
+    const authContext = useContext(AuthContext)
+
+    console.log(`Footer Component - ${authContext.number}`);
+
+    return (
+        <footer className='footer'>
+            <div className='container'>
+                Your Footer  
+            </div>
+        </footer>
+    )
+}
+
+export default FooterComponent
+-----------------------------------------------------------------------------------------------
+
+그러면 이제 
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+
+                                        
+
+
+
+
+                                    Your Footer
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  10                                                              HeaderComponent.jsx:10 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  10                                                              HeaderComponent.jsx:10 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  Footer Component - 10                                            FooterComponent.jsx:8 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  Footer Component - 10                                            FooterComponent.jsx:8 
+-------------------------------------------------------------------------------------------
+
+Footer Component에서 메시지가 나오고 있다
+
+
+컨텍스트에 있는 State를 서로 다른 컴포넌트에서 공유했다
+
+더 진행하기 전에 일단 TodoApp으로 가서 FooterComponent를 삭제하고 (알아서 삭제, 임포트까지 싸악 삭제)
+
+
+
+
+
+
+이번 시간에는 여러 컴포넌트에 State를 공유하는 방법을 배웠다
+컨텍스트를 생성해서 할 수 있었지
+AuthContext를 생성하고 => export const AuthContext = createContext()
+생성한 컨텍스트를 다른 컴포넌트와 공유할 수 있도록 
+AuthProvider라는 함수 컴포넌트도 생성했다 => export default function AuthProvider({ children }) {..
+
+리액트가 처음이면 AuthContext를 이해하는 게 큰 도움이 될 것이다
+강의에서 계속 활용할 예정이기 떄문이다
+다음 학습에 보겠다
