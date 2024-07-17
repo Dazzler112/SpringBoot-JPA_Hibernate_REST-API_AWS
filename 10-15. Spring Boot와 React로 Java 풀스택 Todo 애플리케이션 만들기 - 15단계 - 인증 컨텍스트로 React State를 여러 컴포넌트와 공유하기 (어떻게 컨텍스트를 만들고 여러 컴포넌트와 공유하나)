@@ -329,3 +329,418 @@ AuthProvider를 통해 모든 컴포넌트에  ( function AuthProvider({ childre
 여기에 AuthProvider를 사용하려면 export를 해줘야 사용할 수 있겠지
 
 
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext } from "react";
+
+//1: Create a Context
+const AuthContext = createContext()
+
+//Put some state in the context
+//Share the created context with other components
+
+
+//5: export default function AuthProvider 해줘야 한다 //5-1: TodoApp.jsx 파일로..
+export default function AuthProvider({ children }) {
+
+    return (
+        <AuthContext.Provider>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+------------------------------------
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+
+//5-1: 그리고 여기에 임포트하는 거지 import AuthProvider, ./security/AuthContext에서 가지고 와야지, 좋다 그리고 저장
+import AuthProvider from './security/AuthContext'
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            </AuthProvider>
+        </div>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+
+컴파일 에러가 있는지 보자
+
+-----------------------------------------------------------------------------------------------
+
+⏺ cmd창 > 
+
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.17.80.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+
+-----------------------------------------------------------------------------------------------
+
+성공적으로 컴파일 되었다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+
+                                        
+
+
+-------------------------------------------------------------------------------------------
+
+여기 보면 변화는 없다, 기능만 추가하는 거기 때문이다
+좋다
+
+
+컨텍스트를 만들었고 AuthProvider를 만들어서 ( const AuthContext = createContext() )
+컨텍스트를 AuthProvider의 자식에게
+------------------------------
+export default function AuthProvider({ children }) {
+
+    return (
+        <AuthContext.Provider>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+------------------------------
+제공하도록 했다
+
+AuthProvider의 자식은 뭐지?
+지금까지 만든 모든 컴포넌트가 
+------------------------------
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+------------------------------
+AuthProvider의 자식이 된다
+좋다
+
+잘 되는지 보겠다
+
+잘 되는지 보려면 컨텍스트에 State를 추가해야겠지?
+다른 컴포넌트와 컨텍스트를 공유해야 하니까
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+//6-2: 리액트에서 useState를 임포트하지 //6-3: 다시 AuthProvider()안으로..
+import { createContext, useState } from "react";
+
+//1: Create a Context
+const AuthContext = createContext()
+
+
+//2: Share the created context with other components
+
+export default function AuthProvider({ children }) {
+
+    //Put some state in the context
+    //6: 여기에선 State는 어떻게 만들지? 아주 쉽다, 이미 여러 번 해 봤다
+    //useState를 사용한다, useState는 상태값을 반환하고 업데이트 한다고 나온다, useState를 사용한다
+    //6-3: 기본 값은 0으로 하고 const로 선언해야지, 값을 가져와서 메서드에서 State의 값을 다루려면 const [number, setNumber]라 하겠다
+    const [number, setNumber] = useState(0)
+
+    return (
+        <AuthContext.Provider>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+
+
+그리고 이 number를 다른 컴포넌트에 모두 주고 싶다 어떻게 할까?
+AuthContext로 가서 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+
+import { createContext, useState } from "react";
+
+//1: Create a Context
+const AuthContext = createContext()
+
+
+//2: Share the created context with other components
+
+export default function AuthProvider({ children }) {
+
+    //Put some state in the context
+    const [number, setNumber] = useState(0)
+
+    return (
+
+        //7: value={} 이 안에 또 중괄호를 넣고 number라 하겠다, 어떻게 작동하는지는 나중에 더 자세히 알아 보겠다 일단 지금은 저장한다
+        <AuthContext.Provider value={{number}}> 
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+
+우리가 주려는 값은 이 두 개의 중괄호 안에 들어있다 (<= {{number}} ) 
+이 number를 다른 컴포넌트에서도 사용하려는 거지
+헤더 컴포넌트에서 사용한다고 하자
+
+AuthContext에 넣은 이 number ( {{number}} )를 헤더 컴포넌트에서 사용하고 싶은 것이다
+어떻게 사용할까?
+
+AuthContext에 접근을 제공해야 한다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+
+import { createContext, useState } from "react";
+
+//1: Create a Context
+
+//8: AuthContext에 export를 추가하겠다 //8-1: HeaderComponent.jsx로..
+export const AuthContext = createContext()
+
+
+//2: Share the created context with other components
+
+export default function AuthProvider({ children }) {
+
+    //Put some state in the context
+    const [number, setNumber] = useState(0)
+
+    return (
+        <AuthContext.Provider value={{number}}>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+------------------------------------
+
+⏺ HeaderComponent.jsx
+
+
+import {Link} from 'react-router-dom'
+
+//8-1: 그리고 예상했듯 여기에 Context를 임포트 해야 한다, import { AuthContext } from './security/AuthContext'
+//AuthContext 이건 중괄호 안에 있다, 왜 괄호 안이지? 왜냐하면 AuthContext가 default export가 아니기때문이다 ( export const AuthContext = createContext() )
+//default export는 AuthProvider고 ( export default function AuthProvider({ children }) {.. ), AuthContext는 또 다른 export인 거지 ( ( export const AuthContext = createContext() ) )
+//그래서 중괄호 안에 넣어야 한다, AuthContext가 여기 있다 (import { AuthContext }) 그래서 //8-2: HeaderComponent 안으로..
+import { AuthContext } from './security/AuthContext'
+
+//8-3: 리액트에서 useContext를 임포트 한다 //8-4: 다시 HeaderComponent()안으로..
+import { useContext } from 'react'
+
+
+function HeaderComponent() {
+
+  //8-2: 여기로 가서 메서드를 사용할 수 있다, useContext라는 또 다른 hook이지, useContext라 입력하고 엔터를 누른다
+  //8-4: 그리고 사용하려는 컨텍스트는 AuthContext지 그리고 authContext라는 변수에 담겠다
+  const authContext = useContext(AuthContext)
+
+    return (
+        <header className="border-bottom border-light border-5 mb-5 p-2">
+        <div className="container">
+            <div className="row">
+                <nav className="navbar navbar-expand-lg">
+                    <a className="navbar-brand ms-2 fs-2 fw-bold text-black" href="https://www.in28minutes.com">in28minutes</a>
+                    <div className="collapse navbar-collapse">
+                        <ul className="navbar-nav">
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/welcome/in28minutes">Home</Link></li>
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/todos">Todos</Link></li>
+                        </ul>
+                    </div>
+                    <ul className="navbar-nav">
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/login">Login</Link></li>
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/logout">Logout</Link></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    )
+}
+
+export default HeaderComponent
+
+-----------------------------------------------------------------------------------------------
+
+이제 AuthContext에 접근해서 값을 받아왔다, 어떤 값을 받아왔지?
+number이다, value를 통해서 보여주고 있지 ( <AuthContext.Provider value={{number}}> )
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ HeaderComponent.jsx
+
+
+
+
+import {Link} from 'react-router-dom'
+import { AuthContext } from './security/AuthContext'
+import { useContext } from 'react'
+
+
+function HeaderComponent() {
+
+    const authContext = useContext(AuthContext)
+
+    //9: 여기 가서 보자 console.log(authContext.value); 저장하고
+    console.log(authContext.value);
+
+    return (
+        <header className="border-bottom border-light border-5 mb-5 p-2">
+        <div className="container">
+            <div className="row">
+                <nav className="navbar navbar-expand-lg">
+                    <a className="navbar-brand ms-2 fs-2 fw-bold text-black" href="https://www.in28minutes.com">in28minutes</a>
+                    <div className="collapse navbar-collapse">
+                        <ul className="navbar-nav">
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/welcome/in28minutes">Home</Link></li>
+                            <li className="nav-item fs-5"><Link className="nav-link" to="/todos">Todos</Link></li>
+                        </ul>
+                    </div>
+                    <ul className="navbar-nav">
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/login">Login</Link></li>
+                        <li className="nav-item fs-5"><Link className="nav-link" to="/logout">Logout</Link></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    )
+}
+
+export default HeaderComponent
+-----------------------------------------------------------------------------------------------
+ 오른쪽 마우스 클릭, 검사를 누른다           |
+ 콘솔로 가서                               V
+--------------------------------------------------------------------------------------------
+
+
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●●●●●         |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  undefined                                                       HeaderComponent.jsx:10 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  undefined                                                       HeaderComponent.jsx:10
+-------------------------------------------------------------------------------------------
+
+지금 프린트되는 값은 undefined라고 나온다
+왜 undefined로 나오지?
+
+AuthContext로 가보면 
+---------------------------------
+export default function AuthProvider({ children }) {
+
+    //Put some state in the context
+    const [number, setNumber] = useState(0)
+
+    return (
+        <AuthContext.Provider value={ {number} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+---------------------------------
+우리가 설정하는 변수가 number라는 이름인 걸 볼 수 있다 ( value={ {number} } )
+
+
+여기에서도 number로 접근해야 한다 
+
