@@ -1,0 +1,511 @@
+
+
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes                                                      Login   
+     ___________________________________________________________________________________
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev  	 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                        
+
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▶ value: {isAuthenticated: false, number: 10, setAuthenticat…}
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+지난 시간에 우리는 로그인하지 않고 라우터를 통해 접근할 수 있었다
+이렇게 로그인 안 되어 있는 상태에도 isAuthenticated는 false인데 Todos에 접근할 수 있지
+좋지 않다, 맞지?
+어떻게 고치는지 보겠다 
+그 전에 약간 리팩토링이 필요하다 
+
+---------------------------------------------------
+
+⏺ HeaderComponent.jsx
+
+.....
+function HeaderComponent() {
+
+    // const authContext = useContext(AuthContext)
+    const authContext = useAuth()
+
+    const isAuthenticated = authContext.isAuthenticated
+
+    function logout() {
+        authContext.setAuthenticated(false)
+    }
+
+    // console.log(authContext);
+    // console.log(authContext.number);
+
+    return (
+        <header className="border-bottom border-light border-5 mb-5 p-2">
+        <div className="container">
+            <div className="row">
+                <nav className="navbar navbar-expand-lg">
+                    <a className="navbar-brand ms-2 fs-2 fw-bold text-black" href="https://www.in28minutes.com">in28minutes</a>
+                    <div className="collapse navbar-collapse">
+                        <ul className="navbar-nav">
+                            <li className="nav-item fs-5">
+                                {isAuthenticated 
+                                    && <Link className="nav-link" to="/welcome/in28minutes">Home</Link>}
+                            </li>
+                            <li className="nav-item fs-5">
+                                {isAuthenticated 
+                                    && <Link className="nav-link" to="/todos">Todos</Link>}
+                            </li>
+                        </ul>
+                    </div>
+                    <ul className="navbar-nav">
+                        <li className="nav-item fs-5">
+                        {!isAuthenticated &&
+                            <Link className="nav-link" to="/login">Login</Link> }
+                        </li>
+                        <li className="nav-item fs-5">
+                        {isAuthenticated &&    
+                            <Link className="nav-link" to="/logout" onClick={logout}>Logout</Link> }
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    )
+}
+
+export default HeaderComponent
+---------------------------------------------------
+
+한 가지 보이는 건 지금 setAuthenticated가 여러 군데에서 호출되고 있다
+헤더 컴포넌트에서도 setAuthenticated를 호출하고
+------------------
+function logout() {
+  authContext.setAuthenticated(false)
+}
+------------------
+
+로그인 컴포넌트에서도
+------------------
+    function handleSubmit() {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            authContext.setAuthenticated(true)
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            authContext.setAuthenticated(false)
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+------------------
+setAuthenticated를 호출하지
+
+또 로그인 컴포넌트 안에는 또 다른 인증 로직이 포함되어 있다 ( if(username === 'in28minutes' && password === 'dummy') {.. )
+이걸 인증 컴포넌트로 옮기고 싶다
+
+이번 시간에는 대부분의 인증 관련 로직을 AuthContext로 옮기는 작업을 하겠다
+여기에 함수를 몇 개 만들겠다
+
+일단 login 함수부터 만들자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useContext, useState } from "react";
+
+// Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+// Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //Put some state in the context
+    const [number, setNumber] = useState(10)
+
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    // setInterval(() => setNumber(number + 1), 10000)
+
+    // const valueToBeShared = {number, isAuthenticated, setAuthenticated}
+
+  //1: 로그인 함수는 파라미터로 username과 password를 받는다
+  function login(username, password) {
+      //1-1: 그리고 여기에서 모든 인증 로직을 수행해야지, 로그인 컴포넌트로 가보자 //1-2: LoginComponent.jsx로..
+  }
+
+    return (
+        <AuthContext.Provider value={ {number, isAuthenticated, setAuthenticated} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+--------------------------------------------
+
+
+⏺ LoginComponent.jsx
+
+
+
+import { useState } from 'react'
+import {useNavigate} from 'react-router-dom'
+import { useAuth } from './security/AuthContext'
+
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    const authContext = useAuth()
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+      //1-2: 여기에 보이는 이런 몇 가지 로직이 여기 AuthContext.js에서 일어나야 한다 if,else 문 코드 전체를 복사하겠다
+        if(username === 'in28minutes' && password === 'dummy') {
+            setAuthenticated(true)
+            console.log('Success');
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+        }else {
+            authContext.setAuthenticated(false)
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default LoginComponent
+-----------------------------------------------------------------------------------------------
+
+
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useContext, useState } from "react";
+
+// Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+// Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //Put some state in the context
+    const [number, setNumber] = useState(10)
+
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    // setInterval(() => setNumber(number + 1), 10000)
+
+    // const valueToBeShared = {number, isAuthenticated, setAuthenticated}
+
+  function login(username, password) {
+      //2: 사용자 이름이 in28minutes이고 비밀번호가 dummy이면 authContext.setAuthenticated로 호출해서 true를 설정할 필요가 없다 setAuthenticated만 불러도 된다 (authContext.setAuthenticated(true) 에서 setAuthenticated(true)로 수정..)
+      //Context안에 들어와서 작업하고 있기 때문이다
+        if(username === 'in28minutes' && password === 'dummy') {
+            setAuthenticated(true)
+          //2-1: 여기 console.log는 삭제한다, 
+   //         console.log('Success'); (<=여기서만 주석 처리 실제코드는 삭제)
+          //2-2: 성공메시지와 오류 메시지를 출력하는 건 로그인 컴포넌트에서 할 일이다, 여기서 할 일이 아니지
+          //탐색도 마찬가지다, 이건 모두 로그인 컴포넌트에서 해야 한다 (아래 코드 3줄도 삭제), 좋다, 
+          /*(<=여기서만 주석 처리 실제코드는 삭제)
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+          */
+
+         //2-3:여기에서 그냥 true를 반환하겠다
+          return true    
+
+         //정리: 인증에 성공하면 setAuthenticated true로 설정하고 true를 반환한다
+        }else {
+
+            //2-4: 인증에 실패하면 setAuthenticated false로 설정하고 
+            setAuthenticated(false)
+            //2-5: false를 반환하겠다
+            return false
+
+            //2-6: 여기 있는 나머지는 지우겠다
+            /*(<=여기서만 주석 처리 실제코드는 삭제)
+            console.log('Failed');
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+            */
+
+          //방법 질문1 : 로그인 컴포넌트에서 로그인 메서드로 접근할 수 있어야지
+          //방법은 여기에 값을 전달하면 된다 //2-7로..
+        }
+  }
+
+    return (
+
+            //2-7: 여기 value에 login을 적는거지, 저장하겠다
+        <AuthContext.Provider value={ {number, isAuthenticated, setAuthenticated, login} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+
+다른 컴포넌트에서 login 메서드에 접근할 수 있도록 했다
+로그인 컴포넌트에 
+------------------------------
+if(username === 'in28minutes' && password === 'dummy') {
+  authContext.setAuthenticated(true)
+  console.log('Success');
+  setShowSuccessMessage(true)
+  setShowErrorMessage(false)
+  navigate(`/welcome/${username}`)
+}else {
+  authContext.setAuthenticated(false)
+  console.log('Failed');
+  setShowSuccessMessage(false)
+  setShowErrorMessage(true)
+  }
+------------------------------
+이 로직을 포함하는 대신 
+AuthContext는 이미 임포트 되어 있으니 
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ LoginComponent.jsx
+
+
+
+
+import { useState } from 'react'
+import {useNavigate} from 'react-router-dom'
+import { useAuth } from './security/AuthContext'
+
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)  
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    const authContext = useAuth()
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        //3: authContext.login을 호출한다, username, password를 넘겨준다, authContext.login(username, password)를 호출했다
+        //State 변수로 여기 ( const [username, setUsername] = useState('in28minutes') ) username과 ( const [password, setPassword] = useState('') ) password가 있지,
+        //그래서 이 메서드로 전송될 수 있는 것이다
+        if(authContext.login(username, password)) {
+
+          //3-1: 이제 인증 여부를 업데이트 할 필요가 없다,
+        //    authContext.setAuthenticated(true) (<=여기서만 주석 처리 실제 코드는 삭제)
+
+          //3-2: 로그도 삭제 하곘다, 두 줄이 없어 졌다
+        //    console.log('Success');  (<=여기서만 주석 처리 실제 코드는 삭제)
+            setShowSuccessMessage(true)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+
+        }else {
+
+          //3-3: 여기서는 컴포넌트 관련 로직만 수행하고 인증 여부 관련은 여기에서 지우겠다
+         //   authContext.setAuthenticated(false)  (<=여기서만 주석 처리 실제 코드는 삭제)
+         //   console.log('Failed');     (<=여기서만 주석 처리 실제 코드는 삭제)
+            setShowSuccessMessage(false)
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showSuccessMessage && <div className="errorMessage">Authentication Failed. Please check your credentials.</div>}
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default LoginComponent
+-----------------------------------------------------------------------------------------------
+
+우리는 authContext의 메서드를 호출해서 로그인하고 있다 
+로그인이 성공하면 Welcome 페이지로 안내한다
+사실 if문의 setShowSuccessMessage(true) , setShowErrorMessage(false) 이 값들은 별 의미가 없다
+다른 페이지로 가면 이 메시지가 상관없어지니까
+여기서 성공 메시지를 보여주는 건 이제 말이 안 된다
+성공 하면 사용자를 다른 페이지로 연결해 주기때문이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ LoginComponent.jsx
+
+
+..
+    function handleSubmit() {
+
+        if(authContext.login(username, password)) {
+            setShowSuccessMessage(true)
+
+          //4: 여기 코드도 삭제하겠다
+          /* (<= 여기서만 주석처리 실제 코드는 삭제)
+            setShowErrorMessage(false)
+            navigate(`/welcome/${username}`)
+          */
+        }else {
+          //4-1: 여기 성공 메시지는 삭제하겠다
+         //   setShowSuccessMessage(false) (<= 여기서만 주석처리 실제 코드는 삭제)
+            setShowErrorMessage(true)
+        }
+    }
+
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+
+            //4-2: 여기에 성공 메시지 관련 코드도 삭제한다, 저장하고
+        //    {showSuccessMessage && <div className="errorMessage">Authentication Successfully</div>} (<= 여기서만 주석처리 실제 코드는 삭제)
+
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default LoginComponent
+
+-----------------------------------------------------------------------------------------------
+
+컴파일 되는지 보자
+
