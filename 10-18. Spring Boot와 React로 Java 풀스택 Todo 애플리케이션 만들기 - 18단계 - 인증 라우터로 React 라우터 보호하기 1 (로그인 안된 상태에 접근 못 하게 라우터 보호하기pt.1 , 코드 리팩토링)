@@ -1145,3 +1145,467 @@ rendered by
 Home, Todos, Logout이 다 잘 되는 것 같다
 
 
+리팩토링을 한 김에 약간 더 해보겠다
+
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+
+import { createContext, useContext, useState } from "react";
+
+//1: Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+//2: Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //3: Put some state in the context
+
+    //7-1: 삭제하겠다
+ //   const [number, setNumber] = useState(10) (<= 여기서만 주석 처리 실제 코드는 삭제)
+
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+
+//7: 이제 setInterval을 사용하지 않을 거고 valueToBeShared도 마찬가지이다, 좋다
+  /* (<= 여기서만 주석 처리 실제 코드는 삭제)
+    // setInterval(() => setNumber(number + 1), 10000)
+    // const valueToBeShared = {number, isAuthenticated, setAuthenticated}
+  */
+//정리: 여기서 createContext하고 컨텍스트를 공유했지 Provider 함수도 만들었다
+//Provider를 만들어서 컨텍스트에 State를 넣었다 number,setNumber도 이제 필요 없다
+
+    function login(username, password) {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            setAuthenticated(true)
+            return true
+        }else {
+            setAuthenticated(false)
+            return false
+        }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+    }
+
+    return (
+        <AuthContext.Provider value={ {number, isAuthenticated, login, logout} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+이 컴포넌트는 인증과 관련된 모든 로직을 가지고 있다, 좋다
+로그인 컴포넌트로 가겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ LoginComponent.jsx
+
+
+
+
+import { useState } from 'react'
+import {useNavigate} from 'react-router-dom'
+import { useAuth } from './security/AuthContext'
+
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+
+    //8: 성공 메시지는 이제 필요 없으니 지우겠다, 나머지는 좋다 
+ //   const [showSuccessMessage, setShowSuccessMessage] = useState(false)  (<= 여기서만 주석 처리 실제 코드는 삭제)
+
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    const authContext = useAuth()
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(authContext.login(username, password)) {
+            navigate(`/welcome/${username}`)
+        }else {
+            setShowErrorMessage(true)
+        }
+    }
+    
+    return (
+        <div className='Login'>
+            <h1>Time to Login!</h1>
+            {showErrorMessage && <div className="errorMessage">Authentication Failed. 
+                                                        Please check your credentials.</div>}
+            <div className='LoginForm'>
+                <div>
+                    <label>User Name:</label>
+                    <input type="text" name="username" value={username} onChange={handleUsernameChange} />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input type="password" name="password" value={password} onChange={handlePasswordChange}/>
+                </div>
+                <div>
+                    <button type="button" name="login" onClick={handleSubmit}>login</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default LoginComponent
+-----------------------------------------------------------------------------------------------
+
+이제 HeaderComponent로 가보자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ HeaderComponent.jsx
+
+
+
+
+import {Link} from 'react-router-dom'
+import { useAuth } from './security/AuthContext'
+
+
+
+function HeaderComponent() {
+
+    //9: 여기 주석도 지울 수 있다 
+    //  const authContext = useContext(AuthContext) (<= 여기서만 주석 처리 실제 코드는 삭제)
+    const authContext = useAuth()
+
+    const isAuthenticated = authContext.isAuthenticated
+
+    function logout() {
+        authContext.logout(false)
+    }
+
+    //9-1: 여기 이런 것들 말이다
+  /* (<= 여기서만 주석 처리 실제 코드는 삭제)
+    // console.log(authContext);    
+    // console.log(authContext.number);
+  */
+
+    return (
+        <header className="border-bottom border-light border-5 mb-5 p-2">
+        <div className="container">
+            <div className="row">
+                <nav className="navbar navbar-expand-lg">
+                    <a className="navbar-brand ms-2 fs-2 fw-bold text-black" href="https://www.in28minutes.com">in28minutes</a>
+                    <div className="collapse navbar-collapse">
+                        <ul className="navbar-nav">
+                            <li className="nav-item fs-5">
+                                {isAuthenticated 
+                                    && <Link className="nav-link" to="/welcome/in28minutes">Home</Link>}
+                            </li>
+                            <li className="nav-item fs-5">
+                                {isAuthenticated 
+                                    && <Link className="nav-link" to="/todos">Todos</Link>}
+                            </li>
+                        </ul>
+                    </div>
+                    <ul className="navbar-nav">
+                        <li className="nav-item fs-5">
+                        {!isAuthenticated &&
+                            <Link className="nav-link" to="/login">Login</Link> }
+                        </li>
+                        <li className="nav-item fs-5">
+                        {isAuthenticated &&    
+                            <Link className="nav-link" to="/logout" onClick={logout}>Logout</Link> }
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    )
+}
+
+export default HeaderComponent
+-----------------------------------------------------------------------------------------------
+
+ㅇㅋ 마지막으로 TodoApp도 보겠다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+import AuthProvider from './security/AuthContext'
+
+
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            </AuthProvider>
+        </div>
+    )
+}
+//TodoApp 대부분은 좋아 보인다, 저장하겠다
+-----------------------------------------------------------------------------------------------
+
+브라우저로 가면 
+
+-----------------------------------------------------------------------------------------------
+
+
+⏺ cmd 창>
+
+
+Failed to compile.
+
+[eslint]
+src\components\todo\security\AuthContext.js
+  Line 32:40:  'number' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+ERROR in [eslint]
+src\components\todo\security\AuthContext.js
+  Line 32:40:  'number' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error
+
+-----------------------------------------------------------------------------------------------
+
+컴파일 에러가 보인다, AuthContext.js number가 정의되지 않닸다
+number를 찾아보자
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ AuthContext.js
+
+
+
+
+import { createContext, useContext, useState } from "react";
+
+//1: Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+//2: Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //3: Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+
+    function login(username, password) {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            setAuthenticated(true)
+            return true
+        }else {
+            setAuthenticated(false)
+            return false
+        }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+    }
+
+    return (
+
+                      //10: value로 넘기고 있었다 필요없으니 number는 지우겠다 ( {}의 number 삭제..), 그리고 저장
+        <AuthContext.Provider value={ { isAuthenticated, login, logout} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+-----------------------------------------------------------------------------------------------
+
+이제 컴파일이 잘 된다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/logout 사이트화면 ==>
+
+(title 명)
+
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes                                                        Login
+     ___________________________________________________________________________________
+                                  You are logged out!
+
+                      Thank you for using our App. Come back soon!
+
+
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+              Link
+              Link
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▶ value: {isAuthenticated: false, number: 10, setAuthenticat…}
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+
+
+
+
+
+이번 시간에는 코드 리팩토링을 해서 코드를 정리해봤다
+다음 시간에는 Todos의 문제를 해결하는 방법을 보겠다 
+localhost:3000/todos로 접근하면 로그인 하지 않아도 todos가 보이지
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes                                                      Login   
+     ___________________________________________________________________________________
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Learn AWS		             false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn Full Stack Dev  	 false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn DevOps		         false        Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+              Link
+              Link
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▶ value: {isAuthenticated: false, number: 10, setAuthenticat…}
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+어떻게 고칠까?
+다음 시간에 보겠다
