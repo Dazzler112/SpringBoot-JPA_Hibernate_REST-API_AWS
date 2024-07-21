@@ -1,0 +1,303 @@
+
+
+사용자가 로그인 했을 때만 todos에 접근하도록 하고 싶다
+어떻게 할까? 
+
+TodoApp.jsx로 가면 여기에서 우리가 실제로 인증 라우터를 정의할 수 있지
+지금은 로그인 여부에 관계없이 이 경로로 해당 페이지에 갈 수 있다
+그러면 인증 라우터를 만들어보면 어떨까?
+로그인 여부를 확인해서 로그인 되었을 때만 특정 경로로 이동하는 거지
+이번 시간에 다워볼 내용이다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+import AuthProvider from './security/AuthContext'
+
+
+//1: 여기로 가서 새로운 함수를 만들겠다, 어떤 함수지? function AuthencatedRoute()이다
+function AuthencatedRoute() {
+  //1-1: 여기에서 JSX를 반환한다, AuthencatedRoute는 어떤 일을 해야 할까? 
+  return (
+
+  )
+}
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+                    <Route path='/welcome/:username' element={<WelcomeComponent />} />
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            </AuthProvider>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+<Route path='/todos' element={<ListTodosComponent />} />, 
+<Route path='/logout' element={<LogoutComponent />} />, 
+<Route path='*' element={<ErrorComponent />} /> 
+이 세 가지 컴포넌트는 사용자가 인증되었을 때만 보여야 한다
+인증 라우터 아래에 있어야 한다 
+
+이런 식으로 할 수 있다
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+import AuthProvider from './security/AuthContext'
+
+
+            //2-3: 여기 children이 있어야 겠지, 다른 컴포넌트를 말한다
+function AuthencatedRoute({children}) {
+
+    //2-4: 일단 그냥 children을 반환해 보겠다, 저장하면 어떻게 되지?
+    return children
+}
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+
+              //2: 인증이 필요한 라우터는 여기에 이렇게 넣어주고
+                    <Route path='/welcome/:username' element={
+                  //2-1:  <AuthencatedRoute>와 닫는 태그 사이에 넣어준다
+                    <AuthencatedRoute/>
+                      <WelcomeComponent />
+                    //2-2: 닫아 줘야 한다, 이런식으로 할 수 있다, 웰컴 컴포넌트는 인증 라우터의 자식이 되고, 웰컴 컴포넌트는 사용자가 인증되었을 때만 보이게 될 것이다 //2-3: 다시 AuthencatedRoute() 함수로..
+                     </AuthencatedRoute>
+                    } />
+
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            </AuthProvider>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+
+localhost:3000/welcome을 입력하면 
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes                                                         Login
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+              ▼ welcomecomponent
+                  Link
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▶ value: {isAuthenticated: false, number: 10, setAuthenticat…}
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+in28minutes가 뜬다, 아직 기능에는 변화가 없다
+
+인증 라우터에 아무것도 구현하지 않았기때문이다
+변화가 생긴 건 컴포넌트에서 볼 수 있다
+
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+              ▼ AuthenticatedRoute
+                ▼ welcomecomponent
+                   Link
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▶ value: {isAuthenticated: false, number: 10, setAuthenticat…}
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+여기 보면 AuthenticatedRoute가 있고 그 아래 WelcomeComponent가 보인다
+
+
+돌아가겠다
+우리가 하려는 것은 페이지를 보여주기 전 사용자 인증 여부를 확인하는 것이다
+어떻게 하지?
+간단하다, 그렇지?
+Auth를 TodoApp.jsx의 AuthenticatedRoute 함수에 사용하면 된다, 여기로 들어가서
+
+-----------------------------------------------------------------------------------------------
+⏺ VSC
+
+
+⏺ TodoApp.jsx
+
+
+
+
+import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+import AuthProvider from './security/AuthContext'
+
+//3-1: 임포트가 들어왔다, ./security/AuthContext에서 AuthProvider와 useAuth가 들어왔다 좋다 //3-2: 다시 AuthencatedRoute() 함수로..
+import AuthProvider, { useAuth } from './security/AuthContext'
+
+
+function AuthencatedRoute({children}) {
+
+    //3:const authContext = useAuth(), ctrl+스페이스 엔터로 임포트 하겠다 //3-1: 임포트로..
+    const authContext = useAuth()
+
+    //3-2: if문으로 authContext.isAuthenticated 확인한다, 사용자가 인증되었으면 children을 반환하는 거지, 저장한다
+    if(authContext.isAuthenticated)
+      return children
+}
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+
+                    <Route path='/welcome/:username' element={
+                        <AuthencatedRoute>
+                        <WelcomeComponent />
+                        </AuthencatedRoute>
+                        } />
+
+                    <Route path='/todos' element={<ListTodosComponent />} />
+                    <Route path='/logout' element={<LogoutComponent />} />
+
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            </AuthProvider>
+        </div>
+    )
+}
+-----------------------------------------------------------------------------------------------
+
+어떻게 되지?
