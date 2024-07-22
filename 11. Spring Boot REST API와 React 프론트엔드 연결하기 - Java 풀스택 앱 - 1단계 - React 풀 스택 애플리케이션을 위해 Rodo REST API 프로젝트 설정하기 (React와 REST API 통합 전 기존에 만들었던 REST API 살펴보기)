@@ -133,3 +133,193 @@ public class HelloWorldBean {
 --------------------------------------------------------------------------------
 
 
+그리고 HelloWorldController도 있다
+
+--------------------------------------------------------------------------------
+
+package com.in28minutes.rest.webservices.restfulwebservices.helloworld;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HelloWorldController {
+	
+	@GetMapping(path = "/hello-world")
+	public String helloWorld() {
+		return "Hello World"; 
+	}
+	
+	@GetMapping(path = "/hello-world-bean")
+	public HelloWorldBean helloWorldBean() {
+		return new HelloWorldBean("Hello World"); 
+	}
+	
+	@GetMapping(path = "/hello-world/path-variable/{name}")
+	public HelloWorldBean helloWorldPathVariable(@PathVariable String name) {
+		return new HelloWorldBean(String.format("Hello World, %s", name)); 
+	}	
+}
+
+이건 우리가 강의한 REST API 섹션에서 만든 것이지
+여기 @GetMapping(path = "/hello-world")이 있고
+Bean을 리턴하는 @GetMapping(path = "/hello-world-bean")도 있지
+그리고 패스 변수에 관한 것도 있다 "/hello-world/path-variable/{name}" 이고
+그리고 그건 넣어준 패스 변수를 이용해서 Bean을 리턴하게 되지 (<= return new HelloWorldBean(String.format("Hello World, %s", name)); )
+--------------------------------------------------------------------------------
+
+
+그리고 Todo Bean도 있다
+--------------------------------------------------------------------------------
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.time.LocalDate;
+
+public class Todo {
+
+	public Todo() {
+		
+	}
+	
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	private int id;
+
+	private String username;
+	
+	private String description;
+	private LocalDate targetDate;
+	private boolean done;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public LocalDate getTargetDate() {
+		return targetDate;
+	}
+
+	public void setTargetDate(LocalDate targetDate) {
+		this.targetDate = targetDate;
+	}
+
+	public boolean isDone() {
+		return done;
+	}
+
+	public void setDone(boolean done) {
+		this.done = done;
+	}
+
+	@Override
+	public String toString() {
+		return "Todo [id=" + id + ", username=" + username + ", description=" + description + ", targetDate="
+				+ targetDate + ", done=" + done + "]";
+	}
+
+}
+
+id, username, description, targetDate, done등
+우리가 저장하려는 세부정보만 있는 Todo Bean이 있고, 그것들 모두에 대한 게터와 세터가 있다
+--------------------------------------------------------------------------------
+
+
+
+그리고 여기 TodoService도 있다
+--------------------------------------------------------------------------------
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class TodoService {
+	
+	private static List<Todo> todos = new ArrayList<>();
+	
+	private static int todosCount = 0;
+	
+	static {
+		todos.add(new Todo(++todosCount, "in28minutes","Get AWS Certified", 
+							LocalDate.now().plusYears(10), false ));
+		todos.add(new Todo(++todosCount, "in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(11), false ));
+		todos.add(new Todo(++todosCount, "in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(12), false ));
+	}
+	
+	public List<Todo> findByUsername(String username){
+		Predicate<? super Todo> predicate = 
+				todo -> todo.getUsername().equalsIgnoreCase(username);
+		return todos.stream().filter(predicate).toList();
+	}
+	
+	public Todo addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount,username,description,targetDate,done);
+		todos.add(todo);
+		return todo;
+	}
+	
+	public void deleteById(int id) {
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+
+	public Todo findById(int id) {
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		Todo todo = todos.stream().filter(predicate).findFirst().get();
+		return todo;
+	}
+
+	public void updateTodo(Todo todo) {
+		deleteById(todo.getId());
+		todos.add(todo);
+	}
+}
+
+여기에는 비즈니스 논리만 있지
+--------------------------------------------------------------------------------
+
+이것들이 우리가 강의의 웹 서비스 섹션에서 만든 3가지 Hello World API이고 
+그럼 다음 몇 단계에서 우리는 프론트엔드 리엑트 애플리케이션을 백엔드에 있는 Hello Wrold REST API와 통합할 것이다
+그리고 지금 우리에겐 TodoAPI 빌드가 없다
+여기 비즈니스 논리만 있을 뿐이지
+이건 우리가 Todo에 관한 웹 애플리케이션을 제작할 때 있었던 비즈니스 논리와 아주 비슷하다
+
+
+
+그럼 이번 섹션을 진행하면서 Todo에 관한 REST API를 만들어 보자
+리액트 프론트엔드르 백엔드의 REST API와 통합할 준비가 되었니?
+그럼 시작해 보자
