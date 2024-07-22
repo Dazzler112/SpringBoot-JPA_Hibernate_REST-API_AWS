@@ -1,0 +1,135 @@
+
+
+Full Stack - Todo REST API - Resources and Methods
+
+● REST API                                                                  ----------------------------------------------------------------------------------------------------------------------
+  ■ Hello World REST API:    
+    ○ Hello Wrold:                                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ◦ @GetMapping(path = "/hello-world")                                      in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+    ○ Hello Wrold Bean:                                                         _______________________________________________________________________________________________________________
+      ◦ @GetMapping(path = "/hello-world-bean")                                                                                
+    ○ Hello Wrold Path Variable:                                                                                
+      ◦ @GetMapping(path = "/hello-world/path-variable/{name}")                       Your Todos
+● Todo REST API:                                                                                
+    ○ Retrieve Todos                                                                  Description	                      Taget Date	   Is Done?
+      ◦ @GetMapping("/users/{username}/todos")                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    ○ Retrieve Todo                                                                                                                                      ________________      _______________
+      ◦ @GetMapping("/users/{username}/todos/{id}")                                   Learn AWS                         2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+    ○ Delete Todo                                                                                                                                        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ◦ @DeleteMapping("/users/{username}/todos/{id}")                                ---------------------------------------------------------------------------------------------------------
+    ○ Update Todo                                                                                                                                        ________________      _______________
+      ◦ @PutMapping("/users/{username}/todos/{id}")                                   Learn DevOps                      2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+    ○ Create Todo                                                                                                                                        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ◦ @PostMapping("/users/{username}/todos")                                       ---------------------------------------------------------------------------------------------------------
+                                                                                                                                                         ________________      _______________
+                                                                                      Learn React                       2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+                                                                                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                      ---------------------------------------------------------------------------------------------------------
+                                                                                                                                                         ________________      _______________
+                                                                                      Learn Angular                     2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+                                                                                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                      ---------------------------------------------------------------------------------------------------------
+                                                                                
+                                                                                ----------------------------------------------------------------------------------------------------------------------
+
+
+이번 섹션에서는 REST API를 우리의 풀스택 애플리케이션에 가져와 보곘다
+리액트 애플리케이션이 백엔드의 REST API와 대화하게 하려고 하지
+  ■ Hello World REST API: 
+먼저 Hello World REST API와 대화하게 할 것이고
+이 강의의 웹서비스 섹션을 보면 알겠지만 우리는 그 섹션에서
+    ○ Hello Wrold: 
+          ◦ @GetMapping(path = "/hello-world") 
+    ○ Hello Wrold Bean:
+      ◦ @GetMapping(path = "/hello-world-bean")
+    ○ Hello Wrold Path Variable:      
+      ◦ @GetMapping(path = "/hello-world/path-variable/{name}")     
+수 많은 Hello World REST API를 만들었다
+"/hello-world" URL을 만드는 것부터 시작했고 그 다음엔 "/hello-world-bean" URL을 만들었고
+패스 변수가 있는 URL도 만들었지 ( "/hello-world/path-variable/{name}" )
+우리가 애플리케이션을 Hello World REST API와 통합한 다음에는 
+● Todo REST API:
+Todo REST API로 넘어갔고 우리는 
+    ○ Retrieve Todos 
+      ◦ @GetMapping("/users/{username}/todos")    
+    ○ Retrieve Todo      
+      ◦ @GetMapping("/users/{username}/todos/{id}")    
+    ○ Delete Todo      
+      ◦ @DeleteMapping("/users/{username}/todos/{id}")    
+    ○ Update Todo      
+      ◦ @PutMapping("/users/{username}/todos/{id}")    
+    ○ Create Todo       
+      ◦ @PostMapping("/users/{username}/todos")    
+Retrieve Todo, Delete Todo, Update Todo, Create Todo 등 많은 API를 만들 것이고     
+리액트 프론트엔드를 백그라운드에서 REST API와 통합할 것이다 
+✅ 우린 어떤 세부정보를 받을 때 GET 요청 메서드를 사용할 것이고
+@GetMapping을 이용해서 Retrieve 메서드를 매핑할 것이고, 
+✅ 뭔가를 삭제하려 할 때는 Delete 요청 메서드를 사용할 것이다
+그렇게 해서 우리는 그걸 @DeleteMapping으로 그걸 매핑할 거고,
+✅ PUT을 사용해서 업데이트를 할 것이다, 
+✅ 그리고 Todos를 만들기 위해 POST 것이다
+
+여기 이 URL은 특정한 사용자와 관련된 Todo의 모든 세부 정보를 받을 것이다 <= @GetMapping("/users/{username}/todos")  
+
+여기 이 URL은 특정한 사용자의 특정한 Todo에 대한 세부정보를 받을거고 그럼 우리는 여기서특정한 Todo의 세부정보를 받게 되지
+우리는 파라미터로서 username과 id를 넣을 거고<= @GetMapping("/users/{username}/todos/{id}") 
+
+너가 Todo를 삭제하려 할 경우에는 username과 삭제할 특정한 Todo를 넣어야 한다 <= @DeleteMapping("/users/{username}/todos/{id}")  
+
+그리고 특정한 Todo를 업데이트하려면 username과 함께 특정한 Todo 세부정보를 넣어줘야 하지 <= @PutMapping("/users/{username}/todos/{id}")
+
+너는 새로운 Todo를 만들려고 할 때는 사용자만 알려주면 된다, 그럼 사용자가 누구인지 알려주고 
+요청 본문의 일부로서 Todo 세부정보를 알려줘야 하지 <=@PostMapping("/users/{username}/todos")
+
+
+우리는 이번 섹션에서 Todo REST API를 제작하면서 하나씩 자세히 얘기해볼 것이다
+이 단계의 목표는 전체적인 내용을 이해하고 프로젝트를 설정하는 것이다
+프로젝트를 다시 구축하지 않고 
+우리는 이 강의의 REST API 섹션에서 제작한 것들을 다시 사용할 것이다
+우리는 이 강의의 REST API 섹션에서 이런 API를 만들었지 
+● REST API
+  ■ Hello World REST API:
+    ○ Hello Wrold: 
+          ◦ @GetMapping(path = "/hello-world") 
+    ○ Hello Wrold Bean:
+      ◦ @GetMapping(path = "/hello-world-bean")
+    ○ Hello Wrold Path Variable:      
+      ◦ @GetMapping(path = "/hello-world/path-variable/{name}")  
+그럼 우린 이걸 재사용할 것이고, 웹 애플리케이션 섹션에선 Todo 애플리케이션 전체를 제작했지      
+그럼 우리는 그런 Todo에 관련된 비즈니스 논리 중 일부를 재사용하게 되겠지
+우린 REST API를 처음부터 만들겠짐나 우리가 앞에서 만든 비즈니스 논리를 약간 사용하게 될 것이다
+
+그리고 너한태 도움을 주기 위해 깃허브 사이트를 제공했다
+그중 rest-api-starting-code.md를 보면
+파일을 보면 아주 간단하다는 걸 알 수 있다
+--------------------------------------------------------------------------------
+
+package com.in28minutes.rest.webservices.restfulwebservices.helloworld;
+
+public class HelloWorldBean {
+
+	private String message;
+
+	public HelloWorldBean(String message) {
+		this.message = message;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	@Override
+	public String toString() {
+		return "HelloWorldBean [message=" + message + "]";
+	}
+}
+
+여기 HelloWorldBean이 있고, 그 안에 message 속성이 있고 (<=private String message;)
+그것을 위한 생성자와 게터가 있지
+--------------------------------------------------------------------------------
+
+
