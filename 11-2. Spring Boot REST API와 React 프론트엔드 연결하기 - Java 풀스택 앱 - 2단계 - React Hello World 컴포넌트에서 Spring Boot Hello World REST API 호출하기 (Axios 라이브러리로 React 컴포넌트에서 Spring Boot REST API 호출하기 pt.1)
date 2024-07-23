@@ -741,3 +741,238 @@ function WelcomeComponent() {
 export default WelcomeComponent
 --------------------------------------------------------------------------------------------
 
+우린 뭔가 잘 되지 않았을 때 뭘 할지도 정의할 수 있지
+그럼 예외가 있으면 우린 그걸 캐치하려고 한다, 
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import axios from 'axios'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+
+        axios.get('http://localhost:8080/hello-world')
+            .then( (response) => successfulResponse(response) )
+
+          //12: 여기서 우린 뭘 하려고 할까?, 우린 오류 응답을 호출하려고 한다
+            .catch(
+            //12-1: 그럼 파라미터는 error일 것이고 그리고 이렇게 errorResponse()를 호출하고 거기에 error를 넣어주려고 한다
+              (error) => errorResponse(error)
+             )
+            //정리: 이렇게 성공적인 응답을 받으면 우리는 successfulResponse()를 호출할 거고
+            //오류 응답을 받으면 우린 errorResponse()를 호출할 것이다
+    }
+
+    function successfulResponse(response) {
+        console.log(response)
+    }
+
+    function errorResponse(error) {
+        console.log(error)
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import axios from 'axios'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+        axios.get('http://localhost:8080/hello-world')
+            .then( (response) => successfulResponse(response) )
+            .catch( (error) => errorResponse(error) )
+
+            //13: 그리고 finally라는 것도 있지, finally는 응답이 성공했는지 또는 실패했는지와 무관하게 호출될 것이다
+            //보통 finally에서 정리를 하지
+            .finally (
+                //13-1: 그럼 여기에 화살표 함수를 또 하나 정의하고 간단히 console.log('cleanup')이라고 해줄 것이다
+                () => console.log('cleanup')
+            )
+
+            //정리 : 이건 좀 복잡해 보이지만, 사실은 상당히 단순한 작업이다
+            //우린 axios.get()이라고 해서 이 URL을 호출하기 위한 메서드를 호출하고 있지, 그리고 성공적으로 응답을 받으면 즉 200이라는 응답을 받으면 .then()을 써서 successfulResponse()를 호출한다
+            //그리고 오류 응답을 받으면, errorResponse()을 호출하지
+            //그리고 .finally()를 써서 정리를 해준다 여기서 정리는 콘솔에 'cleanup'을 프린트하는 것이지, 그럼 이걸 저장하고, 너가 호출을 할 때 어떤 일이 일어나는지 확인해볼까?
+    }
+
+    function successfulResponse(response) {
+        console.log(response)
+    }
+
+    function errorResponse(error) {
+        console.log(error)
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+
+애플리케이션에서 로그인하고 Call Hello World를 클릭한다
+
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:9
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ❌ ▶ Access to XMLHttpRequest at '                                      in28minutes:1
+      http://localhost:8080/hello-world' from origin '
+      http://localhost:3000' has been blocked by CORS policy: No 
+      'Access-Control-Allow-Origin' header is present on the 
+      requested resource.
+    
+                                                                WelcomeComponent.jsx:21
+      ▶ AxiosError {message: 'Network Error', name: 'AxiosError', 
+        code: 'ERR_NETWORK', config: {…}, request: XMLHttpRequest, …}
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   cleanup                                                       WelcomeComponent.jsx:10
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ❌ ▶ GET                                                       WelcomeComponent.jsx:10
+      http://localhost:8080/hello-world net::ERR_FAILED 401 
+     (Unauthorized)
+--------------------------------------------------------------------------------------------
+
+아.. XMLHttpRequest에 대한 엑세스에 오류가 있다고 나온다
+(
+      Access to XMLHttpRequest at '                                    
+      http://localhost:8080/hello-world' from origin '
+      http://localhost:3000' has been blocked by CORS policy: No 
+      'Access-Control-Allow-Origin' header is present on the 
+      requested resource.
+)
+장소는 localhost:8080/hello-world고 그게 CORS 정책에 의해 차단되었다고 나온다
+즉 너는 localhost:3000에서 localhost:8080을 호출하고 있는 것이지
+그럼 이건 한 웹사이트에서 다른 웹사이트를 호출하는 것과 비슷한 것이고, 기본값으로서
+다른 웹사이트로부터 호출은 차단되어 있다
+그럼 이 요청을 허용하기 위해 어떻게 권한을 추가할까?
+
+그건 다음 단계에서 알아보기로 하자
+
+
+
+
+이번 단계에서 WelcomeComponent에 Call Hello World버튼을 추가했고, 그 버튼을 클릭하면
+REST API 호출을 하게 된다
+우리는 Axios라는 프레임워크를 사용하고 있고 Axios는 Promise를 사용하지
+-------------------------------------------
+    function callHelloWorldRestApi() {
+        console.log('called')
+        axios.get('http://localhost:8080/hello-world')
+            .then( (response) => successfulResponse(response) )
+            .catch( (error) => errorResponse(error) )
+            .finally( () => console.log('cleanup') )
+    }
+-------------------------------------------
+그럼 axios.get()을 호출하면 Promise를 돌려받고 (axios.get('http://localhost:8080/hello-world'))
+성공적으로 호출을 하게 되면 이 메서드가 호출될 것이다 <= .then( (response) => successfulResponse(response) )
+그리고 오류가 있으면 이게 호출되지 <= .catch( (error) => errorResponse(error) )
+그리고 성공 여부와는 무관하게 이런 finally가 호출된다 <= .finally( () => console.log('cleanup') )
+
+그럼 로그로 가서 보면
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:9
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ❌ ▶ Access to XMLHttpRequest at '                                      in28minutes:1
+      http://localhost:8080/hello-world' from origin '
+      http://localhost:3000' has been blocked by CORS policy: No 
+      'Access-Control-Allow-Origin' header is present on the 
+      requested resource.
+    
+                                                                WelcomeComponent.jsx:21
+      ▶ AxiosError {message: 'Network Error', name: 'AxiosError', 
+        code: 'ERR_NETWORK', config: {…}, request: XMLHttpRequest, …}
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   cleanup                                                       WelcomeComponent.jsx:10
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ❌ ▶ GET                                                       WelcomeComponent.jsx:10
+      http://localhost:8080/hello-world net::ERR_FAILED 401 
+     (Unauthorized)
+--------------------------------------------------------------------------------------------
+cleanup이 프린트된 걸 볼 수 있지, 이렇게 오류가 프린트되었고 cleanup이 프린트되었다
+왜냐면 오류 응답을 받고 있으니까다, 우리가 오류 응답을 받으면 
+이 두 줄의 코드가 실행되지 ( .catch( (error) => errorResponse(error) ), .finally( () => console.log('cleanup') ) )
+그럼 다음 단계에선 무엇이 잘 못되고 있는지 알아보고
+이 successfulResponse를 작동시키는 방법을 알아보자
+다음 단계에서 보겠다
