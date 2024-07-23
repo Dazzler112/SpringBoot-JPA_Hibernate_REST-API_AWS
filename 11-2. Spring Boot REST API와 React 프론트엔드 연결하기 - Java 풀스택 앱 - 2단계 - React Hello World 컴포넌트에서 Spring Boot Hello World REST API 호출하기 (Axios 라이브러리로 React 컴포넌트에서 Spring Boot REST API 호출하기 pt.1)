@@ -413,3 +413,331 @@ Hello World REST API를 호출하려고 한다
 
 어떻게 REST API를 호출할까?
 
+리액트를 사용할 때 REST API를 호출하기 위해 가장 널리 사용하는 프레임워크는 Axios이다
+그럼 Axios를 이용해서 REST API를 호출해보자, 그리고 Axios를 사용하려면
+Axios에 관한 의존성을 추가해야 한다, 그럼 우린 명령프롬프트에 
+
+--------------------------------------------------------------------------------------------
+
+⏺ cmd 창 >
+
+
+Compiled successfully!
+
+You can now view todo-app in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.17.80.1:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+
+//6: Ctrl+C를 눌러서 실행 중인 애플리케이션을 중지하고
+일괄 작업을 끝내시겠습니까 (Y/N)?
+^C
+//6-1: npm install axios라고 해주겠다
+C:\study\frontend\todo-app>npm install axios
+/ (<= 인스톨 로딩중)
+
+added 3 packages, and audited 1551 packages in 5s
+
+264 packages are looking for funding
+  run `npm fund` for details
+
+9 vulnerabilities (2 moderate, 7 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+--------------------------------------------------------------------------------------------
+
+그러면 Axios가 설치되고 우리 프로젝트에 추가되지
+그럼 npm start라고 해서 애플리케이션을 다시 시작하고
+이제 VSC로 가서 package.json을 검색해보면 
+
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ package.json
+
+
+
+{
+  "name": "todo-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+
+    //7: axios가 추가된 게 보일 것이다, 이제 axios 의존성은 우리 프로젝트의 일부가 되었고
+    "axios": "^1.7.2",
+    "bootstrap": "^5.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.24.1",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
+--------------------------------------------------------------------------------------------
+
+그리고 우린 WelcomeComponent.jsx 여기서 Axios를 사용할 수 있다
+시작하기 위해 여기에 직접 모든 코드를 작성할 것이다
+
+계속 진행하면서 우리는 REST API 호출 코드를 별도의 컴포넌트로 리팩터링할 것이다
+지금은 첫 번째 REST API 호출을 작동시키는 데 집중해보자
+
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+import {useParams, Link} from 'react-router-dom'
+//8: 그럼 우린 import axios from 'axios' 라고 할 것이고 그리고 Axios를 사용하는 건 정말로 쉽다
+import axios from 'axios'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+        //8-1: 그럼 axios라고 하고, 우린 어떤 요청을 전송하려고 하지? GET 요청을 전송하려고 한다, 그럼 get()이라고 쓰고 그안에 URL을 넣어줄 수 있지
+        //우리가 호출하려는 URL은 뭘까?
+        axios.get('')
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+
+너는 이걸 작동시키기 위해
+브라우저에 http://localhost:8080/hello-world를 입력하길 권한다
+http://localhost:8080/hello-world 이걸 복사하고 
+
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import axios from 'axios'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+
+        //9: 여기에 붙여 넣어줘라
+        axios.get('http://localhost:8080/hello-world')
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+
+그럼 백엔드에서 REST API가 실행되고 있고
+그걸 실제로
+------------------------------------
+function callHelloWorldRestApi() {
+  console.log('called')
+  axios.get('http://localhost:8080/hello-world')
+}
+------------------------------------
+여기서 호출하고 있지
+
+
+너가 Axios를 사용해서 API 호출을 할 때는 세 가지를 할 수 있다
+.then, finally, catch지, 이것들 모두에 우리는 콜백 메서드라는 걸 정의하지
+그럼 콜백 메서드가 뭘까? 바로 알아보자
+
+🔵콜백 메서드?
+
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import axios from 'axios'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+
+        axios.get('http://localhost:8080/hello-world')
+        //10: 그럼 우린 .then이라고 해줄 거고, 우리가 뭘 원하는거지? 우리는 메서드를 호출하려고 한다//10-1: 아래에서 함수 새로 생성..
+            .then
+    }
+
+    //10-1: 그럼 function이라고 하고 successfulResponse(response)라고 해줄 것이다, 이게 우리가 호출하려는 메서드고, 그리고 우린
+    function successfulResponse(response) {
+        //10-2: console.log(response)라고 해주자, response가 되돌아오면 우린 그걸 로깅하려고 한다
+        console.log(response)
+    }
+
+    //10-3: 이것과 비슷하게, 우린 여기에 또 다른 메서드를 만들 건데, 이건 errorResponse()이다
+    //그리고 errorResponse()에서 우리는 error를 받을 거고, 그리고
+    function errorResponse(error) {
+      //10-4: console.log(error)라고 해주겠다
+        console.log(error)
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import axios from 'axios'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+        axios.get('http://localhost:8080/hello-world')
+
+          //11: 그럼 너는 우리가 성공적인 응답을 받으려면 then() 안에 넣은 메서드가 호출되도록 하려고 한다
+          //그럼 여기서 .then()안에서 화살표 함수를 사용하려고 한다
+            .then(
+              //11-1: 그럼 여기서 successfulResponse()라고 화살표 함수를 정의하고, 
+              //우리는 어떤 파라미터는 넣어줄까? response이다, 이렇게 화살표 함수에 response를 파라미터로 넣어주고 우리는 successfulResponse()함수를 호출하고 있지
+              //이걸 실제로 유심히 보면, 상당히 단순한 걸 알 것이다
+                (response) => successfulResponse(response)
+            )
+
+           //정리 : 만일 response가 되돌아오면 우리는 이걸( (response) => successfulResponse() ) 호출하려는 것이지,
+           //여기서 우리가 사용하고 있는 걸 Promise라고 부르지, 그럼 axios.get()은 Promise를 너한태 리턴하고 (<= axios.get('http://localhost:8080/hello-world'))
+           //그리고 우린 여기서 만일 그게 성공이라면, 이걸 하라고 하고 있지 (<= .then( (response) => successfulResponse() ))
+           //그래서 이걸 호출하기 위해 우리는 비동기적 접근법을 사용하고 있는 것이지, 우린 이 메서드를 호출하고 만일 REST API 호출에 성공하면 .then( (response) => successfulResponse() ) 이게 호출될 것이다
+    }
+
+    function successfulResponse(response) {
+        console.log(response)
+    }
+
+    function errorResponse(response) {
+        console.log(response)
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+
