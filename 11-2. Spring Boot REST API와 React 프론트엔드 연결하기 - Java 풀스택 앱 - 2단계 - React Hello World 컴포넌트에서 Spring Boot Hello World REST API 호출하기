@@ -1,0 +1,415 @@
+
+
+우리는 리액트 애플리케이션을 준비했고, 이제는 여기서 Hello World REST API를 호출하려고 한다
+
+--------------------------------------------------------------------------------------------
+
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+
+
+-------------------------------------------------------------------------------------------
+
+여기 환영 페이지에 간단한 버튼을 추가할 거고
+그 버튼을 클릭하면 Hello World REST API를 호출할 것이다
+
+우린 먼저 /hello-world URL을 호출해보자
+그럼 localhost:8080/hello-world를 호출한다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/hello-world 사이트화면 ==>
+
+
+
+Hello World
+
+
+-------------------------------------------------------------------------------------------
+
+먼저 이 URL을 먼저 호출할 것이고
+이제 우리의 리액트 애플리케이션에 버튼을 추가해보자
+
+그럼 WelcomeComponent로 가서
+
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+import {useParams, Link} from 'react-router-dom'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    //1-1: function callHelloWorldRestApi()라고 해준다, 좋다
+    function callHelloWorldRestApi() {
+        //1-2: 그리고 여기서 그 메서드를 호출하는 JSX 구문을 써보자 
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+
+        //1: 여기에 버튼을 추가해 보자, 그럼 <div>라고 하고 <button class="btn btn-success"라고 하고, 이걸 Call Hello World REST API라고 해주자
+        //그럼 이 버튼을 클릭하면 뭘 하려고 하나? onClick = 이라고 하고 메서드를 결합해보지, 그럼 callHelloWorldRestApi 라고 한다
+        //그리고 여기에 메서드를 만들어볼까?//1-1: const {username} 아래로..
+            <div>
+                <button class="btn btn-success" onclick={callHelloWorldRestApi}>Call Hello World REST API</button>
+            </div>
+
+        </div>
+    )
+}
+
+export default WelcomeComponent
+
+--------------------------------------------------------------------------------------------
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                //2: onclick=callHelloWorldRestApi 이 부분을 {}로 감싸주고, 그리고 나머지 코드( Call Hello World REST API )는 다음 줄로 넘겨보자, 좋다 괜찮지?, 이걸 저장하고 돌아가보겠다
+                <button class="btn btn-success" onclick={callHelloWorldRestApi}>
+                  Call Hello World REST API</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+
+--------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                 _________________________
+                                |Call Hello World REST API|
+                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+여기 하단에 Call Hello World REST API라고 나와 있지?
+근데 텍스트가 정말 길다
+그럼 간단하게 
+
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+
+                //3-1: 그럼 m-5라고 ㅇㅋ
+                <button class="btn btn-success m-5" onclick={callHelloWorldRestApi}>
+                //3: Call Hello World REST API에서 Call Hello World라고 해주자, 그리고 버튼 주변에 여백도 추가해보지,
+                  Call Hello World</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+
+--------------------------------------------------------------------------------------------
+
+이렇게
+
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+Call Hello World라고 나왔고
+
+그럼 모든 게 제대로 작동하는지 확인해 볼까?
+
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+      //4: console.log()라고 하고 'called'라고 해준다
+        console.log('')
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button class="btn btn-success m-5" onclick={callHelloWorldRestApi}>Call Hello World</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+
+그리고 콘솔로 가보자 새로고침 하고, 로그인을 하면
+
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ❌ ▶ Warning: Invalid DOM property `class`.                    console.js:288
+        Did you mean `className`?
+        at button
+        at div
+        at div
+        at WelcomeComponent (http://localhost:3000/static/js/bundle.js:1024:66)
+        at AuthencatedRoute (http://localhost:3000/static/js/bundle.js:828:3)
+        at RenderedRoute (http://localhost:3000/static/js/bundle.js:40573:5)
+        at Routes (http://localhost:3000/static/js/bundle.js:41264:5)
+        at Router (http://localhost:3000/static/js/bundle.js:41198:15)
+        at BrowserRouter (http://localhost:3000/static/js/bundle.js:39151:5)
+        at AuthProvider (http://localhost:3000/static/js/bundle.js:1146:3)
+        at div
+        at TodoApp
+        at div
+        at App
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ❌ ▶ Warning: Invalid event handler                             console.js:288
+      property `onclick`. Did you mean `onClick`?
+      at button
+      at div
+      at div
+      at WelcomeComponent (http://localhost:3000/static/js/bundle.js:1024:66)
+      at AuthencatedRoute (http://localhost:3000/static/js/bundle.js:828:3)
+      at RenderedRoute (http://localhost:3000/static/js/bundle.js:40573:5)
+      at Routes (http://localhost:3000/static/js/bundle.js:41264:5)
+      at Router (http://localhost:3000/static/js/bundle.js:41198:15)
+      at BrowserRouter (http://localhost:3000/static/js/bundle.js:39151:5)
+      at AuthProvider (http://localhost:3000/static/js/bundle.js:1146:3)
+      at div
+      at TodoApp
+      at div
+      at App
+-------------------------------------------------------------------------------------------
+
+오류가 나오는데
+유효하지 않은 DOM 프로퍼티 'class'라고 나온다
+className을 말하는 걸까?
+
+실수가 있었다
+
+--------------------------------------------------------------------------------------------
+
+⏺ VSC
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    function callHelloWorldRestApi() {
+        console.log()
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+
+                   //5: 이게 className이어야 하지 (class 에서 className으로..) 그럼 이걸 저장해보자
+                <button className="btn btn-success m-5" onclick={callHelloWorldRestApi}>Call Hello World</button>
+            </div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+
+--------------------------------------------------------------------------------------------
+
+새로고침을 하고 로그인을 한다
+지금 우린 환영 페이지에 있고
+이제 Call Hello World를 클릭해보자
+
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  (3) called                                                       WelcomeComponent.jsx:8
+--------------------------------------------------------------------------------------------
+
+그럼 Call Hello World라고 하면
+여기 프린트되는 걸 볼 수 있지
+
+
+WelcomeComponent.jsx 여기서 우리는 
+------------------------------------------
+    function callHelloWorldRestApi() {
+        console.log('called')
+    }
+------------------------------------------
+Hello World REST API를 호출하려고 한다
+
+어떻게 REST API를 호출할까?
+
