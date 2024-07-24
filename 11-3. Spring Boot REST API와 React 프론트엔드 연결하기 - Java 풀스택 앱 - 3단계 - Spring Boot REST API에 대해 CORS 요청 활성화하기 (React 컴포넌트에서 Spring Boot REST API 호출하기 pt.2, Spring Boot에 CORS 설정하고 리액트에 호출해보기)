@@ -1,0 +1,129 @@
+
+
+지난 단계에선 우리의 REST API 호출이 모두 실패하는 걸 보았다
+왜 그랬을까?
+
+http://localhost:3000/ to 8080
+Cross Origin Requests
+Allow all requests only from http://localhost:3000/
+
+그건 우리가 localhost:3000에서 포트 8080에서 실행되고 있는 우리 웹사이트를 호출하고 있기 때문이고 ( http://localhost:3000/ to 8080 )
+이런 요청을 크로스 오리진 리퀘스트라고 부른다, 그리고 기본값으로서 그런 요청은 거부되게 되어 있다 ( Cross Origin Requests )
+그럼 우리는 오직 localhost:3000에서 오는 모든 요청만 허용하라고 SpringBoot에게 알려줘야 하지 ( Allow all requests only from http://localhost:3000/ )
+그럼 우리는 Allow * from 이라고 그걸 어떻게 하는지 바로 알아보자
+크로스 오리진 리퀘스트에 관한 설정도 역시 CORS 설정이라고 부른다
+그리고 너는 그걸 WebMvcConfigurer라는 클래스에서 정의한다
+IDE에서 ctrl + shift + t를 누르고 모두 대문자로 WMC라고 검색하면
+WebMvcConfigurer라는 인터페이스가 나온다
+/*
+ * Defines callback methods to customize the Java-based configuration for
+ * Spring MVC enabled via {@code @EnableWebMvc}.
+*/
+Spring MVC 애플리케이션의 Java 기반 설정을 사용자 지정하기 위한 콜백 메서드를 정의한다고 나와 있다
+
+그리고 여기 CORS 매핑을 추가하는 메서드가 보일 것이다
+즉 addCorsMappings()이다
+그럼 이걸 사용하면 크로스 오리진 리퀘스트 처리를 '전역적으로' 설정할 수 있지
+/**
+* Configure "global" cross-origin request processing.
+*/
+우린 지금 
+	default void addCorsMappings(CorsRegistry registry) {
+	}
+이걸 정의하려고 한다
+그걸 하기 위해 우린 WebMvcConfigurer에 관한 Bean을 정의할 거고,
+거기서 우리는 커스텀 설정을 통해 이 특정한 메서드를 오버라이드할 것이다
+그럼 public interface WebMvcConfigurer {..의 WebMvcConfigurer 이걸 복사하고
+
+--------------------------------------------------------------------------------------------
+⏺ sts
+
+
+⏺ RestfulWebServicesApplication.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class RestfulWebServicesApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(RestfulWebServicesApplication.class, args);
+	}
+
+  //http://localhost:3000/ to 8080
+  //Cross Origin Requests
+  //Allow all requests only from http://localhost:3000/
+
+  //1: 여기서 Bean을 정의하려고 한다, 우리는 여기에 Spring Bean을 정의할 것이고, 임포트를 정리해보자
+  @Bean
+    //1-1: 다음으로 publice이라고 하고 이건 WebMvcConfigurer를 리턴할 거고, 이걸 corsConfigurer()라고 부를 것이다
+  public WebMvcConfigurer corsConfigurer() {
+
+    //1-2:그리고 여기서 우리는 WebMvcConfigurer()의 새로운 인스턴스를 리턴하려고 하지 오버라이드된 메서드 하나를 이용해서 이렇게 WebMvcCOnfigurer의 구현물을 리턴하려고 하고
+    //그리고 임포트를 정리해보자, org.springframework.context.annotation.Bean이 임포트된 것 같고 org.springframework.web.servlet.config.annotation.WebMvcConfigurer도 임포트 되었지, 잘 된거같다
+    return new WebMvcConfigurer() {
+    
+    }; //1-3: <= 이 끝에 세미콜론을 넣어보자, 이건 자바기때문에 세미콜론을 넣어줘야 하지, 그럼 이걸 저장해보자
+  }
+}
+
+--------------------------------------------------------------------------------------------
+
+하지만 우린 여기서 특정한 메서드를 오버라이드 하려고 한다
+어떤 메서드이지? addCorsMapping()이지
+WebMvcConfigurer인터페이스 안의 
+
+	default void addCorsMappings(CorsRegistry registry) {
+	}
+여기로 와서 보면 
+기본 값으로서 여기에 아무것도 정의되지 않은 걸 볼 수 있고
+그럼 이걸 복사해서 
+
+--------------------------------------------------------------------------------------------
+⏺ sts
+
+
+⏺ RestfulWebServicesApplication.java
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices;
+
+import org.springframework.boot.*;
+import org.springframework.boot.autoconfigure.*;
+import org.springframework.context.annotation.*;
+import org.springframework.web.servlet.config.annotation.*;
+
+@SpringBootApplication
+public class RestfulWebServicesApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(RestfulWebServicesApplication.class, args);
+	}
+
+	//http://localhost:3000/ to 8080
+	//Cross Origin Requests
+	//Allow all requests only from http://localhost:3000/
+	
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+      //2: 여기 붙여넣고 이걸 오버라이드 할 것이다, 그럼 우린 default를 삭제할 수 있고, 임포트를 정리해보자
+      //그럼 org.springframework.web.servlet.config.annotation.CorsRegistry가 들어온 게 보일 것이다
+      //이걸 public으로 만들어 보자, 그리고 저장한다
+			 public void addCorsMappings(CorsRegistry registry) {
+	    }
+		};
+	}
+}
+--------------------------------------------------------------------------------------------
+
+그러면 코드가 컴파일되는 게 보일 것이고, 좋다
+
+
