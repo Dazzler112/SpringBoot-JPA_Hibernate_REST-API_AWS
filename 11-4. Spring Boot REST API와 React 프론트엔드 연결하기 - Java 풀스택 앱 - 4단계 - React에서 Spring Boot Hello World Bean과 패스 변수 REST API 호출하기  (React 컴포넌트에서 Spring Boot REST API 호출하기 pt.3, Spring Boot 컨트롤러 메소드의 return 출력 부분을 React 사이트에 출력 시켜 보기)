@@ -580,3 +580,227 @@ Todo App                |
 --------------------------------------------------------------------------------------------
 
 그럼 우린 무얼 이렇게 Hello World를 되돌려 받고 있지 (<= data: {message: 'Hello World'} ),
+
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ HelloWorldController.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.helloworld;
+
+import java.util.*;
+
+import org.springframework.context.*;
+import org.springframework.context.i18n.*;
+import org.springframework.web.bind.annotation.*;
+
+//REST API
+@RestController
+public class HelloWorldController {
+
+	private MessageSource messageSource;
+	
+	public HelloWorldController(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	@GetMapping(path = "/hello-world")
+	public String helloWorld() {
+		return "Hello World v2";
+	}
+
+	@GetMapping(path = "/hello-world-bean")
+	public HelloWorldBean helloWorldBean() {
+
+  //6: 그럼 100% 확신할 수 있게 이걸 "Hello World Bean v1"으로 바꾼다, 그리고 이걸 저장한다
+		return new HelloWorldBean("Hello World Bean v1");
+	}
+	...
+--------------------------------------------------------------------------------------------
+
+그럼 이제 Call Hello World를 클릭해 보자
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                       Hello World v2
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:12
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ {data: {…}, status: 200, statusText: '', head                WelcomeComponent.jsx:26
+    ers: AxiosHeaders, config: {…}, …}
+    config: {transitional: {…}, adapter: Array(3), transform
+    Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+    data: {message: 'Hello World Bean v1'}
+    headers: AxiosHeaders {content-type: 'application/json'}
+    request: XMLHttpRequest {onreadystatechange: null, readyState: 4, 
+    timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    [[Prototype]]: Object
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  cleanup                                                        WelcomeComponent.jsx:19 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+데이터를 돌려받고 있고, 지금 돌아오고 있는 데이터가 JSON인 걸 알 수 있지
+data를 보면 메시지가 포함되어 있는 JSON에 불과하다는 걸 알 수 있다 
+보는 것처럼 data에 message라는 속성이 포함되어 있지 (<= data: {message: 'Hello World Bean v1'})
+
+이걸 사용하려면 
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import axios from 'axios'
+import { useState } from 'react'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    const [message, setMessage] = useState(null)
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+
+        // axios.get('http://localhost:8080/hello-world')
+        //     .then( (response) => successfulResponse(response) )
+        //     .catch( (error) => errorResponse(error) )
+        //     .finally( () => console.log('cleanup') )
+
+            axios.get('http://localhost:8080/hello-world-bean')
+            .then( (response) => successfulResponse(response) )
+            .catch( (error) => errorResponse(error) )
+            .finally( () => console.log('cleanup') )            
+    }
+
+    function successfulResponse(response) {
+        console.log(response)
+        // setMessage(response.data)
+
+        //7: 너는 실제로 setMessage(response.data)라고 해주면 되고
+        //data 안에는 message가 있다 (<= 개발자도구 콘솔창의 data: {message: 'Hello World Bean v1'})
+        //그럼 response.data.message라고 해서 message라는 속성을 잡는다, 이걸 저장하고 
+        setMessage(response.data.message)
+    }
+
+    function errorResponse(error) {
+        console.log(error)
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+            <div className="text-info">{message}</div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+
+돌아가서 콘솔창을 정리하고
+Call Hello World를 클릭한다
+                              |
+                              V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                    Hello World Bean v1
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:12
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ {data: {…}, status: 200, statusText: '', head                WelcomeComponent.jsx:26
+    ers: AxiosHeaders, config: {…}, …}
+    config: {transitional: {…}, adapter: Array(3), transform
+    Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+    data: {message: 'Hello World Bean v1'}
+    headers: AxiosHeaders {content-type: 'application/json'}
+    request: XMLHttpRequest {onreadystatechange: null, readyState: 4, 
+    timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    [[Prototype]]: Object
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  cleanup                                                        WelcomeComponent.jsx:19 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+그러면 화면에 Hello World Bean v1라고 나오는 걸 볼 수 있지 
+
+
+
+
+
+지난 몇 단계에서 우리는 프론트엔드 코드로부터 Hello World REST API를 호출 할 수 있었다
+그리고 응답을 받아서 그걸 화면에 표시할 수 있었지
+이렇게 우린 작동하는 뭔가를 갖게 되었고, 그럼 다음 단계에선 그걸 리팩터링하고 
+그걸 더 활용할 수 있게 만들어 보자
+다음 단계에서 보겠다
