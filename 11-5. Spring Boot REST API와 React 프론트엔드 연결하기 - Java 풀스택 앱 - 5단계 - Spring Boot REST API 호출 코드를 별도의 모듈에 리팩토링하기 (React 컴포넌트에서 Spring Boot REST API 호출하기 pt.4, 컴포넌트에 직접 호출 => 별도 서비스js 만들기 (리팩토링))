@@ -1,0 +1,522 @@
+
+
+이번 단계에선 리팩터링을 중점적으로 다뤄보겠다
+우리는 컴포넌트에서 직접 API를 호출하고 있는데..
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ WelcomeComponent.jsx
+
+...
+    function callHelloWorldRestApi() {
+        console.log('called')
+
+        // axios.get('http://localhost:8080/hello-world')
+        //     .then( (response) => successfulResponse(response) )
+        //     .catch( (error) => errorResponse(error) )
+        //     .finally( () => console.log('cleanup') )
+
+            axios.get('http://localhost:8080/hello-world-bean')
+            .then( (response) => successfulResponse(response) )
+            .catch( (error) => errorResponse(error) )
+            .finally( () => console.log('cleanup') )            
+    }
+...
+
+--------------------------------------------------------------------------------------------
+그건 좋지 않다
+
+우리가 작성하고 있는 이 메서드를 보지 말아보자
+우린 여기서
+axios.get('http://localhost:8080/hello-world-bean')  
+REST API를 호출하고 있고
+여기서는
+.then( (response) => successfulResponse(response) )
+REST API 호출에 성공하면 무엇을 해야되는지 
+그리고
+.catch( (error) => errorResponse(error) )
+REST API 호출에 실패하면 뭘 해야 되는지 정의하고 있다
+
+일반적으로 REST API 호출에 성공하면 데이터를 컴포넌트에 표시하게 되지 (<= .then( (response) => successfulResponse(response) ) )
+그럼 뭔가에 성공하거나 실패하면 무엇을 해야 될까?
+너는 그걸 특정한 컴포넌트에 맡길 수 있다
+그럼 여기 있는 Welcome 컴포넌트는 뭔가가 성공했거나 실패했을 때 해야 될 일을 처리할 수 있지
+
+하지만 REST API 호출의 세부적인 내용은 별도의 서비스에 맡기려고 한다
+그럼 그걸 시작해보자
+
+그럼 todo폴더 안에서 우리는 새 폴더를 만들고 폴더 이름을 api라고 해보자
+그럼 API 호출을 하는 모든 서비스를 여기 api에 넣을 것이다
+그럼 api폴더 오른쪽 클릭 > 새파일 > 이름을 HelloWorldApiService.js라고 해보자 
+그리고 여기서 
+axios.get('http://localhost:8080/hello-world-bean')
+.then( (response) => successfulResponse(response) )
+.catch( (error) => errorResponse(error) )
+.finally( () => console.log('cleanup') )
+이 호출을 하려고 한다
+이 호출을 HelloWorldApiService.js 여기서 하는게 가장 적절하겠지
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ HelloWorldApiService.js
+
+
+1-5: 여기에 넣어줘야 한다, 이렇게 axios를 임포트 해야 하고
+import axios from 'axios'
+
+
+//1: 그럼 너는 함수를 하나 정의할 수 있고, 그럼 function retrieveHelloWorldBean() 이라고 해보자, 그리고 여긴 입력값이 없고
+function retrieveHelloWorldBean() {
+  //1-1: 그럼 여기에서 이걸 리턴하기만 하면 된다, 끝이다 //1-2: WelcomeComponenet.jsx로..
+  return axios.get('http://localhost:8080/hello-world-bean')
+}
+
+-------------------------------------------------------
+
+
+⏺ WelcomeComponent.jsx
+
+
+import {useParams, Link} from 'react-router-dom'
+
+//1-4: 여기 import를 잘라넣어 //1-5: HelloWorldApiService.js로..
+// import axios from 'axios'
+import { useState } from 'react'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    const [message, setMessage] = useState(null)
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+
+        // axios.get('http://localhost:8080/hello-world')
+        //     .then( (response) => successfulResponse(response) )
+        //     .catch( (error) => errorResponse(error) )
+        //     .finally( () => console.log('cleanup') )
+
+        //1-3: 그럼 여기서 axios를 삭제해야 하고 
+     //       axios.get('http://localhost:8080/hello-world-bean')  (<= 여기만 주석처리 실제 코드에선 삭제 ❗)
+            .then( (response) => successfulResponse(response) )
+            .catch( (error) => errorResponse(error) )
+            .finally( () => console.log('cleanup') )            
+    }
+
+    function successfulResponse(response) {
+        console.log(response)
+        // setMessage(response.data)
+        setMessage(response.data.message)
+    }
+
+    function errorResponse(error) {
+        console.log(error)
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+            <div className="text-info">{message}</div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ HelloWorldApiService.js
+
+
+
+import axios from 'axios'
+
+
+//2: 이걸 WelcomeComponenet에서 사용하려고 한다, 그럼 엑스포트를 할 수 있지 
+//그럼 여기에 export function이라 하고, 이걸 다른 컴포넌트에서 사용할 것이라고 해주는 것이지, 그리고 이제 여기로 가서 //2-1: WelcomeComponent.jsx로..
+export function retrieveHelloWorldBean() {
+    return axios.get('http://localhost:8080/hello-world-bean')
+}
+
+-------------------------------------------------------
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import { useState } from 'react'
+
+//2-2: 임포트가 이루어 지지, 그럼 import { retrieveHelloWorldBean } from './api/HelloWorldApiService' 이다 //2-3: 다시 callHelloWorldRestApi() 함수로..
+import { retrieveHelloWorldBean } from './api/HelloWorldApiService'
+
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    const [message, setMessage] = useState(null)
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+
+      
+      
+        
+
+        // axios.get('http://localhost:8080/hello-world')
+        //     .then( (response) => successfulResponse(response) )
+        //     .catch( (error) => errorResponse(error) )
+        //     .finally( () => console.log('cleanup') )
+
+        //2-1: 그 함수를 사용할 수 있다, 그럼 함수 이름을 넣고 ctrl + space를 눌러준다, 그리고 엔터키를 눌러주면 //2-2: 임포트로..
+        //2-3: 그리고 우린 그걸 호출하려고 한다, 여기서 axios.get()을 삭제할 수 있지, retrieveHelloWorldBean()이라 넣고 형식화 할 수 있고, 이걸 저장해보자
+          retrieveHelloWorldBean()
+        //  axios.get('http://localhost:8080/hello-world') (<= 여기서만 주석 처리 실제코드는 삭제)
+            .then( (response) => successfulResponse(response) )
+            .catch( (error) => errorResponse(error) )
+            .finally( () => console.log('cleanup') )            
+    }
+
+    function successfulResponse(response) {
+        console.log(response)
+        // setMessage(response.data)
+        setMessage(response.data.message)
+    }
+
+    function errorResponse(error) {
+        console.log(error)
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+            <div className="text-info">{message}</div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+
+Call Hello World을 클릭한다
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                    Hello World Bean v1
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:12
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ {data: {…}, status: 200, statusText: '', head                WelcomeComponent.jsx:26
+    ers: AxiosHeaders, config: {…}, …}
+    config: {transitional: {…}, adapter: Array(3), transform
+    Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+    data: {message: 'Hello World Bean v1'}
+    headers: AxiosHeaders {content-type: 'application/json'}
+    request: XMLHttpRequest {onreadystatechange: null, readyState: 4, 
+    timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    [[Prototype]]: Object
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  cleanup                                                        WelcomeComponent.jsx:19 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+보는 것 처럼 변한게 없지
+Hello World Bean v1을 리턴하고 있다, 좋다
+완벽하게 리팩터링을 했고 
+
+여기서 보는 것 처럼 
+----------------------------------------
+export function retrieveHelloWorldBean() {
+    return axios.get('http://localhost:8080/hello-world-bean')
+}
+----------------------------------------
+이 함수는 작성하기가 아주 간단하지
+그냥 어떤 값을 리턴하고 있을 뿐이다
+
+그리고 화살표 함수를 이용해서 이걸 작성할 수도 있다
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ HelloWorldApiService.js
+
+
+
+
+import axios from 'axios'
+
+
+//export function retrieveHelloWorldBean() { (<= 주석처리)
+//    return axios.get('http://localhost:8080/hello-world-bean')
+//}
+
+
+//3: 같은 내용이고, 실제로 이런 식으로 작성할 수 있다, 
+//그럼 export라고 하고 const retrieveHelloWorldBean = 라고 하고 axios.get()을 직접 복사해서 넣어주면 되지
+//전체 화면으로 보면 이제 전체 메서드가 단 한줄로 된 걸 볼 수 있다, 중괄호 같은 복잡한 것들이 전혀 필요하지 않지, 리턴도 필요하지 않고
+//이렇게도 똑같은 내용의 코드를 작성할 수 있다 , 이렇게 함수식으로 하는 대신 이렇게도 할 수 있는 거다 (위의 함수 주석처리..), 이렇게 retrieveHelloWorldBean라 하고
+export const retrieveHelloWorldBean 
+      = axios.get('http://localhost:8080/hello-world-bean')
+
+--------------------------------------------------------------------------------------------
+
+그리고 Call Hello World를 클릭하면
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+Uncaught runtime errors:
+
+ERROR
+(0 , _api_HelloWorldApiService__WEBPACK_IMPORTED_MODULE_1__.retrieveHelloWorldBean) 
+is not a function
+TypeError: (0 , _
+    api_HelloWorldApiService__WEBPACK_IMPORTED_MODULE_1__.retrieveHelloWorldBean) is not a function
+    at callHelloWorldRestApi (http://localhost:3000/static/js/bundle.js:1039:86)
+    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:15763:18)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:15807:20)
+    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:15864:35)
+    at invokeGuardedCallbackAndCatchFirstError (http://localhost:3000/static/js/bundle.js:15878:29)
+    at executeDispatch (http://localhost:3000/static/js/bundle.js:20021:7)
+    at processDispatchQueueItemsInOrder (http://localhost:3000/static/js/bundle.js:20047:11)
+    at processDispatchQueue (http://localhost:3000/static/js/bundle.js:20058:9)
+    at dispatchEventsForPlugins (http://localhost:3000/static/js/bundle.js:20067:7)
+    at http://localhost:3000/static/js/bundle.js:20227:16
+ERROR
+(0 , _api_HelloWorldApiService__WEBPACK_IMPORTED_MODULE_1__.retrieveHelloWorldBean) is not a function
+TypeError: (0 , _api_HelloWorldApiService__WEBPACK_IMPORTED_MODULE_1__.retrieveHelloWorldBean) is not a function
+    at callHelloWorldRestApi (http://localhost:3000/static/js/bundle.js:1039:86)
+    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:15763:18)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:15807:20)
+    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:15864:35)
+    at invokeGuardedCallbackAndCatchFirstError (http://localhost:3000/static/js/bundle.js:15878:29)
+    at executeDispatch (http://localhost:3000/static/js/bundle.js:20021:7)
+    at processDispatchQueueItemsInOrder (http://localhost:3000/static/js/bundle.js:20047:11)
+    at processDispatchQueue (http://localhost:3000/static/js/bundle.js:20058:9)
+    at dispatchEventsForPlugins (http://localhost:3000/static/js/bundle.js:20067:7)
+    at http://localhost:3000/static/js/bundle.js:20227:16
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:12
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ❌ ▶ Uncaught                                                  WelcomeComponent.jsx:20
+  TypeError: (0 , 
+    _api_HelloWorldApiService__WEBPACK_IMPORTED_MODULE_1__.retri
+    eveHelloWorldBean) is not a function
+    at callHelloWorldRestApi (WelcomeComponent.jsx:20:1)
+    at HTMLUnknownElement.callCallback (react-dom.development.js:4164:1)
+    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:1)
+    at invokeGuardedCallback (react-dom.development.js:4277:1)
+    at invokeGuardedCallbackAndCatchFirstError (react-dom.development.js:4291:1)
+    at executeDispatch (react-dom.development.js:9041:1)
+    at processDispatchQueueItemsInOrder (react-dom.development.js:9073:1)
+    at processDispatchQueue (react-dom.development.js:9086:1)
+    at dispatchEventsForPlugins (react-dom.development.js:9097:1)
+    at react-dom.development.js:9288:1
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+오류가 나는데, retrieveHelloWorldBean이 함수가 아니라고 한다
+사실 잊고 여기에 화살표를 넣지 않았기 떄문이지
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ HelloWorldApiService.js
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+export const retrieveHelloWorldBean 
+      //4: 이렇게 화살표 함수가 되어야 하고 그럼 이렇게 괄호를열고 닫은 다음에 화살표 구문을 적고(() =>), axios.get()을 써줘야 한다
+        = () => axios.get('http://localhost:8080/hello-world-bean')
+--------------------------------------------------------------------------------------------
+
+관리자도구 콘솔을 정리하고 Call Hello World를 클릭하면
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                    Hello World Bean v1
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:12
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ {data: {…}, status: 200, statusText: '', head                WelcomeComponent.jsx:26
+    ers: AxiosHeaders, config: {…}, …}
+    config: {transitional: {…}, adapter: Array(3), transform
+    Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+    data: {message: 'Hello World Bean v1'}
+    headers: AxiosHeaders {content-type: 'application/json'}
+    request: XMLHttpRequest {onreadystatechange: null, readyState: 4, 
+    timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    [[Prototype]]: Object
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  cleanup                                                        WelcomeComponent.jsx:19 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+화면에 응답이 표시되는 게 보인다
+이제 로그아웃을 하고 다시 로그인 한 다음에 Call Hello World를 누르면
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                    Hello World Bean v1
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:12
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ {data: {…}, status: 200, statusText: '', head                WelcomeComponent.jsx:26
+    ers: AxiosHeaders, config: {…}, …}
+    config: {transitional: {…}, adapter: Array(3), transform
+    Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+    data: {message: 'Hello World Bean v1'}
+    headers: AxiosHeaders {content-type: 'application/json'}
+    request: XMLHttpRequest {onreadystatechange: null, readyState: 4, 
+    timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    [[Prototype]]: Object
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  cleanup                                                        WelcomeComponent.jsx:19 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+Hello World Bean v1이 나오지
+이렇게 Hello World Bean v1이 나오는 게 보일 것이다
+
+
+
+이 둘 중 어떤걸 사용할지는 너가 선택할 수 있고 
+-----------------------------------------
+1)
+ export function retrieveHelloWorldBean() {
+     return axios.get('http://localhost:8080/hello-world-bean')
+ }
+2)
+export const retrieveHelloWorldBean 
+        = () => axios.get('http://localhost:8080/hello-world-bean')
+-----------------------------------------
+교육자가 본 JavaScript 전문가들은 대게 
+export const retrieveHelloWorldBean 
+        = () => axios.get('http://localhost:8080/hello-world-bean')
+이 구문을 사용한다고 한다
+
+너에게 이런 구문에도 익숙해지도록 설명을 했다, 
+그럼 이걸 너의 리액트 프로젝트에서 보게 되어도 당황하지 않겠지?
+다음 시간에 보겠다
