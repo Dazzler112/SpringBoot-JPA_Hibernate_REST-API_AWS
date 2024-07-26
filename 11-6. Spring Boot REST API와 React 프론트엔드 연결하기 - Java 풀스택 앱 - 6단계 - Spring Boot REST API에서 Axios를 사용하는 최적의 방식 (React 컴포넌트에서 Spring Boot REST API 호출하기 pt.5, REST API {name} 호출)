@@ -1,0 +1,400 @@
+
+
+이번 단계에선
+마지막으로 남은 Hello World API에 호출을 해보자,
+바로 {name}이 있는 /hello-world/path-variable이다
+
+우리는 in28minutes라는 로그인 이름을 잡아서 /hello-world/path-variable/Ranga를 호출하려고 한다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/hello-world/path-variable/Ranga 사이트화면 ==>
+
+
+
+{
+  "message": "Hello World, Ranga"
+}
+
+--------------------------------------------------------------------------------------------
+
+그러면 "Hello World, Ranga"라는 응답을 받게 되지
+이게 너가 보게 될 내용이고 화면에 표시될 내용이지
+간단할 것이다
+
+그럼 함수를 하나 만들면 되고
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ HelloWorldApiService.js
+
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+export const retrieveHelloWorldBean 
+        = () => axios.get('http://localhost:8080/hello-world-bean')
+
+
+//1: 먼저 retrieveHelloWorldPathVariable부터 만들어보겠다
+export const retrieveHelloWorldPathVariable 
+
+          //1-1: 그리고 이건 URL을 가져와 볼까? URL을 복사하고, http://localhost:8080/hello-world/path-variable/Ranga 이게 우리가 사용할 URL이 될 것이다
+          // localhost:8080/hello-world/path-variable/Ranga이고, Ranga부분을 변수로 대체해야 하고, 그럼 ${}라 하고 그 안에 username을 넣어줄 수 있지
+          //그리고 이 username은 어디서 받을까? 우린 그걸 파라미터로 만들 수 있다
+        = () => axios.get('http://localhost:8080/hello-world/path-variable/${username}')
+--------------------------------------------------------------------------------------------
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ HelloWorldApiService.js
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+export const retrieveHelloWorldBean 
+        = () => axios.get('http://localhost:8080/hello-world-bean')
+
+export const retrieveHelloWorldPathVariable 
+
+          //2: 그럼 username을 파라미터로 해서 retrieveHelloWorldPathVariable을 호출해야 하고 ${username} 이 값을 대체하려고 한다
+          //그럼 더 이상 작은 따옴표를 사용할 수 없고 백틱(`)을 사용해야 한다, 그럼 작은 따옴표를 백틱 문자로 변경할것이고, 그러면 이 username 값이 대체되고 우리는 응답을 되돌려 받게 될 것이다
+        = (username) => axios.get(`http://localhost:8080/hello-world/path-variable/${username}`)
+--------------------------------------------------------------------------------------------
+
+그럼 이제 WelcomeComponent로 가서 이걸 사용 보자
+그러면 우리는 HelloWorldApiService로 부터 
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import { useState } from 'react'
+
+//3: retrieveHelloWorldBean과 retrieveHelloWorldPathVariable을 사용하려고 하고
+import { retrieveHelloWorldBean, retrieveHelloWorldPathVariable } from './api/HelloWorldApiService'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    const [message, setMessage] = useState(null)
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+        
+        // axios.get('http://localhost:8080/hello-world')
+        //     .then( (response) => successfulResponse(response) )
+        //     .catch( (error) => errorResponse(error) )
+        //     .finally( () => console.log('cleanup') )
+        
+        
+       // retrieveHelloWorldBean()  //3-3: (<= 주석처리..), 저장하고
+       //     .then( (response) => successfulResponse(response) )
+       //     .catch( (error) => errorResponse(error) )
+       //     .finally( () => console.log('cleanup') )  
+
+        //3-1: 그럼 우리는 retrieveHelloWorldPathVariable()을 쓸 거고, 이걸 호출하려면 사람의 이름에 액세스 할 수 있어야 한다
+        //그럼 로그인한 사람의 이름은 뭘까? 우선은 그걸 하드코딩해보자, 그럼 retrieveHelloWorldPathVariable('Ranga')라고 설정할거고, 코드의 나머지 부분은 똑같을 것이다
+        retrieveHelloWorldPathVariable('Ranga')
+          //3-2: 그럼 위의 코드와 같은걸 넣어보자, 그리고 retrieveHelloWorldBean()은 주석처리....//3-3:retrieveHelloWorldBean()로..
+          .then( (response) => successfulResponse(response) )
+          .catch( (error) => errorResponse(error) )
+          .finally( () => console.log('cleanup') )   
+    }
+
+    function successfulResponse(response) {
+        console.log(response)
+        // setMessage(response.data)
+        setMessage(response.data.message)
+    }
+
+    function errorResponse(error) {
+        console.log(error)
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+            <div className="text-info">{message}</div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+--------------------------------------------------------------------------------------------
+
+브라우저로 가서
+Call Hello World를 클릭한다
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                    Hello World, Ranga
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:12
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ {data: {…}, status: 200, statusText: '', head                WelcomeComponent.jsx:32
+    ers: AxiosHeaders, config: {…}, …}
+    config: {transitional: {…}, adapter: Array(3), transform
+    Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+    data: {message: 'Hello World, Ranga'}
+    headers: AxiosHeaders {content-type: 'application/json'}
+    request: XMLHttpRequest {onreadystatechange: null, readyState: 4, 
+    timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    [[Prototype]]: Object
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  cleanup                                                        WelcomeComponent.jsx:19 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+뭐가 보이지?
+Hello World, Ranga가 돌아왔지
+
+이렇게 Axios를 사용하면 패스 변수를 아주 간단하게 넣을 수 있고
+export const retrieveHelloWorldPathVariable 
+        = (username) => axios.get(`http://localhost:8080/hello-world/path-variable/${username}`)
+이렇게 Axios를 사용하면 패스 변수를 아주 간단하게 넣을 수 있고
+너는 그걸 ApiService() 메서드의 파라미터로 만들기만 하면 되고, 그 값을 URL 안에서 사용할 수 있다
+
+
+그리고 정말 마음에 들지 않는게 하나 더 있는데
+그건 바로 localhost:8080이다 계속 끊임 없이 반복되고 있지
+어떻게 하면 반복하지 않을 수 있을까?
+
+해법은 아주 간단하다
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ HelloWorldApiService.js
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+//4: 매번 기본 URL을 설정하는 대신에 Axios는 공통 기본 URL을 설정할 수 있는 방법을 제공한다
+//그럼 axios.create라고 해서, axios의 인스턴스를 만들 수 있고 그 인스턴스 안에서 우리는 원하는 값을 설정할 수 있지
+axios.create(
+    {
+        //4-1: 그럼 여기서 객체를 만들고 그 객체 안에서 기본 URL을 설정하려고 한다, 너는 어떤 기본 URL을 사용하려 하니?
+        //localhost:8080이라는 기본 URL을 사용하려고 한다, 그럼 http://localhost:8080가 기본 URL이 될 것이다 그리고 작은 따옴표 안에 넣어야 하지
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveHelloWorldBean 
+        = () => axios.get('http://localhost:8080/hello-world-bean')
+
+export const retrieveHelloWorldPathVariable 
+        = (username) => axios.get(`http://localhost:8080/hello-world/path-variable/${username}`)
+--------------------------------------------------------------------------------------------
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ HelloWorldApiService.js
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+
+//5:그리고 이걸 상수로 만들 수 있고, 그럼 const라 하고 이름을 apiClient라고 해주자
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveHelloWorldBean 
+
+          //5-1: 이제 axios.get()에서 우리는 apiClient.get('/hello-world-bean')라고 할 수 있지
+        = () => apiClient.get('/hello-world-bean')
+
+export const retrieveHelloWorldPathVariable 
+          //5-2: 그리고 여기도 마찬가지이다, 그럼 apiClient.get()에서 이 기본 URL을 삭제할 수 있지, 이제 이걸 저장할 수 있다
+        = (username) => apiClient.get(`/hello-world/path-variable/${username}`)
+
+--------------------------------------------------------------------------------------------
+
+모든 게 잘 될까? 그럼 실제로 어떻게 되는지 확인해보자
+Call Hello World를 클릭해본다
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                    Hello World, Ranga
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  called                                                         WelcomeComponent.jsx:12
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ {data: {…}, status: 200, statusText: '', head                WelcomeComponent.jsx:32
+    ers: AxiosHeaders, config: {…}, …}
+    config: {transitional: {…}, adapter: Array(3), transform
+    Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+    data: {message: 'Hello World, Ranga'}
+    headers: AxiosHeaders {content-type: 'application/json'}
+    request: XMLHttpRequest {onreadystatechange: null, readyState: 4, 
+    timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    [[Prototype]]: Object
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  cleanup                                                        WelcomeComponent.jsx:25 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+좋다
+모든 게 예상한 대로 작동하는 걸 볼 수 있지 
+
+WelcomeComponent에서 
+
+--------------------------------------------------------------------------------------------
+⏺ vsc
+
+
+⏺ WelcomeComponent.jsx
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import { useState } from 'react'
+
+//6: 이제 이 retrieveHelloWorldBean 메서드, 이 임포트가 사용되지 않고 그럼 그걸 삭제하고 저장해보겠다 ({ retrieveHelloWorldBean, retrieveHelloWorldPathVariable }의 retrieveHelloWorldBean삭제..)
+import { retrieveHelloWorldPathVariable } from './api/HelloWorldApiService'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    const [message, setMessage] = useState(null)
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+
+        //6-1: 그리고 여기에 코멘트로 된 코드가 좀 있는데 이것도 삭제해보자, 저장하고
+
+        /*        (<== 여기서만 주석 처리 실제 코드는 삭제)
+        // axios.get('http://localhost:8080/hello-world')   
+        //     .then( (response) => successfulResponse(response) )
+        //     .catch( (error) => errorResponse(error) )
+        //     .finally( () => console.log('cleanup') )
+        */
+
+        /*        (<== 여기서만 주석 처리 실제 코드는 삭제)
+        // retrieveHelloWorldBean()
+        //     .then( (response) => successfulResponse(response) )
+        //     .catch( (error) => errorResponse(error) )
+        //     .finally( () => console.log('cleanup') )        
+        */
+
+        retrieveHelloWorldPathVariable('Ranga')  
+            .then( (response) => successfulResponse(response) )
+            .catch( (error) => errorResponse(error) )
+            .finally( () => console.log('cleanup') )          
+    }
+
+--------------------------------------------------------------------------------------------
+
+모든 게 이상 없는지 확인해보자
+좋다
+
+
+
+
+지난 몇 단계에서 우리는 Hello World REST API에 호출을 하기 시작했다
+이제 Todo를 다룰 차례다
+다음 단계부터는 Todo를 다뤄보도록 하겠다
+다음 단계에서 보겠다
