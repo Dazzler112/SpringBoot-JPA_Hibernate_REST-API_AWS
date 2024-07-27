@@ -1,0 +1,221 @@
+
+
+Full Stack - Todo REST API - Resources and Methods
+
+● REST API                                                                  ----------------------------------------------------------------------------------------------------------------------
+  ■ Hello World REST API:    
+    ○ Hello Wrold:                                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ◦ @GetMapping(path = "/hello-world")                                      in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+    ○ Hello Wrold Bean:                                                         _______________________________________________________________________________________________________________
+      ◦ @GetMapping(path = "/hello-world-bean")                                                                                
+    ○ Hello Wrold Path Variable:                                                                                
+      ◦ @GetMapping(path = "/hello-world/path-variable/{name}")                       Your Todos
+● Todo REST API:                                                                                
+    ○ Retrieve Todos                                                                  Description	                      Taget Date	   Is Done?
+      ◦ @GetMapping("/users/{username}/todos")                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    ○ Retrieve Todo                                                                                                                                      ________________      _______________
+      ◦ @GetMapping("/users/{username}/todos/{id}")                                   Learn AWS                         2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+    ○ Delete Todo                                                                                                                                        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ◦ @DeleteMapping("/users/{username}/todos/{id}")                                ---------------------------------------------------------------------------------------------------------
+    ○ Update Todo                                                                                                                                        ________________      _______________
+      ◦ @PutMapping("/users/{username}/todos/{id}")                                   Learn DevOps                      2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+    ○ Create Todo                                                                                                                                        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ◦ @PostMapping("/users/{username}/todos")                                       ---------------------------------------------------------------------------------------------------------
+                                                                                                                                                         ________________      _______________
+                                                                                      Learn React                       2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+                                                                                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                      ---------------------------------------------------------------------------------------------------------
+                                                                                                                                                         ________________      _______________
+                                                                                      Learn Angular                     2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+                                                                                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                      ---------------------------------------------------------------------------------------------------------
+                                                                                
+                                                                                ----------------------------------------------------------------------------------------------------------------------
+                                                                                
+이번 단계에선 Todo REST API에 집중해보자
+먼저 Retrieve Todos API부터 만들어보겠다
+    ○ Retrieve Todos
+      ◦ @GetMapping("/users/{username}/todos")    
+특정한 사용자에 관련된 Todo 세부정보를 받는 것이 우리의 목표지
+우리는 이런 /users/, 패스변수 {username}, 그리고 todos로 된 이 URL로 GetMapping을 만들려고 한다
+그럼 너는 in28minutes라는 사용자의 Todo를 요청 받으면 in28minutes에 관련된 Todo의 값을 받아야 할 것이고
+그걸 다시 리턴해야 할 것이다, 우리가 이 프로젝트를 만들 때
+이미 파일이 두 개 있었지, 바로 Todo와 TodoService이다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ Todo.java
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.time.LocalDate;
+
+public class Todo {
+
+	public Todo() {
+		
+	}
+	
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	private int id;
+
+	private String username;
+	
+	private String description;
+	private LocalDate targetDate;
+	private boolean done;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public LocalDate getTargetDate() {
+		return targetDate;
+	}
+
+	public void setTargetDate(LocalDate targetDate) {
+		this.targetDate = targetDate;
+	}
+
+	public boolean isDone() {
+		return done;
+	}
+
+	public void setDone(boolean done) {
+		this.done = done;
+	}
+
+	@Override
+	public String toString() {
+		return "Todo [id=" + id + ", username=" + username + ", description=" + description + ", targetDate="
+				+ targetDate + ", done=" + done + "]";
+	}
+
+}
+
+----------------------------------------------------------------------------------------------------------------------
+
+Todo는 아주 간단한 Java POJO, 즉 Plain Old Java Object이다
+거기엔 id, username, description, targetDate, done이 있고, 생성자가 있다
+우린 또 무인수 생성자도 있고 <=(	public Todo() {	}  )
+게터와 세터도 있고 toString()을 정의했다, 이렇게 이건 POJO이고
+이게 우리가 강의 초반에 Todo 웹 애플리케이션을 만들 때 사용한 것이다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoService.java
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class TodoService {
+	
+	private static List<Todo> todos = new ArrayList<>();
+	
+	private static int todosCount = 0;
+	
+	static {
+		todos.add(new Todo(++todosCount, "in28minutes","Get AWS Certified", 
+							LocalDate.now().plusYears(10), false ));
+		todos.add(new Todo(++todosCount, "in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(11), false ));
+		todos.add(new Todo(++todosCount, "in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(12), false ));
+	}
+	
+	public List<Todo> findByUsername(String username){
+		Predicate<? super Todo> predicate = 
+				todo -> todo.getUsername().equalsIgnoreCase(username);
+		return todos.stream().filter(predicate).toList();
+	}
+	
+	public Todo addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount,username,description,targetDate,done);
+		todos.add(todo);
+		return todo;
+	}
+	
+	public void deleteById(int id) {
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+
+	public Todo findById(int id) {
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		Todo todo = todos.stream().filter(predicate).findFirst().get();
+		return todo;
+	}
+
+	public void updateTodo(Todo todo) {
+		deleteById(todo.getId());
+		todos.add(todo);
+	}
+}
+----------------------------------------------------------------------------------------------------------------------
+
+그리고 TodoService도 역시 우리가 웹 애플리케이션을 제작할 때 사용한 그것이다
+여기 아주 간단한 메서드들이 있는 걸 보게 될 것이고
+이렇게 findByUsername(), 그리고 새 Todo를 추가할 때 사용하는 addTodo()
+그리고 특정한 Todo를 삭제하는데 쓸 수 있는 deleteById()도 있고, 툭정한 Todo를 찾기 위한 findById()도 있고
+그리고 updateTodo()도 있다, 
+그리고 이 서비스에서 모든 작업은 하드코딩된 
+----------------------------------------------------------
+	static {
+		todos.add(new Todo(++todosCount,"in28minutes","Get AWS Certified 1", 
+				LocalDate.now().plusYears(1), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn DevOps 1", 
+				LocalDate.now().plusYears(2), false));
+		todos.add(new Todo(++todosCount,"in28minutes","Learn Full Stack Development 1", 
+				LocalDate.now().plusYears(3), false));
+	}
+----------------------------------------------------------
+Todo 데이터에 대해 이루어졌지
+
+그럼 예를 들어 findByUsername()는 리스트를 하나씩 검색해서 특정한 username과 매칭되는 것들을 찾아서
+필터링된 리스트를 리턴하지
+우린 지금 Todo 리소스를 만드려고 한다
+
