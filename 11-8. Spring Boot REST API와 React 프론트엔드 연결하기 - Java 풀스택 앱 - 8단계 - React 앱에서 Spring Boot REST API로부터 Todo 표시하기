@@ -524,3 +524,498 @@ export default ListTodosComponent
 ----------------------------------------------------------------------------------------------------------------------
 
 이제 이 호출을 어디에서 할 것인지가 문제지
+그럼 먼저 그걸 하는 함수를 하나 만들곘다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+
+import { useState } from "react"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    // const todos = [
+    //     {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+    //     {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+    //     {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+    //   ]
+
+    //7: 그럼 너는 function이라고 하고 이름을 refreshTodos()라고 해주자, 그리고 이걸들을 이 refreshTodos() 함수 안에서 해보겠다
+    function refreshTodos() {
+    retrieveAllTodosForUsername('in28minutes')
+        .then(response => console.log(response))
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+그럼 약간 형식화를 해줄까? 이게 username에 대한 모든 Todo를 받을거고 
+이제는 언제 이 refreshTodos를 호출할지가 문제이다
+리액트에서는 그걸 useEffect()에서 호출하는 게 정석이다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+//8-1: import { useEffect, useState } from "react"가 보일것이다, 이제 너는 실제로 useEffect 훅을 정의할 수 있지 //8-2: 다시 useEffect로..
+import { useEffect, useState } from "react"
+
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    // const todos = [
+    //     {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+    //     {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+    //     {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+    //   ]
+
+
+    //8: 그럼 너가 useEffect라고 입력하면 리액트에 정의된 훅이 보일 거고 임포트하면 //8-1: 임포트로..
+    //8-2: 우린 refreshTodos라는 함수를 호출하려 하고
+    useEffect(
+        //8-3: 그리고 그걸 넣고 이걸 저장할 수 있다
+        () => refreshTodos()
+    )
+
+    function refreshTodos() {
+    retrieveAllTodosForUsername('in28minutes')
+        .then(response => console.log(response))
+        .catch(error => console.log(error))
+    }    
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+이제 Todos로 가보면 시작할 때 
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(자세한것 확인 하려면 3000으로 접속...)
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                    Login   Logout
+     ___________________________________________________________________________________
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	            is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+▶ {data: Array(3), status: 200, statusText: '', headers: Axi       ListTodosComponent.jsx:23 
+  osHeaders, config: {…}, …}
+  config: {transitional: {…}, adapter: Array(3), transform
+  Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+  data: 0: {id: 1, username: 'in28minutes', description: 'Get AWS Certified', targetDate: '2034-07-28', done: false}
+        1: {id: 2, username: 'in28minutes', description: 'Learn DevOps', targetDate: '2035-07-28', done: false}
+        2: {id: 3, username: 'in28minutes', description: 'Learn Full Stack Development', targetDate: '2036-07-28', done: false}
+        length: 3
+  headers: AxiosHeaders {content-type: 'application/json'}
+  request: XMLHttpRequest {onreadystatechange: null, readyState:
+  4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+  status: 200
+  statusText: ""
+  [[Prototype]]: Object
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+▶ {data: Array(3), status: 200, statusText: '', headers: Axi       ListTodosComponent.jsx:23 
+  osHeaders, config: {…}, …}
+  config: {transitional: {…}, adapter: Array(3), transform
+  Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+  data: (3) [{…}, {…}, {…}]
+  headers: AxiosHeaders {content-type: 'application/json'}
+  request: XMLHttpRequest {onreadystatechange: null, readyState:
+  4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+  status: 200
+  statusText: ""
+  [[Prototype]]: Object
+--------------------------------------------------------------------------------------------
+
+약간의 데이터가 콘솔에 프린트되는 게 보일 거고 
+data로 가면 모든 Todo가 들어오는 게 보일 것이다
+좋다 
+
+이렇게 이제 우리는 
+-----------------------------
+    useEffect(
+        () => refreshTodos()
+    )
+-----------------------------
+useEffect를 사용하고 refreshTodos를 호출할 수 있지
+
+이렇게 일반적으로 데이터를 로딩하려 할 때는 컴포넌트, 컴포넌트의 최조 버전이 준비되자마자 
+비어 있는 Todo가 렌더링 되고 그러면 너는 Todo 리스트를 받고 그걸 화면에 표시하려고 한다
+
+니가 데이터를 새로고침하면 그걸 화면에 표시하게 되지
+데이터가 새로고침되어도 우리의 작업은 끝나지 않는다 
+우린 그걸 사용하고 화면에 표시하길 원하지
+화면에 표시하려면 어떻게 해야 할까?
+그럼 여기에 로직을 더 추가해보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+
+import { useEffect, useState } from "react"
+import { retrieveAllTodosForUsername } from "./api/TodoApiService"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    // const todos = [
+    //     {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+    //     {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+    //     {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+    //   ]
+
+    useEffect(
+        () => refreshTodos()
+    )
+
+    function refreshTodos() {
+    retrieveAllTodosForUsername('in28minutes')
+        .then(response => {
+
+              //9: 그럼 여기에 로직을 더 추가해보자 response를 되돌려 받으면 우린 console.log(response)보다 약간 더 하려고 한다
+              //console.log(response)에 추가해서 우리는 데이터를 다시 설정하려고 하지, 우린 데이터를 상태에 설정하려고 한다
+              console.log(response)
+          }
+        )
+        
+        .catch(error => console.log(error))
+    }    
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+
+----------------------------------------------------------------------------------------------------------------------
+
+그럼 콘솔에
+-----------------------------------------------------------
+▶ {data: Array(3), status: 200, statusText: '', headers: Axi       ListTodosComponent.jsx:23 
+  osHeaders, config: {…}, …}
+  config: {transitional: {…}, adapter: Array(3), transform
+  Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+  data: 0: {id: 1, username: 'in28minutes', description: 'Get AWS Certified', targetDate: '2034-07-28', done: false}
+        1: {id: 2, username: 'in28minutes', description: 'Learn DevOps', targetDate: '2035-07-28', done: false}
+        2: {id: 3, username: 'in28minutes', description: 'Learn Full Stack Development', targetDate: '2036-07-28', done: false}
+        length: 3
+  headers: AxiosHeaders {content-type: 'application/json'}
+  request: XMLHttpRequest {onreadystatechange: null, readyState:
+  4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+  status: 200
+  statusText: ""
+  [[Prototype]]: Object
+-----------------------------------------------------------
+이걸 보면 response에는 data라는 게 포함되어 있고
+그리고 data는 Todo로 구성된 배열이지
+
+
+그럼 너는 
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+
+import { useEffect, useState } from "react"
+import { retrieveAllTodosForUsername } from "./api/TodoApiService"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    // const todos = [
+    //     {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+    //     {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+    //     {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+    //   ]
+
+    useEffect(
+        () => refreshTodos()
+    )
+
+    function refreshTodos() {
+    retrieveAllTodosForUsername('in28minutes')
+        .then(response => {
+            //10-1: console.log(response.data)라고 하고 이걸 저장한다
+            console.log(response.data)
+
+            //10: setTodos()라고 하고, 너는 response.data라는 값을 사용할 것이다
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        <td>{todo.targetDate.toDateString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+
+----------------------------------------------------------------------------------------------------------------------
+
+페이지를 새로고침하고
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+Uncaught runtime errors:
+
+ERROR
+todo.targetDate.toDateString is not a function
+TypeError: todo.targetDate.toDateString is not a function
+    at http://localhost:3000/static/js/bundle.js:477:41
+    at Array.map (<anonymous>)
+    at ListTodosComponent (http://localhost:3000/static/js/bundle.js:457:27)
+    at renderWithHooks (http://localhost:3000/static/js/bundle.js:25574:22)
+    at updateFunctionComponent (http://localhost:3000/static/js/bundle.js:29141:24)
+    at beginWork (http://localhost:3000/static/js/bundle.js:30860:20)
+    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:15830:18)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:15874:20)
+    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:15931:35)
+    at beginWork$1 (http://localhost:3000/static/js/bundle.js:35829:11)
+ERROR
+todo.targetDate.toDateString is not a function
+TypeError: todo.targetDate.toDateString is not a function
+    at http://localhost:3000/static/js/bundle.js:477:41
+    at Array.map (<anonymous>)
+    at ListTodosComponent (http://localhost:3000/static/js/bundle.js:457:27)
+    at renderWithHooks (http://localhost:3000/static/js/bundle.js:25574:22)
+    at updateFunctionComponent (http://localhost:3000/static/js/bundle.js:29141:24)
+    at beginWork (http://localhost:3000/static/js/bundle.js:30860:20)
+    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:15830:18)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:15874:20)
+    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:15931:35)
+    at beginWork$1 (http://localhost:3000/static/js/bundle.js:35829:11)
+ERROR
+todo.targetDate.toDateString is not a function
+TypeError: todo.targetDate.toDateString is not a function
+    at http://localhost:3000/static/js/bundle.js:477:41
+    at Array.map (<anonymous>)
+    at ListTodosComponent (http://localhost:3000/static/js/bundle.js:457:27)
+    at renderWithHooks (http://localhost:3000/static/js/bundle.js:25574:22)
+    at updateFunctionComponent (http://localhost:3000/static/js/bundle.js:29141:24)
+    at beginWork (http://localhost:3000/static/js/bundle.js:30860:20)
+    at beginWork$1 (http://localhost:3000/static/js/bundle.js:35807:18)
+    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:35077:16)
+    at workLoopSync (http://localhost:3000/static/js/bundle.js:35000:9)
+    at renderRootSync (http://localhost:3000/static/js/bundle.js:34973:11)
+--------------------------------------------------------------------------------------------
+
+그러면 오류가 나는 게 보인다
+오류 내용을 보면 TypeError: todo.targetDate.toDateString is not a function
+todo.targetDate.toDateString 이 문자열이 아니라고 나와 있지 
+
+그 이유는 콘솔로 가서 보면, 들어오고 있는 response가
+--------------------------------------------
+▶ (3) [{…}, {…}, {…}]
+0: {id: 1, username: 'in28minutes', description: 'Get AWS Certified', targetDate: '2034-07-28', done: false}
+1: {id: 2, username: 'in28minutes', description: 'Learn DevOps', targetDate: '2035-07-28', done: false}
+2: {id: 3, username: 'in28minutes', description: 'Learn Full Stack Development', targetDate: '2036-07-28', done: false}
+length: 3
+[[Prototype]]: Array(0)
+--------------------------------------------
+여기 프린트되는 데이터를 보면
+targetDate는 문자열로서 들어오고 있기 때문이다 ( targetDate: '2034-07-28' )
+그리고 앞에서 우린 ListTodosComponent에서
+--------------------------------------------
+⏺ ListTodosComponent.jsx
+..
+ todos.map(
+    todo => (
+             <tr key={todo.id}>
+               <td>{todo.id}</td>
+               <td>{todo.description}</td>
+               <td>{todo.done.toString()}</td>
+               <td>{todo.targetDate.toDateString()}</td>
+             </tr>
+            )
+         )
+..
+--------------------------------------------
+toDateString()을 사용했지
