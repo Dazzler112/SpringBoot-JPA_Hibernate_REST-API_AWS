@@ -1018,4 +1018,422 @@ targetDate는 문자열로서 들어오고 있기 때문이다 ( targetDate: '20
          )
 ..
 --------------------------------------------
-toDateString()을 사용했지
+toDateString()을 사용했지, 그럼 이걸 이제
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+...
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+
+                                      //11: 사용하지 않겠다, 그럼 이걸 코멘트로 빼주고, 
+                                       {/* <td>{todo.targetDate.toDateString()}</td>*/} (<=이건 주석처리)
+
+                                      //11-1: toString을 써준다, 우리는 response에서 날짜를 받지 않고 문자열을 받고 있다
+                                      //그래서 이걸 todo.targetDate.toString()으로 했지
+                                        <td>{todo.targetDate.toString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+----------------------------------------------------------------------------------------------------------------------
+
+그럼 이제 가서 로그인을 하고 Todos로 가보자
+
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                      Login   Logout
+     _____________________________________________________________________________________
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	                   is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Get AWS Certified	             false         Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn DevOps		               false         Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn Full Stack Development	 false         Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+▶ {data: Array(3), status: 200, statusText: '', headers: Axi       ListTodosComponent.jsx:23 
+  osHeaders, config: {…}, …}
+  config: {transitional: {…}, adapter: Array(3), transform
+  Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+  data: 0: {id: 1, username: 'in28minutes', description: 'Get AWS Certified', targetDate: '2034-07-28', done: false}
+        1: {id: 2, username: 'in28minutes', description: 'Learn DevOps', targetDate: '2035-07-28', done: false}
+        2: {id: 3, username: 'in28minutes', description: 'Learn Full Stack Development', targetDate: '2036-07-28', done: false}
+        length: 3
+  headers: AxiosHeaders {content-type: 'application/json'}
+  request: XMLHttpRequest {onreadystatechange: null, readyState:
+  4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+  status: 200
+  statusText: ""
+  [[Prototype]]: Object
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+▶ {data: Array(3), status: 200, statusText: '', headers: Axi       ListTodosComponent.jsx:23 
+  osHeaders, config: {…}, …}
+  config: {transitional: {…}, adapter: Array(3), transform
+  Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+  data: (3) [{…}, {…}, {…}]
+  headers: AxiosHeaders {content-type: 'application/json'}
+  request: XMLHttpRequest {onreadystatechange: null, readyState:
+  4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+  status: 200
+  statusText: ""
+  [[Prototype]]: Object
+--------------------------------------------------------------------------------------------
+
+좋다
+이제 우리가 백엔드로부터 Todo를 받고 있는 걸 볼 수 있지
+이렇게 Get AWS Certifie, Learn DevOps, Learn Full Stack Development라고 나온다
+이것들이 모두 백엔드에서 되돌아오고 있고 
+Home으로 되돌아가서 이걸 정리하고 다시 Todos로 가보면 이 모든 세부정보가 이제 프린트되는 걸 볼 수 있다
+
+여기 보면 이게 여러 차례 트리거되는 걸 
+---------------------------------------------
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ▶ (3) [{...}, {...}, {...}]
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ (3) [{...}, {...}, {...}]
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ (3) [{...}, {...}, {...}]
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ (3) [{...}, {...}, {...}]
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ (3) [{...}, {...}, {...}]
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ (3) [{...}, {...}, {...}]
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ....... ( 무한 반복 )
+-------------------------------------------------------------------------------------------
+---------------------------------------------
+볼 수 있는데
+
+그럼 너는 언제 렌더링을 해야 하는지 useEffect()에게 알려줘야 한다
+그럼 useEffect를 보면 
+
+---------------------------------------------
+                      //첫 번째가 EffectCallback이고 두 번째가 DependencyList이다, 이게 의존하는 것들을 말한다
+ function useEffect(effect: EffectCallback, deps?: DependencyList): void;
+    // NOTE: this does not accept strings, but this will have to be fixed by removing strings from type Ref<T>
+    /**
+     * `useImperativeHandle` customizes the instance value that is exposed to parent components when using
+     * `ref`. As always, imperative code using refs should be avoided in most cases.
+     *
+     * `useImperativeHandle` should be used with `React.forwardRef`.
+     *
+     * @version 16.8.0
+     * @see {@link https://react.dev/reference/react/useImperativeHandle}
+     */
+---------------------------------------------
+
+이 경우에 우리는 
+---------------------------------------------
+    useEffect(
+        () => refreshTodos()
+    )
+---------------------------------------------
+의존성이 전혀 없지
+우린 그냥 시작할 때 그걸 로딩하길 원할 뿐이다 
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+import { useEffect, useState } from "react"
+import { retrieveAllTodosForUsername } from "./api/TodoApiService"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    // const todos = [
+    //     {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+    //     {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+    //     {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+    //   ]
+
+    
+    useEffect(
+        //12: 여기에 비어 있는 리스트를 넣을 거고, 그럼 이걸 저장하고 새로고침을 해보자
+        () => refreshTodos() , []
+    )
+
+    function refreshTodos() {
+    retrieveAllTodosForUsername('in28minutes')
+        .then(response => {
+            console.log(response.data)
+
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Description</td>
+                            <td>is Done?</td>
+                            <td>Target Date</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.id}</td>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+Home으로 돌아가서 Todos로 간다
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                      Login   Logout
+     _____________________________________________________________________________________
+
+                                 Things You Want To Do!
+                                      
+                 ID	   Description	                   is Done?     	 Target Date
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  1	    Get AWS Certified	             false         Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  2	    Learn DevOps		               false         Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  3	    Learn Full Stack Development	 false         Sat Jul 05 2036
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+▶ (3) [{…}, {…}, {…}]                                              ListTodosComponent.jsx:25 
+  0  : {id: 1, username: 'in28minutes', description: 'Get AWS Certified', targetDate: '2034-07-28', done: false}
+  1: {id: 2, username: 'in28minutes', description: 'Learn DevOps', targetDate: '2035-07-28', done: false}
+  2: {id: 3, username: 'in28minutes', description: 'Learn Full Stack Development', targetDate: '2036-07-28', done: false}
+  length: 3
+  [[Prototype]]: Array(0)
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+▶ (3) [{…}, {…}, {…}]                                              ListTodosComponent.jsx:25 
+  0  : {id: 1, username: 'in28minutes', description: 'Get AWS Certified', targetDate: '2034-07-28', done: false}
+  1: {id: 2, username: 'in28minutes', description: 'Learn DevOps', targetDate: '2035-07-28', done: false}
+  2: {id: 3, username: 'in28minutes', description: 'Learn Full Stack Development', targetDate: '2036-07-28', done: false}
+  length: 3
+  [[Prototype]]: Array(0)
+-------------------------------------------------------------------------------------------
+
+좋다
+이제 console.log를 삭제해보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+
+import { useEffect, useState } from "react"
+import { retrieveAllTodosForUsername } from "./api/TodoApiService"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    // const todos = [
+    //     {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+    //     {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+    //     {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+    //   ]
+
+    useEffect(
+        () => refreshTodos() , []
+    )
+
+    function refreshTodos() {
+    retrieveAllTodosForUsername('in28minutes')
+        .then(response => {
+
+            //13: console.log(response.data) 삭제, 그럼 이제 모든 게 설정되었다
+           // console.log(response.data) (<= 여기서만 주석처리 실제 코드는 삭제)
+
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+..
+----------------------------------------------------------------------------------------------------------------------
+
+그리고 더 깔끔하게 보이도록 형식화를 해보겠다
+그럼 useEffect는 refreshTodos()를 호출하고 이렇게 해주면 되겠지 => useEffect( () => refreshTodos() , [] )
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+
+import { useEffect, useState } from "react"
+import { retrieveAllTodosForUsername } from "./api/TodoApiService"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    //14: 그리고 여기 주석처리 된 코드를 삭제해보자, 그러면 이제 괜찮아 보인다, 이걸 저장해보자
+    // const todos = [ (<= 여기서만 주석처리 실제 코드는 삭제)
+    //     {id : 1, description : 'Learn AWS', done : false, targetDate : targetDate},
+    //     {id : 2, description : 'Learn Full Stack Dev', done : false, targetDate : targetDate},
+    //     {id : 3, description : 'Learn DevOps', done : false, targetDate : targetDate}
+    //   ]
+
+    useEffect( () => refreshTodos() , [] )
+
+    function refreshTodos() {
+    retrieveAllTodosForUsername('in28minutes')
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+...
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+그리고 TodoApiService도 좋아보인다..
+
+여기 보면 약간 중복이 있는데
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoApiService.js
+
+
+
+import axios from 'axios'
+
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+);
+
+export const retrieveAllTodosForUsername
+        = (username) => apiClient.get(`/users/${username}/todos`)
+        
+        // http://localhost:8080/users/in28minutes/todos
+----------------------------------------------------------------------------------------------------------------------
+우린 apiClient를 다시 생성하고 있지 
+두 번 생성하고 있는 것이다 하나는 TodoApiService에서, 다른 하나는 HelloWorldApiService에서 생성하고 있다 
+그건 잠시 후에 수정해보고 우선 다른 코드는 대부분 상당히 괜찮아 보인다
+
+그럼 다음 단계에서 보겠다
