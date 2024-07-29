@@ -1,0 +1,287 @@
+
+
+Full Stack - Todo REST API - Resources and Methods
+
+● REST API                                                                  ----------------------------------------------------------------------------------------------------------------------
+  ■ Hello World REST API:    
+    ○ Hello Wrold:                                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ◦ @GetMapping(path = "/hello-world")                                      in28Minutes   Home Todos                         (베이지? 바탕)                                           Logout                                            
+    ○ Hello Wrold Bean:                                                         _______________________________________________________________________________________________________________
+      ◦ @GetMapping(path = "/hello-world-bean")                                                                                
+    ○ Hello Wrold Path Variable:                                                                                
+      ◦ @GetMapping(path = "/hello-world/path-variable/{name}")                       Your Todos
+● Todo REST API:                                                                                
+    ○ Retrieve Todos                                                                  Description	                      Taget Date	   Is Done?
+      ◦ @GetMapping("/users/{username}/todos")                                       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    ○ Retrieve Todo                                                                                                                                      ________________      _______________
+      ◦ @GetMapping("/users/{username}/todos/{id}")                                   Learn AWS                         2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+    ○ Delete Todo                                                                                                                                        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ◦ @DeleteMapping("/users/{username}/todos/{id}")                                ---------------------------------------------------------------------------------------------------------
+                                                                                                                                                         ________________      _______________
+                                                                                      Learn DevOps                      2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+                                                                                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                      ---------------------------------------------------------------------------------------------------------
+                                                                                                                                                         ________________      _______________
+                                                                                      Learn React                       2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+                                                                                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                      ---------------------------------------------------------------------------------------------------------
+                                                                                                                                                         ________________      _______________
+                                                                                      Learn Angular                     2025-07-022	   false            | Update (녹바탕) |   | Delete(노바탕) |    
+                                                                                                                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                      ---------------------------------------------------------------------------------------------------------
+                                                                                
+                                                                                ----------------------------------------------------------------------------------------------------------------------
+
+
+지난 단계에서 우리는 특정한 Todo에 관한 모든 세부정보를 받는 REST API를 만들었지
+    ○ Retrieve Todos
+      ◦ @GetMapping("/users/{username}/todos")
+
+이번 단계에서는 
+    ○ Retrieve Todo 
+      ◦ @GetMapping("/users/{username}/todos/{id}")
+    ○ Delete Todo
+      ◦ @DeleteMapping("/users/{username}/todos/{id}") 
+특정한 Todo에 관한 세부정보를 받고 특정한 Todo를 삭제하는 방법을 
+알아보도록 하겠다 
+그럼 먼저 특정한 Todo의 세부정보를 받는 것부터 시작해보자
+그럼 가서 이것과 아주 비슷한 메서드를 만들 것이다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+
+  //1: 그럼 retrieveTodo()라고 해보자 , 그럼 이건 단 하나의 Todo를 말하는 거고, 우린 Todo의 id를 입력값으로 받을 것이다
+  //그럼 /todos/{id}라고 해주자, 그럼 "/users/{username/todos/{id}}"고
+	@GetMapping("/users/{username}/todos/{id}")
+
+                  //1-1: 패스 변수에는 변수가 2개 있을 것이다, username이라고 하고, 두 번째는 int id라고 해주자 그리고
+          //1-3:↓ (이부분 리턴타입이 List<Todo> 에서 Todo로 변경됨..) 좋다, 이렇게 Todo에 관한 두 번째 REST API를 만들었다
+	public Todo retrieveTodo(@PathVariable String username,
+                                 @PathVariable int id) {
+
+          //1-2: 이건 뭘 해야 할까? 그럼 todoService.findById()라고 하고 id를 넣어준다, 간단하지?
+          //그리고 이건 Todo리스트를 리턴하지 않을거고 ctrl+1을 눌러 메서드 리턴 타입을 'Todo'로 변경한다//1-3: 리턴타입으로..
+		return todoService.findById(id);
+	}
+}
+
+----------------------------------------------------------------------------------------------------------------------
+
+그럼 브라우저로 가서 /todos를 실행하고
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:8080/users/in28minutes/todos 사이트화면 ==>
+
+
+
+
+[
+  {
+    "id": 1,
+    "username": "in28minutes",
+    "description": "Get AWS Certified",
+    "targetDate": "2034-07-29",
+    "done": false
+  },
+  {
+    "id": 2,
+    "username": "in28minutes",
+    "description": "Learn DevOps",
+    "targetDate": "2035-07-29",
+    "done": false
+  },
+  {
+    "id": 3,
+    "username": "in28minutes",
+    "description": "Learn Full Stack Development",
+    "targetDate": "2036-07-29",
+    "done": false
+  }
+]
+--------------------------------------------------------------------------------------------
+
+여기 있는 id를 하나 잡아보겠다 그럼 id: 1을 잡고 그걸 실행해보자
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:8080/users/in28minutes/todos/1 사이트화면 ==>
+
+
+
+{
+  "id": 1,
+  "username": "in28minutes",
+  "description": "Get AWS Certified",
+  "targetDate": "2034-07-29",
+  "done": false
+}
+
+--------------------------------------------------------------------------------------------
+
+그럼 Todo의 세부정보가 되돌아오는 걸 볼 수 있지
+잘 된 것 같고
+
+그럼 삭제 메서드도 구현해 볼까?
+Todo 삭제 메서드를 구현하는 건 이것과 아주 비슷할 거고
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+
+  //2: Todo 삭제 메서드를 구현하는 건 이것과 아주 비슷할 거고, 이건 @DeleteMapping이 되어야 하고 그리고 임포트를 정리해보자, 그러면 DeleteMapping이 들어오는 게 보일 것이다, org.springframework.web.bind.annotaion.DeleteMapping이지
+  //너가 삭제를 할 때는 두 가지 방법이 있다, 1번)너는 성공 상태를 리턴할 수 있고, 그럼 void라고 해서 아무것도 리턴하지 않을 수 있지, 만일 메서드가 성공적으로 실행되면 200이라는 상태가 컨슈머에게 다시 전송될 것이다
+1)	@GetMapping("/users/{username}/todos/{id}")
+	public void retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	} //======> ❗ 우린 2번)항목을 선택
+
+  //2번) 또는 역시 response 엔티티를 사용하고 콘텐츠가 없는 상태를 전송하는 방법도 있지, 그럼 너는 ResponseEntity<void>라고 할 수 있다, 임포트를 정리해보자, 그러면 org.springframework.http.ResponseEntity가 임포트된 게 보일 거고 
+2)	@GetMapping("/users/{username}/todos/{id}")
+  //2-1: 여기서 우리가 구현하려고 하는 주요 로직은 Todo를 삭제하는 로직이지, 그럼 메서드 이름을 deleteTodo()로 변경해보자
+	public ResponseEntity deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+
+    //2-2:그리고 여기서 todoService.deleteById(id)라고 해준다
+		todoService.deleteById(id);
+	}
+}
+
+----------------------------------------------------------------------------------------------------------------------
+
+그리고 deleteById()를 보면
+-------------------------------------
+	public void deleteById(int id) {
+		Predicate<? super Todo> predicate = todo -> todo.getId() == id;
+		todos.removeIf(predicate);
+	}
+-------------------------------------
+단순한 반복문이고 (deleteById 메소드의 로직 => Predicate<? super Todo> predicate = todo -> todo.getId() == id;)
+id가 매칭되면 Todo를 삭제하는 일을 하지 (<= todos.removeIf(predicate);)
+그럼 단지 id를 확인하고 removeIf()메서드를 이용해서 Todo리스트에서 Todo를 삭제할 것이다
+
+그럼 가서
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		 todoService.deleteById(id);
+
+    //3: 삭제가 완료되면 ResponseEntity.noContent().build()를 리턴하려고 한다
+    return ResponseEntity.noContent().build()
+	}
+}
+
+----------------------------------------------------------------------------------------------------------------------
+
+너가 성공 상태를 리턴하려면 같은 객체를 리턴할 수 있고 그럼 Todo를 리턴하려면 Todo를 리턴할 수 있고
+200이라는 상태를 리턴할 것이다
+하지만 응답을 맞춤화하고 싶으면 여기서 우리는 여기서 noContent()라는 상태를 리턴하지 
+설명을보면( Create a builder with a NO_CONTENT status. ) NO CONTENT 상태를 빌더를 만든다고 되어있다
+그럼 우리는 NO CONTENT 라는 상태를 리턴할 것이다
+그래서 삭제 API의 경우에 너는 200이라는 응답 상태를 전송하거나 NO CONTENT 상태를 전송할 수 있지
+이 경우에서 우리는 NO CONTENT를 리턴하려고 한다
+
+그럼 너는 deleteTodo()메서드를 어떻게 실행할 수 있을까?
+너가 이 강의의 웹 서비스 ,REST API 섹션을 이미 완료했다면 Talend API Tester를 어떻게 사용하는지 알고 있을 것이다
+
