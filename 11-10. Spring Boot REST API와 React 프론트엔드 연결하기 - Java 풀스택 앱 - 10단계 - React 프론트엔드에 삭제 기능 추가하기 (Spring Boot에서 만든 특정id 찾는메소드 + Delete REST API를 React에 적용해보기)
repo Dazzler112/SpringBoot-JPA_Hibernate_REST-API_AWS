@@ -483,3 +483,328 @@ export default ListTodosComponent
 deleteTodo({todo.id}) 이런걸 하려고 한다면 화살표 함수를 사용해야 하지
 그럼 먼저 실제로 이걸 화살표 함수로 만들어 보자
 
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+import { useEffect, useState } from "react"
+import { retrieveAllTodosForUsername } from "./api/TodoApiService"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    useEffect( () => refreshTodos() , [] )
+
+    function refreshTodos() {
+    retrieveAllTodosForUsername('in28minutes')
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+    }
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+
+                                        <td> <button className="btn btn-warning" 
+                                        //5: 그럼 너는 이렇게 화살표 함수를 넣고 deleteTodo()를 호출해야 하고, deleteTodo()안에 어떤 인수를 넣어줘야 할까? todo.id를 넣어줘야 한다
+                                        //그럼 정리해보면, onClick이 되면 특정한 Todo의 id를 이용해서 deleteTodo()를 호출하게 되지 실제로 어떻게 되는지 볼까?
+                                                     onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+Delete를 누르면
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                               Login   Logout
+     _____________________________________________________________________________________________
+
+                                        Things You Want To Do!
+                                      
+                     Description	               is Done?     	 Target Date       Delete
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                  ________
+                   Get AWS Certified	            false        Sat Jul 05 2036   | Delete |  
+                                                                                  ‾‾‾‾‾‾‾‾                                                                           
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                  ________
+                     Learn DevOps		              false        Sat Jul 05 2036   | Delete | 
+                                                                                  ‾‾‾‾‾‾‾‾  
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                  ________
+               Learn Full Stack Development	      false        Sat Jul 05 2036   | Delete |  
+                                                                                  ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  clicked 1                                                     ListTodosComponent.jsx:24
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  clicked 2                                                     ListTodosComponent.jsx:24
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  clicked 3                                                     ListTodosComponent.jsx:24
+-------------------------------------------------------------------------------------------
+
+clicked 1이 나오고 두 번째 걸 누르면 clicked 2가 나오지
+또 Delete를 누르면 clicked 3 이나오고 
+축하한다
+
+그럼 이제 이걸 사용해 보겠다
+여기서 
+-----------------------
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+    }
+-----------------------
+우린 뭘 하려고 하지? 우린 deleteTodo API를 호출하려고 한다 그럼 TodoApiService로 가서
+새로 메서드를 만들어 보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoApiService.js
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveAllTodosForUsername
+        = (username) => apiClient.get(`/users/${username}/todos`)
+        // http://localhost:8080/users/in28minutes/todos
+
+//6: 그럼 export const deleteTodo라고 해준다, 우린 Todo를 삭제하려고 하고, deleteTodo에는 
+export const deleteTodo
+ //6-1: username 과 id라는 두 개의 인수가 있지 그리고 apiCLient.delete  ↓그리고 여기는 /${id}가 되어야 한다 ,ㅇㅋ 잘 된 것 같고
+        = (username, id) => apiClient.get(`/users/${username}/todos/${id}`)
+        // http://localhost:8080/users/in28minutes/todos
+
+        //정리) 그럼 우린 deleteTodo를 호출하고 username과 id를 넣고 apiClient.delete(`/users/${username}/todos/${id}`)라고 한다, 저장하고
+----------------------------------------------------------------------------------------------------------------------
+
+이제 ListTodosComponent에서
+deleteTodo를 사용할 수 있다
+이제 여기 있는 deleteTodo()관련 
+--------------------------------
+⏺ ListTodosComponent.jsx
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+    }
+--------------------------------
+코드를 보면 
+여기 있는 
+--------------------------------
+⏺ TodoApiService.js
+
+export const deleteTodo
+        = (username, id) => apiClient.delete(`/users/${username}/todos/${id}`)
+--------------------------------
+deleteTodo와 이름이 아주 비슷한 걸 알 수 있다
+
+그건 좋지 않고 
+그럼 우리는 간단한 Api라는 접미어를 추가할 것이다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoApiService.js
+
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+//7-1: 여기도 retrieveAllTodosForUsername에 Api를 붙일 것이다
+export const retrieveAllTodosForUsernameApi
+        = (username) => apiClient.get(`/users/${username}/todos`)
+        // http://localhost:8080/users/in28minutes/todos
+
+//7: ListTodosComponent.jsx의 deleteTodo()와 차별성을 두기 위해 deleteTodoApi라는 이름으로 변경.., 그럼 deleteTodoApi이고//7-1:위로 가서 작성..
+export const deleteTodoApi
+        = (username, id) => apiClient.delete(`/users/${username}/todos/${id}`)
+        // http://localhost:8080/users/in28minutes/todos      
+----------------------------------------------------------------------------------------------------------------------
+
+
+그리고 ListTodosComponent에서
+그걸 사용하는 부분을 업데이트해서
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+import { useEffect, useState } from "react"
+import { retrieveAllTodosForUsername } from "./api/TodoApiService"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    useEffect( () => refreshTodos() , [] )
+
+    function refreshTodos() {
+
+    //8: TodoApiService.js에서 이름이 변경됐으니 여기도 변경.. retrieveAllTodosForUsername=> retrieveAllTodosForUsernameApi로.. //8-1: deleteTodo()로..
+    retrieveAllTodosForUsernameApi('in28minutes')
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    //8-1: 여기서도 다른 걸 사용할 것이다, 그럼 우리는 deleteTodoApi()도 사용할 거고,
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+      //8-2: 이 deleteTodoApi()에 첫 번째 인수로서 username을 넣으려고 한다, 인수를 조심해야 한다 username은 in28minutes고, 잠시 우리는 in28minutes를 하드코딩하고 있었는데 하드코딩을 다음 단계에서 제거해야 한다
+      //지금은 우선 삭제를 작동시키는 데 집중해보자, 그럼 deleteTodoApi('in28minutes', id)라 하고, 
+        deleteTodoApi('in28minutes', id)
+        //8-3: 성공적인 응답이 되돌아오면 우린 뭘 하려고 했지
+        .then(
+          //8-4: 여기서 그걸 할것이다
+        )
+          //8-5: 그리고 .catch()도 같을 것이다
+        .catch(
+          
+        )
+    }
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+                                        <td> <button className="btn btn-warning" 
+                                                     onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+그럼 만일 오류 호출이라면 여기에 오류 로그를 남길 건데, 하지만 성공적인 응답이라면 뭘 하려고 하지?
+우린 두 가지를 하려고 한다 
+우린 메시지를 사용자에 표시하려고 하고 
+.then(
+  즉 삭제에 성공했다는 메시지를 표시하길 원하지
+  //1: Display message
+  그리고 그 다음에도 우리는 Todo 리스트를 업데이트 해야 한다 그럼 업데이트 Todo list라고 적어보자
+  //2: Update Todos list 
+  )                      
+우리가 여기 작성하는 메서드에서 그 둘을 모두 해야 하지
