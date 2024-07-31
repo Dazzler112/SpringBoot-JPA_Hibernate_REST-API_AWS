@@ -1,0 +1,750 @@
+
+
+지난 몇 단계에서는 곳곳에 
+----------------------------------
+    function refreshTodos() {
+    retrieveAllTodosForUsernameApi('in28minutes')
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+        deleteTodoApi('in28minutes', id)
+        .then(
+----------------------------------
+in28minutes를 하드코딩했지
+그건 바람직하지 않다 
+사용자가 로그인하면 우리는 입력된 사용자 ID인 in28minutes를 받고 
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                     
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+그럼 우리는 이 사용자 ID를 컨텍스트에 넣어서 API 호출을 할 때 언제나 사용할 수 있지
+이번 단계에서는 그 부분을 살펴보려고 한다 
+
+사용자가 로그인하면 username을 잡을 거고, 그걸 컨텍스트에 넣어서 
+API 호출을 하거나 나중에 애플리케이션에서 username을 사용하려는 곳에서 언제나 사용할 수 있지
+그걸 시작해 보겠다
+
+
+그럼 우리 컨텍스트로 갈 거고 AuthContext.js로 가서 컨텍스트에 다른 걸 추가하려고 한다
+우린 username을 추가하려 하고 
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useContext, useState } from "react";
+
+// Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+// Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //3: Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    //1: 그럼 username이라고 하고 메서드는 setUsername이 될 것이다, 그리고 기본값으로서 null 값을 갖게 될 것이다, 이건 괜찮아보이고 
+    //지금 우린 상태에 그걸 갖고있고 username값을 모든 사람에게 노출하려고 한다 //1-1: 아래 return으로..
+    const [username, setUsername] = useState(null)
+
+    function login(username, password) {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            setAuthenticated(true)
+            return true
+        }else {
+            setAuthenticated(false)
+            return false
+        }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+    }
+
+    return (
+                                          //1-1: 그럼 여기에 username을 넣어준다 
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+----------------------------------------------------------------------------------------------------------------------
+
+이렇게 우리는 노출되는 값에 username을 추가했고, 그리고 우린 어디에 username을 설정하지?
+로그인 당시에 LoginComponent는 username과 password로 login()의 authContext를 호출하고
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ LoginComponent.jsx
+
+
+
+import { useState } from 'react'
+import {useNavigate} from 'react-router-dom'
+import { useAuth } from './security/AuthContext'
+
+
+function LoginComponent() {
+
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    const authContext = useAuth()
+
+    function handleUsernameChange(event) {
+        setUsername(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    function handleSubmit() {
+
+        if(authContext.login(username, password)) {
+            navigate(`/welcome/${username}`)
+        }else {
+            setShowErrorMessage(true)
+        }
+    }
+    
+...
+export default LoginComponent
+----------------------------------------------------------------------------------------------------------------------
+그럼 AuthContext.js의
+----------------------------------------
+    function login(username, password) {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            setAuthenticated(true)
+            return true
+        }else {
+            setAuthenticated(false)
+            return false
+        }
+    }
+----------------------------------------
+이 메서드가 호출된다
+
+그리고 로그인에 성공하면 우리는 username을 설정하려고 한다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useContext, useState } from "react";
+
+// Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+// Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    // Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    function login(username, password) {
+
+        if(username === 'in28minutes' && password === 'dummy') {
+            setAuthenticated(true)
+
+            //2: 그럼 setUsername()이라고 하고 username을 넣어서 사용자 이름을 설정하려 한다, 이 username이라는 인수가 들어가지
+            //그럼 사용자로부터 username을 받으면 우린 그걸 컨텍스트에 설정한다
+            setUsername(username)
+  
+            return true
+        }else {
+            setAuthenticated(false)
+
+            //2-1: 그리고 만일 오류가 나면 우린 username()을 null로 설정할것이다, 잘 된 것 같고 
+            setUsername(null)
+            return false
+        }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+    }
+
+    return (
+        <AuthContext.Provider value={ { isAuthenticated, login, logout} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+----------------------------------------------------------------------------------------------------------------------
+
+이렇게 우리는 username을 컨텍스트에 설정했고
+실제로 어떻게 되는지 볼까? Component로 가서 새로고침을 해보자
+새로고침 된 후에 컴포넌트들을 볼 수 있고
+그리고 Context.Provider를 눌러보면
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                     
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+              Link
+              Link
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+              ▼ AuthencatedRoute
+                ▼ WelcomeComponent
+                    Link
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▼ value: {isAuthenticated: false, login: ƒ login() {}, logout…}
+  isAuthenticated: false
+  login: ƒ login() {}
+  logout: ƒ logout() {}
+  username : null
+  new entry : ""
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+isAuthenticated가 false인 걸 알 수 있다
+그리고 보는 것처럼 username이 null이다 
+value를 확장해보면 username이 null인걸 볼 수 있지
+
+
+
+로그인을 하면?
+
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+
+          in28minutes  Home  Todos                                           Logout   
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes 
+                                      
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |  
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+              Link
+              Link
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+              ▼ AuthencatedRoute
+                ▼ WelcomeComponent
+                    Link
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▼ value: {isAuthenticated: true, login: ƒ login() {}, logout…}
+  isAuthenticated: false
+  login: ƒ login() {}
+  logout: ƒ logout() {}
+  username : "in28minutes"
+  new entry : ""
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+이렇게 username이 in28minutes로 업데이트되는 걸 볼 수 있다 
+그리고 이제 우리가 in28minutes로 하드코딩한 곳에선 모두 컨텍스트로부터 값을 잡을 수 있다
+그렇게 쉽지는 않고 그럼 해보자
+
+LoginComponent.jsx에 in28minutes를 검색해보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ LoginComponent.jsx
+
+...
+function LoginComponent() {
+
+    //❗이건 우리가 설정하고 있는기본값 username이고 이건 in28minutes가 될 수 있지 괜찮고
+    const [username, setUsername] = useState('in28minutes')
+    const [password, setPassword] = useState('')
+    const [showErrorMessage, setShowErrorMessage] = useState(false)
+    const navigate = useNavigate();
+
+    const authContext = useAuth()
+
+...
+export default LoginComponent
+----------------------------------------------------------------------------------------------------------------------
+그럼 ListTodosComponent로 가보면,
+우린 몇 곳에서 in28minutes를 하드코딩했었지
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ ListTodosComponent.jsx
+..
+
+function ListTodosComponent() {
+
+...
+    function refreshTodos() {
+    retrieveAllTodosForUsernameApi('in28minutes')
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+        deleteTodoApi('in28minutes', id)
+    //❗ 위 쪽과 이부분의 in28minutes는 우리가 고칠 곳이고 
+        .then(
+            () => {
+                setMessage(`Delete of todo with id = ${id} successful`)
+                refreshTodos()
+            }
+            //1: Display message
+            //2: Update Todos list
+        ) 
+        .catch(
+            
+        )
+    }
+...
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+
+ListTodosComponent에서 Auth를 가져와보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ ListTodosComponent.jsx
+
+
+
+import { useEffect, useState } from "react"
+import { deleteTodoApi, retrieveAllTodosForUsernameApi } from "./api/TodoApiService"
+
+//3-1: 이렇게 import { useAuth } from "./security/AuthContext" 라고 임포트될 것이다 좋고 //3-2: 다시 ListComponent안으로...
+import { useAuth } from "./security/AuthContext"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    //3: 그럼 먼저 useAuth라고 할 거고, 그러면 useAuth는 이렇게//3-1: 임포트로..
+    //3-2: 그리고 우리는 이걸 상수로 만들 것이다, 이렇게 const authContext = useAuth() 라고 해주자
+    const authContext = useAuth()
+
+    //3-3: 그리고 너는 username을 받으려고 한다 그럼 const username = authContext.username 이라고 한다
+    const username = authContext.username
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    const [message, setMessage] = useState(null)
+
+    useEffect( () => refreshTodos() , [] )
+
+    function refreshTodos() {
+    retrieveAllTodosForUsernameApi('in28minutes')
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+        deleteTodoApi('in28minutes', id)
+        .then(
+
+            () => {
+                setMessage(`Delete of todo with id = ${id} successful`)
+                refreshTodos()
+            }
+            //1: Display message
+            //2: Update Todos list
+        ) 
+        .catch(
+            
+        )
+    }
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            
+            {message && <div className="alert alert-warning">{message}</div>}
+            
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+                                        <td> <button className="btn btn-warning" 
+                                                     onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+
+그럼 여기에
+--------------------------------
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▼ value: {isAuthenticated: true, login: ƒ login() {}, logout…}
+  isAuthenticated: false
+  login: ƒ login() {}
+  logout: ƒ logout() {}
+  username : "in28minutes"
+  new entry : ""
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------
+username이 들어갈 것이다
+그게 우리가 잡으려는 값이지
+
+
+이제 너는 in28minutes대신에 username을 사용할 수 있지
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ ListTodosComponent.jsx
+
+
+
+import { useEffect, useState } from "react"
+import { deleteTodoApi, retrieveAllTodosForUsernameApi } from "./api/TodoApiService"
+import { useAuth } from "./security/AuthContext"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    const [message, setMessage] = useState(null)
+
+    useEffect( () => refreshTodos() , [] )
+
+    function refreshTodos() {
+                    //4: 그럼 여기를 'in28minutes'에서 username으로 바꾸고 (retrieveAllTodosForUsernameApi('in28minutes')를 (username)으로) 그리고 deleteTodoApi에도//4-1: deleteTodoApi()로..
+    retrieveAllTodosForUsernameApi(username)
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+
+        //4-1: username을 넣을 수 있지 , 잫 되는지 볼까?
+        deleteTodoApi(username, id)
+        .then(
+
+            () => {
+                setMessage(`Delete of todo with id = ${id} successful`)
+                refreshTodos()
+            }
+            //1: Display message
+            //2: Update Todos list
+        ) 
+        .catch(
+            
+        )
+    }
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            
+            {message && <div className="alert alert-warning">{message}</div>}
+            
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+                                        <td> <button className="btn btn-warning" 
+                                                     onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+그럼 Todos로 가보자
+                                        |
+                                        V
+------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                               Login   Logout
+     _____________________________________________________________________________________________
+
+                                        Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________
+                   Get AWS Certified	           false     Sat Jul 05 2036   | Delete |  
+                                                                                ‾‾‾‾‾‾‾‾                                                                           
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________
+                     Learn DevOps		   false     Sat Jul 05 2036   | Delete | 
+                                                                                ‾‾‾‾‾‾‾‾  
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________
+               Learn Full Stack Development	   false     Sat Jul 05 2036   | Delete |  
+                                                                                ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+              Link
+              Link
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+              ▼ AuthencatedRoute
+                ▼ WelcomeComponent
+                    Link
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▼ value: {isAuthenticated: true, login: ƒ login() {}, logout…}
+  isAuthenticated: false
+  login: ƒ login() {}
+  logout: ƒ logout() {}
+  username : "in28minutes"
+  new entry : ""
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+ㅇㅋ 너는 호출이 가고 올바른 Todo 세부정보가 돌아오는 걸 볼 수 있다
+
+
+이번 단계에서 우리는 username을 AuthContext에 추가했고 
+즉 AuthContext안에서 우리는 username을 설정했고(<= const [username, setUsername] = useState(null)) 
+이제 다른 컴포넌트도 
+AuthContext.username을 통해서 로그인된 사용자의 username에 액세스할 수 있다 (<= <AuthContext.Provider value={ { isAuthenticated, login, logout, username} }>)
+우린 ListTodosComponent에서도 이 username을 사용하지
+다음 단계에서 보겠다
