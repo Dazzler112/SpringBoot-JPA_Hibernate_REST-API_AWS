@@ -1,0 +1,401 @@
+
+
+이번 단계에선 Todo 업데이트 기능을 추가해보자
+우린 이제 Todo를 삭제할 수 있는데 
+기존의 Todo를 업데이트하는 방법은 어떨까?
+우린 이번 단계에서 그걸 자세히 알아보겠다
+
+그럼 ListTodosComponent로 가서 
+먼저 버튼을 추가해볼까?
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ ListTodosComponent.jsx
+
+
+
+
+import { useEffect, useState } from "react"
+import { deleteTodoApi, retrieveAllTodosForUsernameApi } from "./api/TodoApiService"
+import { useAuth } from "./security/AuthContext"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    const [message, setMessage] = useState(null)
+
+    useEffect( () => refreshTodos() , [] )
+
+    function refreshTodos() {
+        retrieveAllTodosForUsernameApi(username)
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+        deleteTodoApi(username, id)
+        .then(
+
+            () => {
+                setMessage(`Delete of todo with id = ${id} successful`)
+                refreshTodos()
+            }
+            //1: Display message
+            //2: Update Todos list
+        ) 
+        .catch(
+            
+        )
+    }
+
+    //1-2: 이 deleteTodo(id)메서드를 복사해서 updateTodo(id)라고 해주자
+    function updateTodo(id) {
+        console.log('clicked ' + id);
+
+        //1-3: 우린 updateTodo()의 경우에 우린 바로 API를 호출할 수 없다, 맞지? 특정한 Todo 페이지로 리디렉션을 해야 하지
+        //그럼 너는 Todo 페이지를 만들고 거기로 리디렉션을 해야 한다, 그리고 거기서 사용자는 세부정보를 변경할 수 있고, 우리는 더 나아가서 페이지를 표시할 수 있다 
+        //그럼 지금 이걸 저장해보자, 지금 console.log('clicked' + id)를 제외한 모든 코드를 삭제할 것이다 (console.log('clicked ' + id); 를 제외한 모든 코드는 삭제했음..)
+    }
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            
+            {message && <div className="alert alert-warning">{message}</div>}
+            
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                          //1: Update 버튼을 넣을거고 //1-1: 아래로..
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+                                        <td> <button className="btn btn-warning" 
+                                                     onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
+
+                                      //1-1: 여기 위에 있는 버튼과 똑같은 버튼을 넣어줄 것이다 그럼 deleteTodo 버튼을 복사하고, updateTodo로 변경해보자, {todo.id}는 그대로 쓸거고 
+                                      //텍스트 부분은 Update가 되겠지 그리고 className은 btn-warning이 아니라 btn-success라고 할 것이다
+                                      //그리고 deleteTodo가 아니고 updateTodo가 있어야 겠지 //1-2: 위로 가서 deleteTodo() 아래에 작성
+                                        <td> <button className="btn btn-success" 
+                                                     onClick={() => updateTodo(todo.id)}>Update</button> </td>
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+그리고 Update라고 해준다, 오른쪽 클릭을 하고 Inspect(검사)를 눌러보자
+Console로 가보면 
+                                        |
+                                        V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                                       Login   Logout
+     ______________________________________________________________________________________________________
+
+                                        Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete             Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________     ________
+                   Get AWS Certified	           false     Sat Jul 05 2036   | Delete |     | Update |
+                                                                                ‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________     ________
+                     Learn DevOps		   false     Sat Jul 05 2036   | Delete |               | Update |     
+                                                                                ‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________     ________
+               Learn Full Stack Development	   false     Sat Jul 05 2036   | Delete |       | Update |
+                                                                                ‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  clicked 1                                                                    ListTodosComponent.jsx:48
+------------------------------------------------------------------------------------------------------------------
+
+clicked 1이라고 나오지
+그럼 그 버튼이 클릭된 걸 알 수 있지
+
+그럼 세 번째 Update를 누르면?
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  clicked 3                                                                    ListTodosComponent.jsx:48
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  clicked 3                                                                    ListTodosComponent.jsx:48
+------------------------------------------------------------------------------------------------------------------
+clicked 3이 나오고
+두번째 Update를 누르면 clicked 2가 나오지 
+
+좋다, 이제 우리는 새로운 컴포넌트를 만들고 Update가 클릭되면 그걸 표시하려고 한다
+
+그럼 가서 그걸 해보자
+
+우린 컴포넌트를 만든 지 꽤 되었는데, 그럼 한 번 다시 해보자,
+todo폴더에 오른쪽 클릭 > New File 그리고 TodoComponent.jsx라고 해주자
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ TodoComponent.jsx
+
+
+
+
+//2: 그리고 여긴 function TodoComponent(){ 라 하고 
+function TodoComponent() {
+
+  //2-1: return(이라고 해준 다음에
+  return (
+    
+    //2-2: 평소처럼 <div className="container"라고 해주고
+        <div className="container">
+            //2-3: 다음으로 <h1> Enter Todo Details 이라고 해주자
+            <h1>Enter Todo Details</h1>
+            //2-4: 그리고 <div>를 하나 더 넣고 Todo 세부정보를 여기에 표시할 것이다, 이걸 저장하면 
+            <div>
+
+            </div>
+        </div>
+  )
+}
+----------------------------------------------------------------------------------------------------------------------
+
+컴파일이 잘 되는 걸 볼 수 있고 좋다
+이제 우린 ListTodosComponent로 부터 TodoComponent로 리디렉션을 하려고 한다 
+그걸 어떻게 할까?
+
+라우트가 필요하지
+그럼 TodoApp.jsx로 가보자
+지금 우린 이런 모든 라우트가 있고 
+그럼 너는 TodoApp.jsx로 가서 ListTodosComponent 부분의 바로 아래에
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ TodoApp.jsx
+
+
+
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+
+//3-2: 그러면 TodoComponent가 임포트될 것이다, 그런데 TodoComponent가 임포트되지 않았다 무엇이 잘못되었는지 보자, todocomponent를 검색해서 보면..
+
+import AuthProvider, { useAuth } from './security/AuthContext'
+
+
+function AuthencatedRoute({children}) {
+    const authContext = useAuth()
+    if(authContext.isAuthenticated)
+        return children
+
+    return <Navigate to="/" />
+}
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+
+                    <Route path='/welcome/:username' element={
+                        <AuthencatedRoute>
+                            <WelcomeComponent />
+                        </AuthencatedRoute>
+                        } />
+
+                    <Route path='/todos' element={
+                        <AuthencatedRoute>
+                            <ListTodosComponent />
+                        </AuthencatedRoute>
+                        } />
+
+                    //3: TodoComponent를 추가할 것이다, 그럼 앞에서 한 것과 같은 걸 할 거고 우린 id를 넣어서 /todo/라는 경로를 설정하려고 한다
+                    //그럼 너는 Todo id를 파라미터로서 넣어주려고 하지, 그럼 '/todo/:id'라고 하고 
+                    <Route path='/todo/:id' element={
+                        <AuthencatedRoute>
+                          //3-1: element는 TodoComponent가 될 것이다 ctrl+space를 누르고 엔터 키를 눌러보자 //3-2: 임포트로..
+                            <TodoComponentt />
+                        </AuthencatedRoute>
+                        } />
+
+                    <Route path='/logout' element={
+                        <AuthencatedRoute>
+                            <LogoutComponent />
+                        </AuthencatedRoute>
+                        } />
+
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            </AuthProvider>
+        </div>
+    )
+}
+----------------------------------------------------------------------------------------------------------------------
+                                                |
+                                                V
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ TodoComponent.jsx
+
+
+
+//4: 여기 export default라고 해줘야 하지 긜고 다시 TodoApp.jsx로 돌아가서 TodoComponent로 돌아가보자//4-1: TodoApp.jsx로..
+export default function TodoComponent() {
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+
+            </div>
+        </div>
+    ) 
+}
+
+------------------------------------------
+
+
+⏺ TodoApp.jsx
+
+
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
+import './TodoApp.css'
+import LogoutComponent from './LogoutComponent'
+import HeaderComponent from './HeaderComponent'
+import ListTodosComponent from './ListTodosComponent'
+import ErrorComponent from './ErrorComponent'
+import WelcomeComponent from './WelcomeComponent'
+import LoginComponent from './LoginComponent'
+
+//4-2: 그럼 이번엔 여기 TodoComponent가 있는 걸 볼 수 있지, 그럼 이걸 저장해보자
+import TodoComponent from './TodoComponent'
+
+import AuthProvider, { useAuth } from './security/AuthContext'
+
+
+
+function AuthencatedRoute({children}) {
+    const authContext = useAuth()
+    if(authContext.isAuthenticated)
+        return children
+
+    return <Navigate to="/" />
+}
+
+export default function TodoApp() {
+    return(
+        <div className='TodoApp'>
+            <AuthProvider>
+            <BrowserRouter>
+                <HeaderComponent />
+                <Routes>
+                    <Route path='/' element={<LoginComponent />} />
+                    <Route path='/login' element={<LoginComponent />} />
+
+                    <Route path='/welcome/:username' element={
+                        <AuthencatedRoute>
+                            <WelcomeComponent />
+                        </AuthencatedRoute>
+                        } />
+
+                    <Route path='/todos' element={
+                        <AuthencatedRoute>
+                            <ListTodosComponent />
+                        </AuthencatedRoute>
+                        } />
+
+                    <Route path='/todo/:id' element={
+                        <AuthencatedRoute>
+
+                            //4-1: 이제 다시 ctrl + space를 눌러보겠다 //4-2: 다시 import로..
+                            <TodoComponent />
+                        </AuthencatedRoute>
+                        } />    
+
+                    <Route path='/logout' element={
+                        <AuthencatedRoute>
+                            <LogoutComponent />
+                        </AuthencatedRoute>
+                        } />
+
+                    <Route path='*' element={<ErrorComponent />} />
+                </Routes>
+            </BrowserRouter>
+            </AuthProvider>
+        </div>
+    )
+}
+----------------------------------------------------------------------------------------------------------------------
+
+그리고 
+너는 ListTodosComponent에서 뭘 하려고 하지?
+Update를 클릭하면 우린 사용자를 Todo 페이지로 리디렉션하려고 한다
+그걸 어떻게 할 수 있을까?
+
