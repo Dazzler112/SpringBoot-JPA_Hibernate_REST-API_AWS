@@ -399,3 +399,478 @@ export default function TodoApp() {
 Update를 클릭하면 우린 사용자를 Todo 페이지로 리디렉션하려고 한다
 그걸 어떻게 할 수 있을까?
 
+예전에 우리는 useNevigate를 사용했지
+그걸 어디서 사용했지?
+LoginComponent에서 우린 useNavigate를 사용했지, 우린 이 navigate함수를 사용했다 (<= const navigate = useNavigate();)
+그걸 어디에 사용했지?
+우린 그걸 
+--------------------------------
+    function handleSubmit() {
+
+        if(authContext.login(username, password)) {
+            navigate(`/welcome/${username}`)
+        }else {
+            setShowErrorMessage(true)
+        }
+    }
+--------------------------------
+handleSubmit()에 사용해서
+welcome 페이지로 이동했다 (<= navigate(`/welcome/${username}`))
+
+지금 우린 그것과 비슷한 걸 해야 할 건데
+하지만 이번엔 Todo 페이지로 리디렉션을 해야 하지, 맞지?
+
+
+그럼 ListTodosComponent.jsx에서 navigate를 선언해보자
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ ListTodosComponent.jsx
+
+
+
+
+import { useEffect, useState } from "react"
+import { deleteTodoApi, retrieveAllTodosForUsernameApi } from "./api/TodoApiService"
+import { useAuth } from "./security/AuthContext"
+
+//5-1: import {useNavigate} from 'react-router-dom'이라고 해준다, 이제 updateTodo 함수에서 navigate를 호출하기 위해 useNavigate를 사용할 수 있다 //5-2: updateTodo()로 ..
+import {useNavigate} from 'react-router-dom'
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    //5: const navigate=useNavigate()라고 해준다, useNavigate는 훅이고 우린 그걸 참조하고 있다, 그럼 useNavigate를 임포트해 보자 그럼 가서 import..//5-1: import로..
+    const navigate = useNavigate()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    const [message, setMessage] = useState(null)
+
+    useEffect( () => refreshTodos() , [] )
+
+    function refreshTodos() {
+        retrieveAllTodosForUsernameApi(username)
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+        deleteTodoApi(username, id)
+        .then(
+
+            () => {
+                setMessage(`Delete of todo with id = ${id} successful`)
+                refreshTodos()
+            }
+            //1: Display message
+            //2: Update Todos list
+        ) 
+        .catch(
+            
+        )
+    }
+
+    function updateTodo(id) {
+        console.log('clicked ' + id);
+
+        //5-2: 우린 어디로 이동하려고 하지? 너는 '/todos/'로 이동해야 하고 너는 이렇게 '/todos/'로 이동하고 여기 있는 id를 대체해야 하지
+        //그럼 ${id}라고 해준다 그래서 여기에 백틱(`)을 사용해야 하지 그럼 그렇게 해보겠다, 둘레에 틱을 넣어주고 , 그럼 updateTodo(id){console.log('clicked' + id)} navigate(`/todo/${id}`)이다
+        navigate(`/todo/${id}`)
+    }
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            
+            {message && <div className="alert alert-warning">{message}</div>}
+            
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+                                        <td> <button className="btn btn-warning" 
+                                                     onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
+                                        <td> <button className="btn btn-success" 
+                                                     onClick={() => updateTodo(todo.id)}>Update</button> </td>                                                     
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+----------------------------------------------------------------------------------------------------------------------
+
+이제 어떻게 되는지 볼까?
+Update를 클릭하면 
+                                |
+                                V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  clicked 1                                                                    ListTodosComponent.jsx:51
+------------------------------------------------------------------------------------------------------------------
+
+Todo 페이지로 이동하는 걸 볼 수 있고 
+이제 여기에 Todo 세부정보를 표시하려고 한다
+Todo 세부정보를 어떻게 표시할 수 있을까?
+
+함수를 호출해야지
+그럼 API로 가보자 TodoApiService로 가고, 실제로 deleteTodoApi와 비슷한 걸 만들어보곘다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ TodoApiService.js
+
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveAllTodosForUsernameApi
+        = (username) => apiClient.get(`/users/${username}/todos`)
+        // http://localhost:8080/users/in28minutes/todos
+
+export const deleteTodoApi
+        = (username, id) => apiClient.delete(`/users/${username}/todos/${id}`)
+        // http://localhost:8080/users/in28minutes/todos   
+
+//6: retrieveTodoApi라고 해주고, 그리고 delete 대신에 get을 써줘야 하겠지, 이렇게 우리는 특정한 Todo의 세부정보를 받으려고 한다, 그리고 우린 이 API를
+//TodoComponent에서 호출하려고 하지 //6-1: TodoComponent로..
+export const retrieveTodoApi
+        = (username, id) => apiClient.get(`/users/${username}/todos/${id}`)
+        // http://localhost:8080/users/in28minutes/todos    
+
+----------------------------------------
+
+
+⏺ TodoComponent.jsx
+
+
+
+export default function TodoComponent() {
+
+
+  //6-1: 그걸 여기서 할 수 있다, 그럼 function retrieveTodos()라고 해서 함수를 만들고
+  //이 함수 컴포넌트는 id를 받을 것이다, 그러면 id는 우리가 넣어줄 Param중에 하나가 될 거고, 그럼 우리가 Todo를 받기 전에 id를 어떻게 받는지 살펴볼까?
+    function retrieveTodos() {
+        
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+
+            </div>
+        </div>
+    ) 
+}
+----------------------------------------------------------------------------------------------------------------------
+
+앞에서 우리는 useParams 훅을 사용했지,  
+전에 WelcomeComponent에서 우린 Params를 사용헀다, 그걸 받기 위해 useParams 훅을 사용했다  (<= const {username} = useParams())
+'react-router-dom'으로 부터 useParams에 대한 임포트를 추가해야 했고 (<= import {useParams, Link} from 'react-router-dom')
+그렇게 username을 받을수 있었지 (<= const {username} = useParams())
+우리는 지금 
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+//7: 여기에 임포트를 넣는다 //7-1: TodoComponent() 안으로 작성..
+import {useParams} from 'react-router-dom'
+
+//7-3: 보는 것 처럼 './api/TodoApiService'로 부터 retrieveTodoApi가 임포트되고 좋다
+import { retrieveTodoApi } from './api/TodoApiService'
+
+export default function TodoComponent() {
+
+    //7-1: 너는 useParams 훅을 사용하려고 하고 니가 예상하는 Param은 id이다, 그럼 const {id} = useParams()라고 해주자
+    //이렇게 id가 있고//7-2: retrieveTodos()로..
+    const {id} = useParams() 
+
+    function retrieveTodos() {
+        //7-2: 이제 너는 retrieveTodoApi를 호출할 수 있다 //7-3: 다시 임포트로..
+        retrieveTodoApi
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+
+            </div>
+        </div>
+    ) 
+}
+
+----------------------------------------------------------------------------------------------------------------------
+
+그럼 ListTodosComponent로 가보자
+이 코드에서 
+    function refreshTodos() {
+        retrieveAllTodosForUsernameApi(username)
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }   
+우리는성공적인 응답과 그렇지 않은 응답을 처리했고
+그럼 TodoComponent로 가서
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+//8-4: useAuth 임포트됨...
+import { useAuth } from './security/AuthContext'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    //8-3: 그럼 우리는 useAuth()를 써서 username을 받을 수 있고 그럼 useAuth를 임포트 하고..//8-4: useAuth가 임포트됨..
+    //const authContext = useAuth라고 해준다
+    const authContext = useAuth()
+
+    //8-4: 그리고 const username=이라고 하고 authContext.username이라고 해준다 보는 것처럼 우리가 Context에 설정한 값들이 아주 유용하다는 걸 알 수 있지
+    //필요할 때마다 그걸 잡을 수 있고, 필요할 때마다 Context에서 잡을 수 있지
+    const username = authContext.username
+
+    function retrieveTodos() {
+        //8: retrieveTodoApi()를 호출할 때 우리는 username을 넣어줘야 한다, 그럼 여기서 username을 받아야 하고, 그럼 username이라고 써주고 id를 넣어줘야 한다 id는 이미 갖고 있지
+        retrieveTodoApi(username, id)
+
+        //8-1: 그리고 우리는 응답을 받아야 하고 
+         .then(response => (
+            //8-2: 여기서 그냥 console.log(response)라고 해주겠다, 이렇게 API를 호출할 떄 console.log(response)와 console.log(error)라고 해주고, 역시 username을 받아야 한다//8-3: 위로 가서 작성..
+            console.log(response)
+            )
+        )
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+
+            </div>
+        </div>
+    ) 
+}
+----------------------------------------------------------------------------------------------------------------------
+
+이제 다 괜찮은 것 같고 retrieveTodos()도 괜찮아 보인다
+
+----------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const authContext = useAuth()
+    
+    const username = authContext.username
+
+    //9: 우리는 Todo 페이지를 로딩할 때 retrieveTodos()를 호출하려고 한다, 그럼 앞에서 해준 대로
+    //useEffect를 쓸 수 있다, 그럼 useEffect()훅에서 우리는 retrieveTodosApi를 호출할 수 있다
+    useEffect(
+        //9-1: 그럼 여기서 화살표 함수를 만들고 retrieveTodos()를 호출하겠다
+        () => retrieveTodos(),
+        //9-2: 그리고 너는 id 값이 변경될 때에만 이게 새로고침 되도록 하려고 한다 그럼 너는 두 번째 값을 id 배열로서 넣어줄 거고, 이제 문제 없는 것 같다, 이걸 저장해보자
+        [id]
+    )    
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => (
+            console.log(response)
+            )
+        )
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+
+            </div>
+        </div>
+    ) 
+}
+----------------------------------------------------------------------------------------------------------------------
+
+그리고 Console로 기서
+Todos로 간 다음에 이걸 정리해보자, 그리고 Update를 클릭하면 
+                                |
+                                V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+ ▼ {data: {…}, status: 200, statusText: '', headers: AxiosHea                        TodoComponent.jsx:21 
+    ders, config: {…}, …}
+  ▶ config: {transitional: {…}, adapter: Array(3), transform
+    Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+  ▶  data: {id: 1, username: 'in28minutes', description: 'Get 
+      AWS Certified', targetDate: '2034-08-01', done: false}
+  ▶  headers: AxiosHeaders {content-type: 'application/json'}
+  ▶  request: XMLHttpRequest {onreadystatechange: null, readyState:
+      4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+  ▶  status: 200
+  ▶  statusText: ""
+  ▶  [[Prototype]]: Object
+------------------------------------------------------------------------------------------------------------------
+
+볼 수 있다 
+즉 id는 1이고 username은 'in28minutes'고 'Get AWS Certified'라고 나오지
+
+니가 Todos로 가서 
+콘솔창을 정리하고 세 번째 Update를 클릭하면 
+                                |
+                                V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+ ▼ {data: {…}, status: 200, statusText: '', headers: AxiosHea                        TodoComponent.jsx:21 
+    ders, config: {…}, …}
+  ▶ config: {transitional: {…}, adapter: Array(3), transform
+    Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+  ▶  data: {id: 3, username: 'in28minutes', description: 
+    'Learn Full Stack Development', targetDate: '2036-08-01', done: false}
+  ▶  headers: AxiosHeaders {content-type: 'application/json'}
+  ▶  request: XMLHttpRequest {onreadystatechange: null, readyState:
+      4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+  ▶  status: 200
+  ▶  statusText: ""
+  ▶  [[Prototype]]: Object
+------------------------------------------------------------------------------------------------------------------
+
+데이터가 되돌아오는 걸 볼 수 있다
+이건 이제 id 3에 속한거고, 'Learn Full Stack Development'라고 나왔지
