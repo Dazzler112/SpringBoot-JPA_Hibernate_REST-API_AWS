@@ -474,3 +474,623 @@ export default function TodoComponent() {
 ----------------------
 두 개의 필드가 필요하고, 하나는 targetDate를 위한 것이고 다른 하나는 description을 위한 것이다
 
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+
+import {Form, useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik>
+                    {
+                    (props) =>  (
+                          //5:그럼 그걸 다시 복사할 거고 (<= <fieldset> 복사)
+                        <Form>
+                            <fieldset className="form-group">
+                            //5-1: 첫 번째 것은 Description이라고 해주고 
+                                <label>Description</label>
+                                //5-3: 그리고 이것의 type="text"고
+                                <Field type="text" className="form-control" />
+                            </fieldset>
+                            <fieldset className="form-group">
+                              //5-2: 두 번째 것은 Target Date라고 해주자, 
+                                <label>Target Date</label>
+                                //5-4: 이것은 type="date"라고 해준다 ,저장하고 
+                                <Field type="date" className="form-control" />
+                            </fieldset>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+마지막은 필드의 이름이다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {Form, useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik>
+                    {
+                    (props) =>  (
+                        <Form>
+                            <fieldset className="form-group">
+                                <label>Description</label>
+
+                                //6: name="description"이고 
+                                <Field type="text" className="form-control" />
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+
+                                  //6-1: 여기서는 name="targetDate"지, 좋다 이렇게 기본적인 필드세트를 만들었고 
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+가보면 
+                                                |
+                                                V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               
+                                                Description
+               ________________________________________________________________________________ 
+              |                                                                                |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+                ________________________________________________________________________________ 
+               | 연도-월-일                                                                 📅  |
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+              Link
+              Link
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+              ▼ AuthencatedRoute
+                ▼ TodoComponent
+                 ▼ Formik
+                  ▼FormikContext.Provider
+                   ▼ Form
+                      Field
+                      Field
+-------------------------------------------------------------------------------------------
+
+이렇게 양식이 나오고 
+여기 몇 가지 값들이 있다 
+모든 게 문제 없고, 좋다
+
+
+그리고 Formkik에 너는 초기 값을 설정할 수도 있다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+
+                //7: 그럼 <Formik initialValues= 라고 하고, 여기에 객체를 생성해보자
+                <Formik initialValues={{ }}>
+                    {
+                    (props) =>  (
+                        <Form>
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+그리고 여기서 우리가 초기 값으로 넣으려는 값은 우리가 retrieveTodos()에서 받는 값이다
+우린 이미 상태에 description을 설정했고 (<= const[description, setDescription] = useState(''))
+너는 targetDate도 상태에 설정하려고 한다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    //8: 그럼 너는 targetDate, setTargetDate라고 해주고
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+
+            //8-1: 그리고 여기서 setTargetDate라고 할 텐데, 날짜 형식화에 몇 가지 문제가 있을 거고, 진행하면서 수정해보도록 하자
+            //지금은 그냥 추가해보겠다, 그럼 (response.data.targetDate)라고 해주자
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={}>
+                    {
+                    (props) =>  (
+                        <Form>
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+이렇게 우리는 retrieveTodos()로 부터 값을 받고 있고 
+그걸 Description과 TargetDate에 설정하고 있다, 그리고 그 값들을 여기서 사용하고 있지 (<= <Formik initialValues={}>)
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+
+              //9: 그럼 상태로부터 우린 description과 targetDate를 잡을 것이다, 우린 그것들을 초기 값으로 설정하려 하고 그럼 어떻게 되는지 볼까?
+                <Formik initialValues={{ description, targetDate }}>
+                    {
+                    (props) =>  (
+                        <Form>
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+Todos로 가고 Update를 클릭한다
+                                    |
+                                    V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               
+                                                Description
+               ________________________________________________________________________________ 
+              |                                                                                |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+                ________________________________________________________________________________ 
+               | 연도-월-일                                                                 📅  |
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  (2) clicked 1                                                                    ListTodosComponent.jsx:51 
+------------------------------------------------------------------------------------------------------------------
+
+하지만
+                                Description
+ ________________________________________________________________________________ 
+|                                                                                |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+여기로 들어오는 Description이 없다
+
+양식이 생성될 때
+---------------------------------
+const[description, setDescription] = useState('')
+
+const[targetDate, setTargetDate] = useState('')
+---------------------------------
+이 상태에 있는 초기 값으로 초기화가 이루어지는데
+
+그리고 함수 실행이 완료되면 너는 formik을 다시 초기화해야 한다
+기본값으로서, formik은 재초기화를 하지 않지 
+
+
+그럼 우리는 재초기화를 활성화하기 위해 formik을 설정해야 한다 
+그럼 지금 바로 설정해보자
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                  //10: enableReinitialize={true}라고 하면 된다, 이제 어떻게 되는지 볼까?
+                  enableReinitialize = {true}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+                                    |
+                                    V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               
+                                                Description
+               ________________________________________________________________________________ 
+              | Get AWS Certified                                                              |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+                ________________________________________________________________________________ 
+               | 2034-08-02()                                                              📅  |
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  (2) clicked 1                                                                    ListTodosComponent.jsx:51 
+------------------------------------------------------------------------------------------------------------------
+
+이제 가서 보면 Get AWS Certified 와 날짜가 표시된 걸 볼 수 있다 
+멋지지?
+
+그리고 이제 날짜를 선택할 수 있지
+
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               
+                                                Description
+               ________________________________________________________________________________ 
+              | Get AWS Certified                                                              |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+                ________________________________________________________________________________ 
+               | 2034-08-02()                                                              📅  |
+               |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+               | 2034년 08월 ▼         ↑ ↓  |
+               |                            |
+               | 일  월  화  수  목  금  토  |           
+               | 30  31  1   2   3   4  5   |
+               |  6  7   8   9  10  11  12  |
+               | 13  14  15  16 17  18  19  |
+               | 20  21  22  23 24  25  26  |
+               | 27  28  29  30 31   1   2  | 
+               |  3  4   5   6  7    8   9  |
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  (2) clicked 1                                                                    ListTodosComponent.jsx:51 
+------------------------------------------------------------------------------------------------------------------
+
+가령 특정한 날짜를 선택하려 한다고 해보자
+그럼 너는 그걸 선택할 수 있고 멋지지?
+
