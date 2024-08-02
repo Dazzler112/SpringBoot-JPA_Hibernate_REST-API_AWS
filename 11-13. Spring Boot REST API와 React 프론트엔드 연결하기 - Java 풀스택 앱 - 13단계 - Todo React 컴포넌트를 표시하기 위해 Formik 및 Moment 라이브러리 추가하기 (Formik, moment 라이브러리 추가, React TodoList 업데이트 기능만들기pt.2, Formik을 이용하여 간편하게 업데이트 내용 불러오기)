@@ -1,0 +1,476 @@
+
+
+
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+                                          descrition:Learn DevOps
+
+
+------------------------------------------------------------------------------------------------------------------
+
+여기서는 양식을 만들고 Todo 세부정보를 잡으려고 한다 
+우린 사용자가 Todo 세부정보를 업데이트할 수 있길 원하고, 그렇게 하기 위해 양식을 만들 것이다
+앞에서 로그인을 만들 때 우린 수작업으로 양식을 만들었지 
+그러지 말고 라이브러리를 사용해서 모든 양식 관리를 자동으로 하는 게 더 좋겠지?
+그래서 우리는 formik이라는 이름의 라이브러리를 사용할 것이다
+날짜 형식화도 좀 하려고 하고, 그럼 그 부분에 moment라는 또 다른 라이브러리를 사용할 것이다
+
+그럼 그 두 라이브러리를 설치하는 것부터 시작해보자
+그 두 라이브러리를 설치해보겠다
+
+그럼 지금 실행 중인 애플리케이션을 중지하고
+정리를 하고 npm install formik이라고 해준다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ cmd 창>
+
+C:\study\frontend\todo-app>npm install formik
+/ (<= 설치 로딩중)
+
+added 8 packages, and audited 1559 packages in 7s
+
+265 packages are looking for funding
+  run `npm fund` for details
+
+9 vulnerabilities (2 moderate, 7 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+------------------------------------------------------------------------------------------------------------------
+
+formik이 설치되었고
+
+
+그리고 npm install moment라고 해준다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ cmd 창>
+
+
+C:\study\frontend\todo-app>npm install moment
+
+up to date, audited 1560 packages in 3s
+
+265 packages are looking for funding
+  run `npm fund` for details
+
+9 vulnerabilities (2 moderate, 7 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+------------------------------------------------------------------------------------------------------------------
+
+준비되었고
+
+그럼 VSC로 가서 package.json을 살펴보자
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ package.json
+
+
+{
+  "name": "todo-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.7.2",
+    "bootstrap": "^5.3.3",
+    "formik": "^2.4.6",    //<= 여기 formik이 있고
+    "moment": "^2.30.1",  //<= moment도 들어왔다
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.24.1",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+...
+
+------------------------------------------------------------------------------------------------------------------
+
+좋다 
+
+이제 npm start로 애플리케이션을 시작하자
+
+이제 애플리케이션이 실행되고 있고 
+
+콘솔을 정리하고 로그인을 한 다음에 Todos로 가서 
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ 
+
+          in28minutes  Home Todos                                                       Login   Logout
+     ______________________________________________________________________________________________________
+
+                                        Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete             Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________     ________
+                   Get AWS Certified	           false     Sat Jul 05 2036   | Delete |     | Update |
+                                                                                ‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________     ________
+                     Learn DevOps		   false     Sat Jul 05 2036   | Delete |               | Update |     
+                                                                                ‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________     ________
+               Learn Full Stack Development	   false     Sat Jul 05 2036   | Delete |       | Update |
+                                                                                ‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  clicked 1                                                                    ListTodosComponent.jsx:51 
+------------------------------------------------------------------------------------------------------------------
+
+Update를 클릭해보자
+                                |
+                                V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+                                       descrition:Get AWS Certified
+
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  clicked 1                                                                    ListTodosComponent.jsx:51 
+------------------------------------------------------------------------------------------------------------------
+
+그리고 이제 우린 양식을 만들려고 한다 
+
+그럼 TodoComponent로 가서 거기서 양식을 
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+
+//1-1: import { Formik } from 'formik' 이라고 해 줄 것이다 
+import { Formik } from 'formik'
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                //1: 여기 안으로 와서 여기 있는 descrition:{description} 를 삭제하고 양식을 추가해보자 
+                //그럼 <Formik>태그를 넣고 닫는 태그를 넣어보겠다 이렇게 <Formik>태그를 넣었고 그게 어디서 오는 걸까? //1-1: import로..
+                <Formik>
+                    
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+그리고 <Formik> 안에서 너는 jsx를 리턴하는 함수를 정의할 것이다, 너가 표시하려는 jsx를 이 함수의 리턴값으로 리턴하는 것이지                 
+                                                  |
+                                                  V
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik>
+                //2: 그리고 이 함수는 props를 입력값으로 받고, jsx를 리턴할 것이다 
+                //그리고 이게 함수이기 때문에 중괄호를 여닫아서 안에 넣어 보자, 이렇게 중괄호 안에서 우리는 함수를 정의하고
+                  {
+                 (props) => (
+                    //2-1: 여기에 원하는 <div>를 넣을 수 있다,<div>라고 하고 Some Content라고 해두자, 이렇게 해주면
+                    <div>Some content</div>
+                 )   
+                  }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+                                        |
+                                        V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+                                               Some content
+
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+  clicked 1                                                                    ListTodosComponent.jsx:51 
+------------------------------------------------------------------------------------------------------------------
+
+여기서 Some content를 볼 수 있다
+
+
+
+그럼 이제 여기에 우리 양식 요소를 넣는다 
+그럼 양식을 만들어보자
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+
+//3-1: ( {}에 ,Form 작성 ) 그럼 임포트를 해보자 
+//3-5: 그리고 역시 Field도 formik에서 온다 ({}에 Field 추가..)
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik>
+                    {
+                    (props) =>  (
+                        //3: <Form> 이라고 적는다, 역시 이것도 formik에서 오고//3-1: import로.. 
+                        <Form>
+                        //3-2: 그리고 <Form>안에 모든 요소가 들어갈 것이다, 통상적으로 <Form>안의 모든 요소는 필드 세트 안에 포함된다, 그럼 필드세트를 만들어 보자
+                          <fieldset>
+                            //3-3: 모든 필드에는 레이블이 있을 거고 그럼 <label>을 넣어주자
+                            <label></label>
+                            //3-4: 그리고 보통은 입력값이 있지, 하지만 양식에선 필드라는 걸 만들어야 한다 그럼 여기에 <Field>를 만든다 //3-5: 다시 import로..
+                            <Field />
+                          </fieldset>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+이렇게 우리는 양식의 구조를 설정하고 있고
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+
+import {Form, useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+        })
+        .catch(error => console.log(error))
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik>
+                    {
+                    (props) =>  (
+                        <Form>
+                          //4: 그리고 <fieldset>에 className을 추가해보자, 이름을 "form-group"이라고 해준다
+                            <fieldset className="form-group">
+                                <label></label>
+                                //4-1: 그리고 <Field>에 className="form-control"이라고 해준다
+                                <Field className="form-control" />
+                            </fieldset>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+이렇게 
+----------------------
+<fieldset className="form-group">
+  <label></label>
+  <Field className="form-control" />
+</fieldset>
+----------------------
+두 개의 필드가 필요하고, 하나는 targetDate를 위한 것이고 다른 하나는 description을 위한 것이다
+
