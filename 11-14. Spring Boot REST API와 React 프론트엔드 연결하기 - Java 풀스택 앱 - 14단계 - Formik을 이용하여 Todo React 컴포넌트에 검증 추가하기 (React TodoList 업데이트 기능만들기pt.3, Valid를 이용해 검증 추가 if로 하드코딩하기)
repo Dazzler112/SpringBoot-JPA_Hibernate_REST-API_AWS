@@ -1,0 +1,538 @@
+
+
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               
+                                                Description
+               ________________________________________________________________________________ 
+              | Get AWS Certified                                                              |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+                _______________________________________________________________________________ 
+               | 2034-11-19()                                                              📅  |
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+이번 단계에선 양식에 검증을 추가해보자
+우린 업데이트된 Todo에 최소한 다섯 글자가 있게 하려고 한다 
+누군가 
+ ________________________________________________________________________________ 
+| Get                                                                            |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Get이라고 입력하고 저장을 누르지 못하게 하려고 하지
+
+또 Target Date도 검증하려고 한다
+그럼 시작해볼까?
+
+
+검증을 하려면 간단히 validate라고 입력하면 되지
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+    }
+
+    //1-1: 그럼 function validate(values)라고 해주고, 이걸 저장해보자
+    function onSubmit(values) {
+        console.log(values)
+    }  
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+
+                    //1: 그럼 validate=라고 하고 {validate}라고 해서 메서드를 매핑하면 된다, 그리고 이것 역시 Submit 버튼과 아주 비슷하지 //1-1:위로 가서 작성..
+                    validate={validate}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+브라우저로 가서 Todos 페이지로 가보고 Update를 클릭하면
+                                                |
+                                                V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               
+                                                Description
+               ________________________________________________________________________________ 
+              | Get AWS Certified                                                              |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+                ________________________________________________________________________________ 
+               | 2034-08-02()                                                              📅  |
+                ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        (<= 여백이 생김)
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+
+여기
+                                Description
+ ________________________________________________________________________________ 
+| Get AWS Certified                                                              |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+세부정보가 나오고
+이제 너는 Save를 클릭하려고 한다
+그럼 
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+ ▶ {description: 'Get AWS Certified', targetDate: '2034-08-03'}                    TodoComponent.jsx:43
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+ ▶ {description: 'Get AWS Certified', targetDate: '2034-08-03'}                    TodoComponent.jsx:43
+------------------------------------------------------------------------------------------------------------------
+
+두 가지가 프린트 되는 걸 볼 수있지, Get AWS Certified 가 두 번 프린트 되지
+왜냐면 하나는
+-------------------------------
+    function validate(values) {
+        console.log(values)
+    }
+-------------------------------
+validate에서 온 것이고
+
+다른 하나는 
+-------------------------------
+    function onSubmit(values) {
+        console.log(values)
+    }
+-------------------------------
+onSubmit에서 오기 떄문이다
+
+그럼 먼저 validate()가 호출되고 
+만일 오류가 리턴되지 않으면 onSubmit()이 호출될 것이다
+
+validate()에서 너는 검증을 해야 하고, 오류가 있으면 그걸 리턴하려고 한다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+    }
+
+    function validate(values) {
+
+        //2: 오류에 관한 비어 있는 객체를 만들 거고
+        let errors = {}
+        console.log(values)
+        //2-1: error를 리턴할 것이다
+        return error
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+그럼 먼저 하드코딩된 error를 추가해보자
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+    }
+
+    function validate(values) {
+        let errors = {
+
+          //3: 그럼 우선 항상 description에 오류가 있다고 하고 '유효한 설명을 입력하십시오 (Enter a valid description)' 라고 해주자, 그리고 어떻게 되는지 확인해볼까?
+          description: 'Enter a valid description'
+        }
+ 
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+Save를 클릭한다
+                                            |
+                                            V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               
+                                                Description
+               ________________________________________________________________________________ 
+              | Get AWS Certified                                                              |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2034-08-02()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+ ▶ {description: 'Get AWS Certified', targetDate: '2034-08-03'}                    TodoComponent.jsx:43
+------------------------------------------------------------------------------------------------------------------
+
+Save를 클릭하면 validate()만 호출되는 걸 볼 수 있지
+onSubmit()은 호출되지 않고 있다 
+
+그 이유는 오류가 있을 경우에, 
+-----------------------------
+    function validate(values) {
+        let errors = {
+            description: 'Enter a valid description'
+        }
+    ...
+    }
+-----------------------------
+즉 validate()가 오류를 리턴하면 onSubmit은 호출되지 않기 때문이다
+이렇게 된다 <= description: 'Enter a valid description'
+이렇게 description이 오류를 표시하면 
+즉 거기 오류가 있다고 하면 그게 onSubmit()이 실행되지 못하게 하는 것이다
+
+그럼 너는 어디에 오류를 표시하는 지 궁금할 것이다
+그럼 지금 오류를 표시해보도록 하자
+너는 양식의 상단으로 가서
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+
+//4-1:  그럼 임포트에 추가하겠다 {}에 ErrorMessage 추가... //4-2: 다시 return으로..
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+    }
+
+    function validate(values) {
+        let errors = {
+            description: 'Enter a valid description'
+        }
+
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+    
+                          //4: <ErrorMessage>라는 걸 만들 것이다 바로 여기 닫는 태그를 넣어줄 거고 <ErrorMessage>에 많은 속성을 넣을 것이다
+                          //이 ErrorMessage도 역시 formik에서 오지 //4-1: import로..
+                          <ErrorMessage 
+                            //4-2: 그리고 <ErrorMessage>에서 제목은 어떤 필드일까? 제목은 description이고, 너는 그걸 <div>로서 표시하려고 한다
+                            name="description"
+                            //4-3: 그럼 너는 component="div"라고 해줄 거고,
+                            component="div"
+                            //4-4: 그것에 className을 지정할 것이다 그럼 className="alert alert-warning"이라고 해주자, 그리고 이걸 저장한다
+                            className="alert alert-warning"
+                          />
+
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
