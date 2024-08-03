@@ -1084,3 +1084,349 @@ Save를 클릭한다
 니가 글자를 타이핑할 때도 검증을 하고 있다
 심지어는 니가 탭을 누르고 다른 필드로 가도 검증을 하지
 이건 아주 좋지 않다
+
+
+그럼 너는 가서
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+    }
+
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid targetDate'
+        }
+
+        if(values.description.length < 5) {
+            errors.description = 'Enter atleast 5 characters'
+        }    
+        
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+
+                  //8: validateOnChange={false}라고 할 수 있지,
+                    validateOnChange = {false}
+
+                  //8-1: 그리고 validateOnBlur={false}라고 할 수 있다
+                    validateOnBlur = {false}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <ErrorMessage 
+                                name="description"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <ErrorMessage 
+                                name="targetDate"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+너는 Save를 클릭했을 때만 검증을 하려고 한다
+그럼 Get 이라고 적고 Save를 눌러보자
+
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+                                                Description
+               ________________________________________________________________________________ 
+              | Get                                                                            |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2034-08-02()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------
+Save를 클릭하면
+                                            |  
+                                            V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               ________________________________________________________________________________ 
+              |                          Enter atleast 5 characters  (<= 주황 바탕)             |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                                Description
+               ________________________________________________________________________________ 
+              | Get                                                                            |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2034-08-02()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+ ▶ {description: 'Get ', targetDate: '2034-08-03'}                                   TodoComponent.jsx:48
+------------------------------------------------------------------------------------------------------------------
+
+됐다
+검증 오류가 났고, 그래서 한 번만 프린트하고 있지
+그리고 여기 오류 메시지가 표시되고 있다
+최소한 5글자를 입력하라고 나오지
+
+우리가 description에 검증을 한 것처럼
+너는 Target Date에도 검증을 추가할 수 있다
+
+
+그럼 원한다면 너는 
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+    }
+
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid targetDate'
+        }
+
+        if(values.description.length < 5) {
+            errors.description = 'Enter atleast 5 characters'
+        }    
+
+        //9: 너는 if(values.targetDate == null)이라고 하거나 다른 뭔가를 넣어줄 수 있고 
+        if(values.targetDate.length == null) {
+
+            //9-1: errors.targetDate = '목표 날짜를 입력해라' 하고 해줄 수 있고, 이렇게 원한다면 Target Date에 대한 검증도 추가할 수 있다
+            errors.targetDate = 'Enter a target date'
+        }  
+
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+                    validateOnChange = {false}
+                    validateOnBlur = {false}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <ErrorMessage 
+                                name="description"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <ErrorMessage 
+                                name="targetDate"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+그럼 Save를 클릭하면 검증이 이루어질 거고
+그 다음에 onSubmit()이 트리거 된다
+                                            |  
+                                            V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+                                                Description
+               ________________________________________________________________________________ 
+              | Get AWS Certified                                                              |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2034-08-02()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+ ▶ {description: 'Get AWS Certified', targetDate: '2034-08-03'}                     TodoComponent.jsx:52
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+ ▶ {description: 'Get AWS Certified', targetDate: '2034-08-03'}                     TodoComponent.jsx:35
+------------------------------------------------------------------------------------------------------------------
+
+
+
+
+이번 단계에선 양식에 있는 필드를 검증하는 방법을 알아봤다
+다음 단계에서 보겠다
