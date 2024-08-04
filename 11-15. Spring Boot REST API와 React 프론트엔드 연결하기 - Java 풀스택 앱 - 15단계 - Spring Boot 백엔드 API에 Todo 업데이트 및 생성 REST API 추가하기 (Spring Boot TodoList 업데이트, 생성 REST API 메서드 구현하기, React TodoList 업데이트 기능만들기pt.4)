@@ -1,0 +1,409 @@
+
+
+이번 학습엔 백엔드 API
+즉 REST API를 다시 가져와서 Todo 세부정보를 업데이트해보자
+그럼 우리는 Todo 세부정보를 업데이트하기 위해 PutMapping을 만들거고
+먼저 PutMapping을 만들고 새로운 Todo를 만드는 방법도 이번 단계에서 알아볼 것이다
+
+그럼 @PutMapping("/users/{username}/todos/{id}")부터 시작해보자
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+
+  //1:@PutMapping("/users/{username}/todos/{id}")
+	@PutMapping("/users/{username}/todos/{id}")
+
+  //1-1: 메소드명은 updateTodo()가 될 것이다, 업데이트를 하려고 할 때 PutMapping을 사용하고, 임포트를 정리해보자, 그럼 import에 PutMapping이 들어오는 걸 볼 수 있다, 좋다
+	public ResponseEntity<Void> updateTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+너가 업데이트 요청을 받을 때는 그 업데이트 요청과 함께 본문도 받는다
+우리가 Todo로 업데이트하려는 JSON 파일은 뭘까?
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> updateTodo(@PathVariable String username,
+                    //2: 그럼 너는 @RequestBody를 받고 @RequestBody Todo todo 라고 해준다, RequestBody의 형식은 Todo Bean과 비슷할 것이다 그럼 임포트를 정리해보자
+                    //그럼 org.springframework.web.bind.annotation.RequestBody가 들어오는걸 볼것이다
+								   @PathVariable int id, @RequestBody Todo todo) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+그럼 우리가 Todo를 업데이트할 때 우린 이 URL에 요청을 전송하고
+Todo의 콘텐츠를 함께 전송한다
+@PathVariable String username 이게 패스변수에 매핑될 것이고(<={username}) @PathVariable int id id 패스에 매핑될 것이다 (<={id})
+그리고 너가 전송하는 본문은 todo에 매핑되지 (<= @RequestBody Todo todo)
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+
+    //3: 그리고 여기서 우리는 todoService라고 하고 .updateTodo()메서드를 넣을 거고
+    //그럼 너는 todo를 넣어서 updateTodo()메서드를 호출할 것이다 
+		todoService.updateTodo(todo);
+		return ResponseEntity.noContent().build();
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+그럼 updateTodo()메서드를 보면, 그게 하는 일이 뭘까?
+-----------------------------
+⏺ TodoService.java
+...
+	public void updateTodo(Todo todo) {
+		deleteById(todo.getId());
+		todos.add(todo);
+	}
+-----------------------------
+이 Todo id를 이용해서 기존의 Todo를 삭제할 거고, 가기에 새로운 Todo를 추가할 것이다
+좋아 보인다
+
+
+이제 업데이트가 끝나면 너는 다양한 방식으로 응답을 할 수 있는데 
+너는 Todo의 콘텐츠와 함께 성공 응답을 리턴하려고 한다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+		todoService.updateTodo(todo);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+
+        //4-1: return이 todo니 리턴타입도 Todo로 변경 (ResponseEntity<Void>에서 Todo로 변경...) 문제 없는 것처럼 보이고
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+		todoService.deleteById(id);
+
+    //4: 즉, 너는 업데이트된 Todo를 리턴할 거고, 그럼 너는 return todo라고 하고 임포트를 정리할 것이다
+		return todo;
+	}
+}
+------------------------------------------------------------------------------------------------------------------
+
+그럼 테스트를 해보자
+Talend API Tester로 가서
+특정한 Todo의 세부정보를 받아보자
+가령 1번의 세부정보를 업데이트하려 한다고 해보자
+그리고 Send를 클릭한다
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET     | ▼  |    |    http://localhost:8080/users/in28minutes/todos/1         |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | Accept        | : |application/json  | x   |    XHR does not allow payload for GET request.                           
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |                                   
+  ______________                               |                                
+ ( + Add header )  🗝 Add authorization     🗑  |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                  |
+Vary:	Origin                                      |
+Vary:	Access-Control-Request-Method               |     {
+Vary:	Access-Control-Request-Headers              |       "id": 1,
+Content-Type:	application/json                    |       "username": "in28minutes",
+Transfer-Encoding:	chunked                       |       "description": "Get AWS Certified",
+Date: Sun, 04 Aug 2024 05:38:19 GMT               |       "targetDate": "2034-08-04",
+Keep-Alive:	timeout=60                            |       "done": false
+Connection:	keep-alive                            |      }                                 
+                                                  |                                                                                                                                                 
+                                                  |                  
+▶ COMPLETE REQUEST HEADERS                        |                                              
+                                                  |
+
+                                                  lines nums  📄 copy              length: 106 bytes                                                    
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+그러면 요청의 본문이 나오고
+이게 바로 너가 복사하려는 요청의 본문이다
+이 본문을 복사할거고
+여기 있는 copy를 클릭하고 동일한 URL에 PUT 요청을 전송하려고 한다
+방금 복사한 이 id 1번의 본문을 전송할 것이다
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | PUT     | ▼  |    |    http://localhost:8080/users/in28minutes/todos/1         |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | Accept        | : |application/json  | x   |    {                          
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |       "id": 1,                              
+  ______________                               |       "username": "in28minutes",                          
+ ( + Add header )  🗝 Add authorization     🗑  |       "description": "Get AWS Certified 5",                             
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |       "targetDate": "2033-08-04", 
+                                               |       "done": false           
+                                               |    }  
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+username은 in28minutes고 description은 Get AWS Certified이다 뒤에 5를 붙여보자
+그리고 targetDate도 업데이트해보자 2033년으로 하려고 한다 Send를 클릭한다
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                  |
+Vary:	Origin                                      |
+Vary:	Access-Control-Request-Method               |     {
+Vary:	Access-Control-Request-Headers              |       "id": 1,
+Content-Type:	application/json                    |       "username": "in28minutes",
+Transfer-Encoding:	chunked                       |       "description": "Get AWS Certified 5",
+Date: Sun, 04 Aug 2024 05:45:37 GMT               |       "targetDate": "2033-08-04",
+Keep-Alive:	timeout=60                            |       "done": false
+Connection:	keep-alive                            |      }                                 
+                                                  |                                                                                                                                                 
+                                                  |                  
+▶ COMPLETE REQUEST HEADERS                        |                                              
+                                                  |
+
+                                                  lines nums  📄 copy              length: 106 bytes                                                    
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+좋다 200이 나왔고 
+그리고 여기에 요청을 제줄해보자
+브라우저에서 제출할 거고 
+
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/users/in28minutes/todos/1 사이트화면 ==>
+
+{
+  "id": 1,
+  "username": "in28minutes",
+  "description": "Get AWS Certified 5",
+  "targetDate": "2033-08-04",
+  "done": false
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+이렇게 5라고 나온 걸 볼 수있다
+그리고 업데이트된 targetDate도 볼 수 있지
+좋다 
+이렇게 PUT 메서드가 잘 작동하고 있고 
+
+
