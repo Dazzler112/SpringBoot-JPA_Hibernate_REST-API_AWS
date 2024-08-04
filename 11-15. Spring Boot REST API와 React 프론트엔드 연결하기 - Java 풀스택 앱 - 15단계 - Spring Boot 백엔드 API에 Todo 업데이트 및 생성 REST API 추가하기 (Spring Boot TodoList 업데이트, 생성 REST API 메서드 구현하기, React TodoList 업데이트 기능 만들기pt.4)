@@ -407,3 +407,296 @@ Connection:	keep-alive                            |      }
 이렇게 PUT 메서드가 잘 작동하고 있고 
 
 
+이제 POST 메서드도 작동시켜 보자
+
+POST는 흔히 새로운 Todo를 삽입할 때 사용한다
+그럼 너는
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+		todoService.updateTodo(todo);
+		return todo;
+	}
+
+  //5: Todo createTodo()라고 해보자, 그리고 createTodo()는 PostMapping이 될 것이다 
+  //그럼 @PostMapping()이라고 하고 임포트를 정리해보자 그리고 아래 URL에서 /{id}를 삭제하겠다, 왜냐면 Todo를 생성할 때 너는 id를 모르기 때문이다 ( ("/users/{username}/todos/{id}") 의 {id} 삭제.. )
+	PostMapping("/users/{username}/todos")
+                //5-1: 그리고 username이고 
+	public Todo createTodo(@PathVariable String username,
+
+    //5-2: 여기 PathVariable id도 필요하지 않다 (@PathVariable int id, 삭제) 거기 @RequestBody가 있을 것이다
+			@RequestBody Todo todo) {
+
+    //5-3: 여기에는 addTodo()가 들어가야겠지
+		todoService.addTodo(todo);
+		return todo;
+	}
+}
+------------------------------------------------------------------------------------------------------------------
+
+여기 있는 addTodo()보면 Todo를 입력값으로 받지 않는다
+----------------------------------
+⏺ TodoService.java
+...
+	public Todo addTodo(String username, String description, LocalDate targetDate, boolean done) {
+		Todo todo = new Todo(++todosCount,username,description,targetDate,done);
+		todos.add(todo);
+		return todo;
+	}
+----------------------------------
+그럼 우린 이 특정한 형식을 유지하겠다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+		todoService.updateTodo(todo);
+		return todo;
+	}
+	
+	@PostMapping("/users/{username}/todos")
+	public Todo createTodo(@PathVariable String username,
+				@RequestBody Todo todo) {
+
+    //6: 여기 있는 addTodo()는 사실 많은 값을 예상하고 그것들을 추가해보자 첫째는 username인데, 여기서 직접 username을 받을수 있지 그럼 username이라 적어주고
+    //둘째 파라미터는 description인데 그럼 todo.getDescription()이라고 해준다, 셋째는 tergetDate지 그럼 todo.getTargetDate()를 써준다
+    //그 다음은 todo.isDone()이지, 그럼 username, todo.getDescription(), todo.getTargetDate(), todo.isDone()이 있다
+		todoService.addTodo(username, todo.getDescription(), todo.getTargetDate(), todo.isDone());
+		return todo;
+	}
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+우린 그것들을 추가해주고 응답을 받을 것이다 그럼 너는
+구문을 새로운 지역 변수로 지정하기를 선택해보자 
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ TodoResource.java
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+		todoService.updateTodo(todo);
+		return todo;
+	}
+	
+	@PostMapping("/users/{username}/todos")
+	public Todo createTodo(@PathVariable String username,
+				@RequestBody Todo todo) {
+
+  //7: todoService 이부분 앞에 ctrl+1을 누르고 (Assign Statement to new local variable) 클릭 그리고 변수명을 createdTodo라고 해주자
+	/	todoService.addTodo(username, todo.getDescription(),
+				todo.getTargetDate(), todo.isDone()); */
+                    |
+                    V
+    Todo createdTodo = todoService.addTodo(username, todo.getDescription(),
+				todo.getTargetDate(), todo.isDone());
+
+    //7-1: 그리고 우리는 이 createdTodo를 리턴할 것이다, 그럼 이렇게 return createdTodo라고 해주자, 어떻게 되는지 볼까? 저장하고
+		return createdTodo;
+	}
+}
+------------------------------------------------------------------------------------------------------------------
+
+Talend API Tester로 가자
+우리는 POST 하려고 하고 
+URL은 /todos고, id를 제공할 필요가 없지 그리고 Todo는 Learn To Dance 이다
+그리고 Accept와 Content-Type은 그대로 두고 Send를 클릭해보자
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼  |    |    http://localhost:8080/users/in28minutes/todos/1        |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | Accept        | : |application/json  | x   |    {                          
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |       "username": "in28minutes",                              
+  ______________                               |       "description": "Learn To Dance",                          
+ ( + Add header )  🗝 Add authorization     🗑  |       "targetDate": "2033-08-04",                            
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |       "done": false  
+                                               |    }            
+                                               |      
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                  |
+Vary:	Origin                                      |
+Vary:	Access-Control-Request-Method               |     {
+Vary:	Access-Control-Request-Headers              |       "id": 4,
+Content-Type:	application/json                    |       "username": "in28minutes",
+Transfer-Encoding:	chunked                       |       "description": "Learn To Dance",
+Date: Sun, 04 Aug 2024 06:19:15 GMT               |       "targetDate": "2033-08-04",
+Keep-Alive:	timeout=60                            |       "done": false
+Connection:	keep-alive                            |      }                                 
+                                                  |                                                                                                                                                 
+                                                  |                  
+▶ COMPLETE REQUEST HEADERS                        |                                              
+                                                  |
+
+                                                  lines nums  📄 copy              length: 103 bytes                                                    
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+어떻게 되는지 볼까?
+응답이 200이고, 너는 본문을 받을 수 있다
+본문에 id가 할당된 걸 볼 수 있고 
+그럼 id가 4이고 Todo의 세부정보가 돌아오고 있다 
+좋다
+
+
+
+
+이렇게 Todo를 업데이트하고 만드는 REST API가 준비되었다
+그럼 이걸 우리 애플리케이션에 사용해보자
+다음단계에 보겠다
