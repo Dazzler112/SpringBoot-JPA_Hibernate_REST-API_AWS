@@ -1,0 +1,561 @@
+
+
+지난 단계에서 우리는 Todo를 업데이트하고 삭제하기 위한 REST API를 만들었다 
+그럼 이번 단계에서 그것들을 사용해보기로 하자
+
+우린 Todos에서 Update를 클릭하면 Update API를 호출하려고 한다
+그럼 그걸 시작해보자
+
+TodoApiService.jsx로 가보자
+우리는 여기서 Update API를 호출하려고 한다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoApiService.jsx
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveAllTodosForUsernameApi
+        = (username) => apiClient.get(`/users/${username}/todos`)
+        // http://localhost:8080/users/in28minutes/todos
+
+export const deleteTodoApi
+        = (username, id) => apiClient.delete(`/users/${username}/todos/${id}`)
+        // http://localhost:8080/users/in28minutes/todos        
+    
+export const retrieveTodoApi
+        = (username, id) => apiClient.get(`/users/${username}/todos/${id}`)
+        // http://localhost:8080/users/in28minutes/todos            
+
+//1: 그럼 export const라고 하고 updateTodoApi 호출을 하려고 하지, 그리고 이건 apiClient.put()이 될 것이다
+export const updateTodoApi
+
+    //1-1: 이 apiClient.put()은 username과 id 이외에도 todo 세부정보가 필요한 특수한 것이지, 그럼 Todo 세부정보를 받아야 하고, Todo 세부정보는 요청의 본문이 될 것이다
+        = (username, id, todo) => apiClient.put(`/users/${username}/todos/${id}`)
+        // http://localhost:8080/users/in28minutes/todos 
+
+------------------------------------------------------------------------------------------------------------------
+
+그럼 우리가 Talend API Tester에서 전송한 것과 마찬가지로, 너는 요청 본문의 일부로서
+Todo 세부정보를 전송해야 하지
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoApiService.jsx
+
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveAllTodosForUsernameApi
+        = (username) => apiClient.get(`/users/${username}/todos`)
+        // http://localhost:8080/users/in28minutes/todos
+
+export const deleteTodoApi
+        = (username, id) => apiClient.delete(`/users/${username}/todos/${id}`)
+        // http://localhost:8080/users/in28minutes/todos        
+    
+export const retrieveTodoApi
+        = (username, id) => apiClient.get(`/users/${username}/todos/${id}`)
+        // http://localhost:8080/users/in28minutes/todos    
+
+export const updateTodoApi
+                              //2: 그리고 너는 추가 파라미터인 todo를 추가하면 간단히 그렇게 할 수 있다, 즉 이 URL에 이 본문이 제출되는 것이다 (..${id}', todo)
+        = (username, id) => apiClient.put(`/users/${username}/todos/${id}` ,todo)
+        // http://localhost:8080/users/in28minutes/todos         
+------------------------------------------------------------------------------------------------------------------
+
+이제 우리는 updateTodoApi를 TodoComponent에서 사용할 수 있다
+우린 어디서 그걸 호출할까?
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+
+      //3-1: 여기서 todo 객체를 생성할 것이다, 그럼 너는 const todo={ 라고 하고
+        const todo = {
+          //3-2: id는 뭘까? Todo를 채울 id는 id와 같을 것이다 그럼 우린 id를 그대로 사용하려 하고 그럼 id는 id 자체가 될 것이고
+            id : id ,
+            //3-3: username도 그대로 사용할 것이다,  username도 username이 될 것이다
+            username : username,
+        }
+
+      //3: 우린 onSubmit()에서 updateTodoApi()를 호출할 것이다
+      //그리고 updateTodoApi를 호출하기 위해 몇 가지 값이 필요하지, 우린 무엇이 필요할까? username, id가 필요하고 그건이미 retrieveTodo()의 retrieveTodoApi(username, id)만들때 했기에 여기에 있다 
+      //이렇게 username과 id가 준비되었고 (updateTodoApi()에 username,id 써주기), 마지막으로 필요한 건 todo 객체이다, todo객체가 있어야 하고 
+      updateTodoApi(username, id, todo)
+    }
+
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid targetDate'
+        }
+
+        if(values.description.length < 5) {
+            errors.description = 'Enter atleast 5 characters'
+        }    
+
+        if(values.targetDate.length == null) {
+            errors.targetDate = 'Enter a target date'
+        }         
+
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+                    validateOnChange = {false}
+                    validateOnBlur = {false}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <ErrorMessage 
+                                name="description"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <ErrorMessage 
+                                name="targetDate"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+그리고 다음은 description과 targetDate지
+그럼 이것들도 retreieveTodos() 안에 
+--------------------------
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+--------------------------
+있다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+        const todo = {
+            id: id,
+            username: username
+
+            //4: 이렇게 description과 targetDate를 설정할 수 있지
+            description,
+            targetDate
+        }
+        
+        updateTodoApi(username, id, todo)
+    }
+
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid targetDate'
+        }
+
+        if(values.description.length < 5) {
+            errors.description = 'Enter atleast 5 characters'
+        }    
+
+        if(values.targetDate.length == null) {
+            errors.targetDate = 'Enter a target date'
+        }         
+
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+                    validateOnChange = {false}
+                    validateOnBlur = {false}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <ErrorMessage 
+                                name="description"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <ErrorMessage 
+                                name="targetDate"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+그럼 여기 모든 필드를 넣었는지 확인해보자
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼  |    |    http://localhost:8080/users/in28minutes/todos/1        |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | Accept        | : |application/json  | x   |    {                          
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |       "username": "in28minutes",                              
+  ______________                               |       "description": "Learn To Dance",                          
+ ( + Add header )  🗝 Add authorization     🗑  |       "targetDate": "2033-08-04",                            
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |       "done": false  
+                                               |    }            
+                                               |      
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+username, description, targetDate, done이다 
+
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+        const todo = {
+            id: id,
+            username: username,
+
+            //5-2: description은 description이다 
+            description,
+
+            //5-1: targetDate는 targetDate이고
+            targetDate: targetDate,
+
+            //5: 여기서 모든 것에대해 done의 값은 false일 것이다
+            done: false
+        }
+
+        //5-3: 그럼 updateTodoApi를 호출하기 전에 console.log(todo)를 할 거고, 이걸 저장해보자
+        console.log(todo)
+        
+        // updateTodoApi(username, id, todo) (<= 잠깐 주석 처리)
+    }
+
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid targetDate'
+        }
+
+        if(values.description.length < 5) {
+            errors.description = 'Enter atleast 5 characters'
+        }    
+
+        if(values.targetDate.length == null) {
+            errors.targetDate = 'Enter a target date'
+        }         
+
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+                    validateOnChange = {false}
+                    validateOnBlur = {false}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <ErrorMessage 
+                                name="description"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <ErrorMessage 
+                                name="targetDate"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+Todo로 가서 Save를 클릭한다 그리고 우클릭> Inspect(검사)를 선택하자
+                                            |  
+                                            V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+                                                Description
+               ________________________________________________________________________________ 
+              | Get AWS Certified                                                              |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2034-08-02()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+▼ {id: '1', username: 'in28minutes', description: 'Get AWS 
+    Certified', targetDate: '2034-08-05', done: false}
+    description: "Get AWS Certified"
+    done: false
+    id: "1"
+    targetDate: "2034-08-05"
+    username: "in28minutes"
+   ▶[[Prototype]]: Object
+------------------------------------------------------------------------------------------------------------------
+
+Object가 프린트되고 있고, 거기에 이 모든 값들이 있다
+description은 Get AWS Certified이고
+done은 false고 
+id는 1,
+targetDate는 2034-08-05이다 
+좋다 
+username은 in28minutes이다 
