@@ -559,3 +559,334 @@ id는 1,
 targetDate는 2034-08-05이다 
 좋다 
 username은 in28minutes이다 
+너는 이 필드 이름들, 즉 description, done, id, targetDate, username이 
+todo 객체에 있는 것들과 정확히 일치하게 하는게 좋다
+-----------------------------------
+⏺ sts
+
+⏺ Todo.java
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.time.LocalDate;
+
+public class Todo {
+
+	public Todo() {
+		
+	}
+	
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+...
+}
+-----------------------------------
+그렇게 매핑이 이루어 지지
+그럼 Todo에 id,username, description, targetDate, done이 있고
+그럼 여기도 정확히 같은게 있어야 하지
+
+즉 Bean에 대한 RequestBody 매핑은 속성 이름을 기초로 이루어진다
+-----------------------------------
+⏺ sts
+
+⏺ Todo.java
+...
+	@PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+		todoService.updateTodo(todo);
+		return todo;
+	}
+
+	@PostMapping("/users/{username}/todos")
+	public Todo createTodo(@PathVariable String username,
+				@RequestBody Todo todo) {
+		Todo createdTodo = todoService.addTodo(username, todo.getDescription(),
+				todo.getTargetDate(), todo.isDone());
+		
+		return createdTodo;
+	}
+...
+-----------------------------------
+이건 updateTodo의 경우에도 같고, createTodo에서도 같지
+즉 속성 이름이 Bean에 있는 필드 이름과 정확히 일치하도록 하기 바란다
+그럼 이건 다 했고, 정말 잘 되었다
+
+그럼 가서 API를 호출해보자
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+        const todo = {
+            id: id,
+            username: username,
+            description: description,
+            targetDate: targetDate,
+            done: false
+        }
+        console.log(todo)
+
+        //6: updateTodoApi()가 있고, 평소와 같이 이 코드를 잡아서(retrieveTodos()의 .then.catch부분) 붙여넣어 보자, 그리고
+        updateTodoApi(username, id, todo)
+        //6-1: response가 돌아오면 지금은 우선 console.log(response)라고 해두겠다
+        .then(response => {
+            console.log(response)
+        })
+        //6-2: 그리고 오류가 있으면 error를 로깅하게 되지 그렇지 않으면 response를 로깅하게 된다
+        .catch(error => console.log(error))
+    }
+
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid targetDate'
+        }
+
+        if(values.description.length < 5) {
+            errors.description = 'Enter atleast 5 characters'
+        }    
+
+        if(values.targetDate.length == null) {
+            errors.targetDate = 'Enter a target date'
+        }         
+
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+                    validateOnChange = {false}
+                    validateOnBlur = {false}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <ErrorMessage 
+                                name="description"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <ErrorMessage 
+                                name="targetDate"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+그럼 가서 문제가 있는지 확인해보자
+                                            |  
+                                            V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+Compiled with problems:
+ERROR
+[eslint] 
+src\components\todo\TodoComponent.jsx
+  Line 45:9:  'updateTodoApi' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+
+------------------------------------------------------------------------------------------------------------------
+
+updateTodoApi가 정의되지 않았다고 나온다
+그럼 그걸 해보겠다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useParams} from 'react-router-dom'
+
+//7: 이렇게 TodoApiService.js의 updateTodoApi를 가져와야 하니 updateTodoApi라고 하고 ( {}에 updateTodoApi 적기..)
+import { retrieveTodoApi, updateTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+        const todo = {
+            id: id,
+            username: username,
+            description: description,
+            targetDate: targetDate,
+            done: false
+        }
+        console.log(todo)
+
+        updateTodoApi(username, id, todo)
+        .then(response => {
+            // setDescription(response.data.description)
+            // setTargetDate(response.data.targetDate)
+            console.log(response)
+        })
+        .catch(error => console.log(error))
+    }
+
+...
+}
+------------------------------------------------------------------------------------------------------------------
+
+이제 정의되었지
+페이지가 로딩되고, Save는 클릭할 것이다
+그럼 어떻게 되지?
+                                            |  
+                                            V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+                                                Description
+               ________________________________________________________________________________ 
+              | Get AWS Certified                                                              |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2034-08-02()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+▼ {data: {…}, status: 200, statusText: '', headers: Axios
+  Headers, config: {…}, …}
+  ▶ config: {transitional: {…}, adapter: Array(3), transformR
+    equest: Array(1), transformResponse: Array(1), timeout: 0, …}
+  ▶  data: {id: 1, username: 'in28minutes', description: 'Get AWS Ce
+     rtified', targetDate: '2034-08-05', done: false}
+  ▶ headers: AxiosHeaders {content-type: 'application/json'}
+  ▶ request: XMLHttpRequest {onreadystatechange: null, readyS
+    tate: 4, timeout: 0, withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    [[Prototype]]: Object
+------------------------------------------------------------------------------------------------------------------
+
+응답을 받고 있다, 좋고 
+이렇게 우리는 예상한 대로 데이터와 함께 응답을 받고 있지 
+
+이제 우리는 단순히 저장하는 게 아니라, 세부정보를 저장하면 Todos 페이지로 돌아가려고 한다
+즉 우린 Todos 페이지로 리디렉션을 하려고 하지 
+그걸 어떻게 할 수 있을까? 
+
