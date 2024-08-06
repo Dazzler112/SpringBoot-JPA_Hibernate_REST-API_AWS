@@ -1,0 +1,845 @@
+
+
+지난 몇 단계에서는 업데이트 기능을 다뤘고
+이번 단계에선 새로운 Todo 생성 기능을 다뤄볼 것이다
+우린 하단에 Add New Todo 버튼을 넣을거고, 그걸로 새로운 Todo를 삽입하려고 한다 
+기대가 되니?
+그럼 시작해보자
+
+먼저 ListTodosComponent.jsx 부터 보겠다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+import { useEffect, useState } from "react"
+import {useNavigate} from 'react-router-dom'
+import { deleteTodoApi, retrieveAllTodosForUsernameApi } from "./api/TodoApiService"
+import { useAuth } from "./security/AuthContext"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    const navigate = useNavigate()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    const [message, setMessage] = useState(null)
+
+    useEffect( () => refreshTodos() , [] )
+
+    function refreshTodos() {
+        retrieveAllTodosForUsernameApi(username)
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+        deleteTodoApi(username, id)
+        .then(
+
+            () => {
+                setMessage(`Delete of todo with id = ${id} successful`)
+                refreshTodos()
+            }
+            //1: Display message
+            //2: Update Todos list
+        ) 
+        .catch(
+            
+        )
+    }
+
+    function updateTodo(id) {
+        console.log('clicked ' + id);
+        navigate(`/todo/${id}`)
+    }
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            
+            {message && <div className="alert alert-warning">{message}</div>}
+            
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+                                        <td> <button className="btn btn-warning" 
+                                                     onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
+                                        <td> <button className="btn btn-success" 
+                                                     onClick={() => updateTodo(todo.id)}>Update</button> </td>  
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+            //1: 여기에 버튼을 추가하려고 하고, 우린 그걸 <table>바로 아래에 추가하려고 한다
+            //그럼 <table> 아래로 가서 <div className="btn btn-success" 라고 하고 다시 여기 텍스트에 Add New Todo 라고 해주겠다
+            <div className="btn btn-success">Add New Todo</div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+------------------------------------------------------------------------------------------------------------------
+
+그리고 어떻게 나오는지 볼까?
+                                  |              
+                                  V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                         Login   Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                   Get AWS Certified	           false       2034-08-05      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                     Learn DevOps		   false       2035-08-05      | Delete |    | Update |     
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+               Learn Full Stack Development        false       2036-11-11      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+
+                                                 ______________
+                                                | Add New Todo |  ( <= 추가 버튼이 생김)
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------
+
+이렇게 여기 Add New Todo 버튼을 넣었다 
+여백을 약간 추가해보자
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+function ListTodosComponent() {
+    ....
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            
+            {message && <div className="alert alert-warning">{message}</div>}
+            
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+                                        <td> <button className="btn btn-warning" 
+                                                     onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
+                                        <td> <button className="btn btn-success" 
+                                                     onClick={() => updateTodo(todo.id)}>Update</button> </td>                                                     
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            //2: 그럼 m-5이라고 해주자
+            <div className="btn btn-success m-5">Add New Todo</div>
+        </div>
+    )
+}
+------------------------------------------------------------------------------------------------------------------
+                                  |              
+                                  V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                         Login   Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                   Get AWS Certified	           false       2034-08-05      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                     Learn DevOps		   false       2035-08-05      | Delete |    | Update |     
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+               Learn Full Stack Development        false       2036-11-11      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+
+
+                                                 ______________
+                                                | Add New Todo |  ( <= 마진이 생김)
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------
+
+좋다
+이제 보기 좋다
+이제 하단에 약간의 여백을 주었고 
+그럼 이제 Add New Todo를 처리해 보려고 한다 
+
+너가 Add New Todo를 다르는 방법은 Update Todo와 아주 비슷한데
+단 우리는 아직 Todo 세부정보가 없지
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ ListTodosComponent.jsx
+
+
+
+import { useEffect, useState } from "react"
+import {useNavigate} from 'react-router-dom'
+import { deleteTodoApi, retrieveAllTodosForUsernameApi } from "./api/TodoApiService"
+import { useAuth } from "./security/AuthContext"
+
+function ListTodosComponent() {
+
+    const today = new Date()
+
+    const authContext = useAuth()
+
+    const username = authContext.username
+
+    const navigate = useNavigate()
+
+    const targetDate = new Date(today.getFullYear() + 12, today.getMonth(), today.getDay())
+
+    const [todos, setTodos] = useState([])
+
+    const [message, setMessage] = useState(null)
+
+    useEffect( () => refreshTodos() , [] )
+
+    function refreshTodos() {
+        retrieveAllTodosForUsernameApi(username)
+        .then(response => {
+            setTodos(response.data)
+            }
+        )
+        .catch(error => console.log(error))
+    }    
+
+    function deleteTodo(id) {
+        console.log('clicked ' + id);
+        deleteTodoApi(username, id)
+        .then(
+
+            () => {
+                setMessage(`Delete of todo with id = ${id} successful`)
+                refreshTodos()
+            }
+            //1: Display message
+            //2: Update Todos list
+        ) 
+        .catch(
+            
+        )
+    }
+
+    function updateTodo(id) {
+        console.log('clicked ' + id);
+        navigate(`/todo/${id}`)
+    }
+
+    //3-1: 아래 onClick을 addNewTodo로 했으니 함수명을 addNewTodo로 넣어주고 id는 없고 그냥 navigate('/todo/')만 남기고
+    //id를 -1이라고 하드코딩해보자, 우리는 Todo 페이지, 즉 TodoComponent로 리디렉션을 할 거고 -1이라는 id를 사용할 것이다
+    function addNewTodo() {
+        navigate(`/todo/-1`)
+    }
+
+    return (
+        <div className='container'>
+            <h1>Things You Want To Do!</h1>
+            
+            {message && <div className="alert alert-warning">{message}</div>}
+            
+            <div>
+                <table className='table'>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>is Done?</th>
+                            <th>Target Date</th>
+                            <th>Delete</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            todos.map(
+                                todo => (
+                                    <tr key={todo.id}>
+                                        <td>{todo.description}</td>
+                                        <td>{todo.done.toString()}</td>
+                                        {/* <td>{todo.targetDate.toDateString()}</td> */}
+                                        <td>{todo.targetDate.toString()}</td>
+                                        <td> <button className="btn btn-warning" 
+                                                     onClick={() => deleteTodo(todo.id)}>Delete</button> </td>
+                                        <td> <button className="btn btn-success" 
+                                                     onClick={() => updateTodo(todo.id)}>Update</button> </td>                                                     
+                                   </tr>
+                                )
+                            )
+                        }
+                    </tbody>
+                </table>
+            </div>
+            //3: 그럼 너는 onClick=이라고 하고 메서드를 결합해보자 {addNewTodo}라고 해준다 그리고 위로 가서 addNewTodo를 정의해보자 //3-1: updateTodo(id) 아래에 작성...
+            <div className="btn btn-success m-5" onClick={addNewTodo}>Add New Todo</div>
+        </div>
+    )
+}
+
+export default ListTodosComponent
+------------------------------------------------------------------------------------------------------------------
+
+그리고 TodoComponent로 돌아가보자 
+그럼 기본적으로
+--------------------------------
+⏺ TodoComponent.jsx
+..
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+..
+--------------------------------
+description과 targetDate가 모두 비어 있는 걸 볼 수 있다
+그럼 우린 여기 retrieveTodos()에서 
+오직 id가 -1과 같지 않은 경우에만 Todo 세부정보를 받으려고 한다 
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useNavigate, useParams} from 'react-router-dom'
+import { retrieveTodoApi, updateTodoApi} from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const navigate = useNavigate()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+
+        //4: 그럼 if(id != -1)인 경우에만 REST API를 호출할 것이다, 그럼 이 호출은 이루어지지 않을거고 새로운 Todo에 대해 이 호출이 이루어지지 않게 되지, 어떻게 되는지 볼까? 이걸 저장한다
+        if(id != -1) { ( 중괄호로 아래 다 감싸주기)
+
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+        }
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+        const todo = {
+            id: id,
+            username: username,
+            description: values.description,
+            targetDate: values.targetDate,
+            done: false
+        }
+        console.log(todo)
+
+        updateTodoApi(username, id, todo)
+        .then(response => {
+            navigate('/todos')
+        })
+        .catch(error => console.log(error))
+    }
+
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid targetDate'
+        }
+
+        if(values.description.length < 5) {
+            errors.description = 'Enter atleast 5 characters'
+        }    
+
+        if(values.targetDate.length == null) {
+            errors.targetDate = 'Enter a target date'
+        }         
+
+        console.log(values)
+        return errors
+    }
+...
+}
+------------------------------------------------------------------------------------------------------------------
+                                  |              
+                                  V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                         Login   Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                   Get AWS Certified	           false       2034-08-05      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                     Learn DevOps		   false       2035-08-05      | Delete |    | Update |     
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+               Learn Full Stack Development        false       2036-11-11      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+
+
+                                                 ______________
+                                                | Add New Todo | 
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------
+
+Add New Todo를 클릭해보자
+                                  |              
+                                  V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todo/-1 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+                                                Description
+               ________________________________________________________________________________ 
+              |                                                                                |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 연도-월-일()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------------------------------------------
+
+좋다, 이 새 페이지로 가게 되고
+그리고 Save를 클릭하면 
+                                  |              
+                                  V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todo/-1 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               ________________________________________________________________________________ 
+              |                          Enter atleast 5 characters  (<= 주황 바탕)             |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Description
+               ________________________________________________________________________________ 
+              |                                                                                |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 연도-월-일()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+▼{description: '', targetDate: ''}
+  description: ""
+  targetDate: ""
+  ▶[[Prototype]]: Object
+------------------------------------------------------------------------------------------------------------------
+
+최소한 5글자를 입력하라고 나온다
+목표 날짜에 관한 메시지는 나오지 않고 있고 
+그럼 로그로 가보면, targetDate가 비어 있는 값을 받고 있는 걸 볼 수 있지 (targetDate: "")
+그럼 여기에 검증을 넣어보자
+
+그럼 targetDate에 대해 어디서 검증을 정의했니?
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+import {useNavigate, useParams} from 'react-router-dom'
+import { retrieveTodoApi, updateTodoApi} from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import { useEffect, useState } from 'react'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+
+
+export default function TodoComponent() {
+
+    const {id} = useParams()
+
+    const[description, setDescription] = useState('')
+
+    const[targetDate, setTargetDate] = useState('')
+
+    const authContext = useAuth()
+
+    const navigate = useNavigate()
+
+    const username = authContext.username
+
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
+
+    function retrieveTodos() {
+
+        if(id != -1) {
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+        }
+    }
+
+    function onSubmit(values) {
+        console.log(values)
+        const todo = {
+            id: id,
+            username: username,
+            description: values.description,
+            targetDate: values.targetDate,
+            done: false
+        }
+        console.log(todo)
+
+        updateTodoApi(username, id, todo)
+        .then(response => {
+            navigate('/todos')
+        })
+        .catch(error => console.log(error))
+    }
+
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid targetDate'
+        }
+
+        if(values.description.length < 5) {
+            errors.description = 'Enter atleast 5 characters'
+        }    
+
+        //5: if(values.targetDate.length == null)이지, 그럼 || values.targetDate==''라고 추가해 보겠다 
+        if(values.targetDate.length == null || values.targetDate=='') {
+            errors.targetDate = 'Enter a target date'
+        }         
+
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details</h1>
+            <div>
+                <Formik initialValues={{ description ,targetDate }}
+                    enableReinitialize = {true}
+                    onSubmit={onSubmit}
+                    validate={validate}
+                    validateOnChange = {false}
+                    validateOnBlur = {false}
+                >
+                    {
+                    (props) =>  (
+                        <Form>
+                            <ErrorMessage 
+                                name="description"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <ErrorMessage 
+                                name="targetDate"
+                                component="div"
+                                className="alert alert-warning"
+                            />
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description"/>
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+        </div>
+    ) 
+}
+------------------------------------------------------------------------------------------------------------------
+
+이러면 오류가 표시될까?
+                                  |              
+                                  V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todo/-1 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+               ________________________________________________________________________________ 
+              |                          Enter atleast 5 characters  (<= 주황 바탕)             |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+               ________________________________________________________________________________ 
+              |                              Enter a target date  (<= 주황 바탕)                |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Description
+               ________________________________________________________________________________ 
+              |                                                                                |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 연도-월-일()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                                           🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+------------------------------------------------------------------------------------------------------------------
+▼{description: '', targetDate: ''}
+  description: ""
+  targetDate: ""
+  ▶[[Prototype]]: Object
+------------------------------------------------------------------------------------------------------------------
+
+ㅇㅋ, 이제 너는 최소한 5글자를 입력하라는 메시지와 목표 날짜를 입력하라는 메시지를 볼 수 있다 
+좋다
+
+
+그럼 사용자가 description과 targetDate를 선택하면 우린 뭘 해야하지?
+우린 updateTodoApi를 호출하는 게 아니라 createTodoApi를 호출해야 하지 
+-----------------------------------
+    function onSubmit(values) {
+        console.log(values)
+        const todo = {
+            id: id,
+            username: username,
+            description: values.description,
+            targetDate: values.targetDate,
+            done: false
+        }
+        console.log(todo)
+
+        ❗<= 그럼 여기서 약간의 로직을 작성해야 하지, 
+        onSubmit()이 되면 우린 updateTodoApi()를 호출하는 게 아니고 너는 
+
+        updateTodoApi(username, id, todo)
+        .then(response => {
+            navigate('/todos')
+        })
+        .catch(error => console.log(error))
+    }
+-----------------------------------
+TodoApiService.js로 가서 
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+
+⏺ TodoApiService.js
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveAllTodosForUsernameApi
+        = (username) => apiClient.get(`/users/${username}/todos`)
+        // http://localhost:8080/users/in28minutes/todos
+
+export const deleteTodoApi
+        = (username, id) => apiClient.delete(`/users/${username}/todos/${id}`)
+       
+    
+export const retrieveTodoApi
+        = (username, id) => apiClient.get(`/users/${username}/todos/${id}`)
+
+
+export const updateTodoApi
+        = (username, id, todo) => apiClient.put(`/users/${username}/todos/${id}` ,todo)
+
+//6: createTodoApi를 만들 거고 
+export const createTodoApi
+                                //6-1: 여기는 post가 되고, id는 없고, URL에도 id가 없을 것이다, 그럼 `/users/${username}/todos`일 거고, 여기엔 파라미터가 2개만 있을 것이다, 좋다
+        = (username, todo) => apiClient.post(`/users/${username}/todos` ,todo)     
+------------------------------------------------------------------------------------------------------------------
+
+이렇게 createTodoApi를 만들었고
