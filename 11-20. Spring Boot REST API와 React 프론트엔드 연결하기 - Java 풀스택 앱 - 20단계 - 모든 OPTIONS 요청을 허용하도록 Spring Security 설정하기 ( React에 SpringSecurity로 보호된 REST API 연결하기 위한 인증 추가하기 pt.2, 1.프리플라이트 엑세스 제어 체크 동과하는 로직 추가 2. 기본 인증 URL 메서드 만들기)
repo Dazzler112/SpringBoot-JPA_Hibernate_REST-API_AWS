@@ -1,0 +1,76 @@
+
+
+지난 단계에서 우리는 더 진행하기 위해선 두 가지 중요한 일을 해야 한다는 걸 알았다
+
+
+첫째는 프리플라이트 요청에 대한 응답이 액세스 제어 체크를 통과하지 못한다는 오류를 해결하는 거고
+//1: Response to preflight request doesn't pass access control check
+즉 OPTIONS 요청이 전송되었고, 그게 올바른 응답을 받지 못하고 있었지 
+우린 모든 사람에게 OPTIONS 요청을 허용하려고 한다  (Request Method: OPTIONS)
+
+
+우리가 두 번째로 하려는 건 기본 인증 URL을 만드는 것이지
+//2: basic auth
+우린 로그인 시점에서 기본 인증 URL을 호출해서 토큰이 유효한지 확인하려고 한다 
+
+그럼 우린 기본 인증 URL을 만드는 것부터 시작해보자
+그럼 HelloWorldController.java를 열고 
+아주 간단한 기본 인증 URL을 만들 것이다
+이건 /hello-world URL과 아주 비슷 하고 그럼 만일
+누군가가 토큰이 올바른지 확인하려 한다면, 즉 기본 인증 토큰이 올바른지 확인하려 한다면 
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ sts
+
+
+⏺ HelloWorldController.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.helloworld;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HelloWorldController {
+
+  //1: 그들은 여기로 요청을 전송하고 헤더에서 인증 토큰을 전송할 수 있지 
+	@GetMapping(path = "/basicauth")
+      //1-1: 그럼 간단히 basicAuthCheck()라고 해보자
+	public String basicAuthCheck() {
+
+    //1-2: 그리고 return "Success";라고 해줄 것이다, 사실 응답은 중요하지 않고 그냥 200이라는 응답을 받는 걸로 충분하다 
+		return "Success"; 
+	}
+
+	@GetMapping(path = "/hello-world")
+	public String helloWorld() {
+		return "Hello World v2"; 
+	}
+	
+	@GetMapping(path = "/hello-world-bean")
+	public HelloWorldBean helloWorldBean() {
+		return new HelloWorldBean("Hello World"); 
+	}
+	
+	@GetMapping(path = "/hello-world/path-variable/{name}")
+	public HelloWorldBean helloWorldPathVariable(@PathVariable String name) {
+		return new HelloWorldBean(String.format("Hello World, %s", name)); 
+	}	
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+이제 기본 인증 URL을 만들었고 토큰을 이용해서 이 기본 URL을 건드릴 수 있지 
+그리고 만일 200이라는 응답을 받으면 그 토큰 즉 기본 인증 토큰은 유효한 것이지 
+그럼 너가 프론트엔드 애플리케이션에서 로그인할 때, 너는 사용자 이름과 패스워드를 받고
+토큰을 생성할 수 있고, 
+이 인증 URL로 요청을 전송할 수 있지(<= @GetMapping(path = "/basicauth"))
+그리고 200이라는 응답을 받으면 
+그 사용자는 올바른 사용자 이름과 패스워드를 입력한 거고
+만일 누군가가 틀린 사용자 이름이나 틀린 패스워드를 입력하면 토큰이 유효하지 않을 것이고 
+따라서 이건 인증 실패를 리턴할 것이다
+좋다
