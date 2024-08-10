@@ -763,3 +763,342 @@ export default function AuthProvider({ children }) {
 여기서 우리는 토큰을 이용해서 기본 인증 서비스를 실행하고 있고 (<= executeBasicAuthenticationService(baToken))
 여기서 응답을 프린트하고 있다 (<= .then(response => console.log(response)) , .catch(error => console.log(error)))
 괜찮아 보이고
+그리고 executeBasicAuthenticationService이것을 임포트했는지 확인해야 하고 
+안 돼있으면 해야한다 ( import { executeBasicAuthenticationService } from "../api/HelloWorldApiService"; )
+좋다 이제 모든 게 준비되었고 저장하고
+
+로그아웃을 하고 in28minutes와 dummy를 입력하고 login을 눌러보자
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+                                                                  AuthContext.js:35
+ ▼ {data: 'Success', status: 200, statusText: '', headers:
+    AxiosHeaders, config: {…}, …}    
+    ▶ config: {transitional: {…}, adapter: Array(3), transform
+            Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+       data: "Success"
+    ▶ headers: AxiosHeaders {cache-control: 'no-cache, no-store, max-age=0, must-revalidate', 
+             content-length: '7', content-type: 'application/json', expires: '0', pragma: 'no-cache'}
+    ▶ request: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 0, 
+    withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    ▶ [[Prototype]]: Object
+--------------------------------------------------------------------------------------------      
+
+좋다 
+성공 메시지가 돌아오는 게 보인다 
+이렇게 성공적인 응답을 받는 걸 볼 수 있지 
+되돌아오는 data가 'Success'고
+우리가
+-----------------------------------
+⏺ sts
+
+⏺ HelloWorldController.java
+...
+	@GetMapping(path = "/basicauth")
+	public String basicAuthCheck() {
+		return "Success"; 
+	}
+...
+-----------------------------------
+여기서 리턴하는 것과 정확히 일치하지
+
+이제 유효하지 않은 사용자 ID와 패스워드를 입력하면 어떻게 될까?
+login을 클릭하면
+                                    |
+                                    V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●●●●●●●●      |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+ ❌Access to XMLHttpRequest at '                                            :3000/:1 
+    http://localhost:8080/basicauth' from origin 
+    'http://localhost:3000' has been blocked by CORS policy:
+    No 'Access-Control-Allow-Origin' header is present on the requested resource.
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                    AuthContext.js:35 
+  ▶ AxiosError {message: 'Network Error', name: 'AxiosError',
+    code: 'ERR_NETWORK', config: {…}, request: XMLHttpRequest, …}
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ GET                                                     HelloWorldApiService.js:25  
+    http://localhost:8080/basicauth net::ERR_FAILED 401 (Unauthorized)
+--------------------------------------------------------------------------------------------
+
+오류가 나는 걸 볼 수 있다
+'http://localhost:3000' has been blocked by CORS policy: 이 사이트에 대한 액세스가 CORS 정책에 의해 차단되었다고 나오지
+
+
+이렇게 올바른 사용자 ID와 패스워드를 입력하면 성공적인 응답을 받는 걸 알 수 있지
+
+만일 너가 in28minutes와 dummy를 입력하고 콘솔을 정리한 다음 login을 클릭하면 
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+                                                                  AuthContext.js:35
+ ▼ {data: 'Success', status: 200, statusText: '', headers:
+    AxiosHeaders, config: {…}, …}    
+    ▶ config: {transitional: {…}, adapter: Array(3), transform
+            Request: Array(1), transformResponse: Array(1), timeout: 0, …}
+       data: "Success"
+    ▶ headers: AxiosHeaders {cache-control: 'no-cache, no-store, max-age=0, must-revalidate', 
+             content-length: '7', content-type: 'application/json', expires: '0', pragma: 'no-cache'}
+    ▶ request: XMLHttpRequest {onreadystatechange: null, readyState: 4, timeout: 0, 
+    withCredentials: false, upload: XMLHttpRequestUpload, …}
+    status: 200
+    statusText: ""
+    ▶ [[Prototype]]: Object
+--------------------------------------------------------------------------------------------   
+
+Success라는 응답이 되돌아온다
+하지만 니가 다른 ID를 쓰고 login을 클릭하면 오류를 받지
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+ ❌Access to XMLHttpRequest at '                                            :3000/:1 
+    http://localhost:8080/basicauth' from origin 
+    'http://localhost:3000' has been blocked by CORS policy:
+    No 'Access-Control-Allow-Origin' header is present on the requested resource.
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                    AuthContext.js:35 
+  ▶ AxiosError {message: 'Network Error', name: 'AxiosError',
+    code: 'ERR_NETWORK', config: {…}, request: XMLHttpRequest, …}
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▶ GET                                                     HelloWorldApiService.js:25  
+    http://localhost:8080/basicauth net::ERR_FAILED 401 (Unauthorized)
+--------------------------------------------------------------------------------------------
+
+이렇게 우리는 이걸 이용해서 사용자를 인증하고 로그인을 허용할 수 있다 
+그리고 우린 여기에 이미 토큰을 갖고 있지
+
+const baToken = 'Basic ' + window.btoa(username + ":" + password)
+이렇게 우리가 만든 토큰이 여기에 있다
+우리는 이걸 컨텍스트에 설정해서 우리가 API 호출을 할 때 이 토큰을 다시 사용할 수 있지
+
+🟠인증 문제 시 확인할 것
+
+너가 기본 인증에 문제가 있다면
+1) 맨 먼저 확인해야 할 것은 
+우리가 여기에 사용하고 있는 
+-----------------------------------
+
+⏺ vsc
+
+⏺ AuthContext.js
+
+...
+const baToken = 'Basic ' + window.btoa(username + ":" + password)
+...
+-----------------------------------
+이 로직이다 
+이렇게 Basic이 있고 그 뒤에 공백이 있지, 그리고 우리는 window.btoa()라는 함수를 사용하고 있고
+우리가 이 함수에 넣는 인수, 즉 파라미터는 username + ":" + password이다
+콜론에는 공백이 없고 그냥 콜론만 있지 
+이렇게 username + ":" + password로 Base64 인코딩을 하고
+그 앞에 Basic과 공백을 추가한다
+많은 사람들이 'Basic ' 이 공백을 빼먹거나 ":"여기 뒤에 공백을 추가하지
+이걸 완벽하게 정확히 작성했는지 확인하기 바란다
+그게 첫 번째로 확인해야 할 부분일 거고
+
+2) 두 번째로 확인할 부분은
+executeBasicAuthenticationService이다
+-----------------------------------
+
+⏺ vsc
+
+⏺ HelloWorldApiService.js
+
+export const executeBasicAuthenticationService 
+        = (token) => apiClient.get(`/basicauth`, {
+            headers:{
+                Authorization: token
+            }
+})       
+-----------------------------------
+여기서 이 구분을 완벽하게 작성했는지 확인해라
+보는 것처럼 우린 /basicauth로 요청을 전송하고, 
+ {
+            headers:{
+                Authorization: token
+            }
+})       
+여기에 객체가 있다 
+이렇게 객체가 있고, 객체의 일부로서 여기에 headers:가 있지,
+그리고 headers:안에 Authorization:이 있다 
+그리고 token이 인증 헤더로서 전송되지
+이제 이걸 저장할 수 있고 
+
+
+
+또 하나 너가 확인할 수 있는 부분은 여기인데
+Network를 가서 in28minutes와 dummy를 입력할 거고 로그인을 클릭한다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+                             ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  (All)  (Fetch/XHR)  (Doc)  (CSS)  (JS)  (Font)  (Img)  (Media)  (Manifest)  (WS)
+          ‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+ Name               | Status   | Type                 | Initiator     | Size       | Time
+--------------------------------------------------------------------------------------------
+ {;} basicauth      | 200      | xhr                   |HelloWorldApi.|       523 B| 69 ms
+--------------------------------------------------------------------------------------------
+
+그럼 너는 Fetch/XHR 요청을 확인하면 basicauth가 있고
+거기로 가서 Request Headers를 확인하기 바란다
+그럼 Request Headers로 들어가서 Authorization 헤더가 있는지 확인하고 
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+                             ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  (All)  (Fetch/XHR)  (Doc)  (CSS)  (JS)  (Font)  (Img)  (Media)  (Manifest)  (WS)
+   ‾‾‾
+--------------------------------------------------------------------------------------------
+ Name      ...      | x  Headers  Preview  Response  Initiator  Timing
+                    |    ‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+ {;} basicauth      | ▼ General
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|    Request URL: http://localhost:8080/basicauth
+                    |    Request Method: GET
+                    |    Status Code: 🟢 200 OK
+                    |    Remote Address: [::1]:8080
+                    |    Referrer Policy:strict-origin-when-cross-origin
+                    |   ...
+--------------------------------------------------------------------------------------------
+  ▼ Request Headers          ▢ Raw
+--------------------------------------------------------------------------------------------
+  accept:application/json, text/plain, */*
+  accept-encoding:gzip, deflate, br, zstd
+  accept-language:ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+  authorization:Basic aW4yOG1pbnV0ZXM6ZHVtbXk=
+  connection:keep-alive
+  host:localhost:8080
+  origin:http://localhost:3000
+  referer:http://localhost:3000/
+  sec-ch-ua:"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"
+  sec-ch-ua-mobile:?0
+  sec-ch-ua-platform:"Windows"
+  sec-fetch-dest:empty
+  sec-fetch-mode:cors
+  sec-fetch-site:same-site
+  user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) 
+             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36
+--------------------------------------------------------------------------------------------
+
+authorization:Basic aW4yOG1pbnV0ZXM6ZHVtbXk=
+이런 식으로 Basic 공백, 그리고 Base64 인코딩된 값이 있는지 확인해라
+
+이것 도 확인해볼 수 있다
+
+
+
+
+이번 단계에서
+우리는 사용자 이름과 패스워드의 조합이 올바른지 아닌지를 확인할 수 있는 기능을 애플리케이션에 추가했다
+다음 단계에서는 이 기능을 더 향상히켜 보겠다
