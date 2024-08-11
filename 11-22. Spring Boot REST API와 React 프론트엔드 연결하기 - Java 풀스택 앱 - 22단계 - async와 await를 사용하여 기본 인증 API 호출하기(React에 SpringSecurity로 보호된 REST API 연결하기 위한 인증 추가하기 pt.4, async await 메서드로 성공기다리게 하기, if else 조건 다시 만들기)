@@ -881,3 +881,306 @@ export default function AuthProvider({ children }) {
 }
 
 ------------------------------------------------------------------------------------------------------------------
+
+좋다
+그리고 돌아가서 
+in28minutes, dummy라고 입력하고
+Component를 살펴보자
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+                LoginComponent
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▼ value: {isAuthenticated: false, login: ƒ login() {}, logout…}
+  isAuthenticated: false
+  login: ƒ login() {}
+  logout: ƒ logout() {}
+  username : null
+  new entry : ""
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+Context.Provider에서 {isAuthenticated: false이고 
+우린 토큰을 노출시키지 않고 있지, 그래서 여기에 토큰의 값이 표시되지 않고 있는 거지
+
+
+그걸 노출시켜 볼까?
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useContext, useState } from "react";
+import { executeBasicAuthenticationService } from "../api/HelloWorldApiService";
+
+//1: Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+//2: Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //3: Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    const [token, setToken] = useState(null)
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+    async function login(username, password) {
+
+        const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+        try {
+            const response = await executeBasicAuthenticationService(baToken)
+
+            if(response.status == 200) {
+                setAuthenticated(true)
+                setUsername(username)
+                setToken(baToken)
+                return true
+            }else {
+                logout()
+                return false
+            }
+        } catch(error) {
+            logout()
+            return false
+        }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+        setToken(null)
+        setUsername(null)
+    }
+
+    return (
+
+        //8: 우린 토큰을 내보내서 다른 REST API가 그걸 사용할 수 있게 하려고 한다 
+        //그럼 너는 여기에, token이라고 해줄 것이다 그럼 value=라고 하고 기존 값들에 추가해서 우린 token을 전송하고 있는 것이지 이걸 저장해보자
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username, token} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+이제 다시 Context.Provider로 가서 
+value를 확장해 보면
+
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▼ value: {isAuthenticated: false, login: ƒ login() {}, logout…}
+  isAuthenticated: false
+  login: ƒ login() {}
+  logout: ƒ logout() {}
+  token : null
+  username : null
+  new entry : ""
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+여기 token 값이 null인 걸 보게 될 것이다
+
+그리고 in28minutes와 dummy를 넣고 login을 하면
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+                LoginComponent
+-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▼ value: {isAuthenticated: true, login: ƒ login() {}, logout…}
+  isAuthenticated: true
+  login: ƒ login() {}
+  logout: ƒ logout() {}
+  token : "Basic aW4yOG1pbnV0ZXM6ZHVtbXk="
+  username : "in28minutes"
+  new entry : ""
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+
+너는 이제 token이 여기 설정되고 있는 걸 볼 수 있지
+이렇게 username이 있고 token이 있고 isAuthenticated는 true이다
+그리고 너가 로그아웃을 하면 모든 게 사라질 것이다
+
+(로그아웃 하면?)
+              |
+              V
+-------------------------------------------------------------------------------------------
+
+Context.Provider                  ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+▼ value: {isAuthenticated: false, login: ƒ login() {}, logout…}
+  isAuthenticated: false
+  login: ƒ login() {}
+  logout: ƒ logout() {}
+  token : null
+  username : null
+  new entry : ""
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  AuthProvider
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+
+-------------------------------------------------------------------------------------------
+(값이 사라짐)
+
+
+그리고 니가 유효하지 않은 ID로 로그인을 하고 login을 클릭하면
+인증에 실패하고 이것들도 모두 설정되지 않는 걸 보게 되지
+
+
+
+
+이번 단계에서 우린 기본 인증 서비스를 사용하고
+환영 페이지로 리디렉션을 할 수 있었다 
+또 토큰을 컨텍스트에 설정할 수도 있었지
+다음 단계들에선 
+어떻게 REST API 호출에 토큰을 사용할 수 있는지 알아보겠다
+다음 단계에서 보겠다
