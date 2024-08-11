@@ -1,0 +1,426 @@
+
+
+지난 단계에서는 올바른 토큰을 사용해서 기본 인증 서비스를 실행했고 
+우리가 올바른 사용자 이름과 패스워드 조합을 전송하고  (<= const baToken = 'Basic ' + window.btoa(username + ":" + password))
+올바른 토큰을 제공하면 
+------------------------------
+⏺ vsc
+
+⏺ AuthContext.js
+
+    function login(username, password) {
+
+        const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+        executeBasicAuthenticationService(baToken)
+        .then(response => console.log(response))
+        .catch(error => console.log(error))
+
+        setAuthenticated(false)
+
+    }
+------------------------------
+성공적인 응답을 받는 걸 보았다
+
+이제 우리는 인증에 성공하면 이 메서드에서 true를 리턴하려고 한다
+그렇지 않으면 false를 리턴할 거고 
+그걸 어떻게 할까?
+
+여기서 기억해야 할 가장 중요한 점은 
+executeBasicAuthenticationService(baToken)
+.then(response => console.log(response))
+.catch(error => console.log(error))
+이게 Promise라는 점이다
+지금 메서드를 보면 이 메서드는 다음 단계로 진행하기 전에 이것의 실행이 완료될 때까지 기다리지 않는다 
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ AuthContext.js
+
+
+
+
+import { createContext, useContext, useState } from "react";
+import { executeBasicAuthenticationService } from "../api/HelloWorldApiService";
+
+// Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+// Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    // Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+    function login(username, password) {
+
+        const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+        executeBasicAuthenticationService(baToken)
+
+                          //1-1: 그럼 여긴 console.log()일 것이고 response에 가령  '2: ' + 라고 추가해보자
+        .then(response => console.log('2: ' + response))
+        .catch(error => console.log(error))
+
+      //1: 그럼 실제로 여기서 console.log('test')라고 해보자
+      //1-2: 그리고 여기 'test'에는 1:을 추가해보자, 너는 1: test가 먼저 실행되고 2: 는 응답을 받은 후에 실행되는 걸 보게 될 것이다
+      console.log('1: test')
+
+        setAuthenticated(false)
+
+        // if(username === 'in28minutes' && password === 'dummy') {
+        //     setAuthenticated(true)
+        //     setUsername(username)
+        //     return true
+        // }else {
+        //     setAuthenticated(false)
+        //     setUsername(null)
+        //     return false
+        // }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+    }
+
+    return (
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+그럼 실제로 어떻게 되는지 볼까?
+그럼 Console로 가서 정리하고 login을 하면
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+(title 명)
+  
+Todo App                |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  1: test                                                              AuthContext.js:39 
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  2: [object Object]                                                   AuthContext.js:35
+--------------------------------------------------------------------------------------------   
+
+1: test가 먼저 프린트되고 이건 우리가 응답을 받은 후에만 실행되는 걸 알 수 있다
+
+하지만
+--------------------------
+⏺ vsc
+
+⏺ AuthContext.js
+
+function login(username, password) {
+
+  const baToken = 'Basic ' + window.btoa(username + ":" + password)
+  
+  executeBasicAuthenticationService(baToken)
+  .then(response => console.log('2: ' + response))
+  .catch(error => console.log(error))
+  
+  console.log('1: test')
+  
+  setAuthenticated(false)
+
+}
+--------------------------
+이 메서드의 경우에 우리는 응답을 받을 때까지 실행을 중지시키고
+우리가 응답을 받으면, true를 리턴하기를 원한다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ AuthContext.js
+
+
+
+
+import { createContext, useContext, useState } from "react";
+import { executeBasicAuthenticationService } from "../api/HelloWorldApiService";
+
+// Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+// Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    // Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+  //2: 그래서 우리는 이 메서드를 async 메서드로 만드려고 한다, 이렇게 우린 이 메서드를 async 메서드로 만들거고 그리고
+    async function login(username, password) {
+
+        const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+        //2-1: 우리가 async 메서드를 만들 때는 await를 쓸 수 있지, 즉 우리는 이것의 실행이 성공하기를 기다릴 수 있지, 그리고 우린 response를 받을 수 있다
+        //그럼 const response = await executeBasicAuthenticationService 라고 해준다
+        const response = await executeBasicAuthenticationService(baToken)
+        .then(response => console.log('2: ' + response))
+        .catch(error => console.log(error))
+
+        console.log('1: test')
+
+        setAuthenticated(false)
+
+        // if(username === 'in28minutes' && password === 'dummy') {
+        //     setAuthenticated(true)
+        //     setUsername(username)
+        //     return true
+        // }else {
+        //     setAuthenticated(false)
+        //     setUsername(null)
+        //     return false
+        // }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+    }
+
+    return (
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+즉 우리는 기본 인증 서비스가 실행될 때까지 기다렸다가 response를 리턴하게 되지 (<= const response = await executeBasicAuthenticationService(baToken))
+그리고 이 데이터가 성공적이면 
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useContext, useState } from "react";
+import { executeBasicAuthenticationService } from "../api/HelloWorldApiService";
+
+// Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+// Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    // Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+    async function login(username, password) {
+
+        const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+        const response = await executeBasicAuthenticationService(baToken)
+
+        /* (<= 여기서만 주석처리 실제 코드는 삭제)
+        .then(response => console.log('2: ' + response))
+        .catch(error => console.log(error))
+
+        console.log('1: test')
+
+        setAuthenticated(false)
+        */
+
+        //3: 여기 이 코드의 코멘트를 해제하자 (// 코멘트 해제) 이제 중요하기 때문이다 그리고 지금까지 우리가 작성한 다른코드는 삭제하겠다 (. then~ setAuthenticated(false) 까지 삭제..)
+        //그리고 if(response.status == 200)이라고 해준다, 이건 우리가 성공적인 응답을 받고 있다는 의미지
+        if(response.status == 200) {
+
+          //3-1: 성공적인 응답을 받으면 setAuthenticated()를 true로 설정하고
+            setAuthenticated(true)
+            //3-2: setUsername()을 설정하고
+            setUsername(username)
+            return true
+        }else {
+
+            //3-3: 그렇지 않으면 평소와 같이 해준다
+            setAuthenticated(false)
+            setUsername(null)
+            return false
+        }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+    }
+
+    return (
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+------------------------------------------------------------------------------------------------------------------
+                                            |
+                                            V
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ AuthContext.js
+
+
+
+
+import { createContext, useContext, useState } from "react";
+import { executeBasicAuthenticationService } from "../api/HelloWorldApiService";
+
+//1: Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+//2: Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //3: Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+    async function login(username, password) {
+
+        const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+        //4: 그리고 또 이걸 try-catch로 감싸려고 한다
+        //그럼 이 프로세스를 실행할 때 오류가 있으면 우리는 오류를 캐치할 거고
+        try {
+            const response = await executeBasicAuthenticationService(baToken)
+
+            if(response.status == 200) {
+                setAuthenticated(true)
+                setUsername(username)
+                return true
+            }else {
+                setAuthenticated(false)
+                setUsername(null)
+                return false
+            }
+          //4-1: 그럼 catch(error)라고 해준다 그리고 else 부분을 복사해 catch에 붙여 넣어준다
+          //즉 setAuthentication(false), setUsername(null), return false를 하지
+        } catch(error) {
+            setAuthenticated(false)
+            setUsername(null)
+            return false
+        }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+    }
+
+    return (
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+그래서 메서드 실행에 오류가 하나라도 발생하면 false를 리턴할 거고
+우리가 인증을 구현할 때는 안전이 아주 중요하고 그래서 우린 여기 try-catch를 추가했다 
+즉 우리는 여기서 기본 인증 서비스를 실행하고 있고
+올바른 응답 상태가 있으면 우린 setAuthenticated()를 true에, setUsername()을 username에 설정하고 true를 리턴하게 된다
+우선 이걸 저장해보자
