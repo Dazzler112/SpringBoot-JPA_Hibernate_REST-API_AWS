@@ -1,0 +1,464 @@
+
+
+이제 AuthContext에 토큰을 가져왔다
+우린 REST API 호출에 토큰을 사용하려고 하지 
+우린 이미 토큰을 사용하는 방법에 관한 예가 있지
+---------------------------------------
+⏺ sts
+
+⏺ HelloWorldApiService.js
+
+...
+export const retrieveHelloWorldPathVariable 
+        = (username) => apiClient.get(`/hello-world/path-variable/${username}`, {
+            headers:{
+                Authorization: 'Basic aW4yOG1pbnV0ZXM6ZHVtbXk='
+            }
+})
+...
+---------------------------------------
+HelloWorld REST API에서 우린 토큰을 이용해서 HelloWorld 패스 변수에 호출을 하고 있지 
+
+하지만 여기서 
+---------------------------------------
+⏺ sts
+
+⏺ HelloWorldApiService.js
+
+...
+export const executeBasicAuthenticationService 
+        = (token) => apiClient.get(`/basicauth`, {
+            headers:{
+                Authorization: token
+            }
+})        
+---------------------------------------
+우린 토큰을 하드코딩했다
+그럼 여기서 우린 토큰을 하드코딩하지 않고, 컨텍스트에 설정된 토큰을 받으려고 한다 
+그럼 컨텍스트에서 어떻게 토큰을 받을 수 있을까?
+
+여기서 우린 이 하드코딩을 피하려고 하지 (<= Authorization: 'Basic aW4yOG1pbnV0ZXM6ZHVtbXk=' )
+그리고 하드 코딩을 피하기위해
+토큰을 입력값으로서 넣어줄 것이다
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ AuthContext.js
+
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveHelloWorldBean 
+        = () => apiClient.get('/hello-world-bean')
+
+//Response to preflight request doesn't pass access control check => Authorization header
+export const retrieveHelloWorldPathVariable 
+
+        //1: 그럼 넌 (username, token)이라고 해줄 거고
+        = (username, token) => apiClient.get(`/hello-world/path-variable/${username}`, {
+            headers:{
+
+              //1-1: 그리고 Authorization은 token이 될 것이다
+                Authorization: token
+            }
+})
+
+export const executeBasicAuthenticationService 
+        = (token) => apiClient.get(`/basicauth`, {
+            headers:{
+                Authorization: token
+            }
+})        
+------------------------------------------------------------------------------------------------------------------
+
+retrieveHelloWorldPathVariable를 어디서 호출하고 있지?
+이건 WelcomeComponent.jsx에서 호출하지
+
+
+------------------------------------------------------------------------------------------------------------------
+
+⏺ vsc
+
+⏺ WelcomeComponent.jsx
+
+
+
+import {useParams, Link} from 'react-router-dom'
+import { useState } from 'react'
+import { retrieveHelloWorldPathVariable } from './api/HelloWorldApiService'
+
+function WelcomeComponent() {
+
+    const {username} = useParams()
+
+    //2-1: 그럼 useAuth라 하고 이 훅을 사용하고 authContext를 받을 수 있지, 그럼 너는 //2-2: 다시 아래로..
+    const authContext = useAuth() 
+
+    const [message, setMessage] = useState(null)
+
+    function callHelloWorldRestApi() {
+        console.log('called')
+              
+
+        //2: 여기서 우리는 호출하고 있다, 그럼 여기서 우리는 토큰을 받아서 그걸 넣으려고 한다 
+        //여기에 우린 토큰을 넣어주자, 그걸 하드 코딩하지 않고 우리는 Auth를 사용하려고 한다 //2-1: 위로 가서 작성...
+    //    retrieveHelloWorldPathVariable('Ranga', 'Basic aW4yOG1pbnV0ZXM6ZHVtbXk=')  
+                                        |  
+                                        V
+        //2-2: 'Basic aW4yOG1pbnV0ZXM6ZHVtbXk='이것 대신에 authContext.token이라고 할 수 있고, 그럼 어떻게 되는지 볼까?
+        retrieveHelloWorldPathVariable('Ranga', authContext.token)  
+
+            .then( (response) => successfulResponse(response) )
+            .catch( (error) => errorResponse(error) )
+            .finally( () => console.log('cleanup') )          
+    }
+
+    function successfulResponse(response) {
+        console.log(response)
+        // setMessage(response.data)
+        setMessage(response.data.message)
+    }
+
+    function errorResponse(error) {
+        console.log(error)
+    }
+
+    return (
+        <div className='WelcomeComponent'>
+            <h1>Welcome {username}</h1>
+            <div>
+                Manage Your todos - <Link to="/todos">Go here</Link>
+            </div>
+            <div>
+                <button className="btn btn-success m-5" onClick={callHelloWorldRestApi}>
+                    Call Hello World</button>
+            </div>
+            <div className="text-info">{message}</div>
+        </div>
+    )
+}
+
+export default WelcomeComponent
+------------------------------------------------------------------------------------------------------------------
+
+localhost:3000으로 돌아가보자
+in28minutes, dummy라고 입력하고 login을 클릭한다 
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+
+
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                      Authentication Failed. Please check your credentials.
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●●●●●●●●      |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+                                      |
+                                      V
+이제 Component로 가서 
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  ↖  |  🔍  Search (text or /regex/)                                               |  🔅
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ▼ App
+    ▼ TodoApp
+     ▼ AuthProvider
+      ▼ Context.Provider
+       ▼ BrowserRouter
+        ▼ Router
+         ▼ Navigation.Provider
+          ▼ Location.Provider
+           ▼ HeaderComponent
+              Link
+              Link
+              Link
+           ▼ Routes
+            ▼ RenderedRoute
+             ▼ Route.Provider
+              ▼ AuthencatedRoute
+                ▼ WelcomeComponent
+                    Link
+-------------------------------------------------------------------------------------------
+AuthProvider를 보면 
+-------------------------------------------------------------------------------------------
+
+AuthProvider                     ⏱  👁  🐞  <>
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+props
+▶ children:{$$typeof: Symbol(react.element), _owner: FiberNode…}
+  new entry: ""
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+hooks                                     =✨ 🔲
+  1️⃣ State: true                              ✅
+  2️⃣ State: "in28minutes"
+  3️⃣ State: "Basic aW4yOG1pbnV0ZXM6ZHVtbXk="
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+rendered by
+  TodoApp
+  App
+  createRoot()
+  react-dom@18.3.1
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+source                                         🔲
+  bundle.js:1647
+-------------------------------------------------------------------------------------------
+
+State에 토큰이 있다 
+
+이제 Call Hello World를 클릭해보자
+                                |
+                                V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                    Hello World, Ranga  (<= Ranga가 출력됨)
+
+-------------------------------------------------------------------------------------------
+  Elements  ⚛ Component  >>                                                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+
+그러면 Hello World, Ranga를 
+받고있다
+
+그리고 Network로 가보자
+그리고 이 요청에서 
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+(title 명)
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+                             ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  (All)  (Fetch/XHR)  (Doc)  (CSS)  (JS)  (Font)  (Img)  (Media)  (Manifest)  (WS)
+   ‾‾‾
+--------------------------------------------------------------------------------------------
+ Name               | Status   | Type                 | Initiator     | Size       | Time
+--------------------------------------------------------------------------------------------
+ {;} basicauth      | 200      | xhr                  |HelloWorldApi.|        523 B|176 ms
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+ {;} Ranga          | 200      | xhr                  |HelloWorldApi.|        568 B|113 ms
+--------------------------------------------------------------------------------------------
+
+그리고 이 요청에서 Request Header를 보면 
+
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+                             ‾‾‾‾‾‾‾
+-------------------------------------------------------------------------------------------
+  (All)  (Fetch/XHR)  (Doc)  (CSS)  (JS)  (Font)  (Img)  (Media)  (Manifest)  (WS)
+   ‾‾‾
+--------------------------------------------------------------------------------------------
+ Name      ...      | x  Headers  Preview  Response  Initiator  Timing
+                    |    ‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+ {;} basicauth      | ▼ Request Headers        ▢ Raw
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|   accept: application/json, text/plain, */* 
+ {;} Ranga          |   accept-encoding: gzip, deflate, br, zstd
+   ‾‾‾‾‾‾‾          |   accept-language: ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7
+                    |   authorization: Basic aW4yOG1pbnV0ZXM6ZHVtbXk=
+                    |   connection: keep-alive
+                    |   host: localhost:8080
+                    |   origin: http://localhost:3000
+                    |   referer: http://localhost:3000/
+                    |   sec-ch-ua: "Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"
+                    |   sec-ch-ua-mobile: ?0
+                    |   sec-ch-ua-platform: "Windows"
+                    |   sec-fetch-dest: empty
+                    |   sec-fetch-mode: cors
+                    |   sec-fetch-site: same-site
+                    |   user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+                    |   AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 
+                    |   Safari/537.36
+--------------------------------------------------------------------------------------------
+
+여기로 전송된 Authorization 헤더가 보이지 (<= authorization: Basic aW4yOG1pbnV0ZXM6ZHVtbXk= )
+좋다 
+
+이렇게 이제 우리는 토큰을 사용하여 API를 호출할 수 있다
+하지만 
+너는 모든 API로 가서 이걸 변경하길 원하지 않지 
+
+지금 HelloWorldApiService를 보면 
+
+--------------------------------------------------------------------------------------------
+⏺ sts
+
+
+⏺ HelloWorldApiService.js
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveHelloWorldBean 
+        = () => apiClient.get('/hello-world-bean')
+
+//Response to preflight request doesn't pass access control check => Authorization header
+export const retrieveHelloWorldPathVariable 
+        = (username, token) => apiClient.get(`/hello-world/path-variable/${username}`, {
+            headers:{
+                Authorization: token
+            }
+})
+
+export const executeBasicAuthenticationService 
+        = (token) => apiClient.get(`/basicauth`, {
+            headers:{
+                Authorization: token
+            }
+})        
+--------------------------------------------------------------------------------------------
+
+여기 메서드 몇 개 있고
+
+그리고 TodoApiService를 보면
+
+--------------------------------------------------------------------------------------------
+⏺ sts
+
+
+⏺ TodoApiService.js
+
+
+
+
+import axios from 'axios'
+
+
+// export function retrieveHelloWorldBean() {
+//     return axios.get('http://localhost:8080/hello-world-bean')
+// }
+
+const apiClient = axios.create(
+    {
+        baseURL: 'http://localhost:8080'
+    }
+)
+
+export const retrieveAllTodosForUsernameApi
+        = (username) => apiClient.get(`/users/${username}/todos`)
+        // http://localhost:8080/users/in28minutes/todos
+
+export const deleteTodoApi
+        = (username, id) => apiClient.delete(`/users/${username}/todos/${id}`)
+       
+    
+export const retrieveTodoApi
+        = (username, id) => apiClient.get(`/users/${username}/todos/${id}`)
+
+
+export const updateTodoApi
+        = (username, id, todo) => apiClient.put(`/users/${username}/todos/${id}` ,todo)
+
+export const createTodoApi
+        = (username, todo) => apiClient.post(`/users/${username}/todos` ,todo)   
+
+--------------------------------------------------------------------------------------------
+
+여기도 메서드가 몇 개 있다 
+
+너는 토큰을 그것들 각각에 대한 파라미터로 만들어서 
+이 모든 메서드에 개별적으로 그걸 추가하는 걸 원치 않지
+
+그럼 공통적으로 적용되게 하려면 어떻게 하면 될까?
+
+다음 단계에서 그걸 알아 보곘다
