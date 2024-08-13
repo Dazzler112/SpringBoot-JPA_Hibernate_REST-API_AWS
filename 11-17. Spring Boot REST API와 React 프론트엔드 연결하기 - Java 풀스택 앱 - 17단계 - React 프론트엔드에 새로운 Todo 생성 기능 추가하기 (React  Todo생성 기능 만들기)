@@ -1367,9 +1367,37 @@ export default function TodoComponent() {
 ...
 }
 ------------------------------------------------------------------------------------------------------------------
+                                                    |
+                                                    V
+------------------------------------------------------------------------------------------------------------------
 
-만약 targetDate가 null이거나 values.targetDate가 비어 있거나 또는 moment().isValid()가 아니라면
-우리는 targetDate오류를 설정할 수 있지, 그럼 니가 Update를 하고 Save를 누르면 이게 
+⏺ vsc
+
+
+⏺ TodoComponent.jsx
+
+
+
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid targetDate'
+        }
+
+        if(values.description.length < 5) {
+            errors.description = 'Enter atleast 5 characters'
+        }    
+                    //10: 만약 targetDate가 null이거나 values.targetDate가 비어 있거나 또는 moment().isValid()가 아니라면 (!moment로 수정), 우리는 targetDate오류를 설정할 수 있지
+        if(values.targetDate.length == null || values.targetDate=='' || !moment(values.targetDate).isValid()) {
+            errors.targetDate = 'Enter a target date'
+        }         
+
+        console.log(values)
+        return errors
+    }
+
+------------------------------------------------------------------------------------------------------------------
+그럼 니가 Update를 하고 Save를 누르면 이게 
                                           |
                                           V
 ------------------------------------------------------------------------------------------------------------------
