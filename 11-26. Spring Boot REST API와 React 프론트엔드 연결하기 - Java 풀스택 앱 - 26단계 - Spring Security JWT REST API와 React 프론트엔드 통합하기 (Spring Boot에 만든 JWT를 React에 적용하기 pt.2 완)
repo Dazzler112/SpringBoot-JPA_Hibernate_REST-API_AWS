@@ -1,0 +1,339 @@
+
+
+이번 단계부터는 프론트엔드에서 JWT 인증을 사용하는 방법을 알아보자
+앞에서 우리는 HelloWorldApiService에서 executeBasicAuthenticationService를 만들었는데 
+이름이 적절치 않은것 같으니
+일단 그걸 먼저 수정해보자
+
+그럼 너는 api폴더로 가서 오른쪽을 클릭 > New File을 선택한다음 AuthenticationApiService.js라고 해주겠다
+
+그리고 여기서 executeBasicAuthenticationService를 가져다가 
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthenticationApiService.js
+
+
+
+//1: AuthenticationApiService.js에 넣어주자 (HelloWorldApiService.js 에있는 executeBasicAuthenticationService를 잘라 여기 붙여넣기..)
+export const executeBasicAuthenticationService
+    = (token) => apiClient.get(`/basicauth`
+        ,{
+            headers: {
+                Authorization: token
+            }
+        }
+    )
+
+--------------------------------------------------------------------------------------------
+
+그럼 문제가 생길 것이다, 왜냐면 이걸 어디선가 임포트하기 떄문이다
+
+어디서 임포트할까?
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+
+
+Compiled with problems:
+
+ERROR
+[eslint] 
+src\components\todo\security\AuthContext.js
+  Line 39:36:  'executeBasicAuthenticationService' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+
+--------------------------------------------------------------------------------------------
+
+AuthContext.js이다 
+그럼 AuthContext.js로 가볼까?
+
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useContext, useState } from "react";
+
+//2: 그리고 여기서 이걸 "../api/AuthenticationApiService"로 바꿔준다 이걸 저장하고
+import { executeBasicAuthenticationService } from "../api/AuthenticationApiService";
+import { apiClient } from "../api/ApiClient";
+
+// Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+// Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    // Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    const [token, setToken] = useState(null)
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+    async function login(username, password) {
+
+        const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+        try {
+            const response = await executeBasicAuthenticationService(baToken)
+
+            if(response.status == 200) {
+                setAuthenticated(true)
+                setUsername(username)
+                setToken(baToken)
+
+                apiClient.interceptors.request.use(
+                    (config) => {
+                        console.log('intercepting and adding a token')
+                        config.headers.Authorization = baToken
+                        return config
+                    }
+                )
+
+                return true
+            }else {
+                logout()
+                return false
+            }
+        } catch(error) {
+            logout()
+            return false
+        }
+    }
+
+    function logout() {
+        setAuthenticated(false)
+        setToken(null)
+        setUsername(null)
+    }
+
+    return (
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username, token} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+--------------------------------------------------------------------------------------------
+                              |
+                              V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+
+
+Compiled with problems:
+
+ERROR
+[eslint] 
+src\components\todo\api\AuthenticationApiService.js
+  Line 4:18:  'apiClient' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+
+--------------------------------------------------------------------------------------------
+
+그럼 이젠 AuthenticationApiService.js에서 apiClient가 정의되지 않았다고 나오지
+
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthenticationApiService.js
+
+
+//3-1: import { apiClient } from "./ApiClient";라고 나온다
+import { apiClient } from "./ApiClient";
+
+
+export const executeBasicAuthenticationService
+
+                //3: 그럼 넣어주자, apiClient를 ctrl+space를 누르고 나오는 apiClient를 클릭하면
+    = (token) => apiClient.get(`/basicauth`
+        ,{
+            headers: {
+                Authorization: token
+            }
+        }
+    )
+
+--------------------------------------------------------------------------------------------
+
+오류가 있니?
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
+없다
+페이지가 잘 로딩되고 있지
+
+이렇게 우린 executeBasicAuthenticationService를 옮겼고 
+이제 또 다른 걸 하나 만들려고 한다
+
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthenticationApiService.js
+
+
+
+import { apiClient } from "./ApiClient";
+
+export const executeBasicAuthenticationService
+    = (token) => apiClient.get(`/basicauth`
+        ,{
+            headers: {
+                Authorization: token
+            }
+        }
+    )
+
+//4: 그럼 executeJwtAuthenticationService를 만들어보자 URL은 이미 갖고 있고 
+export const executeJwtAuthenticationService
+    = (token) => apiClient.get(`/basicauth`
+        ,{
+            headers: {
+                Authorization: token
+            }
+        }
+    )
+--------------------------------------------------------------------------------------------
+
+URL은 http://localhost:8080/authenticate
+
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthenticationApiService.js
+
+
+
+import { apiClient } from "./ApiClient";
+
+export const executeBasicAuthenticationService
+    = (token) => apiClient.get(`/basicauth`
+        ,{
+            headers: {
+                Authorization: token
+            }
+        }
+    )
+
+//5: URL은 'authenticate'이고 이 URL은 
+export const executeJwtAuthenticationService
+
+    //5-1: username과 password를 입력값으로 받을 것이다, 토큰은 없고, 그럼 우린 username과 password를 파라미터 입력값으로서 전송할 거고
+    = (username, password) => apiClient.get(`/authenticate`
+        ,{
+            headers: {
+                Authorization: token
+            }
+        }
+    )    
+--------------------------------------------------------------------------------------------
+
+그럼 이건 이런 특별한 헤더가 필요하지 않지
+=>
+            headers: {
+                Authorization: token
+            }
+
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthenticationApiService.js
+
+
+
+import { apiClient } from "./ApiClient";
+
+export const executeBasicAuthenticationService
+    = (token) => apiClient.get(`/basicauth`
+        ,{
+            headers: {
+                Authorization: token
+            }
+        }
+    )
+
+export const executeJwtAuthenticationService
+    = (username, password) => apiClient.get(`/authenticate`
+        ,{//6: 우린 요청 본문의 일부로서 usernmae과 password만 전송하면 된다
+          //그럼 요청 본문에 우린 {username, password}를 전송할 거고 이렇게 우린 username과 password가 있는 객체를 전송할 거고, 그러면 충분할 것이다
+          username, password}
+    )    
+
+--------------------------------------------------------------------------------------------
+
+그럼 우린 이걸 객체로서 전달해서 
+apiClient.get('/authenticate'를 하려고 한다
+
+이걸 저장해보자
+
+좋아보인다
+
+
+
+우린 이렇게 executeJwtAuthenticationService를 만들었고 
+executeJwtAuthenticationService를 ctrl + c를 누른다음
+
+우린 이걸 AuthContext.js에서 사용하려고 한다 
+지금 우린 기본 인증 서비스가 있는 버전의 login()메서드를 갖게 되었지
