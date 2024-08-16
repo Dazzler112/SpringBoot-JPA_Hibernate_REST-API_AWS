@@ -337,3 +337,454 @@ executeJwtAuthenticationService를 ctrl + c를 누른다음
 
 우린 이걸 AuthContext.js에서 사용하려고 한다 
 지금 우린 기본 인증 서비스가 있는 버전의 login()메서드를 갖게 되었지
+
+----------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthContext.js
+
+...
+
+    async function login(username, password) {
+
+        const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+        try {
+            const response = await executeBasicAuthenticationService(baToken)
+
+            if(response.status == 200) {
+                setAuthenticated(true)
+                setUsername(username)
+                setToken(baToken)
+
+                apiClient.interceptors.request.use(
+                    (config) => {
+                        console.log('intercepting and adding a token')
+                        config.headers.Authorization = baToken
+                        return config
+                    }
+                )
+
+                return true
+            }else {
+                logout()
+                return false
+            }
+        } catch(error) {
+            logout()
+            return false
+        }
+    }
+...
+----------------------------------
+위의 이 메서드 전체를 복사해서 
+
+
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useContext, useState } from "react";
+
+//7-3: 그게 임포트될 것이다, 그럼 executeJwtAuthenticationService가 임포트되고 있다
+//이제 executeBasicAuthenticationService는 사용하지 않을거고, 
+//그럼 그걸 삭제해 임포트에 제거할 수 있다(  { executeBasicAuthenticationService, executeJwtAuthenticationService } 에서 executeBasicAuthenticationService 지우기)
+import { executeJwtAuthenticationService } from "../api/AuthenticationApiService";
+import { apiClient } from "../api/ApiClient";
+
+//1: Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+//2: Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //3: Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    const [token, setToken] = useState(null)
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+    /*(<==❗ 주석처리)
+    // async function login(username, password) { 
+
+    //     const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+    //     try {
+    //         const response = await executeBasicAuthenticationService(baToken)
+
+    //         if(response.status == 200) {
+    //             setAuthenticated(true)
+    //             setUsername(username)
+    //             setToken(baToken)
+
+    //             apiClient.interceptors.request.use(
+    //                 (config) => {
+    //                     console.log('intercepting and adding a token')
+    //                     config.headers.Authorization = baToken
+    //                     return config
+    //                 }
+    //             )
+
+    //             return true
+    //         }else {
+    //             logout()
+    //             return false
+    //         }
+    //     } catch(error) {
+    //         logout()
+    //         return false
+    //     }
+    // }
+    */(<==❗ 주석처리)
+
+//7: 다시 붙여 넣을 거고 위에 것은 코멘트로 빼 주겠다
+    async function login(username, password) {
+
+      //7-1: 우리는 baToken을 만들 필요가 없을 거고, 우리가 API를 호출할 때 토큰이 다시 리턴될 것이다
+      //  const baToken = 'Basic ' + window.btoa(username + ":" + password) (<= 여기서만 주석처리 실제 코드는 삭제)
+
+        try {
+
+            //7-2: 그럼 response=await executeJwtAuthenticationService()를 호출하려고 한다, 그리고 ctrl+space를 누르면
+            //executeJwtAuthenticationService가 나오고//7-3: import로..
+            const response = await executeJwtAuthenticationService(baToken)
+
+            if(response.status == 200) {
+                setAuthenticated(true)
+                setUsername(username)
+                setToken(baToken)
+
+                apiClient.interceptors.request.use(
+                    (config) => {
+                        console.log('intercepting and adding a token')
+                        config.headers.Authorization = baToken
+                        return config
+                    }
+                )
+
+                return true
+            }else {
+                logout()
+                return false
+            }
+        } catch(error) {
+            logout()
+            return false
+        }
+    }
+
+
+    function logout() {
+        setAuthenticated(false)
+        setToken(null)
+        setUsername(null)
+    }
+
+    return (
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username, token} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+--------------------------------------------------------------------------------------------
+                              |
+                              V
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthContext.js
+
+
+
+
+import { createContext, useContext, useState } from "react";
+import { executeJwtAuthenticationService } from "../api/AuthenticationApiService";
+import { apiClient } from "../api/ApiClient";
+
+//1: Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+//2: Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //3: Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    const [token, setToken] = useState(null)
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+    // async function login(username, password) {
+
+    //     const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+    //     try {
+    //         const response = await executeBasicAuthenticationService(baToken)
+
+    //         if(response.status == 200) {
+    //             setAuthenticated(true)
+    //             setUsername(username)
+    //             setToken(baToken)
+
+    //             apiClient.interceptors.request.use(
+    //                 (config) => {
+    //                     console.log('intercepting and adding a token')
+    //                     config.headers.Authorization = baToken
+    //                     return config
+    //                 }
+    //             )
+
+    //             return true
+    //         }else {
+    //             logout()
+    //             return false
+    //         }
+    //     } catch(error) {
+    //         logout()
+    //         return false
+    //     }
+    // }
+
+    async function login(username, password) {
+
+        try {
+
+      //8: 그리고 여기로 와서 executeJwtAuthenticationService를 호출하고 여기에 username과 password를 넣어줘야 한다
+      //그럼 (username, password)라고 해줘야 하고, 우린 사용자가 입력한 그대로를 전달하게 되지
+            const response = await executeJwtAuthenticationService(username, password)
+
+        //8-1: 그리고 응답이 돌아와서 그게 200이라면 
+            if(response.status == 200) {
+            //8-2: setAuthenticated()를 true에 설정하고
+                setAuthenticated(true)
+            //8-3: setUsername()을 username에 설정하고
+                setUsername(username)
+
+              //8-4: 여기 setToken이 있다, 토큰은 아주 중요한 부분이지, JWT의 토큰은 약간 다르다
+              //앞에서 언급한 대로 Bearer라고 해줘야 하고, 그럼 Bearer라고 적고 공백을 하나 넣는다, 그럼 'Bearer '라고 해준다
+              //그리고 우리가 응답에서 받는 토큰을 추가해줘야 하지, 그럼 JWT에서 응답에서 받는 데이터를 response.data라고 하고 리턴되는 JSON 객체의 일부로서 token을 받게 되지
+              //그럼 우린 그걸 사용해야 한다, 그럼 'Bearer ' + response.data.token 이걸 복사해서 변수를 만들어보자
+                setToken('Bearer ' + response.data.token)
+
+                apiClient.interceptors.request.use(
+                    (config) => {
+                        console.log('intercepting and adding a token')
+                        config.headers.Authorization = baToken
+                        return config
+                    }
+                )
+
+                return true
+            }else {
+                logout()
+                return false
+            }
+        } catch(error) {
+            logout()
+            return false
+        }
+    }
+
+
+    function logout() {
+        setAuthenticated(false)
+        setToken(null)
+        setUsername(null)
+    }
+
+    return (
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username, token} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+--------------------------------------------------------------------------------------------
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+
+⏺ AuthContext.js
+
+
+
+import { createContext, useContext, useState } from "react";
+import { executeJwtAuthenticationService } from "../api/AuthenticationApiService";
+import { apiClient } from "../api/ApiClient";
+
+//1: Create a Context
+export const AuthContext = createContext()
+
+export const useAuth = () => useContext(AuthContext)
+
+
+//2: Share the created context with other components
+export default function AuthProvider({ children }) {
+
+    //3: Put some state in the context
+    const [isAuthenticated, setAuthenticated] = useState(false)
+
+    const [username, setUsername] = useState(null)
+
+    const [token, setToken] = useState(null)
+
+    // function login(username, password) {
+
+    //     if(username === 'in28minutes' && password === 'dummy') {
+    //         setAuthenticated(true)
+    //         setUsername(username)
+    //         return true
+    //     }else {
+    //         setAuthenticated(false)
+    //         setUsername(null)
+    //         return false
+    //     }
+    // }
+
+    // async function login(username, password) {
+
+    //     const baToken = 'Basic ' + window.btoa(username + ":" + password)
+
+    //     try {
+    //         const response = await executeBasicAuthenticationService(baToken)
+
+    //         if(response.status == 200) {
+    //             setAuthenticated(true)
+    //             setUsername(username)
+    //             setToken(baToken)
+
+    //             apiClient.interceptors.request.use(
+    //                 (config) => {
+    //                     console.log('intercepting and adding a token')
+    //                     config.headers.Authorization = baToken
+    //                     return config
+    //                 }
+    //             )
+
+    //             return true
+    //         }else {
+    //             logout()
+    //             return false
+    //         }
+    //     } catch(error) {
+    //         logout()
+    //         return false
+    //     }
+    // }
+
+    async function login(username, password) {
+
+        try {
+            const response = await executeJwtAuthenticationService(username, password)
+
+            if(response.status == 200) {
+
+            //9: 그럼 const jwtToken이라고 하고, 그게 'Bearer ' + response.data.token 이것과 같다고 해준다
+            //그럼 이렇게 'Bearer ' + response.data.token라고 해주자, 이렇게 jwtToken을 만들고
+                const jwtToken = 'Bearer ' + response.data.token
+
+                setAuthenticated(true)
+                setUsername(username)
+
+            //9-1: 그 토큰을 컨텍스트에 설정할 것이다
+                setToken(jwtToken)
+
+                apiClient.interceptors.request.use(
+                    (config) => {
+                        console.log('intercepting and adding a token')
+
+                    //9-2: 그리고 우리가 인증 헤더를 설정할 때도 그 토큰을 사용할 것이다, 이제 넌 그걸 저장할 수 있지
+                        config.headers.Authorization = jwtToken
+                        return config
+                    }
+                )
+
+                return true
+            }else {
+                logout()
+                return false
+            }
+        } catch(error) {
+            logout()
+            return false
+        }
+    }
+
+
+    function logout() {
+        setAuthenticated(false)
+        setToken(null)
+        setUsername(null)
+    }
+
+    return (
+        <AuthContext.Provider value={ { isAuthenticated, login, logout, username, token} }>
+            {children}
+        </AuthContext.Provider>
+    )
+}
+
+--------------------------------------------------------------------------------------------
+
+나머지 코드는 예전과 똑같다
+
+
