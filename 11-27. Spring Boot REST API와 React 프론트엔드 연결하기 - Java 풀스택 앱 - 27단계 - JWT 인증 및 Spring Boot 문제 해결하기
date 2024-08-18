@@ -121,3 +121,327 @@ com.in28minutes.rest.webservices.restfulwebservices.jwt지
 이렇게 그게 SpringBootApplication 클래스가 있는 패키지의 서브패키지이다
 
 
+3)
+다음으로는 너가 새로운 요청을 제출해보길 바란다
+그럼 너는 New draft request를 클릭할 거고
+여기로 와서
+너는 POST 요청을 전송해야 하지, https를 사용하지 말고 http여야 하고, 이 URL에는 특히 주의해야 한다
+localhost:8080/authenticate이다, 이 URL이 
+
+----------------------------------------
+
+⏺ sts 
+
+⏺ JwtAuthenticationController.java
+
+...
+    @PostMapping("/authenticate")
+    public ResponseEntity<JwtTokenResponse> generateToken(
+            @RequestBody JwtTokenRequest jwtTokenRequest) {
+...
+----------------------------------------
+
+여기 있는 URL과 일치해야 하지
+여기 "/authenticate"이 보이지?
+그게 바로 여기 있는 것과 일치해야 한다
+Content-Type은 application/json이고, 이대로 너가 Send를 클릭하면 401을 받게되지
+그건 우리가 인증 정보를 전송하지 않고 있기 때문이지 그럼 인증 정보를 전송해보자 
+그럼 BODY 안에 너는 "username"이라 적고 값은 "in28minutes"라고 해줘야 한다
+그리고 password 값은 dummy라고 해줘야 하지
+그리고 이 json 구조를 적절히 갖춰줘라, 이렇게 "username": "in28minutes", "password": "dummy"이다
+
+확실히 확인하고 싶다면
+----------------------------------------
+
+⏺ sts 
+
+⏺ JwtSecurityConfig.java
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails user = User.withUsername("in28minutes")
+                                .password("{noop}dummy")
+                                .authorities("read")
+                                .roles("USER")
+                                .build();
+----------------------------------------
+JwtSecurityConfig와 비교해보면 된다
+여기서 설정을 하고 있다, in28minutes와 dummy가 있지?
+이제 너는 Send를 클릭할 수 있다
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/authenticate                      |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | Accept        | : |application/json  | x   |     {                         
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |      "username": "in28minutes",
+   _______________     __________________      |      "password": "dummy"
+☑ | Content-Type  | : |application/json  | x   |     }                       
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |        
+   _______________     __________________      |      
+☑ | Authorization | : |Basic aW4yOG1pbnV0| x 🗝|                             
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |               
+  ______________                               |                                
+ ( + Add header )  🗝 Add authorization     🗑 |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   Text JSON XML HTML | Format Body |
+                                                    ☑ Enable body evaluation
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+                                                |
+                                                V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Vary:	Origin                                    |
+Vary:	Access-Control-Request-Method             |    ▼ {
+Vary:	Access-Control-Request-Headers            |      "token": "eyJraWQiOiI4Y2I3NzdjMC0xMzYwLTQ0YmMtYTJjZi1hODI3ZDkxYzc1ZTgiLCJhbGciOiJSUzI1NiJ9.
+X-Content-Type-Options:	nosniff                   |       eyJpc3MiOiJzZWxmIiwic3ViIjoiaW4yOG1pbnV0ZXMiLCJleHAiOjE3MjM3MTE5OTQsImlhdCI6MTcyMzcwNjU5NCwic2NvcGUiOiJST0xFX1VTRVIifQ.
+X-XSS-Protection:	1; mode=block             |       JIapOn5hPOhNyFn5oELGugJtDl4kUON5fWXq_h2sFq1p3hWtVvYdyRurBHOOu22Nv5h1TvZzyAT3FOmbGK3vdNnfNl6cm6tAJ6oiRxY_
+Cache-Control: no-cache, no-store, max-age=0,     |       WmLuFZ8GIJ0uJVdHtv447-4P9P4zsPvHE9eu5B66qnhCgfO-ZreX9le41loIG-6pnC7wem2hBiUN41n-kpiJb6lBNnLeTmpe6AARud0JySSVrrAGB453FoAyrMynNMZn
+               must-revalidate                    |       711AFTBtIPsRA6yR98Jndu9dKdf94CIsbPBkCY5QHay3LqHUZ8Xj-OicHMNrDuMCINcsCkukxoL0RhE0Hsrp4ykDDjfVUM6AOKVzqd5nMC7XHw"
+Pragma:	no-cache                                  |    }
+Expires:	0                                 |
+X-Frame-Options: SAMEORIGIN                       |
+Content-Type:	application/json                  |
+Transfer-Encoding: chunked                        |
+Date:	Thu, 15 Aug 2024 07:23:14 GMT             |
+Keep-Alive:	timeout=60                        |
+Connection:	keep-alive                        |
+                                                  | 
+▶ COMPLETE REQUEST HEADERS                        |
+                                                  |                                          
+                                                      lines nums  📄 copy              length: 554 bytes 
+--------------------------------------------------------------------------------------------------------------------------------
+
+그러면 요청에 200이라는 응답이 돌아오는 걸 보게 되지
+그리고 요청 안에는 토큰이 있다 
+
+{
+"token":"eyJraWQiOiI4Y2I3NzdjMC0xMzYwLTQ0YmMtYTJjZi1hODI3ZDkxYzc1ZTgiLCJhbGciOiJSUzI1NiJ9.
+eyJpc3MiOiJzZWxmIiwic3ViIjoiaW4yOG1pbnV0ZXMiLCJleHAiOjE3MjM3MTE5OTQsImlhdCI6MTcyMzcwNjU5NCwic2NvcGUiOiJST0xFX1VTRVIifQ.
+JIapOn5hPOhNyFn5oELGugJtDl4kUON5fWXq_h2sFq1p3hWtVvYdyRurBHOOu22Nv5h1TvZzyAT3FOmbGK3vdNnfNl6cm6tAJ6oiRxY_
+WmLuFZ8GIJ0uJVdHtv447-4P9P4zsPvHE9eu5B66qnhCgfO-ZreX9le41loIG-6pnC7wem2hBiUN41n-kpiJb6lBNnLeTmpe6AARud0JySSVrrAGB453FoAyrMynNMZn
+711AFTBtIPsRA6yR98Jndu9dKdf94CIsbPBkCY5QHay3LqHUZ8Xj-OicHMNrDuMCINcsCkukxoL0RhE0Hsrp4ykDDjfVUM6AOKVzqd5nMC7XHw"
+}
+이게 우리가 사용하는 토큰이고
+
+토큰을 복사할 때 항상 jwt.io로 가서 
+토큰을 여기 붙여 넣는다
+그럼 여기로 가서 
+Encode여기에 토큰을 붙여넣지
+붙여넣으면 보는 것 처럼 유효한 토큰이라고 나온다 ( signature verified )
+여기 
+--------------------------------------
+-------------------
+HEADER:
+-------------------
+{
+  "kid": "7810ec09-97f0-4cd6-9809-721f4d7815a9",
+  "alg": "HS256"
+}
+-------------------
+PAYLOAD:
+-------------------
+{
+  "iss": "self",
+  "sub": "in28minutes",
+  "exp": 1723721195,
+  "iat": 1723715795,
+  "scope": "ROLE_USER"
+}
+-------------------
+VERIFY SIGNATURE
+-------------------
+HMACSHA256(
+  base64UrlEncode(header) + "." +
+  base64UrlEncode(payload),
+  
+your-256-bit-secret
+
+) secret base64 encoded
+--------------------------------------
+모든 세부정보가 나오고 헤더와 페이로드를 확인할 수 있다 
+
+토큰을 복사해서 
+그 이후의 요청을 실행할 때 사용한다 
+가령 localhost:8080/users/in28minutes/todos에 GET을 요청한다고 해보자
+니가 그걸 하려 한다고 해보면
+우린 인증 헤더를 추가할 거고, 그럼 너는 Add header를 클릭할 것이다
+이것의 이름이 Authorization인지 확인하고 
+그리고 여기에 Bearer라고 할 수 있다, 우린 Bearer 토큰을 전송하는 것이고
+너가 JWT 인증을 이용할 때는 항상 Bearer 토큰을 사용하게 된다
+그럼 너는 Bear라고 입력하고 실제 토큰을 여기 입력하자
+너는 여기 붙여 넣는 토큰이 유효한지 jwt.io에서 확인하기 바한다
+그렇게 했다면 너는 Send를 클릭할 수 있고
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET      | ▼ |    |    http://localhost:8080/users/in28minutes/todos           |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+   _______________     __________________      |    
+☑ | Accept        | : |application/json  | x   |                              
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |     XHR does not allow payload for GET request.       
+   _______________     __________________      |      
+▢ | Authorization | : |Basic aW4yOG1pbnV0| x 🗝|                             
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |               
+  ______________                               |                                
+ ( + Add header )  🗝 Add authorization     🗑 |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   
+
+                                   
+
+--------------------------------------------------------------------------------------------------------------------------------
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Vary:	Origin                                    |      [
+Vary:	Access-Control-Request-Method             |        {
+Vary:	Access-Control-Request-Headers            |          id: 1,
+X-Content-Type-Options:	nosniff                   |          username: "in28minutes",
+X-XSS-Protection:	1; mode=block             |          description: "Get AWS Certified",
+Cache-Control: no-cache, no-store,                |          targetDate: "2034-08-07",
+               max-age=0, must-revalidate         |          done: false
+Pragma:	no-cache                                  |         }
+Expires:	0                                 |            {
+X-Frame-Options:	DENY                      |              id": 2,
+Content-Type:	application/json                  |          "username": "in28minutes",
+Transfer-Encoding: chunked                        |        "description": "Learn DevOps",
+Date:	Thu, 15 Aug 2024 07:57:49 GMT             |          "targetDate": "2035-08-18",
+Keep-Alive:	timeout=60                        |            "done": false
+Connection:	keep-alive                        |          }
+Set-Cookie: JSESSIONID=33 B, session, HttpOnly/   |      {
+                                                  |        "id": 3,
+▶ COMPLETE REQUEST HEADERS                        |        "username": "in28minutes", 
+                                                  |        "description": "Learn Full Stack Development",
+                                                  |        "targetDate": "2036-08-18",
+                                                  |        "done": false
+                                                  |        }
+                                                  |
+                                                    lines nums  📄 copy              length: 328 bytes 
+--------------------------------------------------------------------------------------------------------------------------------
+
+그러면 데이터가 돌아오는 게 보일 것이다
+이걸 끄면 401 미인증이 돌아오는 걸 보게될 것이고
+이걸 켜면 요청에 성공하는 걸 보게 될 것이다
+
+이렇게 기본적인 게 정확하고 JWT 설정이 올바르다는 걸 확인한 다음 
+프론트엔드 애플리케이션 리액트로 갈 수 있지 
+여기서 너는 몇 가지를 확인해보기 바란다 
+
+
+🔵 React 에서 확인
+
+1)
+첫째는 요청인데
+
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+⏺ AuthenticationApiService.js
+
+
+import { apiClient } from "./ApiClient";
+
+export const executeBasicAuthenticationService
+    = (token) => apiClient.get(`/basicauth`
+        ,{
+            headers: {
+                Authorization: token
+            }
+        }
+    )
+
+export const executeJwtAuthenticationService
+    = (username, password) => 
+        apiClient.post(`/authenticate`,{username, password}
+      )   
+
+--------------------------------------------------------------------------------------------
+
+보는 것처럼 넌 /authenticate 요청을 하고 있지
+그리고 우린 post를 사용하고 있다 (<= apiClient.post(`/authenticate`,{username, password})
+그리고 username과 password가 담긴 json 구조물을 만들고 있지
+그럼 여기 안에 있는 모든 게 예상한 대로인지 확인하기 바란다 
+
+executeJwtAuthenticationService 메서드를 확인했다면
+
+2)
+우리가 
+--------------------------------------------------------------------------------------------
+
+⏺ vsc 
+
+⏺ AuthContext.js
+
+
+...
+    async function login(username, password) {
+
+        try {
+            const response = await executeJwtAuthenticationService(username, password)
+
+            if(response.status == 200) {
+                const jwtToken = 'Bearer ' + response.data.token
+                setAuthenticated(true)
+                setUsername(username)
+                setToken(jwtToken)
+
+                apiClient.interceptors.request.use(
+                    (config) => {
+                        console.log('intercepting and adding a token')
+                        config.headers.Authorization = jwtToken
+                        return config
+                    }
+                )
+...
+--------------------------------------------------------------------------------------------
+
+여기서 생성하고 있는 Baerer토큰을 확인하기 바란다 
+그럼 여기서 response.status ==200 이라면, 즉 올바른 응답을 받고 있다면
+여기서 우리는 jwtToken ='Bearer ' + 라고 하고 있지  
+Bearer 다음에 있는 공백은 아주 아주 중요하다 
+이렇게 jwtToekn에는 'Bearer '와 토큰을 갖게 되지
+
+다음으로 확인할 수 있는 부분은 인증 헤더 코드이다 (<= config.headers.Authorization = jwtToken)
+여기서 우리는 인증헤더를 설정하고 있지, 즉 config.headers.Authorization = jwtToken 이다
+좋다 
