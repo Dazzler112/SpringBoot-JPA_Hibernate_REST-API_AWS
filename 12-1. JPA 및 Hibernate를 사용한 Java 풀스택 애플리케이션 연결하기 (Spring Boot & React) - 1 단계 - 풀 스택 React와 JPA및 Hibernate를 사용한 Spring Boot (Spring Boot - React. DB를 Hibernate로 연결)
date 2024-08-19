@@ -1,0 +1,269 @@
+
+
+지금까지 풀 스택 애플리케이션을 위한 프론트엔드 및 백엔드 API를 만들었다 
+
+로그인 후 이 Todos 페이지로 이동하면, 현재 데이터가 어디에서 들어오는 걸까?
+인 메모리 정적 리스트에서 수신된다
+------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+        
+                  in28minutes  Home Todos                                               Login   Logout
+             _____________________________________________________________________________________________
+
+                                                Things You Want To Do!
+                      _______________________________________________________________________________
+                    |                      Delete of todo with id = 1 successful                     |  
+                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     
+                        
+                           Description	             is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                   ________      ________
+                          Learn DevOps		      false       2035-08-05      | Delete |    | Update |     
+                                                                                   ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                   ________      ________
+                  Learn Full Stack Development        false       2036-11-11      | Delete |    | Update |
+                                                                                   ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------
+
+그렇다면 데이터베이스에서 이 데이터를 가져와볼까?
+이번 단계에서 우리가 해볼 것이다 
+애플리케이션을 인메모리 DB H2에 연결해 보겠다
+
+
+
+Getting Started with JPA and Hibernate
+                                                                               _________________
+● Build a Simple JPA App using Modern Spring Boot Approach                    | Spring Data JPA |
+● Get Hands-on with JPA, Hibernate and Spring Boot                             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ■ World before JPA - JDBC, Spring JDBC                                       _________________   
+  ■ Why JPA? Why Hibernate? ( JPA vs Hibernate)                               |       JPA       | 
+  ■ Why Spring Boot and Spring Boot Data JPA?                                  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  ■ JPA Terminology: Entity and Mapping                                        _________________
+                                                                              |   Spring JDBC   |
+                                                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                               _________________
+                                                                              |       JDBC      |
+                                                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+DB에 연결하기 위해서 사용할 것들은 JPA와 Hibernate이다
+JPA와 Hibernate가 좋은 점은 어떤 DB든지 상관 없다, 인메모리 DB H2라던가 
+MySQL 또는 Oracle과 같은 DB도 가능하지
+매우 적은 수의 변경만으로 한 DB에서 다른 DB로 전환할 수 있다
+JPA와 Hibernate가 처음이라면, JPA와 Hibernate 상호작용 섹션을 확인하는 것을 권장한다
+JPA 이전의 것들을 이해하는데 도움을 주고 JDBC란 무엇인지, Spring JDBC는 무엇인지 왜 JPA를 사용하는지
+왜 Hibernate를 사용하고, 왜 Spring Boot JPA를 사용하는지 알 수 있다
+또한 몇 가지 중요한 JPA 용어에 대해 이해하게 될 것이다
+
+
+
+따라서 JPA와 Hibernate와 관련된 모든 것에 대한 고차원의 개요를 제공하고
+Spring Boot의 자동 설정이 어떻게 JPA와 H2 두가지를 사용하기 쉽게 만들어주는지 알 수 있다
+
+이 특정 섹션에선 많은 흥미로운 것들에 대해 알아볼 것이고
+섹션의 마무리는 Hibernate와 JPA를 비교하면서 끝내겠다
+그리고 다음 몇 단계에선 Hibernate와 JPA에 대해 잘 이해하고 있다는 가정하에 풀스택 애플리케이션을 DB에 연결해 볼 것이다
+그럼 시작해보자
+
+IDE(eclipse든 sts든..)로 이동해 보겠다
+우리는 애플리케이션에 DB기능을 추가하고 싶은 것이지
+따라서 pom.xml을 열겠다
+starter-web부분을 복사해서...
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ pom.xml
+
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+  //1: 여기에 붙여 넣겠다
+  //starter-data-jpa로 수정하겠다, JPA와 Hibernate 도입을 하는 스타터인데
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>	
+
+  //1-1: 우리는 H2 DB도 원하므로
+		<dependency>
+      //1-2: com.h2database를 입력하고
+			<groupId>org.springframework.boot</groupId>
+       //1-3: 여기엔 h2를 입력한다, 그리고 저장하겠다
+			<artifactId>h2</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<version>3.3.2</version>
+		</dependency>				
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
+			
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+...
+
+--------------------------------------------------------------------------------------------
+
+실행 중인 서버는 중단하는게 좋다
+
+
+그리고 src/main/java로 이동하여 웹 서비스 애플리케이션을 재시작하고 
+우클릭해 Run As 아래 Java Application으로 실행한다
+
+콘솔에 H2와 관련하여 
+-----------------------------------------------------------
+...
+2024-08-19T14:52:37.371+09:00  INFO 16676 --- [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-08-19T14:52:37.375+09:00  INFO 16676 --- [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2120 ms
+2024-08-19T14:52:37.423+09:00  INFO 16676 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-08-19T14:52:37.781+09:00  INFO 16676 --- [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:e94aa4ef-80f0-48bb-844e-febb37a83730 user=SA
+2024-08-19T14:52:37.784+09:00  INFO 16676 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-08-19T14:52:37.798+09:00  INFO 16676 --- [  restartedMain] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:e94aa4ef-80f0-48bb-844e-febb37a83730'
+2024-08-19T14:52:38.010+09:00  INFO 16676 --- [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-08-19T14:52:38.103+09:00  INFO 16676 --- [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.1.1.Final
+2024-08-19T14:52:38.363+09:00  WARN 16676 --- [  restartedMain] org.hibernate.orm.deprecation            : HHH90000021: Encountered deprecated setting [javax.persistence.sharedCache.mode], use [jakarta.persistence.sharedCache.mode] instead
+2024-08-19T14:52:38.643+09:00  INFO 16676 --- [  restartedMain] SQL dialect                              : HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+...
+-----------------------------------------------------------
+많은 내용이 출력되는 것을 볼 수 있는데
+기본적으로 H2는 이 특정 URL에서 실행되는 것을 알 수 있다
+      ↑(url=jdbc:h2:mem:e94aa4ef-80f0-48bb-844e-febb37a83730 user=SA)
+DB에 대하여 일관된 URL을 가지도록 
+
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ application.properties
+
+
+logging.level.org.springframework=info
+#spring.security.user.name=in28minutes
+#spring.security.user.password=dummy
+
+#2: spring.datasource.url을 방금 보았던 특정 URL로 설정해주겠다
+# 이 jdbc:h2:mem의 뒷부분은 대신 testdb를 사용한다
+# 따라서 spring.datasource.url = jdbc:h2:mem:testdb가 되는 것이지
+# 이것이 우리가 사용할 URL이 되겠다 , 저장하고
+spring.datasource.url=jdbc:h2:mem:testdb
+
+--------------------------------------------------------------------------------------------
+
+
+이제 콘솔을 봐야 하는데 
+-----------------------------------------------------------
+2024-08-19T15:00:40.263+09:00  INFO 19956 --- [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2159 ms
+2024-08-19T15:00:40.315+09:00  INFO 19956 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-08-19T15:00:40.526+09:00  INFO 19956 --- [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2024-08-19T15:00:40.528+09:00  INFO 19956 --- [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-08-19T15:00:40.540+09:00  INFO 19956 --- [  restartedMain] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
+2024-08-19T15:00:40.753+09:00  INFO 19956 --- [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-08-19T15:00:40.838+09:00  INFO 19956 --- [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.1.1.Final
+2024-08-19T15:00:41.101+09:00  WARN 19956 --- [  restartedMain] org.hibernate.orm.deprecation            : HHH90000021: Encountered deprecated setting [javax.persistence.sharedCache.mode], use [jakarta.persistence.sharedCache.mode] instead
+2024-08-19T15:00:41.318+09:00  INFO 19956 --- [  restartedMain] SQL dialect                              : HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+-----------------------------------------------------------
+Database available at 뒤에 jdbc:h2:mem:testdb라고 되어 있는 것을 볼 수 있지
+좋다 
+
+또한 H2 콘솔은 /h2-console에서 사용 가능한 것을 알 수 있다 (<= H2 console available at '/h2-console'.)
+그럼 그쪽으로 이동하고 
+
+H2 콘솔로 이동해보면, localhost:8080/h2-console 을 입력하면
+
+이렇게 하면 JDBC URL이 애플리케이션 루트 속성에 있는 항목과 일치하는지 확인할 수 있는 
+이 페이지로 이동하게 된다
+  ______________________
+ |English             v |  Preferences  Tools  Help
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _______________________________________________________________________
+ |  Login (파바탕)                                                        | 
+ |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+ |                    ______________________________________________     |
+ |  Saved Settings:  | Generic H2 (Embedded)                    v   |    |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |
+ |                    ______________________________   ____   ______     |
+ |  Setting Name :   | Generic H2 (Embedded)        | |Save| |Remove|    |
+ |                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾   ‾‾‾‾‾‾     |
+ |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+ |                    ____________________________________________       |
+ |  Driver Class:    |org.h2.Driver                               |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ____________________________________________       |
+ |  JDBC URL:        |jdbc:h2:mem:testdb                          |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ________________________________                   |
+ |  User Name:       |sa                              |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   | 
+ |                    ________________________________                   |
+ |  Password:        |                                |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   |
+ |                    _________   _________________                      |                               
+ |                   | Connect | | Test Connection |                     |                                       
+ |                    ‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+  따라서 JDBC URL은 jdbc:h2:mem:testdb이고 유저명은 sa, 패스워드는 비어있다
+  
+  연결을 클릭한다 
+
+
+  -------------------------------------------------------------------------
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ + 📁 INFORMATION_SCHEMA
+ + 👪 Users
+ (i) H2 2.3.232 (2024-08-11)
+
+-------------------------------------------------------------------------
+
+H2 콘솔에 로그인 된 것이다
+
+그럼 이제 무엇을 해야하지?
+
+Todos의 상세항목들을 데이터베이스에 저장하기 시작해야겠지
+
+다음 단계에서 이것을 어떻게 하는지 보겠다
