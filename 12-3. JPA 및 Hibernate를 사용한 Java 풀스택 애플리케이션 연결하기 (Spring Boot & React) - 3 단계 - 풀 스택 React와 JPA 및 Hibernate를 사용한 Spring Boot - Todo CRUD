@@ -347,3 +347,369 @@ TodoService로 이동해보면
 	}
 -------------------------
 풀 스택 개발을 사용하는 것을 볼 수 있다 
+
+
+그럼 이제 전환을 해보자
+지금 하려는 것은 TodoRepository로 전환을 하는 것이다 
+JpaResource로 전환해야 한다 
+지금 이것에서 TodoRepository에서 항목을 가져올 수 있도록 
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoJpaResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.todo.repository.*;
+
+@RestController
+public class TodoJpaResource {
+
+	private TodoService todoService;
+	
+	private TodoRepository todoRepository;
+	
+	public TodoJpaResource(TodoService todoService, TodoRepository todoRepository) {
+		this.todoService = todoService;
+		this.todoRepository = todoRepository;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+
+		//return todoService.findById(id); (<= 주석처리)
+
+    //6: todoRepository.findBy username인데 findBy username은 존재하지 않는 것을 볼 수 있다
+    //그렇지만 유저 명은 TODO테이블의 필드이지, 그렇기 때문에 레포지토리에서 메서드를 생성할 수 있다 
+	}
+	
+...
+}
+
+--------------------------------------------------------------------------------------------
+                                      |
+                                      V
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoRepository.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo.repository;
+
+import java.util.*;
+
+import org.springframework.data.jpa.repository.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.todo.*;
+
+public interface TodoRepository extends JpaRepository<Todo, Integer> {
+
+  //7: 따라서 findByUsername()이라고 하겠다, 이렇게 작동할 수 있는 것은 Todo에 username이라는 필드가 있기 때문이다
+  //따라서 TodoRepository가 username을 바탕으로 검색을 할 수 있는 것이지, username을 파라미터로 전달해야 한다 
+  //그렇다면 이것은 무엇을 반환할까? Todo리스트를 반환한다 끝에 세미콜론을 달아준다 ,그리고 import도 정리해준다, java.util.List 저장하고
+  List<Todo> findByUsername(String username);
+}
+
+--------------------------------------------------------------------------------------------
+
+이제 TodoJpaResource로 이동해서 이것( List<Todo> findByUsername(String username); )을 활용할 수 있다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoJpaResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.todo.repository.*;
+
+@RestController
+public class TodoJpaResource {
+
+	private TodoService todoService;
+	
+	private TodoRepository todoRepository;
+	
+	public TodoJpaResource(TodoService todoService, TodoRepository todoRepository) {
+		this.todoService = todoService;
+		this.todoRepository = todoRepository;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+//		return todoService.findByUsername(username);
+
+    //8: 그래서 findByUsername이 나타나는 것을 볼 수 있지 argument(인자)로 username을 전달하겠다
+    //그리고 앞에 return을 붙여준다, 이제 저장한다
+		return todoRepository.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+		todoService.updateTodo(todo);
+		return todo;
+	}
+	
+	@PostMapping("/users/{username}/todos")
+	public Todo createTodo(@PathVariable String username,
+				@RequestBody Todo todo) {
+		Todo createdTodo = todoService.addTodo(username, todo.getDescription(),
+				todo.getTargetDate(), todo.isDone());
+		
+		return createdTodo;
+	}
+}
+--------------------------------------------------------------------------------------------
+
+변경사항이 반영될 때 까지 기다렸다가
+Home으로 이동했다가 다시 Todos로 이동한다
+                                          |
+                                          V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                         Login   Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+이런, 문제가 있나 보다 
+다시 시도해보기 전에 로그아웃을 먼저 하겠다,
+애플리케이션을 시작할 때마다 
+###이 재생성되기 때문에 로그아웃을 한 후에 다시 로그인을 해주어야 한다 
+따라서 로그아웃을 하고 다시 로그인을 하겠다 
+
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+로그인을 한 다음에 Todos로 넘어가는 것을 권장한다 
+                                |
+                                V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                         Login   Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                      Learn AWS	                   false       2034-08-16      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                   Get AWS Certified		   false       2035-08-16      | Delete |    | Update |     
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                     Learn DevOps                  false       2036-11-16      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+그럼 이제 정상적으로 Todos가 채워진 것을 볼 수 있다
+Learn AWS, Get AWS Certified ,Learn DevOps
+모두 DB에서 오는 것을 알 수 있다 
+우리가 하고 싶은 것은 다른 것들도 업데이트한 다음 DB에 연결하는 것이지
+
+retrieveTodo부터 시작하겠다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoJpaResource.java
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.todo.repository.*;
+
+@RestController
+public class TodoJpaResource {
+
+	private TodoService todoService;
+	
+	private TodoRepository todoRepository;
+	
+	public TodoJpaResource(TodoService todoService, TodoRepository todoRepository) {
+		this.todoService = todoService;
+		this.todoRepository = todoRepository;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+//		return todoService.findByUsername(username);
+		return todoRepository.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+    
+    //9: 여기에서 return todoService대신에 입력할 것은
+	//	return todoService.findById(id); (<= 주석처리)
+
+    //9-1: return todoRepository.findBy 에 Id이다 여기에 id를 전달할 수 있겠지 똑같다, 이것을 저장해주고 
+    //문제는 이것이 optional을 반환할 수 있다는 것인데 따라서 get을 사용해줄 수 있다 .get();을 입력한다, 그럼 이제 retrieveTodo가 올려지고 실행된다
+    return todoRepository.findById(id).get(); 
+	}
+	
+...
+}
+--------------------------------------------------------------------------------------------
+
+
+다음으로는 deleteTodo를 업데이트하겠다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoJpaResource.java
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.todo.repository.*;
+
+@RestController
+public class TodoJpaResource {
+
+	private TodoService todoService;
+	
+	private TodoRepository todoRepository;
+	
+	public TodoJpaResource(TodoService todoService, TodoRepository todoRepository) {
+		this.todoService = todoService;
+		this.todoRepository = todoRepository;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+//		return todoService.findByUsername(username);
+		return todoRepository.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+//		return todoService.findById(id);
+		
+		return todoRepository.findById(id).get();
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+
+  //10: todoService.deleteById 대신에 
+	//	todoService.deleteById(id); (<= 주석처리)
+
+  //10-1: todoRepository.deleteById()가 되겠지 저장한다 
+    todoRepository.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+...
+}
+
+--------------------------------------------------------------------------------------------
+
