@@ -1,0 +1,349 @@
+
+
+DB에 테이블을 생성했고 데이터도 채워 넣었다 
+이제 DB에 통신할 수 있는 무언가를 생성할 차례다
+그래서 해야 할 것은 여기에 todo 레포지토리를 생성하는 것이다 
+
+restfulwebservices.todo 패키지로 이동해서 
+여기에 새로운 인터페이스를 생성할 것이다 Interface를 클릭하고 todo.repository 패키지에 위치시키겠다
+이것은 레포지토리가 될 것이다, TodoRepository 이렇게 그리고 Finish를 클릭한다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoRepository.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo.repository;
+
+import org.springframework.data.jpa.repository.*;
+
+//1: 이 TodoRepository가 JpaRepository를 상속하도록 만들겠다
+//여기 안에 JpaRepository가 있다, org.springframework.data.jpa.repository 안에 있는 JpaRepository이다
+public interface TodoRepository extends JpaRepository<T, ID> {
+
+}
+
+--------------------------------------------------------------------------------------------
+
+이 TodoRepository에 의해서 관리되는 엔터티는 무엇일까?
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoRepository.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo.repository;
+
+import org.springframework.data.jpa.repository.*;
+
+//2: Todo이다 (<T, ID>에서 T를 Todo로..), 그러면 ID 필드는 무엇일까?
+public interface TodoRepository extends JpaRepository<Todo, ID> {
+
+}
+
+--------------------------------------------------------------------------------------------
+
+Todo 로 이동해서 보면
+
+----------------------------------
+...
+@Entity
+public class Todo {
+
+	public Todo() {
+		
+	}
+	
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	@Id
+	@GeneratedValue
+	private int id;
+
+	private String username;
+...
+----------------------------------
+
+Id 필드는 int이다
+따라서
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoRepository.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo.repository;
+
+import org.springframework.data.jpa.repository.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.todo.*;
+
+                                  //3: Integer라고 입력한다(<T, ID>의 ID부분을 Integer로...)
+public interface TodoRepository extends JpaRepository<Todo, Integer> {
+
+}
+
+//그리고 import를 정리해주면 todo.Todo가 불러와 지고
+--------------------------------------------------------------------------------------------
+
+이제 TodoRepository 준비가 됐다
+JpaRepository는 엔터티를 가지고 놀 수 있는 다양한 메서드를 제공한다
+
+TODO를 생성하고, 지우고, 업데이트하는 등등을 할 수 있는 다양한 메서드들이 
+JpaRepository에 나와있다
+
+그럼 이제 이 TodoRepository를 사용해보자
+실제로 이 TodoRepository를 사용하기 앞서 여기로 이동해서 이 TodoResource를 복사하겠다
+첫 번째 자원은 서비스와 통신하는 것이고 
+두 번째 TodoResource 자원을 생성하겠다, 이 두 번째 자원은 DB와 통신하는 것이다
+따라서 이름을 TodoJpaResource라고 하겠다
+
+그리고 우리가 DB로 전환하는 동안에는 이 TodoResource가 활성화되는 것을 원치 않기 때문에 
+
+이파일에 들어가서
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+//4: TodoResource의 @RestController 부분을 주석처리 하겠다, 나중에 참조할 용도로 가지고 있는 것이다
+
+// @RestController (<= 주석처리)
+public class TodoResource {
+
+	private TodoService todoService;
+	
+	public TodoResource(TodoService todoService) {
+		this.todoService = todoService;
+	}
+...
+}
+--------------------------------------------------------------------------------------------
+
+이렇게 하면 애플리케이션이
+------------------------------
+...
+o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2024-08-22T15:39:21.724+09:00  INFO 8892 --- [  restartedMain] 
+c.i.r.w.r.RestfulWebServicesApplication  : Started RestfulWebServicesApplication in 
+7.798 seconds (process running for 8.493)
+------------------------------
+정상적으로 실행되는 것을 볼 수 있다
+
+
+이제 다시 TodoJpaResource로 돌아가자
+TodoJpaResource에서 하고 싶은 것은 DB와 통신할 수 있도록 하는 것이다
+DB와 통신을 하려면 ?
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoJpaResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoJpaResource {
+
+	private TodoService todoService;
+
+  //5: TodoRepository가 필요하지 import를 정리한다 그렇게 하면 TodoRepository가 불러와진 것을 볼 수 있다 좋다
+  //그리고 todoService는 todoRepository로 변경한다
+  private TodoRepository todoRepository;
+
+  //5-1: 그리고 생성자에 파라미터를 추가하자 위의 TodoRepository todoRepository 이부분을 그대로 복사해 여기에 넣갔다
+	public TodoJpaResource(TodoService todoService, TodoRepository todoRepository) {
+		this.todoService = todoService;
+
+    //5-2: 그 다음 this.todoRepository = todoRepository;를 입력한다
+    this.todoRepository = todoRepository;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+		return todoService.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		return todoService.findById(id);
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+		todoService.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+		todoService.updateTodo(todo);
+		return todo;
+	}
+	
+	@PostMapping("/users/{username}/todos")
+	public Todo createTodo(@PathVariable String username,
+				@RequestBody Todo todo) {
+		Todo createdTodo = todoService.addTodo(username, todo.getDescription(),
+				todo.getTargetDate(), todo.isDone());
+		
+		return createdTodo;
+	}
+}
+
+--------------------------------------------------------------------------------------------
+
+설정에 필요한 작업은 완료됐다
+그럼 이제 재미 있는 부분이다
+
+이제 할 일은 여기에 있는 각 메서드들을 업데이트해서 
+DB와 통신할 수 있도록 하는 것이다 
+
+가장 먼저 작업할 메서드는 retrieveTodos이다
+업데이트를 하기 전에 할 것은 풀 스택 애플리케이션을 실행해야 한다 
+localhost:3000 접속
+변경 사항을 만들기 전에 모든 게 잘 작동하는지 확실히 하겠다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+
+
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+
+로그인을 하고
+                                          |
+                                          V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+Todos로 이동하면
+                                          |
+                                          V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                         Login   Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                   Get AWS Certified	           false       2034-08-16      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                     Learn DevOps		   false       2035-08-16      | Delete |    | Update |     
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+               Learn Full Stack Development        false       2036-11-16      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+AWS 인증 받기, DevOps 배우기, 풀 스택 개발 배우기가 잘 있는 것을 볼 수 있다
+풀 스택 개발 배우기는 TodoService에서 오는 것이지
+TodoService로 이동해보면 
+-------------------------
+⏺ sts
+
+⏺ TodoService
+
+	static {
+		todos.add(new Todo(++todosCount, "in28minutes","Get AWS Certified", 
+							LocalDate.now().plusYears(10), false ));
+		todos.add(new Todo(++todosCount, "in28minutes","Learn DevOps", 
+				LocalDate.now().plusYears(11), false ));
+		todos.add(new Todo(++todosCount, "in28minutes","Learn Full Stack Development", 
+				LocalDate.now().plusYears(12), false ));
+	}
+-------------------------
+풀 스택 개발을 사용하는 것을 볼 수 있다 
