@@ -1,0 +1,566 @@
+
+
+지난 단계에선 Todos 애플리케이션에 있는 대부분의 기능을 DB에 연결했다
+이번 단계에선 Todo를 생성해 보자
+Todo라는 Bean 객체를 생성하면서 했던 작업 중 하나는 
+지금 Todo Bean으로 이동해보면, 
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ Todo.java
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.time.*;
+
+import jakarta.persistence.*;
+
+
+@Entity
+public class Todo {
+
+	public Todo() {
+		
+	}
+	
+	public Todo(int id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	@Id
+	@GeneratedValue
+	private int id;
+
+	private String username;
+...
+}
+--------------------------------------------------------------------------------------------
+
+Todo Bean에는 int 값이 기본 키로 설정되어 있는 것을 볼 수 있다
+이것은 래퍼 클래스가 아닌 단순한 int지
+이것의 문제점은 int에는 null값을 가질 수 없다는 것이다
+이 
+----------------------------------
+
+⏺ sts 
+
+
+⏺ TodoJpaResource.java
+..
+
+	@PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+//		todoService.updateTodo(todo);
+		
+		todoRepository.save(todo);
+		return todo;
+	}
+----------------------------------
+.save 메서드는 
+todo를 삽입하거나 삭제해야 한다는 것을 어떻게 알까?
+
+id 필드를 바탕으로 알아낸다 id값이 null이라면 todo를 삽입하고 
+id가 어떤 값을 가진다면, 기존에 있는 todo를 업데이트 하는 것이지 
+그렇기 때문에 지금 할 작업은 todo가 Integer를 사용하도록 변경하는 것이다
+래퍼 클래스의 Integer를 사용하도록 말이다
+
+그럼 Todo로 이동해서..
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ Todo.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.time.*;
+
+import jakarta.persistence.*;
+
+
+@Entity
+public class Todo {
+
+	public Todo() {
+		
+	}
+
+  //1: 이 int를 래퍼 Integer클래스로 변경한다
+	public Todo(Integer id, String username, String description, LocalDate targetDate, boolean done) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.description = description;
+		this.targetDate = targetDate;
+		this.done = done;
+	}
+
+	@Id
+	@GeneratedValue
+  //1-1: 따라서 이것도 Integer가 되어야 하고 Integer로 바꾼다 
+	private Integer id;
+
+	private String username;
+	
+	private String description;
+	private LocalDate targetDate;
+	private boolean done;
+
+  //1-2: 이것도 Integer를 가져오도록 바꿔준다
+	public Integer getId() {
+		return id;
+	}
+
+  //1-3: setId도 마찬가지로 Integer로 바꿔준다 이제 저장을 하고 보면
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public LocalDate getTargetDate() {
+		return targetDate;
+	}
+
+	public void setTargetDate(LocalDate targetDate) {
+		this.targetDate = targetDate;
+	}
+
+	public boolean isDone() {
+		return done;
+	}
+
+	public void setDone(boolean done) {
+		this.done = done;
+	}
+
+	@Override
+	public String toString() {
+		return "Todo [id=" + id + ", username=" + username + ", description=" + description + ", targetDate="
+				+ targetDate + ", done=" + done + "]";
+	}
+
+}
+--------------------------------------------------------------------------------------------
+
+모든 것이 그대로 컴파일 되는 것을 볼 수 있다
+
+그럼 다시 TodoJpaResource로 돌아가자
+이제 해야 할 것은 새로운 Todo를 생성하고 이를 저장하는 것이다
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoJpaResource.java
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.todo.repository.*;
+
+@RestController
+public class TodoJpaResource {
+
+	private TodoService todoService;
+	
+	private TodoRepository todoRepository;
+	
+	public TodoJpaResource(TodoService todoService, TodoRepository todoRepository) {
+		this.todoService = todoService;
+		this.todoRepository = todoRepository;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+//		return todoService.findByUsername(username);
+		return todoRepository.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+//		return todoService.findById(id);
+		
+		return todoRepository.findById(id).get();
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+//		todoService.deleteById(id);
+		
+		todoRepository.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+//		todoService.updateTodo(todo);
+		
+		todoRepository.save(todo);
+		return todo;
+	}
+	
+	@PostMapping("/users/{username}/todos")
+	public Todo createTodo(@PathVariable String username,
+				@RequestBody Todo todo) {
+
+    //2-1: Todo가 올바른 유저 명을 가지도록 하기 위해서 setUsername에 username을 전달하겠다
+    todo.setUsername(username);
+
+    //2-2: 그리고 id를 null로 설정해주겠다 todo.setId(null);
+    todo.setId(null);
+
+    //2: 따라서 todoRepository.save(todo);를 입력한다, todo를 저장하기 전에
+    todoRepository.save(todo);
+
+    //2-3: 유저명은 todo.setUsername(username)에 가져와서 유저명을 세팅하는 것이다
+    //getDescription과 getTargetDate,isDone 이것들은 이미 Todo에 있는 것들이기 때문에 신경 쓰지 않겠다 
+    //따라서 주석처리한다
+//		Todo createdTodo = todoService.addTodo(username, todo.getDescription(),
+//				todo.getTargetDate(), todo.isDone());
+		
+		return createdTodo;
+	}
+}
+
+--------------------------------------------------------------------------------------------
+
+.save(todo)는 같은 엔터티를 반환하기 떄문에, 저장된 엔터티를 반환하지
+-----------------
+	<S extends T> S save(S entity);
+
+	/**
+	 * Saves all given entities.
+	 *
+	 * @param entities must not be {@literal null} nor must it contain {@literal null}.
+	 * @return the saved entities; will never be {@literal null}. The returned {@literal Iterable} will have the same size
+	 *         as the {@literal Iterable} passed as an argument.
+	 * @throws IllegalArgumentException in case the given {@link Iterable entities} or one of its entities is
+	 *           {@literal null}.
+	 * @throws OptimisticLockingFailureException when at least one entity uses optimistic locking and has a version
+	 *           attribute with a different value from that found in the persistence store. Also thrown if at least one
+	 *           entity is assumed to be present but does not exist in the database.
+	 */
+-----------------
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ TodoJpaResource.java
+
+
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.todo;
+
+import java.util.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+import com.in28minutes.rest.webservices.restfulwebservices.todo.repository.*;
+
+@RestController
+public class TodoJpaResource {
+
+	private TodoService todoService;
+	
+	private TodoRepository todoRepository;
+	
+	public TodoJpaResource(TodoService todoService, TodoRepository todoRepository) {
+		this.todoService = todoService;
+		this.todoRepository = todoRepository;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public List<Todo> retrieveTodos(@PathVariable String username) {
+//		return todoService.findByUsername(username);
+		return todoRepository.findByUsername(username);
+	}
+	
+	@GetMapping("/users/{username}/todos/{id}")
+	public Todo retrieveTodo(@PathVariable String username,
+								   @PathVariable int id) {
+//		return todoService.findById(id);
+		
+		return todoRepository.findById(id).get();
+	}
+	
+	@DeleteMapping("/users/{username}/todos/{id}")
+	public ResponseEntity<Void> deleteTodo(@PathVariable String username,
+								   @PathVariable int id) {
+//		todoService.deleteById(id);
+		
+		todoRepository.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping("/users/{username}/todos/{id}")
+	public Todo updateTodo(@PathVariable String username,
+			@PathVariable int id, @RequestBody Todo todo) {
+//		todoService.updateTodo(todo);
+		
+		todoRepository.save(todo);
+		return todo;
+	}
+	
+	@PostMapping("/users/{username}/todos")
+	public Todo createTodo(@PathVariable String username,
+				@RequestBody Todo todo) {
+		
+		todo.setUsername(username);
+		todo.setId(null);
+
+    //3: 따라서 return todoRepository.save(todo); 이렇게 할 수 있다 
+		todoRepository.save(todo);
+		
+//		Todo createdTodo = todoService.addTodo(username, todo.getDescription(),
+//				todo.getTargetDate(), todo.isDone());
+
+    //3-1: 따라서 밑에 이 return 부분도 주석처리 하겠다 그리고 저장
+//		return createdTodo;(<= 주석처리)
+	}
+}
+
+--------------------------------------------------------------------------------------------
+
+좋다
+항상 하던 대로 
+
+애플리케이션을 재실행 하면 로그아웃을 하고, 새로고침후 다시 로그인을 하고
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+
+
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+Todos로 이동한다
+                                          |
+                                          V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                         Login   Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                      Learn AWS	                   false       2034-08-16      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                   Get AWS Certified		   false       2035-08-16      | Delete |    | Update |     
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                     Learn DevOps                  false       2036-11-16      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+이제 새로운 Todo를 추가할 것이다
+
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todo/-1 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+                                                Description
+               ________________________________________________________________________________ 
+              |Learn to Have a Lot of Fun                                                      |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2036-08-23()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+Learn to Have a Lot of Fun(즐거울 수 있는 법 배우기) 를 추가하겠다
+목표 날짜, 이것을 배우는데 오랜 시간이 걸릴 것 같기 때문에 TargetDate를 먼 미래로 설정 하겠다 
+그리고 저장한다
+                                                    |
+                                                    V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                         Login   Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+              Learn to Have a Lot of Fun	   false       2036-08-23      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                      Learn AWS	                   false       2034-08-16      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾                                                                      
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                   Get AWS Certified		   false       2035-08-16      | Delete |    | Update |     
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                     Learn DevOps                  false       2036-11-16      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾
+
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+됐다
+이제 이것을 DB에 저장할 수 있게 됐다
+
+이제 H2 콘솔로 이동해서 
+쿼리를 실행해보면
+TODO 테이블을 선택하고 실행을 클릭하면
+                        |
+                        V
+----------------------------------------------------------------------
+
+⏺ H2 Console 
+ _____   ______________   _______________   _______
+| Run | | Run Selected | | Auto complete | | Clear | SQL statement:
+ ‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾ 
+ ___________________________________________________________________________________
+| SELECT * FROM TODO                                                                |
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                    
+|                                                                                   |                     
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+SELECT * FROM TODO;
+ ____________________________________________________________________
+| ID | DESCRIPTION                 | DONE  | TARGET_DATE|USERNAME    | 
+ --------------------------------------------------------------------
+|1    |	Learn to Have a Lot of Fun | FALSE | 2036-08-23 |in28minutes |
+ --------------------------------------------------------------------
+|10001|Learn AWS                   | FALSE | 2024-08-23 |in28minutes |
+ --------------------------------------------------------------------
+|10002|Get AWS Certified           | FALSE | 2024-08-23 |in28minutes |
+ --------------------------------------------------------------------
+|10003|Learn DevOps                | FALSE | 2024-08-23 |in28minutes |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+(4 rows, 3 ms)
+
+ ____
+|Edit|
+ ‾‾‾‾
+-------------------------------------------------------------------------
+
+즐거울 수 있는 법 배우기의 ID가 1인 것을 볼 수 있다 
+이것은 생성된 값으로 시퀀스를 사용한다 
+1부터 시작해서 나아가지
+그럼 이제 완성된 애플리케이션이 DB에 연결되어 있는 것이지 
+
+프론트엔트엔 리액트 애플리케이션이, 백엔드 REST API와 통신을 하고,
+Spring Boot를 이용하여 구축된 백엔드는 데이터를 위해 H2와 통신한다
+대단하지 않니? 축하할 시간이다 다음 강의에서 보겠다
