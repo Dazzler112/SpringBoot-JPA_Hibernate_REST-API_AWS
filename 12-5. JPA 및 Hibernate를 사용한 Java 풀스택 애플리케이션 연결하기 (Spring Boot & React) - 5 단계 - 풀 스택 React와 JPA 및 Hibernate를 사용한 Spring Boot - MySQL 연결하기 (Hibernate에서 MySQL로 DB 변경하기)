@@ -1,0 +1,340 @@
+
+
+마지막 몇 단계에선 우리는 풀 스택 애플리케이션을 인 메모리 DB인 H2에 연결했다
+H2에서 MySQL로 변환하는 것이 아주 간단하지
+이미 웹 애플리케이션과 REST API에서 이에 대한 연습을 해봤다
+
+Docker와 MySQL을 이용하여 MySQL을 사용하겠다
+
+Docker의 
+ ____________________________________________________________________________________________________________________________________________________________________________________________________
+| docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos --env MYSQL_DATABASE=todos --name mysql --publish 3306:3306 mysql:8-oracle |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+이 명령어를 사용해서 Docker 컨테이너에서 MySQL을 시작할 수 있다
+여기 보면 루트 패스워드와 유저명, 패스워드, 그리고 DB에 대한 항목을 설정할 수 있고
+MySQL은 포트 3306에서 띄운다
+여기에서 이 명령문을 복사해서 Docker 컨테이너로 띄울 수 있다
+너의 명령프롬프트나 터미널에서 말이다 
+
+MySQL이 Docker 컨테이너로 실행되면 pom.xml을 변경할 수 있는데
+
+pom.xml에서 
+H2에 대한 
+---------------------------
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>2.3.232</version>
+		</dependency>
+---------------------------
+<dependency>부분을 지우고
+
+MySQL에 대한 의존성을
+---------------------------
+<dependency>
+	<groupId>com.mysql</groupId>
+	<artifactId>mysql-connector-j</artifactId>
+</dependency>
+---------------------------
+추가해준다
+
+그런다음엔 application.properties를 업데이트 해서
+H2 DB 대신 MySQL DB에 연결할 수 있도록 한다 
+---------------------------
+#comment-h2
+#spring.datasource.url=jdbc:h2:mem:testdb
+
+spring.datasource.url=jdbc:mysql://localhost:3306/todos
+spring.datasource.username=todos-user
+spring.datasource.password=dummytodos
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.hibernate.ddl-auto=update
+---------------------------
+여기 있는 H2 Db 설정은 주석처리 해주고 MySQL에 연결할 수 있도록 설정을 추가한다
+이것은 MySQL DB URL이고  (spring.datasource.url=jdbc:mysql://localhost:3306/todos)
+이 부분은 DB 유저명 ( spring.datasource.username=todos-user )
+이 부분은 패스워드고 ( spring.datasource.password=dummytodos )
+이 특정 Dialect를 사용할 것이다( spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect )
+
+인메모리 DB의 경우 Spring Boot의 자동성정이 자동으로 테이블을 생성한다 
+그렇지만 MySQL은 영구 DB이지 인메모리 DB가 아니다
+따라서 애플리케이션 실행 시 테이블이 생성되도록 하고 싶다면
+이 spring.jpa.hibernate속성을 추가할 수 있다 
+spring.jpa.hibernate.ddl-auto=update 속성이 우리가 설정한 엔터티를 바탕으로 테이블을 업데이트 한다 
+
+애플리케이션을 실행하면 아무 데이터도 있지 않은 것을 볼 수 있는데
+프론트엔드 애플리케이션에 로그인 해서 Todo 페이지로 이동해서 원한다면 Todos를 추가할 수 있다 
+
+이제 직접 해보도록 하자
+
+(❗ Docker는 기존에 만들어 놓은 컨테이너가 있어서 이름을 수정해 줘야함 ❗)
+--------------------------------------------------------------------------------------------
+
+⏺ cmd창>
+
+// 기존과 똑같이 했지만 --name 부분을 --name mysql2 mysql2로 수정함
+C:\Users\LG>docker run --detach --env MYSQL_ROOT_PASSWORD=dummypassword --env MYSQL_USER=todos-user --env MYSQL_PASSWORD=dummytodos 
+   --env MYSQL_DATABASE=todos --name mysql2 --publish 3306:3306 mysql:8-oracle
+6c2f83a57a5b586bfa6f079067dcbffd6dd8e1e202485b70f5da4cb0eee26f12
+
+//도커 컨테이너 리스트 조회
+C:\Users\LG>docker container ls
+CONTAINER ID   IMAGE            COMMAND                   CREATED          STATUS          PORTS                               NAMES
+6c2f83a57a5b   mysql:8-oracle   "docker-entrypoint.s…"   31 seconds ago   Up 30 seconds   0.0.0.0:3306->3306/tcp, 33060/tcp   mysql2
+
+--------------------------------------------------------------------------------------------
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ pom.xml
+
+...
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<version>3.3.2</version>
+		</dependency>		
+
+    <!--1: 이 부분을 주석처리하고 -->
+  <!-- (<= 주석처리)
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>2.3.232</version>
+		</dependency>	
+		-->
+
+  <!--1-1: MySQL의존성을 주입하겠다 <groupId>에 com.mysql을 입력하고 <artifactId>에는 mysql-connector-j를 입력하겠다 그리고 저장-->
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<version>9.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+		</dependency>				
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
+			
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+	</dependencies>
+...
+--------------------------------------------------------------------------------------------
+
+의존성 주입이 완료되면 애플리케이션이 실행중이면 정지하고 다시 실행해 줘야 변경사항이 저장된다
+
+
+그리고 application.properties를 수정해 보겠다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ application.properties
+
+
+logging.level.org.springframework=info
+#spring.security.user.name=in28minutes
+#spring.security.user.password=dummy
+
+#2: 이제 mysql을 사용할 것이니 이부분은 주석처리하고
+#spring.datasource.url=jdbc:h2:mem:testdb
+#spring.jpa.defer-datasource-initialization=true
+#spring.h2.console.enabled=true
+
+#2-1: 이제 mysql에 관한 내용을 추가하겠다
+#mysql에 관한 url을 추가해주고 (docker 생성했을때 포트를 --publish 3306 3306으로 했으니 3306)
+spring.datasource.url=jdbc:mysql://localhost:3306/todos
+
+#2-2: username은 todos-user
+spring.datasource.username=todos-user
+
+#2-3: password는 dummytodos
+spring.datasource.password=dummytodos
+
+#2-4: 특정 Dialect를 사용할 것이고 
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+
+#2-5: 속성이 우리가 설정한 엔터티를 바탕으로 테이블을 업데이트를 해야하기 떄문에
+spring.jpa.hibernate.ddl-auto=update
+
+--------------------------------------------------------------------------------------------
+
+프론트앱으로 가고
+로그인을 해보면
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/ 사이트화면 ==>
+
+
+
+
+          in28minutes                                                        Login   
+     ___________________________________________________________________________________
+
+                                          Time to Login!
+                                               _________________
+                                  User Name:  |in28minutes      | 
+                                               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              __________________
+                                  Password:  |●●●●●             |
+                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                              _______
+                                             | login |  
+                                              ‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+로그인이 잘 된다
+                                            |
+                                            V
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+Todos로 이동해보면 TodosList가 없다 
+
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                                Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+Add New Todo를 해보자
+                    |
+                    V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todo/-1 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+                                                Description
+               ________________________________________________________________________________ 
+              |Learn React                                                                     |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2024-12-24()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+  ❌ ▶ GET                                                  TodoApiService.js:8
+  http://localhost:8080/users/in28minutes/todos 
+  500 (Internal Server Error)
+  ________________________________________________________________________________
+  ❌ ▶ GET                                                  TodoApiService.js:8
+  http://localhost:8080/users/in28minutes/todos 
+  500 (Internal Server Error)
+  ________________________________________________________________________________
+                                                       ListTodosComponent.jsx:28
+  ▶ AxiosError {message: 'Request failed with status code 500', name: 'AxiosError',
+    code: 'ERR_BAD_RESPONSE', config: {…}, request: XMLHttpRequest, …}
+  ________________________________________________________________________________
+                                                       ListTodosComponent.jsx:28
+  ▶ AxiosError {message: 'Request failed with status code 500', name: 'AxiosError',
+    code: 'ERR_BAD_RESPONSE', config: {…}, request: XMLHttpRequest, …}
+  ________________________________________________________________________________
+                                                             TodoComponent.jsx:82
+  ▶ {description: 'Learn React', targetDate: '2024-12-24'}
+  ________________________________________________________________________________
+                                                             TodoComponent.jsx:42
+  ▶ {description: 'Learn React', targetDate: '2024-12-24'}
+  ________________________________________________________________________________
+                                                             TodoComponent.jsx:50
+  ▶ {id: '-1', username: 'in28minutes', description:
+    'Learn React', targetDate: '2024-12-24', done: false}
+  ________________________________________________________________________________
+                                                             TodoApiService.js:23
+  ❌ ▶ POST
+      http://localhost:8080/users/in28minutes/todos 
+      500 (Internal Server Error)
+  ________________________________________________________________________________
+                                                             TodoComponent.jsx:56
+  ▶ AxiosError {message: 'Request failed with status code 500', 
+    name: 'AxiosError', code: 'ERR_BAD_RESPONSE', config: {…}, 
+    request: XMLHttpRequest, …}
+  ________________________________________________________________________________
+--------------------------------------------------------------------------------------------
+
+에러가 발생한다 아니 그 이전에 Todos 리스트를 불러왔을때 부터 에러가 발생했다
+왜일까??
