@@ -338,3 +338,285 @@ Add New Todo를 해보자
 
 에러가 발생한다 아니 그 이전에 Todos 리스트를 불러왔을때 부터 에러가 발생했다
 왜일까??
+
+이유는 JwtSecurityConfig.java에 있다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ JwtSecurityConfig.java에
+
+
+package com.in28minutes.rest.webservices.restfulwebservices.jwt;
+
+import java.security.*;
+import java.security.interfaces.*;
+import java.util.*;
+
+import org.springframework.boot.autoconfigure.security.servlet.*;
+import org.springframework.context.annotation.*;
+import org.springframework.http.*;
+import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.dao.*;
+import org.springframework.security.config.*;
+import org.springframework.security.config.annotation.method.configuration.*;
+import org.springframework.security.config.annotation.web.builders.*;
+import org.springframework.security.config.annotation.web.configuration.*;
+import org.springframework.security.config.annotation.web.configurers.*;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.*;
+import org.springframework.security.config.http.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.provisioning.*;
+import org.springframework.security.web.*;
+import org.springframework.web.servlet.handler.*;
+
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.jwk.*;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.*;
+import com.nimbusds.jose.proc.*;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class JwtSecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, HandlerMappingIntrospector introspector) throws Exception {
+        
+        // h2-console is a servlet 
+        // https://github.com/spring-projects/spring-security/issues/12310
+        return httpSecurity
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/authenticate").permitAll()
+                    //3: 이 부분에서 H2Console로 연결하게 하는 로직이 있다 그래서 엉뚱한 DB로 연결하려는 시도를 하는 것이다
+                    //이 부분을 주석처리해주자
+                 //   .requestMatchers(PathRequest.toH2Console()).permitAll() // h2-console is a servlet and NOT recommended for a production   (<= 주석처리)
+                    .requestMatchers(HttpMethod.OPTIONS,"/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.
+                    sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(
+                        OAuth2ResourceServerConfigurer::jwt)
+                .httpBasic(
+                        Customizer.withDefaults())
+                .headers(header -> {header.
+                    frameOptions().sameOrigin();})
+                .build();
+    }
+...
+}
+--------------------------------------------------------------------------------------------
+
+그리고 다시 로그인하고
+
+--------------------------------------------------------------------------------------------
+
+
+🌎 http://localhost:3000/welcome/in28minutes 사이트화면 ==>
+
+
+
+
+
+          in28minutes  Home  Todos                                            Logout
+     ___________________________________________________________________________________
+
+                                    Welcome in28minutes
+
+                                Manage Your todos - Go here
+                                    __________________
+                                   | Call Hello World |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+-------------------------------------------------------------------------------------------
+
+ Todos를 누르면
+                                  |
+                                  V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                                Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
+
+이번에는 콘솔에 아무런 에러도 나오지 않는다
+다시 Add New Todo를 해보자
+                                              |
+                                              V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todo/-1 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+                                                Description
+               ________________________________________________________________________________ 
+              |Learn React                                                                     |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2024-12-24()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+  Elements  Console  Sources Network  Performance      >>                       🔅  ⁞  x
+            ‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+Learn React라고 할 것이고 날짜는 2024-12-24 라고 하겠다 
+Save를 눌러주자
+                                |
+                                V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                                Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                     Learn React	           false       2024-12-25      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾  
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+리스트가 생성됐다
+그러면 Update도 해보자
+                            |
+                            V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todo/-1 사이트화면 ==>
+
+
+
+          in28minutes                                                                          Logout
+     ______________________________________________________________________________________________________
+
+                                            Enter Todo Details
+
+                                                Description
+               ________________________________________________________________________________ 
+              |Learn React 1                                                                   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                Target Date
+               ________________________________________________________________________________ 
+              | 2024-12-25()                                                              📅   |
+               ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   ______        
+                                                  | Save |
+                                                   ‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+
+Learn React 1 이라고 해주고 날짜도 25일로 바꿔보자
+저장을 누른다
+                                              |
+                                              V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                                Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                ________      ________
+                    Learn React	1                  false       2024-12-25      | Delete |    | Update |
+                                                                                ‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾  
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+------------------------------------------------------------------------------------------------------------------
+
+Update도 잘 된다 그러면 Delete를 눌러볼까?
+                                            |
+                                            V
+------------------------------------------------------------------------------------------------------------------
+
+🌎 http://localhost:3000/todos 사이트화면 ==>
+
+
+
+          in28minutes  Home Todos                                                                Logout
+     ________________________________________________________________________________________________________
+
+                                              Things You Want To Do!
+
+                 ________________________________________________________________________________
+                |                      Delete of todo with id = 1 successful                     |  
+                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+                        
+                     Description	          is Done?     Target Date       Delete        Update
+             ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+                                                 ______________
+                                                | Add New Todo |  
+                                                 ‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+
+좋다 삭제또한 잘 된다
+MySQL과 잘 연결되는것을 축하한다
+
+
+
+
+
+
+
+만약 이것을 따라하는데 어려움이 있다면 이전 학습을 확인해보길 바란다
+MySQL DB에 연결하는 섹션과, 웹 애플리케이션 섹션 그리고 REST API 섹션을 확인해봐라
+
+다음 몇 개의 섹션에선 더 흥미로운 것들을 만나게 될 것이다 
+다음 강의에서 보겠다
