@@ -69,3 +69,104 @@ Understanding Important Security Principles
 
 
 
+
+
+Understanding Important Security Principles
+
+● 4: Have Defense In Depth
+  ■ Multiple levels of security                                                    📱      
+    ○ Transport, Network, Infrastructure                                      👨‍💼   🌁      
+    ○ Operationg System, Application,..                                       👪   📳        
+● 5: Have Economy Of Mechanism
+  ■ Security architecture should be simple
+  ■ Simple systems are easier to protect
+● 6: Ensure Openness Of Design
+  ■ Easier to identify and fix security flaws
+
+
+
+
+(● 4: Have Defense In Depth)
+네 번째는 심층적인 방어 구축이다
+(  ■ Multiple levels of security)
+애플리케이션을 빌드할 때 여러 레이어를 고려해야 하듯이 보안도 여러 층으로 구축해야 한다
+(    ○ Transport, Network, Infrastructure)
+전송 레이어와 네트워크 레이어, 인프라에 보안을 구현해야 한다
+(    ○ Operationg System, Application,..)
+운영 체제 레벨과 애플리케이션 레벨에도 보안을 구현해야 한다
+
+(● 5: Have Economy Of Mechanism)
+다섯 번째는
+(  ■ Security architecture should be simple)
+ 보안 아키텍쳐를 가능한 한 간단하게 유지하는 것이다
+(  ■ Simple systems are easier to protect)
+간단한 시스템을 보호하기가 더 쉽다
+즉 메커니즘의 효율성이 필요하다
+
+(● 6: Ensure Openness Of Design)
+여섯 번째는 설계의 개방성을 보장하는 것이다
+(  ■ Easier to identify and fix security flaws)
+개방형 보안 설계를 구축하고 개방형 보안 표준을 사용하라
+
+예를 들면 JWT가 있다
+이러한 원칙을 따른다면 보안 결함을 식별하고 해결하기가 더 수월해진다
+
+
+
+
+
+보안 시스템 빌드의 6가지 원칙을 개괄적으로 살펴봤으니 
+비행기 탑승의 예에 다시 대입해 보겠다 🛫
+
+
+공항에서 이 6가지 보안 원칙을 어떻게 구현하는지 보겠다
+
+
+(  ■ 1: Trust Nothing)
+첫 번째는 아무것도 신뢰하지 않고 모든 요청을 검증하는 것이다
+여권이나 신분증이 없으면 공항에 갈 수 없다
+즉 공항을 이용하는 모든 사람은 인증을 거친다 
+
+(  ■ 2: Assign Least Privileges)
+두 번째는 최소 권한 할당이다
+공항을 이용하는 사람은 승무원, 조종사 항공사 탑승 수속 사무원 등 다양하다
+공항에 일하는 사람도 있고 승객도 있다 
+모든 사람이 할당된 이상으로 권한을 남용하지 않도록 각 레벨에서 보안 검사를 수행한다 
+
+(  ■ 3: Have Complete Mediation)
+세 번째는 완벽한 조율이다 
+일반적으로 공항의 입구는 명확하게 정해져 있고 
+이곳을 통해서만 공항에 들어올 수 있다 
+모든 사람이 입구에서 인증되고 권한을 부여받는다 
+여권, 항공권 탑승권을 확인받는 것이지 
+자격을 확인받은 후에만 시스템, 즉 비행이게 들어올 수 있다 
+
+(● 4: Have Defense In Depth)
+네 번째는 심측적인 방어 구축이다 
+공항에서는 여권과 탑승권을 여러 번 검사한다 
+먼저 보안 게이트를 거친 후 보안 검색대에서 검사하고 
+세 번째로 탑승 전에 확인한다 
+즉 다층적인 보안, 심측적인 방어를 구현한다 
+
+마지막 2가지는 메커니즘의 효율성과 설계의 개방성을 확보하는 것이다
+(● 5: Have Economy Of Mechanism (메커니즘의 효율성))
+대체로 공항의 보안 절차는 매우 간단해서
+공항을 처음 이용하는 경우에도 모든 보안 절차를 쉽게 준수할 수 있다
+
+(● 6: Ensure Openness Of Design)
+설계의 개방성도 있다 
+일반적으로 전 세계 모든 공항에서 표준 보안 시스템이 적용되고 있다
+
+
+
+
+
+이 단계에선 보안 시스템 구축의 6가지 원칙을 살펴봤다
+아무것도 신뢰하지 않는것,
+최소 권한 할당,
+완벽한 조율 구축,
+심층적인 방어 구축,
+메커니즘의 효율성 확보,
+설계의 개방성 보장이다
+
+다음 단계에서 보겠다
