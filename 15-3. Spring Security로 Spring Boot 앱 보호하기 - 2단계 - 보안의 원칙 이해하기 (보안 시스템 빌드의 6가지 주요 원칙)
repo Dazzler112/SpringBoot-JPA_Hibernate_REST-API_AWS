@@ -1,0 +1,71 @@
+
+
+어떤 시스템을 빌드하든 보안은 매우 중요하다
+왜일까?
+
+
+
+Understanding Important Security Principles
+
+● A Chain is only as strong as its WEAKEST link
+  ■ Small security flaw makes an app with robust architecture vulnerable
+● 6 Principles Of Building Secure Systems
+  ■ 1: Trust Nothing
+    ○ Validate every request                                                                         📱
+    ○ Validate piece of data or information that comes into the system                          👨‍💼   🌁
+  ■ 2: Assign Least Privileges                                                                  👪   📳   
+    ○ Start the design of the system with security requirements in mind
+    ○ Have a clear picture of the user roles and accesses
+    ○ Assign Minimum Possible Privileges at all levels
+      ◦ Application
+      ◦ Infrastructure (database + server + ..)
+  ■ 3: Have Complete Mediation
+    ○ How were Medieval Fort's protected?
+      ◦ Everyone had to pass through one main gate 
+    ○ Apply a well-implemented security filter. Test the role and access of each user.
+
+
+
+
+(● A Chain is only as strong as its WEAKEST link)
+쇠사슬의 강도는 가장 약한 고리의 강도와 같기때문이다
+(  ■ Small security flaw makes an app with robust architecture vulnerable)
+강력한 아키텍쳐로 만든 앱도 아주 작은 보안 결함 때문에 취약해질 수 있다
+
+( ● 6 Principles Of Building Secure Systems )
+보안 시스템 빌드의 6가지 주요 원칙을 알아보겠다
+(  ■ 1: Trust Nothing)
+첫 번째는 아무것도 신뢰하지 않는 것이다
+무엇도 신뢰하지 않고 
+(    ○ Validate every request )
+들어오는 모든 요청을 검증해야 한다 
+(    ○ Validate piece of data or information that comes into the system)
+시스템에 들어오는 모든 데이터나 정보를 검증해야 한다
+(  ■ 2: Assign Least Privileges)
+두 번째는 최소 권한 할당이다 
+(    ○ Start the design of the system with security requirements in mind)
+시스템 설계를 시작할 때 처음부터 보안을 염두에 둬라
+보안을 마지막에 처리하는 것이 아니라 프로젝트를 시작할 때부터 구상해야 한다 
+(    ○ Have a clear picture of the user roles and accesses)
+각 사용자에게 필요한 사용자 역할과 액세스 권한을 명확히 정해야 한다 
+(    ○ Assign Minimum Possible Privileges at all levels)
+모든 레벨에서 가능한 한 최소한의 권한을 할당하라, 
+(      ◦ Application)
+애플리케이션 레벨과 
+(      ◦ Infrastructure (database + server + ..))
+인프라 레벨 모두 마찬가지이다 
+데이터베이스, 서버 등 시스템을 구성하는 모든 요소에 대한 액세스를 최소화하라
+(  ■ 3: Have Complete Mediation)
+세 번째로 중요한 원칙은 완벽한 조율 구축이다
+(    ○ How were Medieval Fort's protected?)
+무슨 의미일까? 
+중세 시대에 요새를 어떻게 방어했는지 생각해 보자 
+(      ◦ Everyone had to pass through one main gate )
+모든 사람이 하나의 정문을 통과해야 한다
+이 정문이 유일한 입구이다
+(    ○ Apply a well-implemented security filter. Test the role and access of each user.)
+이와 유사하게 애플리케이션이나 시스템에도 효과적으로 구현된 보안 필터가 필요하다 
+요청이 들어올 때마다 액세스 권한을 확인해야 한다
+
+
+
