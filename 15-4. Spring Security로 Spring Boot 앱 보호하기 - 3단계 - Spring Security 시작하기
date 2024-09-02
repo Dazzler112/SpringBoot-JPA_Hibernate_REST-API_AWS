@@ -1,0 +1,60 @@
+
+
+Getting Started with Spring Security
+
+● Security is the NO 1 priority for enterprises today!                                                                    _________________________________
+● What is the most popular security project in the Spring eco-system?                                                    |              ...                |                             
+  ■ Spring Security: Protect your web applications, REST API and microservices                                         /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                         
+  ■ Spring Security can be difficult to get started                                                                   /   _________________________________
+    ○ Filter Chain                                                                                                   /   |           CsrfFilter            | 
+    ○ Authentication managers                                                                                       /  /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    ○ Authentication providers                                                                                     /  /   _________________________________
+    ○ ...                                                                                                         /  /   |          LogoutFilter           |
+  ■ BUT it provides a very flexible security system!                                                             /  /  /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+    ○ By default, everything is protected!                                            ______________________________ /     _________________________________
+    ○ A chain of filters ensure proper authentication and authorization              | Spring Security Filter Chain |ㅡㅡ | DefaultLogicPageGeneratingFilter |
+                                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ \     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                                 \  \  \   _________________________________
+                                                                                                                  \  \    |    BasicAuthenticationFilter    |    
+                                                                                                                    \  \   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                                      \  \  _________________________________
+                                                                                                                       \   |   ExceptionTranslationFilter    |
+                                                                                                                        \   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾        
+                                                                                                                         \  _________________________________
+                                                                                                                           |       AuthorizationFilter       |
+                                                                                                                            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                
+
+
+지금까지 보안의 이론적 측면을 살펴봤고 
+이제 더 흥미로운 시간이 될 것이다 
+실제 보안을 구현하는 측면을 살펴보겠다
+
+(● Security is the NO 1 priority for enterprises today! )
+보안은 현재 기업에서 가장 중요한 과제이다
+
+(● What is the most popular security project in the Spring eco-system? )
+그리고 Spring 생태계에서 가장 인기 있는 보안 프로젝트는 Spring Security 이다
+(  ■ Spring Security: Protect your web applications, REST API and microservices )
+Spring Security를 시용해 웹 애플리케이션, REST API, 마이크로서비스를 보호할 수 있다
+(  ■ Spring Security can be difficult to get started   )
+Spring Security를 처음 사용할 때는 매우 어려울 수 있다
+(    ○ Filter Chain, ○ Authentication managers, ○ Authentication providers, ○ ... )
+필터 체인, 인증 관리자, 인증 제공자, JWT 같은 여러 개념이 있는데 
+이러한 다양한 개념을 이해해야 보안과 Spring Security를 사용할 수 있다
+(  ■ BUT it provides a very flexible security system!)
+하지만 Spring Security는 커스터마이즈가 가능한 유연한 보안 시스템을 제공한다 
+(    ○ By default, everything is protected!)
+보안은 기본적으로 적용된다
+프로젝트에 Spring Security를 사용 설정하면 모든 것이 보호되고 
+(    ○ A chain of filters ensure proper authentication and authorization)
+필터 체인을 통해 적절한 인증과 권한 부여가 적용된다
+
+
+Spring Security를 실습해 볼 준비가 됐니?
+
+
+
+
+
+
+
