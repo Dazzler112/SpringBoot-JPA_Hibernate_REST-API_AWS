@@ -58,3 +58,86 @@ Spring Security를 실습해 볼 준비가 됐니?
 
 
 
+How does Spring MVC Work?
+
+
+ ____________________       ____________________       ____________________
+|      Request       |  ⇒  | Dispathcer Servlet |  ⇒  |   Controller(s)    |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+● DispatcherServlet acts as the front controller
+  ■ Intercepts all requests
+  ■ Routes to the Right Controller
+
+
+
+
+먼저 Spring Security가 어떻게 작동하는지 개괄적으로 살펴보겠다
+그 전에 Spring MVC의 작동 방식을 살펴보겠다
+Spring으로 웹 애플리케이션이나 REST API를 빌드할 때 
+백그라운드에서 Spring MVC를 사용한다
+(● DispatcherServlet acts as the front controller)
+요청이 들어오면 이 요청은 먼저 디스패처 서블릿에서 처리한다
+Spring 웹 애플리케이션으로 오는 모든 요청은 먼저 디스패처 서블릿에서 처리한다
+디스패처 서블릿은 URL, 요청 메서드를 확인한 후 요청을 적절한 컨트롤러로 라우팅한다
+즉 디스패처 서블릿은 프로트 컨트롤러 역할을 한다
+(  ■ Intercepts all requests)
+모든 요청을 인터셉트해 
+(  ■ Routes to the Right Controller)
+적절한 컨트롤러로 라우팅한다.
+
+
+
+
+
+그렇다면 Spring Security는 어떻게 작동할까?
+
+
+How does Spring Security Work?
+
+
+ ____________________       ____________________       ____________________       ____________________
+|      Request       |  ⇒  |   Spring Security  |  ⇒  | Dispathcer Servlet |  ⇒  |   Controller(s)    |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+● Spring Security intercepts all requests 
+● Follows following security principle
+  ■ 3: Hava Complete Mediation
+● Spring Security executes a series of filters
+  ■ Also called Spring Security Filter Chain
+
+Spring Security는 이 체계에 또 다른 레이어로 추가된다 
+(● Spring Security intercepts all requests )
+들어오는 모든 요청을 Spring Security가 인터셉트한다 
+웹 애플리케이션, REST API, 마이크로서비스로 오는 모든 요청을 
+Spring Security가 인터셉트 하지
+필터 체인을 설정하고 이 필터 체인으로 요청을 인터셉트하게 된다
+그리고 Spring Security가 인증과 권한 부여를 확인하고 나면 
+요청이 디스패처 서블릿으로 전송되고 그 다음 단계인 컨트롤러까지 처리된다
+
+(● Follows following security principle)
+(  ■ 3: Hava Complete Mediation)
+앞에서 중요한 보안 원칙, 완벽한 조율 구축의 방법으로 모든 요청에 대한 인증과 권한 부여를 설명했는데
+Spring Security가 필터체인을 통해 바로 이 원칙을 구현한다
+
+
+
+
+
+
+
+이 단계에선 Spring Security를 개괄적으로 살펴보았다
+Spring 생태계에서 가장 인기 있는 보안 프로젝트가 Spring Security라는 것도 알았다
+Spring Security를 이용해 웹 애플리케이션, REST API, 마이크로서비스를 보호할 수 있다
+
+(● Spring Security executes a series of filters)
+Spring Security는 매우 유연한 보안 시스템을 제공하고 
+(  ■ Also called Spring Security Filter Chain)
+모든 요청은 Spring Security Filter Chain을 통해 인터셉트된 후
+인증과 권한 부여를 위한 확인을 받는다 
+
+
+Spring Security에 대해 더 자세히 배울 준비가 되었니?
+다음 단계에서 계속해보겠다
