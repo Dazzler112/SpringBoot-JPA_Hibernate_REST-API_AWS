@@ -1,0 +1,85 @@
+
+
+이 단계에서는 Spring Security를 직접 사용해보겠다
+Spring Security로 프로젝트를 생성하고 Spring Security 기본 설정을 살펴볼 것이다
+
+그 전에 Spring Security의 필터 체인 기능을 개괄적으로 살펴보겠다
+
+
+How does Spring Security Work? (2)
+
+● Spring Security executes a series of filters                                                                            _________________________________
+  ■ Filter provide these features:                                                                                       |              ...                |                             
+    ○ Authentication: Is it a valid user? (Ex: BasicAuthenticationFilter)                                              /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                         
+    ○ Authorization: Does the user have right access?(Ex: AuthorizationFilter)                                        /   _________________________________
+    ○ OtherFeatures:                                                                                                 /   |           CsrfFilter            | 
+    ○ Cross-Origin Resource Sharing (CORS) - CorsFilter                                                             /  /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      ◦ Should you allow AJAX calls from other domains?                                                            /  /   _________________________________
+                                                                                                                  /  /   |          LogoutFilter           |
+        _____________________                                                                                    /  /  /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+       |  React Application  |        frontend.com                                    ______________________________ /     _________________________________
+       |  Modern JavaScript  |                                                       | Spring Security Filter Chain |ㅡㅡ | DefaultLogicPageGeneratingFilter |
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                         ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ \     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                  |                                                                                               \  \  \  _________________________________
+        _____________________                                                                                      \  \   |    BasicAuthenticationFilter    |    
+       |     RESTFUL API     |        restapi.com                                                                   \  \   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+       | Spring Boot on Java |                                                                                        \  \  _________________________________
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                                          \   |   ExceptionTranslationFilter    |
+                  |                                                                                                      \  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾        
+        _____________________                                                                                             \ _________________________________
+       |      Database       |                                                                                             |       AuthorizationFilter       |
+       |                     |                                                                                              ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+    ○ Cross Site Request Forgery(CSRF) -CsrfFilter
+      ◦ A malicious website making use of previous authentication on your website
+      ◦ Default: CSRF protection enabled for update requests - POST, PUT etc...
+    ○ Login Page, Logout Page
+      ◦ LogoutFilter, DefaultLoginPageGeneratingFilter, DefaultLogoutPageGeneratingFilter 
+    ○ Translating exceptions into proper Http Responses(ExceptionTranslationFilter)
+  ■ Order of filters is important (typical order shown below)
+    ○ 1: Basic Check Filters - CORS, CSRF, ..
+    ○ 2: Authentication Filters
+    ○ 3: Authorization Filters
+
+
+
+
+
+(● Spring Security executes a series of filters )
+앞에서 설명했듯이 Spring Security는 요청이 들어오자마자 일련의 필터를 실행하는데 
+이것을 Spring Security Filter Chain 이라고 한다
+(  ■ Filter provide these features:)
+이 필터는 다양한 기능을 제공한다 
+(    ○ Authentication: Is it a valid user? (Ex: BasicAuthenticationFilter))
+기본적인 기능은 인증이다
+적절한 사용자인지 확인하는 것이지
+Spring Security가 지원하는 인증 메커니즘에는 여러 가지가 있는데 관련된 필터로 인증을 제공한다
+(    ○ Authorization: Does the user have right access?(Ex: AuthorizationFilter))
+필터의 두 번째 확인 기능은 권한 부여이다
+사용자가 적절한 액세스 권한을 보유했는지 확인하는 것이지
+AuthorizationFilter가 그 예이다
+(    ○ OtherFeatures:)
+Spring Security는 인증과 권한 부여 외에도 보안과 관련된 몇 가지 베스트 프랙티스를 제공한다
+(    ○ Cross-Origin Resource Sharing (CORS) - CorsFilter)
+한가지 예로, CORS 즉 오리진 간 리소스 공유를 설정할 수 있다
+(      ◦ Should you allow AJAX calls from other domains?)
+
+        _____________________                                                                                    
+       |  React Application  |       frontend.com                                                 
+       |  Modern JavaScript  |                                 
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                       
+                  |                                                                                        
+        _____________________                                                                      
+       |     RESTFUL API     |       restapi.com                                                                        
+       | Spring Boot on Java |                                                                   
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                                                     
+                  |                                                                                                      
+        _____________________                                                                  
+       |      Database       |                                                               
+       |                     |                                                                
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+풀 스택 애플리케이션을 빌드하는 경우 한 도메인에는 프론트엔드를 
+다른 도메인에는 백엔드 REST API를 배포할 수 있다
+그리고 백엔드 REST API는 브라우저에서 실행되는 프론트엔드 애플리케이션으로부터 호출을 받는다
