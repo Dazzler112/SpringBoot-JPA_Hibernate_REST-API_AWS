@@ -1,0 +1,224 @@
+
+
+Default Spring Security Configuration
+
+                                     _________________________________
+                                    |              ...                |                             
+                                  /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                         
+                                 /   _________________________________
+                                /   |           CsrfFilter            | 
+                               /  /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                              /  /   _________________________________
+                             /  /   |          LogoutFilter           |
+                            /  /  /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+ ______________________________ /     _________________________________
+| Spring Security Filter Chain |ㅡㅡ | DefaultLogicPageGeneratingFilter |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ \     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                           \  \  \  _________________________________
+                            \  \   |    BasicAuthenticationFilter    |    
+                             \  \   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                              \  \  _________________________________
+                               \   |   ExceptionTranslationFilter    |
+                                 \  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾        
+                                  \ _________________________________
+                                   |       AuthorizationFilter       |
+                                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+
+Spring Security를 실습해 볼 준비가 됐니?
+프로젝트를 생성하고 Spring Security 기본 설정을 살펴보겠다 
+
+🔵 1) Project 생성
+
+먼저 이동할 웹사이트는 https://start.spring.io 이다
+Spring Initializr 웹사이트이다
+
+빌드 도구로 Gradle을 이용하고(나 같은 경우는 gradle kotlin 사용함)
+언어는 Java를 선택한다 Spring Boot 3의 최신 릴리스 버전을 선택하는 게 좋다 (2024.09.07 기준 3.3.3 버전 사용할 거임)
+❗ 한 가지 중요한 권장 사항이 있는데 스냅샷은 사용하지 마라 스냅샷은 Spring Boot 팀이 현재 개발 중인 버전이다
+가능한 한 사용하지 않는 것이 좋다 ❗
+이제 프로젝트 메타데이터를 설정한다 
+Group은 com.learnspringsecurity를 그룹 ID로 지정하고 Artifact ID는 learn-srping-security로 지정한다
+나머지는 기본 설정대로 두겠다
+그리고 Java 버전은 반드시 17버전 이상을 사용해라, Spring Boot 3는 Java 17 이상만 지원하기 때문이다
+
+(in28Minutes에서 항상 강조하는 것은 프로젝트가 최신 버전의 Java나 Spring Boot와 호환되는 것이다
+망설이지 말고 최신 Java와 Spring 버전을 사용해라)
+
+다음은 의존성을 추가하는 것이다
+간단한 REST API를 빌드할 예정이니 
+Spring Web을 선택하고 
+Spring Security를 추가할 것이다 Spring Security가 바로 이 시간에 학습할 주제지
+Spring 애플리케이션에 사용하는 커스터마이즈 가능한 인증 및 액세스 제어 프레임워크이다
+Spring Security를 추가한다
+
+이제 프로젝트를 생성할 준비가 다 됐다
+Generate를 누른다
+
+Generate를 누르면 다운로드 폴더에 zip 파일이 다운로드 된다
+로컬 머신의 폴더에 이 파일의 압축을 풀어라
+
+🔵 2) 생성한 프로젝트 IDE에 불러오기
+Gradle 프로젝트를 생성했고 이제 File > Import로 가서 Gradle을 입력하면 Existing Gradle Project가 보인다
+선태갛고 Next를 누르면 zip파일의 압축을 푼 폴더를 선택할 수 있다 바로 Finish를 누른다
+
+특정 버전의 Spring 이나 Spring Boot를 처음 사용하는 경우에는 다운로드에 시간이 오래 걸린다
+Spring Initializr 웹사이트에서 스타터 프로젝트로 spring-boot-starter-web과 spring-boot-starter-security를 선택했고
+Spring Initializr 웹사이트에서 Gradle에 이것이 모두 임포트된다
+
+learn-spring-securty를 펼쳐보면 
+src/main/java , src/main/resources, src/test/java가 있을 것이다
+선택한 의존성이 모두 포함된 build.gradle 파일도 있고 
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ build.gradle
+
+
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.3'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.learnspringsecurity'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+
+--------------------------------------------------------------------------------------------
+
+spring-boot-starter-security와 spring-boot-starter-web이 있고 
+테스트 의존성이 자동으로 추가됐다
+
+이제 실행해 보겠다 LearnSrpingSecurityApplication을 연다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+
+⏺ LearnSrpingSecurityApplication.java
+
+
+
+package com.learnspringsecurity.learn_srping_security;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class LearnSrpingSecurityApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(LearnSrpingSecurityApplication.class, args);
+	}
+
+}
+
+--------------------------------------------------------------------------------------------
+
+이 애플리케이션을 실행하려면 마우스 오른쪽 버튼을 클릭한 후
+Run As > Java Application을 선택한다
+
+------------------------------------
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.3)
+
+2024-09-07T19:49:46.774+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] s.SpringSecurityLearnPracticeApplication : Starting SpringSecurityLearnPracticeApplication using Java 17.0.5 with PID 14592 (C:\study\workspace\spring-security-learn-practice\bin\main started by LG in C:\study\workspace\spring-security-learn-practice)
+2024-09-07T19:49:46.779+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] s.SpringSecurityLearnPracticeApplication : No active profile set, falling back to 1 default profile: "default"
+2024-09-07T19:49:48.131+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-09-07T19:49:48.150+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-09-07T19:49:48.151+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.28]
+2024-09-07T19:49:48.233+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-09-07T19:49:48.236+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1395 ms
+2024-09-07T19:49:48.663+09:00  WARN 14592 --- [spring-security-learn-practice] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: f76c6388-d5d4-46e4-bfb9-f42ff7fcdb57
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2024-09-07T19:49:48.695+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2024-09-07T19:49:48.888+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-09-07T19:49:48.903+09:00  INFO 14592 --- [spring-security-learn-practice] [           main] s.SpringSecurityLearnPracticeApplication : Started SpringSecurityLearnPracticeApplication in 2.559 seconds (process running for 2.987)
+------------------------------------
+
+LearnSpringSecurityApplication.java 파일을 가져다 Java 애플리케이션으로 실행하고 있다 
+콘솔을 확인해 보면 애플리케이션이 매우 빠르게 실행되는걸 볼 수 있다
+여기서 확인해야 할 것이 2가지 있는데
+
+여기에 보안 패스워드가 생성돼 표시되고 ( Using generated security password: f76c6388-d5d4-46e4-bfb9-f42ff7fcdb57 )
+기본 보안 필터 체인이 설정돼 로깅된다
+이 로그 메시지는 시간이 지나면 변경된다
+로그가 그대로 표시되지 않아도 걱정하지 말아라
+
+
+
+
+
+
+
+Default Spring Security Configuration
+
+● Everything is authenticated                                                                                          _________________________________
+  ■ You can customize it further                                                                                      |              ...                |                             
+● Form authentication is enabled is enabled (with default form and logout features)                                 /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                         
+● Basic authentication is enabled                                                                                  /   _________________________________
+● Test user is created                                                                                            /   |           CsrfFilter            | 
+  ■ Credentials printed in log (Username is user)                                                                /  /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● CSRF protection is enabled                                                                                    /  /   _________________________________
+● CORS requests are denied                                                                                     /  /   |          LogoutFilter           |
+● X-Frame-Options is set to 0 (Frames are disabled)                                                           /  /  /  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+● And a lot of others...                                                           ______________________________ /     _________________________________
+                                                                                  | Spring Security Filter Chain |ㅡㅡ | DefaultLogicPageGeneratingFilter |
+                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ \     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                             \  \  \  _________________________________
+                                                                                                              \  \   |    BasicAuthenticationFilter    |    
+                                                                                                               \  \   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                                                                                \  \  _________________________________
+                                                                                                                 \   |   ExceptionTranslationFilter    |
+                                                                                                                   \  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾        
+                                                                                                                    \ _________________________________
+                                                                                                                     |       AuthorizationFilter       |
+                                                                                                                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  
+
+
+
+
+
+Spring Security는 다양한 기능과 여러 가지 장점이 있다 
+기능을 모두 살펴볼 준비가 됐니?  
+다음 단계에서 보겠다
