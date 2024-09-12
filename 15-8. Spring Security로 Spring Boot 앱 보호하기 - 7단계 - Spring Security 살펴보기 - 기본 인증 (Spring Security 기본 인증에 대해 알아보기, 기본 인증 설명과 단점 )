@@ -347,3 +347,295 @@ spring.security.user.password=dummy
 
 매번 로그에 출력되는 동적인 패스워드 대신에 정적인 자격증명을 사용하게 된다
 앞으로 동일한 사용자 이름과 패스워드를 사용하는 것이지
+
+애플리케이션을 중지하고 실행해 보겠다
+
+--------------------------------------------------------------------------------------------
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.3)
+
+2024-09-12T17:57:07.336+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] s.SpringSecurityLearnPracticeApplication : Starting SpringSecurityLearnPracticeApplication using Java 17.0.5 with PID 13916 
+                                                            (C:\Users\LG\git\springSecurityLearn\spring-security-learn-practice\bin\main started by LG in C:\Users\LG\git\springSecurityLearn\spring-security-learn-practice)
+2024-09-12T17:57:07.342+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] s.SpringSecurityLearnPracticeApplication : No active profile set, falling back to 1 default profile: "default"
+2024-09-12T17:57:09.041+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-09-12T17:57:09.064+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-09-12T17:57:09.064+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.28]
+2024-09-12T17:57:09.204+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-09-12T17:57:09.208+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1797 ms
+2024-09-12T17:57:09.844+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2024-09-12T17:57:10.075+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-09-12T17:57:10.087+09:00  INFO 13916 --- [spring-security-learn-practice] [           main] s.SpringSecurityLearnPracticeApplication : Started SpringSecurityLearnPracticeApplication in 3.431 seconds (process running for 3.984)
+--------------------------------------------------------------------------------------------
+
+이제 패스워드가 출력되지 않는다 
+제대로 설정됐다
+
+
+이제 
+Talend API Tester로 가보면 이전의 자격증명으로 실행 중이기 때문에 Send를 클릭하면
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  401                (빨간 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+WWW-Authenticate:	Basic realm="Realm"       |
+X-Content-Type-Options:	nosniff                   |
+X-XSS-Protection:	0                         |                      No content
+Cache-Control:	                                  |
+no-cache, no-store, max-age=0, must-revalidate    |    📄 copy
+Pragma:	no-cache                                  |
+Expires:	0                                 |
+X-Frame-Options:	DENY                      |          
+Content-Length:	0 byte                            |
+Date:	Thu, 12 Sep 2024 08:26:50 GMT             |
+Keep-Alive:	timeout=60                        |
+Connection:	keep-alive                        |
+Set-Cookie: JSESSIONID=33 B, session, HttpOnly/   |
+                                                    
+ ▶ Complete Request Headers                                    
+--------------------------------------------------------------------------------------------------------------------------------
+
+401 오류가 발생한다, 자격증명이 더 이상 유효하지 않기 떄문이다
+이제 이 헤더를 삭제하고 새 권한 부여 자격증명을 추가해야 한다
+
+ ________________________________________________________________
+|  Authorization                                              x  |
+| ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+|                    _______________                             |
+|              Type | Authorization |                            |
+|                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                             |
+|                    ______________________                      |
+|          Username |in28minutes           |                     |
+|                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+|                    ______________________                      |
+|          Password |●●●●●                 |                     |
+|                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+|                    ▢ show password                             |
+|                                                                |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+|                                        __________    _______   |
+|                                       | x Cancel |  | ✔ Set |  |
+|                                        ‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾   |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+사용자 이름은 in28minutes, 패스워드는 dummy이다
+                                |
+                                V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET      | ▼ |    |    http://localhost:8080/hello-world                       |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾              
+   _______________     __________________      |      
+☑ | Authorization | : |Basic cGxheWVyOmR1| x 🗝|      XHR does not allow payload for GET request.                        
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |
+  ______________                               |                               
+ ( + Add header )  🗝 Add authorization     🗑 |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   
+                                 
+--------------------------------------------------------------------------------------------------------------------------------
+
+새로운 기본 권한 부여 헤더가 생성됐다
+이제 Send를 누르면
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+X-Content-Type-Options:	nosniff                   |    Hello World
+X-XSS-Protection:	0                         |
+Cache-Control:	                                  |
+no-cache, no-store, max-age=0, must-revalidate    |
+Pragma:	no-cache                                  |
+Expires:	0                                 |     📄 copy                        length: 11 bytes
+X-Frame-Options:	DENY                      |
+Content-Type:	text/plain;charset=UTF-8          |
+Content-Length:	11 bytes                          |
+Date:	Thu, 12 Sep 2024 08:43:21 GMT             |
+Keep-Alive:	timeout=60                        |
+Connection:	keep-alive                        |
+
+ ▶ COMPLETE REQUEST HEADERS                             
+--------------------------------------------------------------------------------------------------------------------------------
+
+200이 표시된다 
+
+여기서 한 가지 불편한 것은 매번 애플리케이션을 다시시작해야 한다는 점이다
+자동으로 다시 시작하게 하려면 어떻게 할까?
+맞다, DevTools를 사용한다 
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ build.gradle
+
+
+plugins {
+	id 'java'
+	id 'war'
+	id 'org.springframework.boot' version '3.3.3'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.spring-security-learn-practice'
+version = '3.3.3'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+  <!--2: 여기에 implementation 'org.springframework.boot:'를 추가하고 spring-boot-devtools를 입력한다-->
+  <!--이 build.gradle을 저장한다-->
+  implementation 'org.springframework.boot:spring-boot-devtools'
+
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+--------------------------------------------------------------------------------------------
+
+그런 다음 패키지에서 마우스 오른쪽 버튼에서 Gradle > Refresh Gradle Project를 누른다
+DevTools가 다운로드될 때까지 기다린다
+다 됐으면
+콘솔로 가서 애플리케이션을 중지한 다음
+다시 시작한다 
+애플리케이션이 시작됐고
+
+HelloWorldResource에서 
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ HelloWorldResource.java
+
+
+package com.example.spring_security_learn_practice;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class HelloWorldResource {
+
+	@GetMapping("/hello-world")
+	public String helloWorld() {
+
+    //3: 값을 Hello World v1이라고 변경하겠다
+		return "Hello World v1";
+	}
+}
+
+--------------------------------------------------------------------------------------------
+
+저장하면 devtools 덕분에 서버에 변경 사항이 반영된다
+
+Talend API Tester로 가서 Send를 클릭하면 
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET      | ▼ |    |    http://localhost:8080/hello-world                       |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾              
+   _______________     __________________      |      
+☑ | Authorization | : |Basic cGxheWVyOmR1| x 🗝|      XHR does not allow payload for GET request.                        
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |
+  ______________                               |                               
+ ( + Add header )  🗝 Add authorization     🗑 |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   
+                                 
+--------------------------------------------------------------------------------------------------------------------------------
+                                              |
+                                              V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+X-Content-Type-Options:	nosniff                   |    Hello World v1
+X-XSS-Protection:	0                         |
+Cache-Control:	                                  |
+no-cache, no-store, max-age=0, must-revalidate    |
+Pragma:	no-cache                                  |
+Expires:	0                                 |     📄 copy                        length: 14 bytes
+X-Frame-Options:	DENY                      |
+Content-Type:	text/plain;charset=UTF-8          |
+Content-Length:	11 bytes                          |
+Date:	Thu, 12 Sep 2024 08:43:21 GMT             |
+Keep-Alive:	timeout=60                        |
+Connection:	keep-alive                        |
+
+ ▶ COMPLETE REQUEST HEADERS                             
+--------------------------------------------------------------------------------------------------------------------------------
+
+Hello World v1이 표시되는 것을 볼 수 있다
+
+
+
+
+이 단계에선 기본 인증에 관해 알아보기 시작했다
+다음 단계에서 Spring Security에 관해 더 자세히 살펴보겠다
