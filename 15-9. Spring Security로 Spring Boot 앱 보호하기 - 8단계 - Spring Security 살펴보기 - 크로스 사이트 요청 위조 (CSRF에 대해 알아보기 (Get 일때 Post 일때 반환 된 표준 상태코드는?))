@@ -467,3 +467,252 @@ Connection:	keep-alive                        |
 Todo 하나만 표시된다, player, Learn AWS이다
 이렇게 살펴보았다시피
 기본적으로 모든 GET 요청이 제대로 작동한다
+
+이제 POST 요청을 추가할 것이다
+POST는 새 리소스를 생성하려 할 때 사용하는데 
+PostMapping을 추가하면 어떻게 되는지 보겠다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ TodoResource.java
+
+
+package com.example.spring_security_learn_practice.resources;
+
+import java.util.*;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class TodoResource {
+
+	private static final List<Todo> TODOS_LIST = 
+			List.of(new Todo("player", "Learn AWS"),
+					new Todo("player", "Get AWS Certified"));
+
+	@GetMapping("/todos")
+	public List<Todo> retrieveAllTodos() {
+		return TODOS_LIST;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public Todo retrieveTodosForSpecificUser(@PathVariable String username) {
+		return TODOS_LIST.get(0);
+	}
+
+  //9: PostMapping이라고 수정하고 특정 사용자에게 Todo를 추가하려고 한다
+  //URL은 동일하게 /users/{username/todos}를 사용할 것이다 이건 됐고
+	@GetMapping("/users/{username}/todos")
+//9-1: 메소드명은 retrieve대신 createTodosForSpecificUser라고 작성한다, @PathVariable String name 은 그대로 두고, 이 메서드는 반환값이 없도록 할 것이다
+//간단한 void 메서드를 사용한다, 일단은 아무것도 실행하지 않을 것이다 그리고 @RequestBody를 추가하고 특정 Todo를 가져올 것이므로 @RequestBody Todo todo를 입력하면 된다 임포트를 정리한다
+//org.springframework.web.bind.annotation.PostMapping 어노테이션이 임포트되고 RequestBody 어노테이션이 임포트되는 걸 알 수 있다, 됐다 저장하고
+	public void createTodosForSpecificUser(@PathVariable String username,
+                                      @RequestBody Todo todo) {
+		
+	}
+
+}
+
+record Todo (String username, String description) {}
+--------------------------------------------------------------------------------------------
+
+로거를 생성해서 정보를 로깅하도록 하겠다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ TodoResource.java
+
+
+package com.example.spring_security_learn_practice.resources;
+
+import java.util.*;
+
+import org.slf4j.*;
+import org.slf4j.Logger;
+import org.springframework.web.bind.annotation.*;
+
+import ch.qos.logback.classic.*;
+
+@RestController
+public class TodoResource {
+
+//10: private Logger logger = LoggerFactory.getLogger(getClass())를 작성한다 임포트를 정리하는데, 이때 sif4j.logger를 임포트하는 것을 잊지 말아라 
+  private Logger logger = LoggerFactory.getLogger(getClass());
+
+	private static final List<Todo> TODOS_LIST = 
+			List.of(new Todo("player", "Learn AWS"),
+					new Todo("player", "Get AWS Certified"));
+
+	@GetMapping("/todos")
+	public List<Todo> retrieveAllTodos() {
+		return TODOS_LIST;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public Todo retrieveTodosForSpecificUser(@PathVariable String username) {
+		return TODOS_LIST.get(0);
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public void createTodosForSpecificUser(@PathVariable String username,
+										@RequestBody Todo todo) {
+		
+	}
+}
+
+record Todo (String username, String description) {}
+--------------------------------------------------------------------------------------------
+
+로거를 이용할 수 있게 됐고, 이제
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ TodoResource.java
+
+
+package com.example.spring_security_learn_practice.resources;
+
+import java.util.*;
+
+import org.slf4j.*;
+import org.slf4j.Logger;
+import org.springframework.web.bind.annotation.*;
+
+import ch.qos.logback.classic.*;
+
+@RestController
+public class TodoResource {
+
+	private Logger logger = LoggerFactory.getLogger(getClass());
+	
+	private static final List<Todo> TODOS_LIST = 
+			List.of(new Todo("player", "Learn AWS"),
+					new Todo("player", "Get AWS Certified"));
+
+	@GetMapping("/todos")
+	public List<Todo> retrieveAllTodos() {
+		return TODOS_LIST;
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public Todo retrieveTodosForSpecificUser(@PathVariable String username) {
+		return TODOS_LIST.get(0);
+	}
+	
+	@GetMapping("/users/{username}/todos")
+	public void createTodosForSpecificUser(@PathVariable String username,
+										@RequestBody Todo todo) {
+
+  //11: 여기에 logger.info를 이용한다 그리고 특정 사용자 이름에 특정 할 일을 생성한다고 작성한다("Create {} for {}")
+  //그리고 이제 todo, username을 입력한다 , 이제 저장한다
+  logger.info("Create {} for {}", todo, username);
+
+	}
+}
+
+record Todo (String username, String description) {}
+--------------------------------------------------------------------------------------------
+
+애플리케이션이 다시 시작됐고 코드가 적용됐다
+
+이제 POST 요청을 실행하겠다
+그 방법을 살펴보겠다 
+먼저
+{
+"username": "player",
+"description": "Learn AWS"
+}
+요청의 본문을 복사한 다음 POST를 선택한다
+POST를 선택할 때 콘텐츠 타입 헤더 application/json을 추가해야 한다
+Basic과 특정 해더로 이루어진 권한 부여 헤더도 있다
+본문 출력에 "username" : "in28minutes" , "description": "Learn AWS"를 넣는다
+이렇게 해서 동일한 URL에 기본 권한 부여 헤더와 콘텐츠 타입
+그리고 본문을 사용해 POST 요청을 실행하고 있다
+이제 Send를 클릭해서 어떻게 되는지 보겠다
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/users/in28minutes/todos           |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾              
+   _______________     __________________      |      
+☑ | Authorization | : |Basic dXNlcjo3OTRl| x 🗝|      {                        
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |        "username": "player",
+   _______________     __________________      |        "description": "Learn AWS"
+☑ | Content-Type  | : |application/json  | x   |      }                        
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |
+  ______________                               |                               
+ ( + Add header )  🗝 Add authorization     🗑 |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   
+                                 
+--------------------------------------------------------------------------------------------------------------------------------
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  401                (빨간 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+X-Content-Type-Options:	nosniff                   |
+X-XSS-Protection:	0                         |
+Cache-Control:	                                  |
+no-cache, no-store, max-age=0, must-revalidate    |
+Pragma:	no-cache                                  |
+Expires:	0                                 |
+X-Frame-Options:	DENY                      |
+WWW-Authenticate:	Basic realm="Realm"       |
+Content-Length:	0 byte                            |
+Date:	Sat, 14 Sep 2024 11:03:42 GMT             |
+Keep-Alive:	timeout=60                        |
+Connection:	keep-alive                        |
+Set-Cookie:	                                  |
+JSESSIONID=33 B, session, HttpOnly                |
+/                                                 |
+
+ ▶ COMPLETE REQUEST HEADERS                             
+--------------------------------------------------------------------------------------------------------------------------------
+
+흥미롭다
+401이 반환됐다
+실패 이유가 무엇일까?
+어떻게 수정해야 할까?
+이건 다음 단계에서 자세히 알아보겠다
+
+
+
+
+이 단계에선 CSRF, 사이트 간 요청 위조에 대해 알아보았다 
+웹사이트에 로그인하면 웹 브라우저에 쿠키가 저장된다
+로그아웃 하지 않은 상태에서 악성 웹사이트로 이동하면 악성 웹사이트는 
+브라우저의 쿠키를 이용해 은행 웹사이트에 요청을 할 수 있다
+이것이 사이트 간 요청 위조이다
+사이트 간 요청 위조로부터 보호하는 솔루션 중 하나는 동기화 토큰 패턴이다
+요청 각각에 대해 토큰을 생성하고 업데이트할 때마다 CSRF 토큰을 사용하는 것이다
+
+이 단계에선 몇 가지 Todo 리소스를 구현했다
+그리고 모든 GetMapping을 성공적으로 실행했다
+하지만 PostMapping은 실패했다
+Spinrg Security에서 읽기 요청은 그대로 허용하지만 
+업데이트 요청에는 CSRF 토큰이 필요하기 때문이다
+CSRF 토큰을 제공하는 방법은 다음단계에 알아보겠다
