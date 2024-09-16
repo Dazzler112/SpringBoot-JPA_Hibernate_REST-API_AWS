@@ -345,3 +345,225 @@ public class SpringSecurityPlayResource {
 }
 
 --------------------------------------------------------------------------------------------
+
+(CsrfToken 설명..)
+------------------------
+/**
+ * Provides the information about an expected CSRF token.
+ *
+ * @author Rob Winch
+ * @since 3.2
+ * @see DefaultCsrfToken
+ */
+public interface CsrfToken extends Serializable {
+	/**
+	 * Gets the HTTP header that the CSRF is populated on the response and can be placed
+	 * on requests instead of the parameter. Cannot be null.
+	 * @return the HTTP header that the CSRF is populated on the response and can be
+	 * placed on requests instead of the parameter
+	 */
+	String getHeaderName();
+
+	/**
+	 * Gets the HTTP parameter name that should contain the token. Cannot be null.
+	 * @return the HTTP parameter name that should contain the token.
+	 */
+	String getParameterName();
+
+	/**
+	 * Gets the token value. Cannot be null.
+	 * @return the token value
+	 */
+	String getToken();
+
+}
+------------------------
+필요한 CSRF 토큰에 대한 정보를 확인할 수 있다 헤더 이름 , 매개변수 이름, 토큰을 가져올 수 있다
+
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ SpringSecurityPlayResource.java
+
+
+package com.example.spring_security_learn_practice.resources;
+
+import org.springframework.security.web.csrf.*;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.*;
+
+@RestController
+public class SpringSecurityPlayResource {
+
+	@GetMapping("/csrf-token")
+	public CsrfToken retrieveCsrfToke(HttpServletRequest request) {
+
+    //4: 아직 여기 컴파일 오류가 있다
+    //ctrl + 1 을 누르고 CSRF 토큰으로 변환한다 getAttribute는 객체를 반환하기 때문에 CSRF 토큰으로 변환해 반환하도록 한다
+		return (CsrfToken) request.getAttribute("_csrf");
+	}
+}
+
+--------------------------------------------------------------------------------------------
+
+이제 실행해 보겠다
+CSRF 토큰을 가져오는지 보겠다
+
+방법은 동일하다, HTTP를 사용하고 http://localhost:8080/을 입력한 다음
+이 CSRF 토큰의 URI를 추가한다 (/csrf-token)
+CSRF 토큰을 가져오려면 헤더를 추가해야 한다
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET      | ▼ |    |    http://localhost:8080/csrf-token                        |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾              
+  ______________                               |    XHR does not allow payload for GET request.                            
+ ( + Add header )  🗝 Add authorization     🗑 |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   
+                                 
+--------------------------------------------------------------------------------------------------------------------------------
+                            |
+                            V
+권한 부여 헤더를 추가한다 
+ ________________________________________________________________
+|  Authorization                                              x  |
+| ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+|                    _______________                             |
+|              Type | Authorization |                            |
+|                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                             |
+|                    ______________________                      |
+|          Username |in28minutes           |                     |
+|                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+|                    ______________________                      |
+|          Password |●●●●●                 |                     |
+|                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+|                    ▢ show password                             |
+|                                                                |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+|                                        __________    _______   |
+|                                       | x Cancel |  | ✔ Set |  |
+|                                        ‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾   |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+dummy를 입력하고 Set을 누른다 
+                                |
+                                V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | GET      | ▼ |    |    http://localhost:8080/csrf-token                        |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾              
+   _______________     __________________      |      
+☑ | Authorization | : |Basic dXNlcjo3OTRl| x 🗝|      XHR does not allow payload for GET request.                        
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |
+  ______________                               |                               
+ ( + Add header )  🗝 Add authorization     🗑 |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   
+                                 
+--------------------------------------------------------------------------------------------------------------------------------
+
+이제 Send를 누른다
+                                        |
+                                        V
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+
+  Response
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  200                (초록 바탕)
+___________________________________________________________________________________________________
+
+  HEADERS                     | pretty ▼ |      ◀ | ▶  BODY                                 | pretty ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾         |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+X-Content-Type-Options:	nosniff                   |        {
+X-XSS-Protection:	0                         |          "parameterName": "_csrf",
+Cache-Control:	                                  |          "token": "1X1saIUAXwp1txH8cCpN30saRjXf2hnX4sv6DCaJjIMgYDjxt09YXL04PD1YgHPFQQd56Sh8aw3q7Xz6gP7JPx64u7IWVQ-V",
+no-cache, no-store, max-age=0, must-revalidate    |          "headerName": "X-CSRF-TOKEN"
+Pragma:	no-cache                                  |        }
+Expires:	0                                 |
+X-Frame-Options:	DENY                      |      line nums 📄 copy                        length: 160 bytes
+Content-Type:	application/json                  |
+Transfer-Encoding:	chunked                   |
+Date:	Mon, 16 Sep 2024 08:21:17 GMT             |
+Keep-Alive:	timeout=60                        |
+Connection:	keep-alive                        |
+Set-Cookie: JSESSIONID=33 B, session, HttpOnly/   |
+
+ ▶ COMPLETE REQUEST HEADERS                             
+--------------------------------------------------------------------------------------------------------------------------------
+
+응답에 토큰이 반환됐다
+
+이렇게 토큰이 반환됐고
+헤더 이름은 X-CSRF-TOKEN이다
+
+그럼 전에 했던 여기서
+X-CSRF-TOKEN 이라는 이름으로 헤더를 추가한다
+그리고 토큰 전체를 끝까지 복사해서 (1X1saIUAXwp1txH8cCpN30saRjXf2hnX4sv6DCaJjIMgYDjxt09YXL04PD1YgHPFQQd56Sh8aw3q7Xz6gP7JPx64u7IWVQ-V)
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/users/in28minutes/todos           |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾              
+   _______________     __________________      |      
+☑ | Authorization | : |Basic dXNlcjo3OTRl| x 🗝|      {                        
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |        "username": "player",
+   _______________     __________________      |        "description": "Learn AWS"
+☑ | Content-Type  | : |application/json  | x   |      }                        
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |
+   _______________     __________________      |        
+☑ | X-CSRF-TOKEN  | : |1X1saIUAXwp1txH8..| x   |                            
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |
+  ______________                               |                               
+ ( + Add header )  🗝 Add authorization     🗑 |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   
+                                 
+--------------------------------------------------------------------------------------------------------------------------------
+
+요약하자면 먼저 CSRF 토큰을 가져오는 요청을 실행한 다음 POST 요청을 실행하면서 CSRF 토큰을 전송한다
+
+
+
+
+
+
+이 단계에선 CSRF 사이트 간 요청 위조에 대해 알아보았다
+CSRF의 한 가지 솔루션으로 CSRF 토큰을 사용하는 방법을 살펴봤다
+
+각 요청에 대해 토큰이 생성되고 PUT, POST 같은 업데이트 요청에는 요청 헤더의 일부로 CSRF 토큰을 제공해야 한다
+
+유의할 점은 세션을 사용하지 않는다면 CSRF는 필요하지 않다는 것이다
+상태를 저장하지 않는 REST API 같은 경우에는 CSRF가 필요하지 않는다
+CSRF는 일반적으로 세션이나 세션 쿠키와 관련이 있다
+따라서 항상 필요하지는 않다
+상태가 없는 REST API를 사용한다면 CSRF를 사용 해제하는 게 좋다
+CSRF를 사용 해제하는 방법은 다음 단계에서 알아보겠다.
