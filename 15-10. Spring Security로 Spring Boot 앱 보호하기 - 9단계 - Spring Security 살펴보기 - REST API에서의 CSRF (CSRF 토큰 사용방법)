@@ -1,0 +1,347 @@
+
+
+이전 단계에서 POST 요청을 실행하자 401 오류가 발생했다
+기본 권한 부여를 사용했는데도 말이다
+어떻게 해결하면 될까?
+이번 단계에서 알아보겠다
+
+in28minutes, dummy를 입력하고 Sign in을 눌러서 애플리케이션에 로그인한다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/hello-world 사이트화면 =>
+
+
+                          Please sign in
+                          _______________________________
+                         | in28minutes                   |
+                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                          _______________________________
+                         | dummy                         |
+                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                          _______________________________
+                         |            Sign in            |
+                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+                                |
+                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/hello-world?continue 사이트화면 =>
+
+
+Hello World v1
+
+
+--------------------------------------------------------------------------------------------
+
+로그인했다
+먼저 로그아웃을 살펴보려고 한다
+localhost:8080/logout을 입력한다
+
+로그인하고 localhost:8080/logout으로 이동한 다음 
+이 페이지에서 마우스 오른쪽 버튼을 눌러 페이지소스보기 를 누르면
+여기 보면 몇 가지 흥미로운 점이 있다
+
+--------------------------------------------------------------------------------------------
+
+🌎 view-source:http://localhost:8080/logout =>
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Confirm Log Out?</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" integrity="sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-signin" method="post" action="/logout">
+        <h2 class="form-signin-heading">Are you sure you want to log out?</h2>
+<input name="_csrf" type="hidden" value="1UjgGiroL6GRcz2n_VOGeiW59j7Uk7813FEE3F1ALAzh7V1St3uGfk7aHJK8FgyezH6yGxPY2wawpN0YvmVi72x5SjXY3Ttm" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Log Out</button>
+      </form>
+    </div>
+  </body>
+</html>
+
+--------------------------------------------------------------------------------------------
+
+첫 번째는 로그아웃에 폼을 사용한다는 것이다 (<form class="form-signin" method="post" action="/logout">)
+지금 로그아웃 페이지는 /logout URL에 POST 요청을 실행하고 있다 (action="/logout")
+그리고 POST 요청이기 때문에 CSRF 토큰이 필요하다 (<input name="_csrf" type="hidden" value="1UjgGiroL6GRcz2n_VOGeiW59j7Uk7813FEE3F1ALAzh7V1St3uGfk7aHJK8FgyezH6yGxPY2wawpN0YvmVi72x5SjXY3Ttm" />)
+POST나 PUT 요청에는 CSRF 토큰이 필요하다
+Spring에서 CSRF 토큰을 자동으로 생성해 추가한 것을 볼 수 있다 
+이것이 그 값이다 (value="1UjgGiroL6GRcz2n_VOGeiW59j7Uk7813FEE3F1ALAzh7V1St3uGfk7aHJK8FgyezH6yGxPY2wawpN0YvmVi72x5SjXY3Ttm")
+이렇게 긴 CSRF 토큰이 생성돼서 전송되고 있다
+이것을 수정해서 어떻게 되는지 보겠다
+
+logout에서 마우스 오른쪽 버튼을 클릭하고 inspect(검색)을 누른다
+검색으로 들어오면 사실 여기서 변경이 가능하다 (Elements)
+--------------------------------------------------------------------------------------------
+ ↖ 🔲  |  Elements  Console  Sources  Network  Performance  Memory  Application  Security ..
+          ‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Confirm Log Out?</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" integrity="sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-signin" method="post" action="/logout">
+        <h2 class="form-signin-heading">Are you sure you want to log out?</h2>
+
+                                  //여기서 CSRF 토큰을 삭제해 보겠다 
+<input name="_csrf" type="hidden" /* value="1UjgGiroL6GRcz2n_VOGeiW59j7Uk7813FEE3F1ALAzh7V1St3uGfk7aHJK8FgyezH6yGxPY2wawpN0YvmVi72x5SjXY3Ttm" */ />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Log Out</button>
+      </form>
+    </div>
+  </body>
+</html>
+
+--------------------------------------------------------------------------------------------
+
+삭제한 다음 Log Out을 누른다
+CSRF 토큰을 삭제한 다음 Log Out을 누른다
+                                |
+                                V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/logout 사이트 화면 => 
+
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Mon Sep 16 16:25:36 KST 2024
+There was an unexpected error (type=Forbidden, status=403).
+Forbidden
+
+--------------------------------------------------------------------------------------------
+
+보는 것러럼 오류가 발생했다
+403 액세스가 허용되지 않았다는 오류이다
+Spring Security 기본 설정에선 모든 POST 와 PUT 요청에 CSRF 토큰이 필요하다
+
+다시 로그아웃 URL로 돌아가 보곘다 
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/logout 사이트화면 =>
+
+
+                         Are you sure you want to log out?
+                          _______________________________
+                         |            Log Out            |
+                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+http://localhost:8080/logout 에서 오른쪽 버튼, Inspect를 누른다 
+
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/logout 사이트화면 =>
+
+
+                         Are you sure you want to log out?
+                          _______________________________
+                         |            Log Out            |
+                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+ ↖ 🔲  |  Elements  Console  Sources  Network  Performance  Memory  Application  Security ..
+          ‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Confirm Log Out?</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" integrity="sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-signin" method="post" action="/logout">
+        <h2 class="form-signin-heading">Are you sure you want to log out?</h2>
+<input name="_csrf" type="hidden" value="1UjgGiroL6GRcz2n_VOGeiW59j7Uk7813FEE3F1ALAzh7V1St3uGfk7aHJK8FgyezH6yGxPY2wawpN0YvmVi72x5SjXY3Ttm" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Log Out</button>
+      </form>
+    </div>
+  </body>
+</html>
+
+--------------------------------------------------------------------------------------------
+
+CSRF 토큰이 있고 
+이 상태에서 Log Out을 누르면 
+                        |
+                        V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/login?logout 사이트화면 =>
+
+
+                          Please sign in
+                          _______________________________
+                         | You have benn signed out      |
+                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                          _______________________________
+                         | Username                      |
+                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                          _______________________________
+                         | Password                      |
+                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                          _______________________________
+                         |            Sign in            |
+                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+
+제대로 로그아웃된다
+
+그럼 REST API에선 어떻게 CSRF 토큰을 확인할까?
+웹 애플리케이션을 빌드할 때
+예를 들어 Thymeleaf등을 이용해 웹 애플리케이션을 빌드한다면
+Spring Security는 자동으로 모든 폼에 CSRF 토큰을 추가한다
+
+그렇다면 REST API를 사용할 때는 
+어떻게 CSRF 토큰을 생성하는지 알아보겠다
+
+먼저 간단한 리소스를 만들겠다 
+HelloWorldResource.java를 복사하고 이름을 SpringSecurityPlayResource라고 지정하겠다
+Spring Security를 실습할 리소스이다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ SpringSecurityPlayResource.java
+
+
+package com.example.spring_security_learn_practice.resources;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class SpringSecurityPlayResource {
+
+//1: 그런 다음 URL은 /csrf-token 을 지정한다
+	@GetMapping("/csrf-token")
+//1-1: 그리고 retrieveCsrfToken이라고 작성한다
+	public String retrieveCsrfToke() {
+
+		return "Hello World v1";
+	}
+}
+
+--------------------------------------------------------------------------------------------
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ SpringSecurityPlayResource.java
+
+
+
+package com.example.spring_security_learn_practice.resources;
+
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class SpringSecurityPlayResource {
+
+	@GetMapping("/csrf-token")
+    //2: 여기에는 요청의 세부 정보를 가져오기 위해  HttpServletRequest request를 입력하면 된다 수신하는 요청이 여기에 연결된다
+	public String retrieveCsrfToke(HttpServletRequest request) {
+
+    //2-1: 그리고 이 요청에서 속성을 가져온다 속성의 이름은? 
+		return "Hello World v1";
+	}
+}
+
+--------------------------------------------------------------------------------------------
+
+로그인해서 확인할 수 있다 
+여기에서 속성을 확인할 수 있다
+--------------------------------------------------------------------------------------------
+ ↖ 🔲  |  Elements  Console  Sources  Network  Performance  Memory  Application  Security ..
+          ‾‾‾‾‾‾‾‾‾
+--------------------------------------------------------------------------------------------
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Confirm Log Out?</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" integrity="sha384-oOE/3m0LUMPub4kaC09mrdEhIc+e3exm4xOGxAmuFXhBNF4hcg/6MiAXAf5p0P56" crossorigin="anonymous"/>
+  </head>
+  <body>
+     <div class="container">
+      <form class="form-signin" method="post" action="/logout">
+        <h2 class="form-signin-heading">Are you sure you want to log out?</h2>
+<input name="_csrf" type="hidden" value="1UjgGiroL6GRcz2n_VOGeiW59j7Uk7813FEE3F1ALAzh7V1St3uGfk7aHJK8FgyezH6yGxPY2wawpN0YvmVi72x5SjXY3Ttm" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Log Out</button>
+      </form>
+    </div>
+  </body>
+</html>
+
+--------------------------------------------------------------------------------------------
+
+_csrf이다
+
+                                      |
+                                      V
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ SpringSecurityPlayResource.java
+
+
+
+package com.example.spring_security_learn_practice.resources;
+
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.*;
+
+@RestController
+public class SpringSecurityPlayResource {
+
+	@GetMapping("/csrf-token")
+  //3-1: 문자열이 아니라 Csrf 토큰으로 수정해야 한다 ctrl+스페이스를 누르면 CsrfToken인터페이스가 있다
+  //(String 에서 CsrfToken으로 수정..)
+	public CsrfToken retrieveCsrfToke(HttpServletRequest request) {
+
+    //3: CSRF 속성을 가져온다고 작성했다, 그리고 반환타입을 수정해야한다
+		return request.getAttribute("_csrf");
+	}
+}
+
+--------------------------------------------------------------------------------------------
