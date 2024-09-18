@@ -308,3 +308,408 @@ formLogin은 사용하지 않고 httpBasic만 사용할 거고,
 
 ❓ 세션은 어떻게 사용 해제할까?
 
+⏺ 세션 설정
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ BasicAuthSecurityConfiguration.java 
+
+
+package com.example.spring_security_learn_practice.basic;
+
+import static org.springframework.security.config.Customizer.*;
+
+import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.web.builders.*;
+import org.springframework.security.web.*;
+
+@Configuration
+public class BasicAuthSecurityConfiguration {
+
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(
+				auth -> {
+					auth.anyRequest().authenticated();
+		});
+
+    //6: http.sessionManagement를 사용하고 ()안에 
+    http.sessionManagement(
+
+     //6-1: session -> session.sessionCreationPolicy라고 입력해 세션 생성 정책을 설정한다
+     //sessionCreationPolicy() 안에 우리가 사용할 세션 생성 정책은 SessionCreationPolicy.STATELESS 라고 설정하면 된다
+      session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      );
+
+//		http.formLogin(withDefaults());
+		http.httpBasic(withDefaults());
+		return http.build();
+	}
+}
+--------------------------------------------------------------------------------------------
+
+세션에 사용할 정책을 STATELESS로 설정했다
+
+
+⏺ SessionCreationPolicy 안에 있는 것 알아보기
+
+SessionCreationPolicy를 열어보면
+----------------------------------------
+/*
+ * Copyright 2002-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.security.config.http;
+
+import jakarta.servlet.http.HttpSession;
+
+import org.springframework.security.core.context.SecurityContext;
+
+/**
+ * Specifies the various session creation policies for Spring Security.
+ *
+ * @author Luke Taylor
+ * @since 3.1
+ */
+public enum SessionCreationPolicy {
+
+	/**
+	 * Always create an {@link HttpSession}
+	 */
+	ALWAYS,
+
+	/**
+	 * Spring Security will never create an {@link HttpSession}, but will use the
+	 * {@link HttpSession} if it already exists
+	 */
+	NEVER,
+
+	/**
+	 * Spring Security will only create an {@link HttpSession} if required
+	 */
+	IF_REQUIRED,
+
+	/**
+	 * Spring Security will never create an {@link HttpSession} and it will never use it
+	 * to obtain the {@link SecurityContext}
+	 */
+	STATELESS
+
+}
+----------------------------------------
+Spring Security에 다양한 세션 생성 적책을 지정할 수 있다는 걸 알 수 있다
+ALWAYS, NEVER, IF_REQUIRED, STATELESS가 있다
+
+ALWAYS를 설정하면 세션을 항상 생성하고
+NEVER를 설정하면 HTTP 세션을 생성하지 않지만 이미 있을 경우에는 사용한다
+IF_REQUIRED는 필요 시에만 세션을 생성한다 
+
+우리는 STATELESS로 설정했다
+Spring Security에서 HTTP 세션을 생성하지도 않고 사용하지도 않는다
+이제 닫고 
+
+
+코드를 저장한다
+
+이제 다 됐다
+----------------------------------------
+		http.sessionManagement(
+					session -> 
+					session.sessionCreationPolicy(
+							SessionCreationPolicy.STATELESS)
+					);
+----------------------------------------
+HTTP 요청을 인증하고 세션은 사용하지 않도록 STATELESS로 설정했다
+
+----------------------------------------
+		http.httpBasic(withDefaults());
+		return http.build();
+----------------------------------------
+httpBasic을 사용하고 
+http.build라고 작성하고 저장한다
+
+
+⏺ CSRF 사용 해제
+
+이제 마지막으로 CSRF를 사용 해제한다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ BasicAuthSecurityConfiguration.java 
+
+
+
+package com.example.spring_security_learn_practice.basic;
+
+import static org.springframework.security.config.Customizer.*;
+
+import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.web.builders.*;
+import org.springframework.security.config.http.*;
+import org.springframework.security.web.*;
+
+@Configuration
+public class BasicAuthSecurityConfiguration {
+
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(
+				auth -> {
+					auth.anyRequest().authenticated();
+		});
+		http.sessionManagement(
+					session -> 
+					session.sessionCreationPolicy(
+							SessionCreationPolicy.STATELESS)
+					);
+//		http.formLogin(withDefaults());
+		http.httpBasic(withDefaults());
+
+  //7: 사용 해제하려면 http.csrf().disable();를 사용한다
+  http.csrf().disable();
+
+		return http.build();
+	}
+}
+
+--------------------------------------------------------------------------------------------
+
+이렇게 CSRF를 사용 해제했다, 이제 애플리케이션을 중지하고
+
+로그를 삭제한 후 다시 시작해서
+csrf를 검색해 보면 
+----------------------------------------
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.3)
+
+2024-09-18T21:28:57.827+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] s.SpringSecurityLearnPracticeApplication : Starting SpringSecurityLearnPracticeApplication using Java 17.0.5 with PID 14172 (C:\Users\LG\git\springSecurityLearn\spring-security-learn-practice\bin\main started by LG in C:\Users\LG\git\springSecurityLearn\spring-security-learn-practice)
+2024-09-18T21:28:57.833+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] s.SpringSecurityLearnPracticeApplication : No active profile set, falling back to 1 default profile: "default"
+2024-09-18T21:28:57.910+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-09-18T21:28:57.910+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-09-18T21:28:59.728+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-09-18T21:28:59.752+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-09-18T21:28:59.753+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.28]
+2024-09-18T21:28:59.851+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-09-18T21:28:59.855+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1941 ms
+2024-09-18T21:29:00.116+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2024-09-18T21:29:00.725+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2024-09-18T21:29:00.782+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-09-18T21:29:00.797+09:00  INFO 14172 --- [spring-security-learn-practice] [  restartedMain] s.SpringSecurityLearnPracticeApplication : Started SpringSecurityLearnPracticeApplication in 3.464 seconds (process running for 4.057)
+----------------------------------------
+아무것도 검색되지 않는다
+기본 보안 필터 체인에 CSRF 필터가 없다
+
+
+이제 이 요청에서 이 토큰을 삭제해 보겠다
+정확히 말하자면 X-CSRF-TOKEN 토큰을 사용 해제하고 Send를 누른다
+--------------------------------------------------------------------------------------------------------------------------------
+
+🖇 Talend API Tester 화면 ==>    (더 자세한건 크롬 확장프로그램 Talend API Tester 실행해서 확인..)
+
+  METHOD                SCHEME :// HOST [ ":" PORT ] [ PATH [ "?" QUERY ]]
+  ______________      ____________________________________________________________    ___________________
+ | POST     | ▼ |    |    http://localhost:8080/users/in28minutes/todos           |  |  ✈ Send       | ▽ |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                        ▶ QUERY PARAMETERS
+  HEADERS   ⬇                   | Form ▼ |   ◀ | ▶  BODY                                   | Text ▼ |
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾              
+   _______________     __________________      |      
+☑ | Authorization | : |Basic dXNlcjo3OTRl| x 🗝|      {                        
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |        "username": "player",
+   _______________     __________________      |        "description": "Learn AWS"
+☑ | Content-Type  | : |application/json  | x   |      }                        
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |
+   _______________     __________________      |        
+▢ | X-CSRF-TOKEN  | : |1X1saIUAXwp1txH8..| x   |                            
+   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾      |
+  ______________                               |                               
+ ( + Add header )  🗝 Add authorization     🗑 |                                    
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾                               |                                                                       
+                                               |    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                                                   
+                                 
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+(현재 실패)
+
+POST 요청이 성공적으로 처리된 것을 볼 수 있다
+CSRF 토큰 없이도 POST 요청을 실행할 수 있다 
+
+
+
+
+이 단계에선 CSRF를 사용 해제하는 방법을 알아봤는데
+그 방법은 Spring Security Filter Chain 전체를 설정하는 것이었다
+BasicAuthSecurityConfiguration 파일을 만들고 여기에 Bean을 정의해서
+전체 보안 필터 체인을 설정했다
+모든 HTTP 요청에 권한 부여를 적용하고
+STATELESS로 세션을 설정하고 
+기본 인증을 사용하고 CSRF는 사용 해제했다
+
+그 결과 localhost:8080/hello-world로 이동하면
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/hello-world
+                      |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|               
+                      |   sign in                           |
+                      |   http://localhost:8080             |
+                      |           _______________________   |
+                      | Username |                       |  |
+                      |           ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+                      |          ________________________   |
+                      | Password|                        |  |
+                      |          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+                      |           __________   __________   |
+                      |          |  Cancel  | | Sign in  |  |
+                      |           ‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾   |
+                      |_____________________________________|
+                      
+
+
+--------------------------------------------------------------------------------------------
+
+로그인 폼이 보이지 않는다
+이전에는 hello-world에 액세스 하면 
+로그인 페이지가 보였지만, 이제 폼 로그인을 사용 해제했기 때문에
+폼 로그인이 표시되지 않는다
+그저 기본 인증 팝업만 표시된다
+이것이 기본 인증 팝업이다
+여기에 사용자 이름과 패스워드를 입력하고 로그인해서 요청을 실행할 수 있다
+로그아웃 기능도 이제 사용되지 않는 것을 알 수 있다
+
+logout 페이지로 가보면
+사용자 이름과 패스워드를 입력하는 팝업이 표시된다
+in28minutes와 dummy를 입력하고 Sign In을 누르면 
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/login?logout 사이트화면 =>
+
+
+Whitelabel Error Page
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+
+Wed Sep 18 22:37:16 KST 2024
+There was an unexpected error (type=Not Found, status=404).
+No static resource login.
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource login.
+	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)
+	at org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter.handle(HttpRequestHandlerAdapter.java:52)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.www.BasicAuthenticationFilter.doFilterInternal(BasicAuthenticationFilter.java:213)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:384)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:904)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+
+--------------------------------------------------------------------------------------------
+
+오류 페이지가 표시된다
+logout 페이지로 바로 이동하면 404가 반환된다, 세션이 없고
+로그인, 로그아웃이라는 개념이 없고 모두 사용 해제돼 있기때문이다
+
+다음 단계에서 보겠다
