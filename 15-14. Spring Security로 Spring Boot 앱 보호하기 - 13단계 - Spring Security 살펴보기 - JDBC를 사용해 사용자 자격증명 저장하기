@@ -356,3 +356,406 @@ public class BasicAuthSecurityConfiguration {
 --------------------------------------------------------------------------------------------
 
 애플리케이션이 다시 시작되면 새로고침한다
+
+H2 콘솔 페이지가 로딩되었고
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/h2-console 사이트화면 =>
+
+  ______________________
+ |English             v |  Preferences  Tools  Help
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _______________________________________________________________________
+ |  Login (파바탕)                                                        | 
+ |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+ |                    ______________________________________________     |
+ |  Saved Settings:  | Generic H2 (Embedded)                    v   |    |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |
+ |                    ______________________________   ____   ______     |
+ |  Setting Name :   | Generic H2 (Embedded)        | |Save| |Remove|    |
+ |                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾   ‾‾‾‾‾‾     |
+ |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+ |                    ____________________________________________       |
+ |  Driver Class:    |org.h2.Driver                               |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ____________________________________________       |
+ |  JDBC URL:        |jdbc:h2:mem:testdb                          |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ________________________________                   |
+ |  User Name:       |sa                              |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   | 
+ |                    ________________________________                   |
+ |  Password:        | Generic H2 (Embedded)          |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   |
+ |                    _________   _________________                      |                               
+ |                   | Connect | | Test Connection |                     |                                       
+ |                    ‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+
+Connect를 누르겠다
+                                  |
+                                  V
+-------------------------------------------------------------------------
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ + 📁 INFORMATION_SCHEMA
+ + 👪 USERS
+ i H2 2.2.224(2023-09-17)
+-------------------------------------------------------------------------
+
+이제 H2 콘솔에 들어왔다
+현재는 아무런 테이블이 없다
+이제 사용자 세부 정보와 사용자의 권한 부여 세부 정보를 저장하겠다
+어떻게 하면 될까?
+
+JdbcDaoImpl로 가보자
+이 클래스는 spring-security-core jar 파일에 들어 있다
+
+----------------------------------
+public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, MessageSourceAware {
+
+	public static final String DEFAULT_USER_SCHEMA_DDL_LOCATION = "org/springframework/security/core/userdetails/jdbc/users.ddl";
+----------------------------------
+
+여기에 DEFAULT_USER_SCHEMA_DDL_LOCATION이 정의돼 있는데
+사용자 스키마의 데이터 정의 언어가 이미 정의돼 있다
+어디에 있을까?
+여기서 JdbcDaoImpl로 가보면
+"org/springframework/security/core/userdetails/jdbc/users.ddl" 동일한 패키지에 user.ddl이 있다
+
+이 users.ddl을 보면
+----------------------------------
+
+📄 users.dll 
+
+create table users(username varchar_ignorecase(50) not null primary key,password varchar_ignorecase(500) not null,enabled boolean not null);
+create table authorities (username varchar_ignorecase(50) not null,authority varchar_ignorecase(50) not null,constraint fk_authorities_users foreign key(username) references users(username));
+create unique index ix_auth_username on authorities (username,authority);
+----------------------------------
+스키마가 들어 있다 
+create table users에 사용자 이름과 패스워드가 입력돼 있고 
+create table authorities에 사용자 이름과 권한이 입력돼 있다, 사용자 이름으로 인덱스도 생성한다
+이 파일을 복사하지 않고 애플리케이션을 시작할 때 바로 실행할 수 있다
+인메모리 DB를 사용 중이기 때문에 애플리케이션을 시작할 때 이 스키마를 생성한 다음 사용자를 채우려 한다 
+DEFAULT_USER_SCHEMA_DDL_LOCATION이부분을 마우스 오른쪽 클릭 > Copy Qualified Name을 선택한다
+SpringBootWebSecurityConfiguration으로 돌아간다
+다시 BasicAuthSecurityConfiguration으로 가서 
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ BasicAuthSecurityConfiguration.java
+
+
+
+package com.example.spring_security_learn_practice.basic;
+
+import static org.springframework.security.config.Customizer.*;
+
+import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.web.builders.*;
+import org.springframework.security.config.http.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.provisioning.*;
+import org.springframework.security.web.*;
+
+@Configuration
+public class BasicAuthSecurityConfiguration {
+
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		
+		http.authorizeHttpRequests(
+				auth -> {
+					auth.anyRequest().authenticated();
+					});
+		http.sessionManagement(
+					session -> 
+					session.sessionCreationPolicy( 
+							SessionCreationPolicy.STATELESS)
+					);
+//		http.formLogin(withDefaults());
+		http.httpBasic(withDefaults());
+		
+		http.csrf().disable();
+		
+		http.headers().frameOptions().sameOrigin(); //요청이 동일한 오리진에서 오는 경우 해당 애플리케이션에 프레임을 허용하도록 지정
+		
+		return http.build();
+	}
+	
+
+	@Bean
+	public UserDetailsService userDetailsService() {
+		
+		var user = User.withUsername("player")
+			.password("{noop}dummy")
+			.roles("USER")
+			.build();
+		
+		var admin = User.withUsername("admin") 
+				.password("{noop}dummy")
+				.roles("ADMIN") 
+				.build();
+			
+		return new InMemoryUserDetailsManager(user, admin);
+	}
+
+  //4: Bean을 정의하고 여기에 DataSource를 추가해 데이터 소스를 설정한다 {}를 넣고 여기에 코드를 모두 작성한다
+	@Bean
+	public DataSource dataSource() {
+		
+		//4-1: return new Embedded를 한 다음 ctrl+스페이스를 누르면 EmbeddedDatabaseBuilder가 보인다 (Create a new embedded database builder with a DefaultResourceLoader.) 새로운 임베디드 DB를 만드는 데 도움이 된다
+    //EmbeddedDatabaseBuilder를 넣고 
+    return new EmbeddedDatabaseBuilder()
+
+    //4-2: .setType에 이용할 DB 타입을 지정한다 연결할 DB 타입은 Embedded이고 EmbeddedDatabaseType. 다음에
+    //3가지 옵션, DERBY, H2, HSQL 중에 H2를 선택한다 H2를 이용하고 있기 때문이다, H2 DB의 데이터 소스를 설정하고 있고
+            .setType(EmbeddedDatabaseType.H2)
+
+    //4-3: 스크립트를 실행한다는 것도 중요하다, 시작할 때 스크립트를 실행할 거니까 스크립트도 추가한다
+    //스크립트는 jdbc.JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION 이다
+    //됐다 이제 패키지 이름은 삭제하고 임포트하겠다 임포트를 정리한다 jdbc.jdbcDaoImpl이 임포트됐다 org.springframework.security.userdetails.jdbc.jdbcDaoImpl이 임포트되고 
+            .addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
+
+    //4-4: 다음으로 .build를 추가한다
+            .build();
+	}
+
+}
+
+--------------------------------------------------------------------------------------------
+
+아주 간단하다 H2 DB로 지정된 데이터 소스를 생성하고 있고 
+기본적으로 자동으로 생성되지만 DB를 생성할 때 이 스크립트를 실행할 것이다
+자체 데이터 소스를 생성했고 이제 저장한다
+
+애플리케이션이 다시 시작되면 
+H2 콘솔에 들어가서 새로고침하고 Connect를 누른다
+
+-------------------------------------------------------------------------
+H2 Database 안 ==>
+
+🔋 jdbc:h2:mem:testdb
+ + 💷 AUTHORITIES
+ + 💷 USERS
+ + 📁 INFORMATION_SCHEMA
+ + 👪 USERS
+ i H2 2.2.224(2023-09-17)
+
+-------------------------------------------------------------------------
+
+이제 AUTHORITIES와 USERS 테이블이 보인다
+AUTHORITIES에서 RUN을 누르면
+
+----------------------------------------------------------------------
+
+⏺ H2 Console 
+ _____   ______________   _______________   _______
+| Run | | Run Selected | | Auto complete | | Clear | SQL statement:
+ ‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾ 
+ ___________________________________________________________________________________
+| SELECT * FROM AUTHORITIES                                                         |
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                    
+|                                                                                   |                     
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+SELECT * FROM AUTHORITIES;
+ __________________________
+|USERNAME    |AUTHORITY    |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+(no rows, 4 ms)
+ ____
+|Edit|
+ ‾‾‾‾
+------------------------------------------------------------------------- 
+
+아무것도 없고 
+
+USERS를 선택하면 사용자를 선택하라고 표시되는데 Run을 눌러보면
+마찬가지로 아무 내용도 없다
+----------------------------------------------------------------------
+
+⏺ H2 Console 
+ _____   ______________   _______________   _______
+| Run | | Run Selected | | Auto complete | | Clear | SQL statement:
+ ‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾ 
+ ___________________________________________________________________________________
+| SELECT * FROM USERS                                                               |
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                     
+|                                                                                   |                    
+|                                                                                   |                     
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+SELECT * FROM USERS;
+ _______________________________________
+|USERNAME    |PASSWORD     |ENABLED     |
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+(no rows, 1 ms)
+ ____
+|Edit|
+ ‾‾‾‾
+------------------------------------------------------------------------- 
+
+
+
+
+
+지금까지 H2 인메모리 DB를 실행하고 
+----------------------
+	@Bean
+	public DataSource dataSource() {
+		
+		return new EmbeddedDatabaseBuilder()
+				.setType(EmbeddedDatabaseType.H2)
+				.addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
+				.build();
+	}
+----------------------
+스키마를 사용하기 위한 스크립트를 실행했다
+
+
+
+이제 사용자를 채우는 방법을 알아보겠다 
+앞에서 InMemoryUserDetailsManager를 설정했다 
+BasicAuthSecurityConfiguration에 보면 
+----------------------
+	@Bean
+	public UserDetailsService userDetailsService() {
+		
+		var user = User.withUsername("in28minutes")
+			.password("{noop}dummy")
+			.roles("USER")
+			.build();
+		
+		var admin = User.withUsername("admin") 
+				.password("{noop}dummy")
+				.roles("ADMIN") 
+				.build();
+			
+		return new InMemoryUserDetailsManager(user, admin);
+	}
+----------------------
+UserDetailsService userDetailService를 정의하고 
+in28minutes와 admin이라는 사용자를 설정했다
+
+
+이 코드를 교체할 것이다
+
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ BasicAuthSecurityConfiguration.java
+
+
+
+package com.example.spring_security_learn_practice.basic;
+
+import static org.springframework.security.config.Customizer.*;
+
+import javax.sql.*;
+
+import org.springframework.context.annotation.*;
+import org.springframework.jdbc.datasource.embedded.*;
+import org.springframework.security.config.annotation.web.builders.*;
+import org.springframework.security.config.http.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.jdbc.*;
+import org.springframework.security.provisioning.*;
+import org.springframework.security.web.*;
+
+@Configuration
+public class BasicAuthSecurityConfiguration {
+
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		
+		http.authorizeHttpRequests(
+				auth -> {
+					auth.anyRequest().authenticated();
+					});
+		http.sessionManagement(
+					session -> 
+					session.sessionCreationPolicy( 
+							SessionCreationPolicy.STATELESS)
+					);
+//		http.formLogin(withDefaults());
+		http.httpBasic(withDefaults());
+		
+		http.csrf().disable();
+		
+		http.headers().frameOptions().sameOrigin(); //요청이 동일한 오리진에서 오는 경우 해당 애플리케이션에 프레임을 허용하도록 지정
+		
+		return http.build();
+	}
+	
+
+//5: 이 부분은 주석처리한다
+//	@Bean
+//	public UserDetailsService userDetailsService() {
+//		
+//		var user = User.withUsername("player")
+//			.password("{noop}dummy")
+//			.roles("USER")
+//			.build();
+//		
+//		var admin = User.withUsername("admin") 
+//				.password("{noop}dummy")
+//				.roles("ADMIN") 
+//				.build();
+//			
+//		return new InMemoryUserDetailsManager(user, admin);
+//	}
+
+	@Bean
+	public DataSource dataSource() {
+		
+		return new EmbeddedDatabaseBuilder()
+				.setType(EmbeddedDatabaseType.H2)
+				.addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
+				.build();
+	}
+
+//5-1: 이제는 데이터 소스를 이용하고 DB안에 사용자를 삽입할 것이다 DataSource dataSource라고 입력해서 데이터 소스 Bean을 여기에 주입한다
+//그런 다음 이 사용자를 생성하는데 
+	@Bean
+	public UserDetailsService userDetailsService(DataSource dataSource) {
+
+    //5-2: 이부분들은 괜찮지만 InMemoryUserDetailsManager는 사용하지 않는다
+		var user = User.withUsername("player")
+			.password("{noop}dummy")
+			.roles("USER")
+			.build();
+		
+		var admin = User.withUsername("admin") 
+				.password("{noop}dummy")
+				.roles("ADMIN") 
+				.build();
+
+    //5-3: 대신 jdbcUserDetailsManager를 사용한다, jdbcUserDetailsManager를 설정해야 하는데 이것은 
+    //(Jdbc user management service, based on the same table structure as its parent class, JdbcDaoImpl. Provides CRUD operations for both users and groups. ) Jdbc 사용자 관리 서비스이고 사용자와 그룹 모두에 CRUD연산을 제공한다
+    //JdbcUserDetailsManager를 선택하고 new를 추가해 주자 생성자 매개변수는 dataSource로 입력하고 var jdbcUserDetailsManager를 선언한다 
+    var jdbcUserDetailManager = new JdbcUserDetailsManager(dataSource);
+
+    //5-4: 그런 다음 jdbcUserDetailsManager를 삽입하고 createUser(user)와
+    jdbcUserDetailManager.createUser(user);	
+
+    //5-5: createUser(admin)을 작성한다
+    jdbcUserDetailManager.createUser(admin);	
+
+    //InMemoryUserDetailsManager를 반환하는 게 아니라 jdbcUserDetailsManager를 반환하도록 작성했다, 이제 저장한다
+		return jdbcUserDetailManager;
+	}
+}
+
+--------------------------------------------------------------------------------------------
