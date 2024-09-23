@@ -1,0 +1,358 @@
+
+
+이 단계에선 DB에 사용자 자격증명을 저장하는 방법을 배운다
+DB에 연결하기 위해 JDBC, Java Database Connectivity를 이용한다
+DB로는 H2 인메모리 DB를 이용한다
+
+먼저 의존성을 추가하겠다
+build.gradle 파일을 열고
+여기에 의존성을 몇 개 추가하겠다
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ build.gradle
+
+
+plugins {
+	id 'java'
+	id 'war'
+	id 'org.springframework.boot' version '3.3.3'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.spring-security-learn-practice'
+version = '3.3.3'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-devtools'
+
+<!--1: 첫 번째는 spring-boot-starter-jdbc이고-->
+  implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+<!--1-1: 두 번째는 h2 데이터베이스이다 아티팩트ID는 h2이고 spring-boot-starter-jdbc이고 그룹 ID는 com.h2database 이다-->
+<!--의존성을 정확하게 입력하라 com.h2database:h2이다 org.springframework.boot:spring-boot-starter-jdbc도 추가했다 이제 저장-->
+  implementation 'com.h2database:h2'
+
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+--------------------------------------------------------------------------------------------
+
+실행 중인 애플리케이션이 있으면 중지하고 
+프로잭트에 마우스 오른쪽 버튼 클릭 후 Gradle > Refresh Gradle Project를 누른다
+그러면 의존성이 다운로드되고 있다 
+의존성이 모두 다운로드 되었으면 이제 프로젝트에 사용할 수 있다
+애플리케이션을 다시 시작한다
+
+특정 URL에서 H2 콘솔을 사용할 수 있다는 메시지가 보인다
+----------------------------------------
+09-23 15:56:22 - c.e.s.SpringSecurityLearnPracticeApplication - Starting SpringSecurityLearnPracticeApplication using Java 17.0.5 with PID 21180 (C:\Users\LG\git\springSecurityLearn\spring-security-learn-practice\bin\main started by LG in C:\Users\LG\git\springSecurityLearn\spring-security-learn-practice)
+09-23 15:56:22 - c.e.s.SpringSecurityLearnPracticeApplication - No active profile set, falling back to 1 default profile: "default"
+09-23 15:56:22 - o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+09-23 15:56:22 - o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+09-23 15:56:24 - o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+09-23 15:56:24 - o.a.catalina.core.StandardService - Starting service [Tomcat]
+09-23 15:56:24 - o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.28]
+09-23 15:56:24 - o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+09-23 15:56:24 - o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1709 ms
+09-23 15:56:24 - com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+09-23 15:56:24 - com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:631980a2-bb97-45c9-9283-a89a7de77649 user=SA
+09-23 15:56:24 - com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+09-23 15:56:24 - o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:631980a2-bb97-45c9-9283-a89a7de77649'
+09-23 15:56:25 - o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+09-23 15:56:25 - o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+09-23 15:56:25 - o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+09-23 15:56:25 - c.e.s.SpringSecurityLearnPracticeApplication - Started SpringSecurityLearnPracticeApplication in 3.539 seconds (process running for 4.065)
+----------------------------------------
+/h2-console URL에서 H2 콘솔을 사용할 수 있고 DB는 이 URL에서 사용할 수 있다 ('jdbc:h2:mem:631980a2-bb97-45c9-9283-a89a7de77649')
+이 URL은 애플리케이션을 다시 시작할 때마다 바뀌는데 이것을 정적으로 만들겠다
+
+
+application.properties에서 spring.datasource.url을 설정하는데 
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ application.properties
+
+
+spring.application.name=spring-security-learn-practice
+spring.main.banner-mode=off
+logging.pattern.console= %d{MM-dd HH:mm:ss} - %logger{36} - %msg%n
+#spring.security.user.name=player
+#spring.security.user.password=dummy
+
+#2: 이 URL을 그대로 사용하지 않고 마지막 : 뒤에 오는 부분을 변경할 것이다 631980a2-bb97-45c9-9283-a89a7de77649 부분을 지우고
+# testdb라고 쓴다, 이제 저장한다 
+spring.datasource.url=jdbc:h2:mem:testdb
+--------------------------------------------------------------------------------------------
+
+애플리케이션이 다시 시작되고 로그를 확인할 수 있다
+이제 DB를 'jdbc:h2:mem:testdb'에서 사용할 수 있다
+좋다 
+이제 /h2-console에 액세스해서 어떻게 되는지 보겠다
+
+http://localhost:8080/h2-console에 액세스하면 어떻게 될까?
+정확히 입력하고 이동해 본다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/h2-console 사이트화면 =>
+
+  ______________________
+ |English             v |  Preferences  Tools  Help
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _______________________________________________________________________
+ |  Login (파바탕)                                                        | 
+ |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+ |                    ______________________________________________     |
+ |  Saved Settings:  | Generic H2 (Embedded)                    v   |    |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |
+ |                    ______________________________   ____   ______     |
+ |  Setting Name :   | Generic H2 (Embedded)        | |Save| |Remove|    |
+ |                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾   ‾‾‾‾‾‾     |
+ |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+ |                    ____________________________________________       |
+ |  Driver Class:    |org.h2.Driver                               |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ____________________________________________       |
+ |  JDBC URL:        |jdbc:h2:mem:testdb                          |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ________________________________                   |
+ |  User Name:       |sa                              |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   | 
+ |                    ________________________________                   |
+ |  Password:        | Generic H2 (Embedded)          |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   |
+ |                    _________   _________________                      |                               
+ |                   | Connect | | Test Connection |                     |                                       
+ |                    ‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+
+H2 콘솔이 로드되었다
+이제 크롬을 다시 시작할 것이다
+chrome://restart를 입력한다, 크롬을 다시 시작하기 위해 
+chrome://restart를 입력하면 브라우저가 다시 시작되고 
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/h2-console 사이트화면 =>
+                      |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|               
+                      |   sign in                           |
+                      |   http://localhost:8080             |
+                      |           _______________________   |
+                      | Username | in28minutes           |  |
+                      |           ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+                      |           _______________________   |
+                      | Password | ●●●●●                 |  |
+                      |           ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+                      |           __________   __________   |
+                      |          |  Cancel  | | Sign in  |  |
+                      |           ‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾   |
+                      |_____________________________________|
+
+
+--------------------------------------------------------------------------------------------
+
+모든 세션이 초기화된다
+이제 H2 콘솔에 액세스하면 사용자 이름과 패스워드를 입력하라는 팝업이 나타난다
+in28minutes, dummy를 누르고 로그인한다
+                                  |
+                                  V
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/h2-console 사이트화면 =>
+
+  ______________________
+ |English             v |  Preferences  Tools  Help
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  _______________________________________________________________________
+ |  Login (파바탕)                                                        | 
+ |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+ |                    ______________________________________________     |
+ |  Saved Settings:  | Generic H2 (Embedded)                    v   |    |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾     |
+ |                    ______________________________   ____   ______     |
+ |  Setting Name :   | Generic H2 (Embedded)        | |Save| |Remove|    |
+ |                     ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾   ‾‾‾‾‾‾     |
+ |  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |
+ |                    ____________________________________________       |
+ |  Driver Class:    |org.h2.Driver                               |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ____________________________________________       |
+ |  JDBC URL:        |jdbc:h2:mem:testdb                          |      |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾       |
+ |                    ________________________________                   |
+ |  User Name:       |sa                              |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   | 
+ |                    ________________________________                   |
+ |  Password:        | Generic H2 (Embedded)          |                  |
+ |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                   |
+ |                    _________   _________________                      |                               
+ |                   | Connect | | Test Connection |                     |                                       
+ |                    ‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                      |
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+--------------------------------------------------------------------------------------------
+
+H2 콘솔 페이지로 들어왔다 
+H2 콘솔 페이지가 기본 인증 자격증명으로 보호된다는 걸 알 수 있다
+여기서 JDBC URL, jdbc:h2:mem:testdb를 정확히 사용 중인지 확인하라
+필요하면 application.properties에서 복사할 수도 있다 여기서 복사해서 붙여넣으면 된다
+사용자 이름은 sa를 사용하고 패스워드는 비워둔 채 Connect를 누른다
+
+--------------------------------------------------------------------------------------------
+
+🌎 http://localhost:8080/h2-console/login.do?jsessionid=c3c825eca159a77abb6ccd148306ac1a 화면 => 
+
+
+                                              📄
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                    |
+                    |                                      📄
+                    |                        localhost에서 연결을 거부했습니다.
+                    |
+      📄            |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                    |
+                    |                                      📄
+                    |
+                    |
+--------------------------------------------------------------------------------------------
+
+오류 페이지가 표시된다
+현재 오류가 발생하는 이유는 
+H2 콘솔은 프레임을 사용하기 때문이다
+View > Developer > View Source로 이동해서 확인해 보면 
+
+--------------------------------------------------------------------------------------------
+
+🌎 view-source:http://localhost:8080/h2-console/login.do?jsessionid=c3c825eca159a77abb6ccd148306ac1a 화면 => 
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN">
+<!--
+Copyright 2004-2023 H2 Group. Multiple-Licensed under the MPL 2.0,
+and the EPL 1.0 (https://h2database.com/html/license.html).
+Initial Developer: H2 Group
+-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>H2 Console</title>
+    <link rel="stylesheet" type="text/css" href="stylesheet.css" />
+</head>
+<frameset cols="*" rows="36,*" frameborder="1" framespacing="4" border="4" bordercolor="white">
+    <frame noresize="noresize" frameborder="0" marginheight="0" marginwidth="0" src="header.jsp?jsessionid=c3c825eca159a77abb6ccd148306ac1a" name="header" scrolling="no" />
+    <frameset cols="200,*" rows="*" frameborder="1" framespacing="4" border="4" bordercolor="white">
+        <frame frameborder="0" marginheight="0" marginwidth="0" src="tables.do?jsessionid=c3c825eca159a77abb6ccd148306ac1a" name="h2menu" />
+        <frameset  rows="180,*" frameborder="1" framespacing="4" border="4" bordercolor="white">
+            <frame frameborder="0" marginheight="0" marginwidth="0" src="query.jsp?jsessionid=c3c825eca159a77abb6ccd148306ac1a" name="h2query" scrolling="no" />
+            <frame frameborder="0" marginheight="0" marginwidth="0" src="help.jsp?jsessionid=c3c825eca159a77abb6ccd148306ac1a" name="h2result" />
+        </frameset>
+    </frameset>
+</frameset>
+<noframes>
+<body>
+    Sorry, Lynx is not supported yet
+</body>
+</noframes>
+</html>
+
+--------------------------------------------------------------------------------------------
+프레임과 프레임세트가 들어 있다 
+이렇게 HTML 프레임을 사용 중이지만 Spring Security에선 기본적으로 프레임을 사용 해제한다
+
+그래서 프레임을 사용 설정해야 한다
+
+설정하려면
+BasicAuthSecurityConfiguration으로 가서 
+
+--------------------------------------------------------------------------------------------
+
+⏺ sts 
+
+⏺ BasicAuthSecurityConfiguration.java
+
+
+package com.example.spring_security_learn_practice.basic;
+
+import static org.springframework.security.config.Customizer.*;
+
+import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.web.builders.*;
+import org.springframework.security.config.http.*;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.provisioning.*;
+import org.springframework.security.web.*;
+
+@Configuration
+public class BasicAuthSecurityConfiguration {
+
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		
+		http.authorizeHttpRequests(
+				auth -> {
+					auth.anyRequest().authenticated();
+					});
+		http.sessionManagement(
+					session -> 
+					session.sessionCreationPolicy(
+							SessionCreationPolicy.STATELESS) 
+					);
+//		http.formLogin(withDefaults());
+		http.httpBasic(withDefaults());
+		
+		http.csrf().disable();
+
+    //3: 필터 체인 안에 http.headers().frameOptions().sameOrigin()을 작성해야 한다
+    //요청이 동일한 오리진에서 오는 경우 해당 애플리케이션에 프레임을 허용하도록 지정하는 것이다
+    //예를 들어 example.com에서 호스팅되는 애플리케이션에는 프레임을 적용하고 evil.com의 애플리케이션에는 적용하지 않는 것이다 저장하고
+    http.headers().frameOptions().sameOrigin();
+
+		return http.build();
+	}
+	
+	@Bean
+	public UserDetailsService userDetailsService() {
+		
+		var user = User.withUsername("player")
+			.password("{noop}dummy")
+			.roles("USER") 
+			.build();
+		
+		var admin = User.withUsername("admin")
+				.password("{noop}dummy")
+				.roles("ADMIN") 
+				.build();
+			
+		return new InMemoryUserDetailsManager(user, admin); 
+	}
+}
+
+--------------------------------------------------------------------------------------------
+
+애플리케이션이 다시 시작되면 새로고침한다
