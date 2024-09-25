@@ -1,0 +1,71 @@
+
+
+이 단계에서는 인코딩, 해싱, 암호화 간의 차이를 알아보겠다
+
+보안에 생소한 사람들은 이 세 용어를 혼동하기도 한다 
+보안에 관련해 인코딩, 해싱, 암호화의 정의가 무엇이고 
+이 세 개념 간의 차이가 무엇인지 명확히 이해하는 것이 중요하다 
+그럼 시작하겠다 
+
+
+Encoding vs Hashing vs Encryption
+
+● Encoding: Transform data - one form to another                                                           ____________  🔐  ____________                                                
+  ■ Does NOT use a key or password                                                                        |             Data              |                                       
+  ■ Is reversible                                                                                         |           encryption          |                                           
+  ■ Typically NOT used for securing data                                                                  ↓              key              ↓
+  ■ Usecases: Compression, Streaming                                                                  ____________         🔒       ____________                                                    
+  ■ Example: Base 64, Wav, MP3                                                               📄  ㅡ→ | Encryption |  ㅡ→  📄  ㅡ→  | Decryption |  ㅡ→  📄                                                                        
+● Hashing: Convert data into a Hash (a String)                                                       | Algorithm  |                | Algorithm  |                                                   
+  ■ One-way process                                                                                   ‾‾‾‾‾‾‾‾‾‾‾‾                  ‾‾‾‾‾‾‾‾‾‾‾‾                                                    
+  ■ NOT reversible                                                                        _______________________________     Hashing                       Company                                                  
+    ○ You CANNOT get the original data back!                                             |            ________________   |    Algorithm                     User DB                                       
+  ■ Usecases: Validate integrity of data                                                 | USERNAME: | Henry          |  |     _________     __________←ㅡ  ◜‾‾‾‾‾‾‾‾◝                                                   
+  ■ Example: bcrypt, scrypt                                                              |            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |ㅡ→ | #MODE # |ㅡ→| hd23dd23 |ㅡ→ |        |
+● Encryption: Encoding data using a key or password                                      |            ________________   |     ‾‾‾‾‾‾‾‾‾     ‾‾‾‾‾‾‾‾‾‾     |1       |                        
+  ■ You need to key or password to decrypt                                               | PASSWORD: | 12345678       |  |              Hash key produced   |Henry   |                     
+  ■ Example: RSA                                                                         |            ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   |              and checked against |hd23dd23|                            
+                                                                                          ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾           stored password hash key|        |                               
+                                                                                            Customer logs into account          if the same they are let in. ◟_______◞             
+                                                                                                                                                                          
+                                                                                                                                                                          
+                                                                                            https://upload.wikimedia.org/wikipedia/commons/5/5e/CPT-Hashing-Password-Login.svg                                                                              
+
+
+
+(● Encoding: Transform data - one form to another )
+인코딩은 데이터를 원래 형식에서 다른 형식으로 변환하는 것이다
+(  ■ Does NOT use a key or password)
+인코딩에서는 키나 패스워드를 사용하지 않는다 
+(  ■ Is reversible)
+인코딩은 가역적이다
+텍스트를 인코딩한 후 실제 텍스트로 다시 바꿀 수 있다 
+(  ■ Typically NOT used for securing data)
+일반적으로 인코딩은 데이터 보안에 사용되지 않는다 
+목적이 데이터 보안이 아니다
+(  ■ Usecases: Compression, Streaming )
+데이터를 압축하거나 스트리밍하는 것이 목적이다
+(  ■ Example: Base 64, Wav, MP3)
+그 예로 Base 64, Wav, MP3 등이 있다
+MP3는 오디오 파일을 저장하는 압축 형식이다
+정리하며 인코딩은 데이터를 다른 형식으로 변환하는 것이고 데이터를 압축하거나 스트리밍할 때 사용한다
+데이터를 효율적으로 스트리밍하기 위해 인코딩으로 변환한다 
+
+(● Hashing: Convert data into a Hash (a String))
+다음은 해싱이다
+해싱에서는 데이터를 해시 문자열로 변환한다
+(  ■ One-way process )
+단방향 프로세스이고 
+(  ■ NOT reversible)
+비가역적이어서 
+(    ○ You CANNOT get the original data back!)
+해시에서 원래 데이터를 구할 수 없다
+알고리즘을 이용해 데이터를 해시로 변환하고 나면 이 해시에서 원래 데이터를 구할 수 없다
+그럼 해시는 왜 사용할까?
+(  ■ Usecases: Validate integrity of data)
+데이터 무결성을 검증하는 데 사용한다 
+데이터와 이 데이터의 해시를 함께 전송하면 
+수신 측에서는 데이터를 받고 해싱한 후 계산한 해시와 원래 메시지의 해시가 일치하는지 확인한다
+이를 통해 메시지가 전송한 시점 그대로인지 확인할 수 있다
+(  ■ Example: bcrypt, scrypt)
+대표적인 해싱 알고리즘으로 bcrypt와 scrypt가 있다
